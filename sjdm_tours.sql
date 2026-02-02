@@ -1,0 +1,448 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Feb 02, 2026 at 04:07 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `sjdm_tours`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bookings`
+--
+
+CREATE TABLE `bookings` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `tour_name` varchar(200) NOT NULL,
+  `booking_date` date NOT NULL,
+  `number_of_people` int(11) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `status` enum('pending','confirmed','cancelled','completed') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hotels`
+--
+
+CREATE TABLE `hotels` (
+  `id` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` enum('luxury','mid-range','budget','event') NOT NULL,
+  `location` varchar(200) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `contact_info` varchar(200) DEFAULT NULL,
+  `website` varchar(200) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `price_range` varchar(100) DEFAULT NULL,
+  `rating` decimal(3,2) DEFAULT 0.00,
+  `review_count` int(11) DEFAULT 0,
+  `amenities` text DEFAULT NULL,
+  `services` text DEFAULT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `hotels`
+--
+
+INSERT INTO `hotels` (`id`, `name`, `description`, `category`, `location`, `address`, `contact_info`, `website`, `email`, `phone`, `price_range`, `rating`, `review_count`, `amenities`, `services`, `image_url`, `latitude`, `longitude`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'SJDM Grand Hotel', 'Luxury hotel in the heart of San Jose del Monte with modern amenities and excellent service.', 'luxury', 'City Center', 'Maharlika Highway, San Jose del Monte City', '+63 2 1234 5678', NULL, NULL, NULL, '₱3,000 - ₱8,000 per night', 4.80, 156, 'Swimming pool, Restaurant, Spa, Gym, Free WiFi', NULL, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(2, 'SJDM City Inn', 'Comfortable mid-range hotel perfect for business and leisure travelers.', 'mid-range', 'City Proper', 'Along Maharlika Highway, San Jose del Monte City', '+63 2 9876 5432', NULL, NULL, NULL, '₱1,500 - ₱3,500 per night', 4.30, 89, 'Restaurant, Parking, 24/7 Front Desk, Free WiFi', NULL, 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(3, 'Budget Lodge SJDM', 'Affordable accommodation for budget-conscious travelers and backpackers.', 'budget', 'Near City Center', 'Various locations in SJDM', '+63 2 5555 1234', NULL, NULL, NULL, '₱800 - ₱1,800 per night', 3.90, 67, 'Basic rooms, Fan/AC, Shared bathroom, Common area', NULL, 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(4, 'SJDM Event Center', 'Perfect venue for conferences, weddings, and large gatherings with complete facilities.', 'event', 'City Proper', 'Maharlika Highway, San Jose del Monte City', '+63 2 1111 2222', NULL, NULL, NULL, '₱5,000 - ₱15,000 per event', 4.60, 45, 'Conference halls, Catering, Parking, Audio/Visual equipment', NULL, 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `login_activity`
+--
+
+CREATE TABLE `login_activity` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `login_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `status` enum('success','failed') DEFAULT 'success'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `login_activity`
+--
+
+INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user_agent`, `status`) VALUES
+(1, 1, '2026-01-30 15:02:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(2, 1, '2026-01-30 15:02:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(3, 1, '2026-01-30 15:04:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(4, 1, '2026-01-30 15:04:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(5, 1, '2026-01-30 15:05:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(6, 1, '2026-01-30 15:07:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(7, 1, '2026-01-30 15:07:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(8, 1, '2026-01-30 15:07:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(9, 1, '2026-01-30 15:07:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(10, 1, '2026-01-30 15:15:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(11, 1, '2026-01-30 15:15:30', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(12, 1, '2026-01-30 15:16:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(13, 1, '2026-01-30 15:19:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(14, 1, '2026-01-30 15:19:36', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(15, 1, '2026-01-30 15:23:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(16, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(17, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(18, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(19, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(20, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(21, 1, '2026-01-30 15:23:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(22, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(23, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(24, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(25, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(26, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(27, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(28, 1, '2026-01-30 15:23:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(29, 1, '2026-01-30 15:23:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(30, 1, '2026-01-30 15:23:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(31, 1, '2026-01-30 15:23:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(32, 1, '2026-01-30 15:23:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(33, 1, '2026-01-30 15:23:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(34, 1, '2026-01-30 15:23:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(35, 1, '2026-01-30 15:23:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(36, 1, '2026-01-30 15:23:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(37, 1, '2026-01-30 15:23:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(38, 1, '2026-01-30 15:23:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(39, 1, '2026-01-30 15:23:17', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(40, 1, '2026-01-30 15:23:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(41, 1, '2026-01-30 15:23:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(42, 1, '2026-01-30 15:23:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(43, 1, '2026-01-30 15:23:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(44, 1, '2026-01-30 15:23:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(45, 1, '2026-01-30 15:23:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(46, 1, '2026-01-30 15:23:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(47, 1, '2026-01-30 15:23:58', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'failed'),
+(48, 1, '2026-01-30 15:25:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'success'),
+(49, 1, '2026-01-30 15:27:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36', 'success'),
+(50, 1, '2026-01-30 19:04:38', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Qoder/0.3.5 Chrome/138.0.7204.251 Electron/37.7.0 Safari/537.36', 'success'),
+(51, 1, '2026-01-30 20:19:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Qoder/0.3.5 Chrome/138.0.7204.251 Electron/37.7.0 Safari/537.36', 'success'),
+(52, 1, '2026-01-30 20:37:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(53, 1, '2026-01-30 20:49:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(54, 4, '2026-01-31 16:00:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(55, 1, '2026-01-31 16:14:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(56, 4, '2026-01-31 16:17:28', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(57, 1, '2026-01-31 16:29:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(58, 4, '2026-01-31 18:00:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(59, 4, '2026-01-31 18:00:39', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(60, 1, '2026-01-31 18:02:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(61, 1, '2026-02-01 10:13:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(62, 1, '2026-02-01 14:58:17', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(63, 1, '2026-02-01 15:15:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(64, 1, '2026-02-02 03:10:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(65, 1, '2026-02-02 03:25:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(66, 1, '2026-02-02 04:48:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(67, 1, '2026-02-02 05:42:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(68, 1, '2026-02-02 06:48:17', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(69, 4, '2026-02-02 09:56:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(70, 1, '2026-02-02 09:59:28', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(71, 5, '2026-02-02 10:00:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(72, 5, '2026-02-02 10:39:38', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(73, 4, '2026-02-02 10:41:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(74, 1, '2026-02-02 12:43:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(75, 4, '2026-02-02 14:55:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(76, 1, '2026-02-02 14:56:28', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `saved_tours`
+--
+
+CREATE TABLE `saved_tours` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `tour_name` varchar(200) NOT NULL,
+  `tour_description` text DEFAULT NULL,
+  `saved_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tourist_spots`
+--
+
+CREATE TABLE `tourist_spots` (
+  `id` int(11) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` enum('nature','historical','religious','farm','park','urban') NOT NULL,
+  `location` varchar(200) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `operating_hours` varchar(100) DEFAULT NULL,
+  `entrance_fee` varchar(100) DEFAULT NULL,
+  `difficulty_level` enum('easy','moderate','difficult') DEFAULT 'moderate',
+  `duration` varchar(100) DEFAULT NULL,
+  `best_time_to_visit` varchar(100) DEFAULT NULL,
+  `activities` text DEFAULT NULL,
+  `amenities` text DEFAULT NULL,
+  `contact_info` varchar(200) DEFAULT NULL,
+  `website` varchar(200) DEFAULT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `rating` decimal(3,2) DEFAULT 0.00,
+  `review_count` int(11) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `tourist_spots`
+--
+
+INSERT INTO `tourist_spots` (`id`, `name`, `description`, `category`, `location`, `address`, `operating_hours`, `entrance_fee`, `difficulty_level`, `duration`, `best_time_to_visit`, `activities`, `amenities`, `contact_info`, `website`, `image_url`, `latitude`, `longitude`, `rating`, `review_count`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Mt. Balagbag', 'Popular hiking destination in San Jose del Monte with stunning views of the Sierra Madre mountains. Features challenging trails and rewarding summit experiences.', 'nature', 'San Jose del Monte', 'Barangay Kaytitinga, San Jose del Monte City', '4:00 AM - 6:00 PM', '₱50 per person', 'difficult', '4-6 hours', 'Early morning (4-6 AM)', 'Hiking, Photography, Nature observation', 'Rest areas, Basic toilets', 'Local guides available', NULL, 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 4.80, 245, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(2, 'Kaytitinga Falls', 'Beautiful waterfall with natural swimming pools and lush surroundings. Perfect for swimming and picnics.', 'nature', 'Kaytitinga', 'Barangay Kaytitinga, San Jose del Monte City', '6:00 AM - 5:00 PM', '₱30 per person', 'moderate', '3-5 hours', 'Morning to afternoon', 'Swimming, Picnicking, Photography', 'Changing areas, Picnic tables', 'Local guides available', NULL, 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?q=80&w=2076&auto=format&fit=crop', NULL, NULL, 4.60, 189, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(3, 'Abes Farm', 'Organic farm offering educational tours, animal interactions, and fresh produce. Great for family visits.', 'farm', 'San Jose del Monte', 'Various locations in SJDM', '8:00 AM - 5:00 PM', '₱150 per person', 'easy', '2-3 hours', 'Weekends', 'Farm tour, Animal feeding, Organic farming education', 'Restaurant, Gift shop, Rest areas', 'Contact farm directly', NULL, 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 4.70, 156, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(4, 'City Oval (People\'s Park)', 'Central park in SJDM perfect for jogging, picnics, and family gatherings. Features playground and sports facilities.', 'park', 'City Proper', 'City Oval, San Jose del Monte City', '5:00 AM - 10:00 PM', 'Free', 'easy', '1-3 hours', 'Morning or evening', 'Jogging, Picnicking, Sports, Playground', 'Playground, Sports courts, Benches', 'City Parks Office', NULL, 'https://images.unsplash.com/photo-1544919982-b61976a0d7ed?q=80&w=2069&auto=format&fit=crop', NULL, NULL, 4.30, 98, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(5, 'The Rising Heart Monument', 'Iconic heart-shaped monument symbolizing SJDM\'s growth and progress. Popular photo spot with night illumination.', 'urban', 'City Proper', 'Along Maharlika Highway, San Jose del Monte City', '24/7', 'Free', 'easy', '30 minutes - 1 hour', 'Evening for illumination', 'Photography, Sightseeing', 'Parking, Viewing areas', 'City Tourism Office', NULL, 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?q=80&w=2068&auto=format&fit=crop', NULL, NULL, 4.50, 203, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(6, 'Our Lady of Lourdes Parish', 'Historic church with beautiful architecture and religious significance. Popular for pilgrimages and weddings.', 'religious', 'City Proper', 'Lourdes Subdivision, San Jose del Monte City', '5:00 AM - 7:00 PM', 'Free', 'easy', '1-2 hours', 'Weekends, Feast days', 'Religious services, Pilgrimage, Photography', 'Parking, Rest areas', 'Parish Office', NULL, 'https://images.unsplash.com/photo-1544919982-b61976a0d7ed?q=80&w=2069&auto=format&fit=crop', NULL, NULL, 4.40, 134, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(7, 'Otso-Otso Falls', 'Secluded waterfall with crystal clear pools and natural rock formations. Requires some hiking to reach.', 'nature', 'San Jose del Monte', 'Barangay areas, San Jose del Monte City', '6:00 AM - 4:00 PM', '₱150 per person', 'moderate', '4-6 hours', 'Morning', 'Swimming, Hiking, Photography', 'Basic facilities at base', 'Local guides recommended', NULL, 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=2070&auto=format&fit=crop', NULL, NULL, 4.70, 167, 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(8, 'Tungtong Falls', 'Spectacular 25-meter waterfall located within a dramatic canyon formation in San Jose del Monte. Named after the local term \"tungtong\" meaning \"to climb or ascend,\" this waterfall features a unique rock amphitheater that creates perfect acoustics and breathtaking visual effects when sunlight hits the cascading water.', 'nature', 'San Jose del Monte', 'Barangay areas, San Jose del Monte City', '7:00 AM - 5:00 PM', '₱100 per person', 'moderate', '3-4 hours', 'November to May', 'Hiking, Swimming, Photography, Nature observation', 'Natural pools, Rest areas, Picnic spots', 'Local guides available', 'https://www.facebook.com/TungtongFallsSJDM', 'https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=2070&auto=format&fit=crop', 14.81250000, 121.05000000, 4.70, 142, 'active', '2026-02-01 10:46:42', '2026-02-01 10:46:42'),
+(9, 'Padre Pio Parish', 'Modern Catholic church dedicated to Saint Pio of Pietrelcina (Padre Pio). Features contemporary architecture with traditional religious elements. Popular for masses, baptisms, and community events.', 'religious', 'San Jose del Monte', 'Various barangays in SJDM', '5:00 AM - 7:00 PM', 'Free', 'easy', '1-2 hours', 'Weekends, Feast days', 'Religious services, Community events, Weddings', 'Parking, Air conditioning, Chapel', 'Parish Office', 'https://www.facebook.com/PadrePioParishSJDM', 'https://images.unsplash.com/photo-1501703384627-e08e60c431c0?q=80&w=2070&auto=format&fit=crop', 14.80000000, 121.03330000, 4.30, 87, 'active', '2026-02-01 10:46:42', '2026-02-01 10:46:42'),
+(10, 'Burong Falls', 'Hidden gem waterfall tucked away in the mountains of San Jose del Monte. Less crowded than other falls, offering a peaceful natural swimming experience with crystal clear waters and serene surroundings.', 'nature', 'San Jose del Monte', 'Remote barangay areas, San Jose del Monte City', '6:00 AM - 4:00 PM', '₱80 per person', 'moderate', '4-5 hours', 'Dry season (November - May)', 'Swimming, Picnicking, Photography, Meditation', 'Natural pools, Shaded areas, Basic trail markers', 'Local guides recommended', 'https://www.facebook.com/BurongFallsSJDM', 'https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=2070&auto=format&fit=crop', 14.82500000, 121.06670000, 4.60, 93, 'active', '2026-02-01 10:46:42', '2026-02-01 10:46:42'),
+(11, 'Paradise Hill Farm', 'Scenic hillside farm resort offering panoramic views of SJDM valley. Features accommodation, restaurant, event spaces, and agricultural tours. Perfect for retreats, team buildings, and family getaways.', 'farm', 'San Jose del Monte', 'Hilltop location, San Jose del Monte City', '7:00 AM - 8:00 PM', '₱200 per person (day tour)', 'easy', '4-6 hours', 'Year-round (cooler in morning/evening)', 'Farm tour, Animal interactions, Meals, Events', 'Restaurant, Accommodation, Event halls, Gift shop', '+63 912 345 6789', 'https://www.paradisehillfarm.com', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format&fit=crop', 14.85000000, 121.08330000, 4.80, 201, 'active', '2026-02-01 10:46:42', '2026-02-01 10:46:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tour_guides`
+--
+
+CREATE TABLE `tour_guides` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `specialty` varchar(200) DEFAULT NULL,
+  `category` enum('mountain','city','farm','waterfall','historical','general') NOT NULL,
+  `description` text DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `areas_of_expertise` text DEFAULT NULL,
+  `rating` decimal(3,2) DEFAULT 0.00,
+  `review_count` int(11) DEFAULT 0,
+  `price_range` varchar(100) DEFAULT NULL,
+  `price_min` decimal(10,2) DEFAULT NULL,
+  `price_max` decimal(10,2) DEFAULT NULL,
+  `languages` varchar(200) DEFAULT NULL,
+  `contact_number` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `schedules` text DEFAULT NULL,
+  `experience_years` int(11) DEFAULT NULL,
+  `group_size` varchar(50) DEFAULT NULL,
+  `verified` tinyint(1) DEFAULT 0,
+  `total_tours` int(11) DEFAULT 0,
+  `photo_url` varchar(500) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `tour_guides`
+--
+
+INSERT INTO `tour_guides` (`id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Rico Mendoza', 'Mt. Balagbag Hiking Expert', 'mountain', 'Certified mountain guide with 10 years of experience leading Mt. Balagbag expeditions. Safety-first approach with extensive knowledge of local trails.', 'Rico is a born and raised SJDM local who has been exploring Mt. Balagbag since childhood. As a certified mountaineer and wilderness first responder, he ensures safe and memorable hiking experiences. He\'s passionate about environmental conservation and educating visitors about the Sierra Madre ecosystem.', 'Mt. Balagbag, Tuntong Falls, Mountain trails', 5.00, 127, '₱2,000 - ₱3,500 per day', 2000.00, 3500.00, 'English, Tagalog', '+63 917 123 4567', 'rico.mendoza@sjdmguide.ph', 'Available: Daily (4 AM - 12 PM)', 10, '1-15 hikers', 1, 450, 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop', 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(2, 'Maria Santos', 'City Tour Specialist', 'city', 'Knowledgeable local guide specializing in SJDM city tours and historical landmarks. Great storyteller with deep local connections.', 'Maria has been guiding tours in San Jose del Monte for 8 years. She loves sharing the rich history and culture of the city with visitors. Her tours are educational, entertaining, and personalized to each group\'s interests.', 'City proper, Malls, Historical sites, Urban attractions', 4.80, 89, '₱1,500 - ₱2,500 per day', 1500.00, 2500.00, 'English, Tagalog, Spanish', '+63 927 987 6543', 'maria.santos@sjdmguide.ph', 'Available: Weekdays (9 AM - 5 PM)', 8, '5-20 people', 1, 234, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop', 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(3, 'Carlos Dela Cruz', 'Farm and Eco-Tourism Guide', 'farm', 'Expert in agricultural tours and eco-tourism experiences. Specializes in organic farming and sustainable practices.', 'Carlos comes from a family of farmers and has dedicated his career to promoting sustainable agriculture and eco-tourism. He makes learning about farming fun and engaging for visitors of all ages.', 'Abes Farm, Local farms, Agricultural sites, Eco-tourism locations', 4.90, 76, '₱1,800 - ₱3,000 per day', 1800.00, 3000.00, 'English, Tagalog', '+63 937 456 7890', 'carlos.delacruz@sjdmguide.ph', 'Available: Weekends (8 AM - 4 PM)', 6, '10-30 people', 1, 187, 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1887&auto=format&fit=crop', 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(4, 'Ana Reyes', 'Waterfall Adventure Guide', 'waterfall', 'Specialized guide for waterfall tours and outdoor adventures. Focuses on safety and environmental awareness.', 'Ana is passionate about the natural beauty of SJDM\'s waterfalls. With 7 years of experience, she ensures visitors have safe and memorable experiences while learning about conservation.', 'Kaytitinga Falls, Otso-Otso Falls, Waterfall trails', 4.70, 65, '₱2,200 - ₱3,800 per day', 2200.00, 3800.00, 'English, Tagalog', '+63 947 234 5678', 'ana.reyes@sjdmguide.ph', 'Available: Weekends (6 AM - 3 PM)', 7, '8-20 people', 1, 156, 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=2070&auto=format&fit=crop', 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03'),
+(5, 'James Lim', 'Historical and Cultural Guide', 'historical', 'Expert in local history, cultural heritage, and religious sites. Provides in-depth historical context and stories.', 'James holds a degree in History and has been guiding cultural tours for 9 years. He brings the past to life through engaging storytelling and detailed historical knowledge.', 'Historical sites, Churches, Museums, Cultural landmarks', 4.60, 92, '₱1,600 - ₱2,800 per day', 1600.00, 2800.00, 'English, Tagalog, Chinese', '+63 957 890 1234', 'james.lim@sjdmguide.ph', 'Available: Daily (10 AM - 6 PM)', 9, '15-25 people', 1, 298, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop', 'active', '2026-02-01 10:35:03', '2026-02-01 10:35:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `user_type` enum('user','admin') DEFAULT 'user',
+  `status` enum('active','inactive','suspended') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `last_login` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`) VALUES
+(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 15:02:22', '2026-02-02 14:56:28', '2026-02-02 14:56:28'),
+(4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 16:00:05', '2026-02-02 14:55:23', '2026-02-02 14:55:23'),
+(5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$3Utff.JPzrx6MhyCiN5GUe305KNvbVmM5119XgUh.goaOVIY6p6JK', 'user', 'active', '2026-02-02 10:00:47', '2026-02-02 10:39:38', '2026-02-02 10:39:38');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `bookings`
+--
+ALTER TABLE `bookings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_status` (`status`);
+
+--
+-- Indexes for table `hotels`
+--
+ALTER TABLE `hotels`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_rating` (`rating`);
+
+--
+-- Indexes for table `login_activity`
+--
+ALTER TABLE `login_activity`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_id` (`user_id`);
+
+--
+-- Indexes for table `saved_tours`
+--
+ALTER TABLE `saved_tours`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_id` (`user_id`);
+
+--
+-- Indexes for table `tourist_spots`
+--
+ALTER TABLE `tourist_spots`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_rating` (`rating`);
+
+--
+-- Indexes for table `tour_guides`
+--
+ALTER TABLE `tour_guides`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_category` (`category`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_rating` (`rating`),
+  ADD KEY `idx_verified` (`verified`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_user_type` (`user_type`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `bookings`
+--
+ALTER TABLE `bookings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `hotels`
+--
+ALTER TABLE `hotels`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `login_activity`
+--
+ALTER TABLE `login_activity`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+
+--
+-- AUTO_INCREMENT for table `saved_tours`
+--
+ALTER TABLE `saved_tours`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tourist_spots`
+--
+ALTER TABLE `tourist_spots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `tour_guides`
+--
+ALTER TABLE `tour_guides`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `bookings`
+--
+ALTER TABLE `bookings`
+  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `login_activity`
+--
+ALTER TABLE `login_activity`
+  ADD CONSTRAINT `login_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `saved_tours`
+--
+ALTER TABLE `saved_tours`
+  ADD CONSTRAINT `saved_tours_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
