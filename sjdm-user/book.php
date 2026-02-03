@@ -1,3 +1,23 @@
+<?php
+// Start session for user authentication
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page with return URL
+    $_SESSION['redirect_after_login'] = 'book.php';
+    header('Location: ../log-in/log-in.php');
+    exit();
+}
+
+// Include database configuration
+require_once '../config/database.php';
+
+// Get user information from session
+$user_id = $_SESSION['user_id'];
+$user_email = $_SESSION['email'] ?? '';
+$user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,10 +155,11 @@
                             <label>Select Tour Guide *</label>
                             <select id="selectedGuide" required>
                                 <option value="">-- Choose a Guide --</option>
-                                <option value="1">Marc Santos - Mountain Guide</option>
-                                <option value="2">Anna Reyes - Cultural Guide</option>
-                                <option value="3">Juan Dela Cruz - Nature Guide</option>
-                                <option value="4">Maria Gonzales - Family Guide</option>
+                                <option value="1">Rico Mendoza - Mt. Balagbag Hiking Expert</option>
+                                <option value="2">Maria Santos - City Tour Specialist</option>
+                                <option value="3">Carlos Dela Cruz - Farm and Eco-Tourism Guide</option>
+                                <option value="4">Ana Reyes - Waterfall Adventure Guide</option>
+                                <option value="5">James Lim - Historical and Cultural Guide</option>
                             </select>
                         </div>
                         <div class="form-group">

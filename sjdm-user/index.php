@@ -1,3 +1,52 @@
+<?php
+// Include database connection and authentication
+require_once '../config/database.php';
+require_once '../config/auth.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../log-in/log-in.php');
+    exit();
+}
+
+// Get current user data
+$conn = getDatabaseConnection();
+if ($conn) {
+    $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $currentUser = [
+            'name' => $user['first_name'] . ' ' . $user['last_name'],
+            'email' => $user['email']
+        ];
+    }
+    
+    // Fetch featured tourist spots from database
+    $featuredSpots = [];
+    $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 4";
+    $spotsResult = $conn->query($spotsQuery);
+    if ($spotsResult) {
+        while ($spot = $spotsResult->fetch_assoc()) {
+            $featuredSpots[] = $spot;
+        }
+    }
+    
+    // Fetch homepage content from database
+    $homepageContent = [];
+    $contentQuery = "SELECT content_type, content_key, content_value, display_order FROM homepage_content WHERE status = 'active' ORDER BY display_order";
+    $contentResult = $conn->query($contentQuery);
+    if ($contentResult) {
+        while ($content = $contentResult->fetch_assoc()) {
+            $homepageContent[$content['content_type']][$content['content_key']] = $content['content_value'];
+        }
+    }
+    
+    closeDatabaseConnection($conn);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,40 +112,40 @@
                 </button>
                 <div class="profile-dropdown">
                     <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar">U</div>
+                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                         <span class="material-icons-outlined">expand_more</span>
                     </button>
                     <div class="dropdown-menu" id="profileMenu">
                         <div class="profile-info">
-                            <div class="profile-avatar large">U</div>
+                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3>User Name</h3>
-                                <p>user@example.com</p>
+                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
+                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
                             <span class="material-icons-outlined">favorite_border</span>
                             <span>Saved Tours</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="signoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
@@ -106,71 +155,170 @@
         </header>
 
         <div class="content-area">
-            <!-- HOME PAGE -->
             <div class="hero">
-                <h1>Welcome to San Jose del Monte, Bulacan</h1>
-                <p>The Balcony of Metropolis - Where Nature Meets Progress</p>
-                <button class="btn-hero" onclick="window.location.href='user-guides.php'">Find Your Guide</button>
+                <h1><?php echo htmlspecialchars($homepageContent['hero_title']['main_title'] ?? 'Welcome to San Jose del Monte, Bulacan'); ?></h1>
+                <p><?php echo htmlspecialchars($homepageContent['hero_subtitle']['main_subtitle'] ?? 'The Balcony of Metropolis - Where Nature Meets Progress'); ?></p>
+                <button class="btn-hero" onclick="window.location.href='user-guides.php'">
+                    <?php echo htmlspecialchars($homepageContent['hero_button_text']['main_button'] ?? 'Find Your Guide'); ?>
+                </button>
             </div>
 
-            <h2 class="section-title">Featured Destinations</h2>
+            <h2 class="section-title"><?php echo htmlspecialchars($homepageContent['section_title']['featured_destinations'] ?? 'Featured Destinations'); ?></h2>
             <div class="destinations-grid">
-                <div class="destination-card">
-                    <div class="destination-img">
-                        <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Mt.+Balagbag" alt="Mt. Balagbag">
+                <?php if (!empty($featuredSpots)): ?>
+                    <?php foreach ($featuredSpots as $spot): ?>
+                        <div class="destination-card">
+                            <div class="destination-img">
+                                <img src="<?php echo htmlspecialchars($spot['image_url'] ?? 'https://via.placeholder.com/400x300/2c5f2d/ffffff?text=' . urlencode($spot['name'])); ?>" alt="<?php echo htmlspecialchars($spot['name']); ?>">
+                            </div>
+                            <div class="destination-content">
+                                <h3><?php echo htmlspecialchars($spot['name']); ?></h3>
+                                <p><?php echo htmlspecialchars($spot['description']); ?></p>
+                                <div class="destination-meta">
+                                    <span class="rating">
+                                        <span class="material-icons-outlined">star</span>
+                                        <?php echo number_format($spot['rating'], 1); ?>
+                                    </span>
+                                    <span class="category"><?php echo ucfirst(htmlspecialchars($spot['category'])); ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="no-destinations">
+                        <p>No featured destinations available at the moment.</p>
                     </div>
-                    <div class="destination-content">
-                        <h3>Mt. Balagbag</h3>
-                        <p>Known as the "Mt. Pulag of Bulacan," this 777-meter peak offers stunning views of Metro Manila and surrounding mountains. Perfect for beginner hikers!</p>
-                    </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-img">
-                        <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Kaytitinga+Falls" alt="Kaytitinga Falls">
-                    </div>
-                    <div class="destination-content">
-                        <h3>Kaytitinga Falls</h3>
-                        <p>A hidden gem with three-level cascading falls nestled in the forest. One hour trek through pristine nature awaits adventure seekers.</p>
-                    </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-img">
-                        <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Grotto+Lourdes" alt="Grotto of Our Lady of Lourdes">
-                    </div>
-                    <div class="destination-content">
-                        <h3>Grotto of Our Lady of Lourdes</h3>
-                        <p>A spiritual sanctuary replica of the French basilica. Beautiful compound with meditation areas and breathtaking views from the second floor.</p>
-                    </div>
-                </div>
-                <div class="destination-card">
-                    <div class="destination-img">
-                        <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Padre+Pio" alt="Padre Pio Mountain of Healing">
-                    </div>
-                    <div class="destination-content">
-                        <h3>Padre Pio Mountain of Healing</h3>
-                        <p>Features a giant statue of St. Padre Pio on the hill. Open 24/7 for prayer, meditation, and peaceful reflection with panoramic city views.</p>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
 
-            <h2 class="section-title">Why Visit San Jose del Monte?</h2>
+            <h2 class="section-title"><?php echo htmlspecialchars($homepageContent['section_title']['why_visit'] ?? 'Why Visit San Jose del Monte?'); ?></h2>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>10+</h3>
-                    <p>Natural Attractions</p>
-                </div>
-                <div class="stat-card">
-                    <h3>30 min</h3>
-                    <p>From Metro Manila</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Year-round</h3>
-                    <p>Perfect Climate</p>
-                </div>
+                <?php if (!empty($homepageContent['stat_title'])): ?>
+                    <?php foreach ($homepageContent['stat_title'] as $key => $title): ?>
+                        <div class="stat-card">
+                            <h3><?php echo htmlspecialchars($homepageContent['stat_value'][$key] ?? '0'); ?></h3>
+                            <p><?php echo htmlspecialchars($title); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <!-- Fallback stats if database is empty -->
+                    <div class="stat-card">
+                        <h3>10+</h3>
+                        <p>Natural Attractions</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>30 min</h3>
+                        <p>From Metro Manila</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Year-round</h3>
+                        <p>Perfect Climate</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </main>
 
     <script src="script.js"></script>
+    <script>
+        // Pass current user data to JavaScript
+        <?php if (isset($currentUser)): ?>
+        const currentUser = <?php echo json_encode($currentUser); ?>;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        <?php endif; ?>
+        
+        // Profile dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            const profileButton = document.getElementById('profileButton');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            console.log('Profile Button:', profileButton);
+            console.log('Profile Menu:', profileMenu);
+            
+            if (profileButton) {
+                console.log('Profile button found, adding click listener');
+                profileButton.addEventListener('click', function(e) {
+                    console.log('Profile button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (profileMenu) {
+                        console.log('Toggling menu. Current classes:', profileMenu.className);
+                        profileMenu.classList.toggle('active');
+                        console.log('Menu after toggle. Classes:', profileMenu.className);
+                    }
+                });
+            } else {
+                console.error('Profile button not found!');
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (profileButton && profileMenu && 
+                    !profileButton.contains(e.target) && 
+                    !profileMenu.contains(e.target)) {
+                    profileMenu.classList.remove('active');
+                }
+            });
+            
+            // Add event listeners for all profile menu items
+            const myAccountLink = document.getElementById('myAccountLink');
+            const bookingHistoryLink = document.getElementById('bookingHistoryLink');
+            const savedToursLink = document.getElementById('savedToursLink');
+            const settingsLink = document.getElementById('settingsLink');
+            const helpSupportLink = document.getElementById('helpSupportLink');
+            const signoutLink = document.getElementById('signoutLink');
+            
+            if (myAccountLink) {
+                myAccountLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showMyAccountModal();
+                });
+            }
+            
+            if (bookingHistoryLink) {
+                bookingHistoryLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showBookingHistoryModal();
+                });
+            }
+            
+            if (savedToursLink) {
+                savedToursLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showSavedToursModal();
+                });
+            }
+            
+            if (settingsLink) {
+                settingsLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showSettingsModal();
+                });
+            }
+            
+            if (helpSupportLink) {
+                helpSupportLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showHelpSupportModal();
+                });
+            }
+            
+            if (signoutLink) {
+                signoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    handleLogout();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

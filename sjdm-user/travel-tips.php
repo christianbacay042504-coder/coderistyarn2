@@ -1,3 +1,31 @@
+<?php
+// Include database connection and authentication
+require_once '../config/database.php';
+require_once '../config/auth.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../log-in/log-in.php');
+    exit();
+}
+
+// Get current user data
+$conn = getDatabaseConnection();
+if ($conn) {
+    $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $currentUser = [
+            'name' => $user['first_name'] . ' ' . $user['last_name'],
+            'email' => $user['email']
+        ];
+    }
+    closeDatabaseConnection($conn);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,40 +91,40 @@
                 </button>
                 <div class="profile-dropdown">
                     <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar">U</div>
+                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                         <span class="material-icons-outlined">expand_more</span>
                     </button>
                     <div class="dropdown-menu" id="profileMenu">
                         <div class="profile-info">
-                            <div class="profile-avatar large">U</div>
+                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3>User Name</h3>
-                                <p>user@example.com</p>
+                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
+                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
                             <span class="material-icons-outlined">favorite_border</span>
                             <span>Saved Tours</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="signoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
@@ -108,90 +136,150 @@
         <div class="content-area">
             <h2 class="section-title">Travel Tips for SJDM Visitors</h2>
             <div class="info-cards">
-                <div class="info-card">
-                    <h3>🚗 Getting to SJDM</h3>
-                    <ul>
-                        <li>30-45 minutes from Metro Manila</li>
-                        <li>Via NLEX - Bocaue Exit</li>
-                        <li>Buses from Cubao to Bulacan</li>
-                        <li>Private car recommended for tours</li>
-                        <li>Ride-sharing apps available</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>⛰️ For Mountain Hikers</h3>
-                    <ul>
-                        <li>Start early (5-6 AM recommended)</li>
-                        <li>Bring at least 2L water per person</li>
-                        <li>Wear proper hiking shoes</li>
-                        <li>Apply sunscreen and insect repellent</li>
-                        <li>Hire local guides for safety</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>💧 Visiting Waterfalls</h3>
-                    <ul>
-                        <li>Wear water shoes or trekking sandals</li>
-                        <li>Trails can be muddy and slippery</li>
-                        <li>Bring plastic bags for electronics</li>
-                        <li>Swimming allowed in designated areas</li>
-                        <li>Follow Leave No Trace principles</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>💰 Budget Planning</h3>
-                    <ul>
-                        <li>Tour guide fees: ₱1,500-3,500/day</li>
-                        <li>Entrance fees: ₱50-200 per site</li>
-                        <li>Meals: ₱150-300 per person</li>
-                        <li>Transportation: ₱500-1,000</li>
-                        <li>Total budget: ₱2,500-5,000/person</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>🌤️ Best Time to Visit</h3>
-                    <ul>
-                        <li>November to February - cool weather</li>
-                        <li>March to May - summer, hot but clear</li>
-                        <li>Avoid July-September rainy season</li>
-                        <li>Weekdays less crowded</li>
-                        <li>Early morning for mountain hikes</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>🎒 What to Bring</h3>
-                    <ul>
-                        <li>Comfortable hiking attire</li>
-                        <li>Extra clothes & towel</li>
-                        <li>Sunscreen & insect repellent</li>
-                        <li>First aid kit & personal meds</li>
-                        <li>Reusable water bottle & snacks</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>📱 Local Tips</h3>
-                    <ul>
-                        <li>Mobile signal available in most areas</li>
-                        <li>ATMs available in malls & town centers</li>
-                        <li>Bring cash for entrance fees</li>
-                        <li>Respect local communities</li>
-                        <li>Ask permission before taking photos</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3>⚠️ Safety Reminders</h3>
-                    <ul>
-                        <li>Always book with licensed guides</li>
-                        <li>Check weather before hiking</li>
-                        <li>Stay on marked trails</li>
-                        <li>Don't swim during heavy rain</li>
-                        <li>Emergency hotline: 911</li>
-                    </ul>
-                </div>
+                <?php
+                // Fetch travel tips data from database
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    $query = "SELECT * FROM travel_tips WHERE is_active = 'yes' ORDER BY display_order";
+                    $result = $conn->query($query);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        while ($tip = $result->fetch_assoc()) {
+                            echo '<div class="info-card">';
+                            echo '<h3>' . htmlspecialchars($tip['icon']) . ' ' . htmlspecialchars($tip['title']) . '</h3>';
+                            
+                            // Convert description from newlines to list items
+                            $descriptionLines = explode("\n", $tip['description']);
+                            echo '<ul>';
+                            foreach ($descriptionLines as $line) {
+                                $trimmedLine = trim($line);
+                                if (!empty($trimmedLine)) {
+                                    echo '<li>' . htmlspecialchars($trimmedLine) . '</li>';
+                                }
+                            }
+                            echo '</ul>';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
+                        echo '<span class="material-icons-outlined" style="font-size: 48px; color: #9ca3af;">tips_and_updates</span>';
+                        echo '<h3 style="color: #6b7280; margin-top: 16px;">No travel tips found</h3>';
+                        echo '<p style="color: #9ca3af;">Please check back later for travel tips.</p>';
+                        echo '</div>';
+                    }
+                    closeDatabaseConnection($conn);
+                } else {
+                    echo '<div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
+                    echo '<span class="material-icons-outlined" style="font-size: 48px; color: #ef4444;">error</span>';
+                    echo '<h3 style="color: #ef4444; margin-top: 16px;">Database Connection Error</h3>';
+                    echo '<p style="color: #6b7280;">Unable to load travel tips. Please try again later.</p>';
+                    echo '</div>';
+                }
+                ?>
             </div>
         </div>
     </main>
 
     <script src="script.js"></script>
+    <script>
+        // Pass current user data to JavaScript
+        <?php if (isset($currentUser)): ?>
+        const currentUser = <?php echo json_encode($currentUser); ?>;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        <?php endif; ?>
+        
+        // Profile dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            const profileButton = document.getElementById('profileButton');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            console.log('Profile Button:', profileButton);
+            console.log('Profile Menu:', profileMenu);
+            
+            if (profileButton) {
+                console.log('Profile button found, adding click listener');
+                profileButton.addEventListener('click', function(e) {
+                    console.log('Profile button clicked!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (profileMenu) {
+                        console.log('Toggling menu. Current classes:', profileMenu.className);
+                        profileMenu.classList.toggle('active');
+                        console.log('Menu after toggle. Classes:', profileMenu.className);
+                    }
+                });
+            } else {
+                console.error('Profile button not found!');
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (profileButton && profileMenu && 
+                    !profileButton.contains(e.target) && 
+                    !profileMenu.contains(e.target)) {
+                    profileMenu.classList.remove('active');
+                }
+            });
+            
+            // Add event listeners for all profile menu items
+            const myAccountLink = document.getElementById('myAccountLink');
+            const bookingHistoryLink = document.getElementById('bookingHistoryLink');
+            const savedToursLink = document.getElementById('savedToursLink');
+            const settingsLink = document.getElementById('settingsLink');
+            const helpSupportLink = document.getElementById('helpSupportLink');
+            const signoutLink = document.getElementById('signoutLink');
+            
+            if (myAccountLink) {
+                myAccountLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showMyAccountModal();
+                });
+            }
+            
+            if (bookingHistoryLink) {
+                bookingHistoryLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showBookingHistoryModal();
+                });
+            }
+            
+            if (savedToursLink) {
+                savedToursLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showSavedToursModal();
+                });
+            }
+            
+            if (settingsLink) {
+                settingsLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showSettingsModal();
+                });
+            }
+            
+            if (helpSupportLink) {
+                helpSupportLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    showHelpSupportModal();
+                });
+            }
+            
+            if (signoutLink) {
+                signoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    profileMenu.classList.remove('active');
+                    handleLogout();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -115,9 +115,7 @@ function getTourGuidesList($conn, $page = 1, $limit = 15, $search = '') {
     $search = $conn->real_escape_string($search);
     
     // Get tour guides with pagination
-    $guidesQuery = "SELECT tg.*, 
-                    (SELECT COUNT(*) FROM bookings WHERE guide_id = tg.id) as total_bookings
-                    FROM tour_guides tg WHERE 1=1";
+    $guidesQuery = "SELECT tg.* FROM tour_guides tg WHERE 1=1";
     
     if ($search) {
         $guidesQuery .= " AND (tg.name LIKE '%$search%' OR tg.specialty LIKE '%$search%' OR tg.email LIKE '%$search%')";

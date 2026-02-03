@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Step 4 Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Debug Step 4 Submission</h1>
+    
+    <div class="debug-section">
+        <h3>Test Booking Data</h3>
+        <p>This simulates the booking data that should be sent to the server</p>
+    </div>
+
+    <div class="debug-section">
+        <h3>Test Submit Button</h3>
+        <button onclick="testSubmit()">Test Submit Booking</button>
+        <button onclick="testValidation()">Test Validation</button>
+        <button onclick="testModal()">Test Modal</button>
+    </div>
+
+    <div class="debug-section">
+        <h3>Debug Output</h3>
+        <div id="debugOutput">Debug messages will appear here...</div>
+    </div>
+
+    <script>
+        // Simulate booking data
+        let bookingData = {
+            guideId: '1',
+            guideName: 'Rico Mendoza',
+            destination: 'Mt. Balagbag',
+            checkInDate: '2026-02-10',
+            checkOutDate: '2026-02-11',
+            guestCount: '2',
+            fullName: 'Test User',
+            email: 'test@example.com',
+            contactNumber: '+639123456789',
+            specialRequests: 'Test request',
+            paymentMethod: 'pay_later'
+        };
+
+        function debug(message) {
+            const debugDiv = document.getElementById('debugOutput');
+            debugDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function testSubmit() {
+            debug('Testing submitFinalBooking function...');
+            
+            // Test validation
+            if (!validateFinalBooking()) {
+                debug('❌ Validation failed');
+                return;
+            }
+            
+            debug('✅ Validation passed');
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('submit_booking', '1');
+            formData.append('guide_id', bookingData.guideId);
+            formData.append('guide_name', bookingData.guideName);
+            formData.append('destination', bookingData.destination);
+            formData.append('check_in_date', bookingData.checkInDate);
+            formData.append('check_out_date', bookingData.checkOutDate);
+            formData.append('guest_count', bookingData.guestCount);
+            formData.append('contact_number', bookingData.contactNumber);
+            formData.append('email', bookingData.email);
+            formData.append('special_requests', bookingData.specialRequests);
+            formData.append('payment_method', bookingData.paymentMethod);
+            
+            debug('Form data created:');
+            for (let [key, value] of formData.entries()) {
+                debug('  ' + key + ': ' + value);
+            }
+            
+            // Test fetch submission
+            debug('Testing fetch submission to book.php...');
+            
+            fetch('book.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                debug('Response status: ' + response.status);
+                debug('Response ok: ' + response.ok);
+                return response.text();
+            })
+            .then(html => {
+                debug('Response received (first 200 chars):');
+                debug(html.substring(0, 200) + '...');
+            })
+            .catch(error => {
+                debug('❌ Fetch error: ' + error.message);
+            });
+        }
+
+        function testValidation() {
+            debug('Testing validateFinalBooking...');
+            const result = validateFinalBooking();
+            debug('Validation result: ' + result);
+        }
+
+        function testModal() {
+            debug('Testing validation modal...');
+            showValidationModal();
+        }
+
+        function validateFinalBooking() {
+            debug('Validating booking data...');
+            
+            if (!bookingData.guideId || !bookingData.destination || !bookingData.checkInDate || !bookingData.checkOutDate) {
+                debug('❌ Missing booking details');
+                return false;
+            }
+            
+            if (!bookingData.fullName || !bookingData.email || !bookingData.contactNumber) {
+                debug('❌ Missing personal information');
+                return false;
+            }
+            
+            if (!bookingData.paymentMethod) {
+                debug('❌ Missing payment method');
+                return false;
+            }
+            
+            debug('✅ All validation checks passed');
+            return true;
+        }
+
+        function showValidationModal() {
+            debug('Creating validation modal...');
+            
+            const modalHtml = `
+                <div id="validationModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+                    <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0; color: #333;">Confirm Your Booking</h3>
+                            <p style="margin: 10px 0; color: #666;">Please review your booking details before final submission</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">Booking Summary</h4>
+                                <div style="font-size: 14px; line-height: 1.6;">
+                                    <div><strong>Guide:</strong> ${bookingData.guideName}</div>
+                                    <div><strong>Destination:</strong> ${bookingData.destination}</div>
+                                    <div><strong>Dates:</strong> ${bookingData.checkInDate} - ${bookingData.checkOutDate}</div>
+                                    <div><strong>Guests:</strong> ${bookingData.guestCount}</div>
+                                    <div><strong>Contact:</strong> ${bookingData.contactNumber}</div>
+                                    <div><strong>Payment:</strong> ${bookingData.paymentMethod}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px;">
+                                <h4 style="margin: 0 0 10px 0; color: #1976d2;">Total Amount</h4>
+                                <div style="font-size: 24px; font-weight: bold; color: #1976d2;">
+                                    ₱${(2500 + (100 * parseInt(bookingData.guestCount)) + 200)}.00
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button onclick="closeValidationModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer;">
+                                Cancel
+                            </button>
+                            <button onclick="confirmBookingSubmission()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                Confirm & Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHtml;
+            document.body.appendChild(modalContainer);
+            debug('✅ Modal created successfully');
+        }
+
+        function closeValidationModal() {
+            const modal = document.getElementById('validationModal');
+            if (modal) {
+                modal.remove();
+                debug('Modal closed');
+            }
+        }
+
+        function confirmBookingSubmission() {
+            debug('Confirm booking submission clicked');
+            closeValidationModal();
+            debug('Modal closed, would submit form here');
+        }
+
+        // Initialize
+        debug('Debug page loaded');
+        debug('Booking data: ' + JSON.stringify(bookingData, null, 2));
+    </script>
+</body>
+</html>

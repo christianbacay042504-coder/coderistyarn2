@@ -1,152 +1,7 @@
 // Complete CRUD System with Image Handling
 
-// Tour Guide Data with Enhanced CRUD Operations
-const guides = [
-    {
-        id: 1,
-        name: "Rico Mendoza",
-        photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=2070&auto=format&fit=crop",
-        specialty: "Mt. Balagbag Hiking Expert",
-        category: "mountain",
-        description: "Certified mountain guide with 10 years of experience leading Mt. Balagbag expeditions. Safety-first approach with extensive knowledge of local trails.",
-        bio: "Rico is a born and raised SJDM local who has been exploring Mt. Balagbag since childhood. As a certified mountaineer and wilderness first responder, he ensures safe and memorable hiking experiences. He's passionate about environmental conservation and educating visitors about the Sierra Madre ecosystem.",
-        areas: "Mt. Balagbag, Tuntong Falls, Mountain trails",
-        rating: 5.0,
-        reviewCount: 127,
-        priceRange: "₱2,000 - ₱3,500 per day",
-        priceMin: 2000,
-        priceMax: 3500,
-        languages: "English, Tagalog",
-        contact: "+63 917 123 4567",
-        email: "rico.mendoza@sjdmguide.ph",
-        schedules: "Available: Daily (4 AM - 12 PM)",
-        experience: "10 years",
-        experienceYears: 10,
-        groupSize: "1-15 hikers",
-        verified: true,
-        totalTours: 450
-    },
-    {
-        id: 2,
-        name: "Anna Marie Santos",
-        photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format&fit=crop",
-        specialty: "Nature & Waterfall Tours",
-        category: "nature",
-        description: "Expert nature guide specializing in Kaytitinga Falls and forest eco-tours. Passionate about sustainable tourism and local ecology.",
-        bio: "Anna Marie is an environmental science graduate who turned her love for nature into a career. She specializes in eco-tourism and works closely with Dumagat communities to promote sustainable travel. Her tours are educational, fun, and environmentally responsible.",
-        areas: "Kaytitinga Falls, Forest trails, Eco-tourism sites",
-        rating: 4.9,
-        reviewCount: 89,
-        priceRange: "₱2,500 - ₱4,000 per day",
-        priceMin: 2500,
-        priceMax: 4000,
-        languages: "English, Tagalog",
-        contact: "+63 928 234 5678",
-        email: "annamarie.santos@sjdmguide.ph",
-        schedules: "Available: Wed-Sun (6 AM - 4 PM)",
-        experience: "7 years",
-        experienceYears: 7,
-        groupSize: "1-12 people",
-        verified: true,
-        totalTours: 320
-    },
-    {
-        id: 3,
-        name: "Father Jose Reyes",
-        photo: "https://images.unsplash.com/photo-1542103749-8ef59b94f47e?q=80&w=2070&auto=format&fit=crop",
-        specialty: "Religious & Pilgrimage Tours",
-        category: "religious",
-        description: "Former parish coordinator offering spiritual tours to Grotto of Our Lady of Lourdes and Padre Pio shrine with historical insights.",
-        bio: "Father Jose has served various parishes in SJDM for over 15 years. Now a licensed tour guide, he combines spiritual guidance with historical knowledge, making pilgrimage tours meaningful and educational. Perfect for church groups and faith-based travelers.",
-        areas: "Grotto of Our Lady of Lourdes, Padre Pio Mountain, Churches",
-        rating: 4.8,
-        reviewCount: 156,
-        priceRange: "₱1,500 - ₱2,500 per day",
-        priceMin: 1500,
-        priceMax: 2500,
-        languages: "English, Tagalog, Spanish",
-        contact: "+63 939 345 6789",
-        email: "jose.reyes@sjdmguide.ph",
-        schedules: "Available: Daily (8 AM - 5 PM)",
-        experience: "15 years",
-        experienceYears: 15,
-        groupSize: "1-30 people",
-        verified: true,
-        totalTours: 580
-    },
-    {
-        id: 4,
-        name: "Michael Cruz",
-        photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1887&auto=format&fit=crop",
-        specialty: "Adventure & Extreme Sports",
-        category: "adventure",
-        description: "Adrenaline enthusiast offering adventure packages including hiking, rappelling, and team building activities at Paradise Adventure Camp.",
-        bio: "Michael is a certified adventure tour guide and team building facilitator. He specializes in creating thrilling outdoor experiences while maintaining the highest safety standards. Perfect for corporate groups, students, and adventure seekers.",
-        areas: "Paradise Adventure Camp, Mt. Balagbag, Extreme trails",
-        rating: 4.9,
-        reviewCount: 94,
-        priceRange: "₱3,000 - ₱5,000 per day",
-        priceMin: 3000,
-        priceMax: 5000,
-        languages: "English, Tagalog",
-        contact: "+63 950 456 7890",
-        email: "michael.cruz@sjdmguide.ph",
-        schedules: "Available: Fri-Sun (7 AM - 6 PM)",
-        experience: "8 years",
-        experienceYears: 8,
-        groupSize: "5-25 people",
-        verified: true,
-        totalTours: 280
-    },
-    {
-        id: 5,
-        name: "Linda Bautista",
-        photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop",
-        specialty: "Farm & Food Tours",
-        category: "food",
-        description: "Local farmer and culinary tour guide showcasing SJDM's agricultural heritage, orchid farms, and authentic Bulacan cuisine.",
-        bio: "Linda grew up in a farming family and knows every farm, restaurant, and food spot in SJDM. Her farm-to-table tours include visits to orchid gardens, pineapple farms, and local eateries. She also teaches traditional cooking methods and shares recipes.",
-        areas: "Orchid Garden, Pineapple Farms, Local restaurants, Markets",
-        rating: 4.8,
-        reviewCount: 72,
-        priceRange: "₱2,000 - ₱3,500 per day",
-        priceMin: 2000,
-        priceMax: 3500,
-        languages: "English, Tagalog",
-        contact: "+63 961 567 8901",
-        email: "linda.bautista@sjdmguide.ph",
-        schedules: "Available: Tue-Sun (8 AM - 3 PM)",
-        experience: "6 years",
-        experienceYears: 6,
-        groupSize: "1-10 people",
-        verified: true,
-        totalTours: 210
-    },
-    {
-        id: 6,
-        name: "Carlos Villanueva",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop",
-        specialty: "City & Cultural Tours",
-        category: "city",
-        description: "Urban guide and local historian showcasing SJDM's transformation from rural town to modern city while preserving cultural heritage.",
-        bio: "Carlos is a third-generation SJDM resident and local historian. He offers city tours that blend modern attractions with historical landmarks, sharing stories of the city's rapid development. He knows the best spots for photos, food, and shopping.",
-        areas: "City proper, Malls, Historical sites, Urban attractions",
-        rating: 4.7,
-        reviewCount: 68,
-        priceRange: "₱1,800 - ₱3,000 per day",
-        priceMin: 1800,
-        priceMax: 3000,
-        languages: "English, Tagalog",
-        contact: "+63 972 678 9012",
-        email: "carlos.villanueva@sjdmguide.ph",
-        schedules: "Available: Daily (9 AM - 7 PM)",
-        experience: "5 years",
-        experienceYears: 5,
-        groupSize: "1-20 people",
-        verified: true,
-        totalTours: 195
-    }
-];
+// Tour guides will be loaded from database via PHP
+// No hardcoded guide data needed anymore
 
 // Global State
 let currentGuideId = null;
@@ -156,6 +11,797 @@ let bookingData = {};
 let currentFilter = 'all';
 let currentSort = 'rating';
 let searchQuery = '';
+
+// Guide Profile Modal - Updated to work with database-driven content
+function viewGuideProfile(guideId) {
+    console.log('viewGuideProfile called with guideId:', guideId);
+    
+    // Create modal with enhanced aesthetics
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content guide-profile-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="material-icons-outlined modal-icon">person</span>
+                    <h2>Guide Profile</h2>
+                </div>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="loading-message">
+                    <div class="loading-spinner">
+                        <div class="spinner-circle"></div>
+                        <span class="material-icons-outlined">hourglass_empty</span>
+                    </div>
+                    <p>Loading guide profile...</p>
+                    <p><small>Guide ID: ${guideId}</small></p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add custom styles for enhanced aesthetics
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.show .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .modal-title h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .modal-icon {
+            font-size: 28px;
+        }
+        
+        .close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .modal-body {
+            padding: 32px;
+        }
+        
+        .loading-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .spinner-circle {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner .material-icons-outlined {
+            font-size: 32px;
+            color: #667eea;
+        }
+        
+        .loading-message p {
+            color: #666;
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        
+        .loading-message small {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .guide-profile-content {
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .guide-profile-header {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .guide-profile-photo {
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .guide-profile-photo img {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .verified-badge {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            border: 2px solid white;
+            animation: verifiedPulse 2s infinite;
+            z-index: 10;
+        }
+        
+        @keyframes verifiedPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+            }
+        }
+        
+        .verified-badge .material-icons-outlined {
+            font-size: 14px;
+            animation: verifiedIconSpin 3s infinite;
+        }
+        
+        @keyframes verifiedIconSpin {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(5deg);
+            }
+            75% {
+                transform: rotate(-5deg);
+            }
+        }
+        
+        .guide-profile-info {
+            flex: 1;
+        }
+        
+        .guide-name-section {
+            margin-bottom: 12px;
+        }
+        
+        .guide-profile-info h3 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .verified-ribbon {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            animation: ribbonShine 3s infinite;
+        }
+        
+        @keyframes ribbonShine {
+            0%, 100% {
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            }
+            50% {
+                box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+            }
+        }
+        
+        .verified-ribbon .material-icons-outlined {
+            font-size: 14px;
+        }
+        
+        .verified-glow {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+            border-radius: 20px;
+            animation: glowPulse 2s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.05);
+            }
+        }
+        
+        .verification-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 1px solid #a7f3d0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            animation: verificationSlideIn 0.6s ease;
+        }
+        
+        @keyframes verificationSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .verification-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .verification-header .material-icons-outlined {
+            font-size: 24px;
+            color: #10b981;
+        }
+        
+        .verification-header h4 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .verification-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #d1fae5;
+            transition: all 0.3s ease;
+        }
+        
+        .verification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+        
+        .verification-item .material-icons-outlined {
+            font-size: 20px;
+            color: #10b981;
+            flex-shrink: 0;
+        }
+        
+        .verification-item span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #047857;
+        }
+        
+        .guide-specialty {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        
+        .guide-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .guide-category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f3f4f6;
+            color: #4b5563;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .guide-description-section {
+            margin-bottom: 32px;
+        }
+        
+        .guide-description-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 16px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .guide-description-section p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .guide-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .detail-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .detail-item .material-icons-outlined {
+            color: #667eea;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .detail-item strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        
+        .detail-item p {
+            color: #6b7280;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .guide-booking-section {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .guide-booking-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .guide-booking-section p {
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+        
+        .booking-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .error-message .material-icons-outlined {
+            font-size: 48px;
+            color: #ef4444;
+            margin-bottom: 16px;
+        }
+        
+        .error-message h3 {
+            color: #ef4444;
+            margin: 0 0 8px 0;
+        }
+        
+        .error-message p {
+            color: #6b7280;
+            margin: 0 0 24px 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .modal-header {
+                padding: 20px 24px;
+            }
+            
+            .modal-body {
+                padding: 24px;
+            }
+            
+            .guide-profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+            
+            .guide-profile-info h3 {
+                font-size: 24px;
+            }
+            
+            .guide-details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-actions {
+                flex-direction: column;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    // Fetch guide data from the DOM (since we're working with database-driven content)
+    const guideCard = document.querySelector(`[data-guide-id="${guideId}"]`);
+    if (guideCard) {
+        // Extract data from the guide card
+        const guideName = guideCard.querySelector('.guide-name')?.textContent || 'Unknown Guide';
+        const guideSpecialty = guideCard.querySelector('.guide-specialty')?.textContent || '';
+        const guideDescription = guideCard.querySelector('.guide-description')?.textContent || '';
+        const guidePhoto = guideCard.querySelector('.guide-photo img')?.src || '';
+        const guideCategory = guideCard.getAttribute('data-category') || '';
+        const ratingValue = guideCard.querySelector('.rating-value')?.textContent || '0';
+        const reviewCount = guideCard.querySelector('.review-count')?.textContent || '(0 reviews)';
+        const experienceYears = guideCard.querySelector('.meta-item:nth-child(1)')?.textContent || '';
+        const languages = guideCard.querySelector('.meta-item:nth-child(2)')?.textContent || '';
+        const groupSize = guideCard.querySelector('.meta-item:nth-child(3)')?.textContent || '';
+        const isVerified = guideCard.querySelector('.verified-badge') !== null;
+        
+        // Update modal with guide information
+        setTimeout(() => {
+            const modalBody = modal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <div class="guide-profile-content">
+                    <div class="guide-profile-header">
+                        <div class="guide-profile-photo">
+                            <img src="${guidePhoto}" alt="${guideName}" />
+                            ${isVerified ? `
+                            <div class="verified-badge">
+                                <span class="material-icons-outlined">verified</span>
+                                <span>Verified Guide</span>
+                            </div>
+                            <div class="verified-glow"></div>
+                            ` : ''}
+                        </div>
+                        <div class="guide-profile-info">
+                            <div class="guide-name-section">
+                                <h3>${guideName}</h3>
+                                ${isVerified ? `
+                                <div class="verified-ribbon">
+                                    <span class="material-icons-outlined">verified_user</span>
+                                    <span>Trusted Professional</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                            <p class="guide-specialty">${guideSpecialty}</p>
+                            <div class="guide-rating">
+                                ${generateStarRating(parseFloat(ratingValue))}
+                                <span class="rating-value">${ratingValue}</span>
+                                <span class="review-count">${reviewCount}</span>
+                            </div>
+                            <div class="guide-category-badge">
+                                <span class="material-icons-outlined">category</span>
+                                ${getCategoryDisplayName(guideCategory)}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${isVerified ? `
+                    <div class="verification-section">
+                        <div class="verification-header">
+                            <span class="material-icons-outlined">security</span>
+                            <h4>Verification Details</h4>
+                        </div>
+                        <div class="verification-grid">
+                            <div class="verification-item">
+                                <span class="material-icons-outlined">check_circle</span>
+                                <span>Identity Verified</span>
+                            </div>
+                            <div class="verification-item">
+                                <span class="material-icons-outlined">workspace_premium</span>
+                                <span>Professional Certified</span>
+                            </div>
+                            <div class="verification-item">
+                                <span class="material-icons-outlined">reviews</span>
+                                <span>Background Checked</span>
+                            </div>
+                            <div class="verification-item">
+                                <span class="material-icons-outlined">handshake</span>
+                                <span>Trusted by Community</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="guide-description-section">
+                        <h4><span class="material-icons-outlined">info</span> About</h4>
+                        <p>${guideDescription}</p>
+                    </div>
+                    
+                    <div class="guide-details-grid">
+                        <div class="detail-item">
+                            <span class="material-icons-outlined">schedule</span>
+                            <div>
+                                <strong>Experience</strong>
+                                <p>${experienceYears}</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <span class="material-icons-outlined">translate</span>
+                            <div>
+                                <strong>Languages</strong>
+                                <p>${languages}</p>
+                            </div>
+                        </div>
+                        ${groupSize ? `
+                        <div class="detail-item">
+                            <span class="material-icons-outlined">groups</span>
+                            <div>
+                                <strong>Group Size</strong>
+                                <p>${groupSize}</p>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="guide-booking-section">
+                        <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                        <p>To book this guide and get detailed pricing information, please click the button below.</p>
+                        <div class="booking-actions">
+                            <button class="btn-primary" onclick="bookGuide(${guideId})">
+                                <span class="material-icons-outlined">calendar_today</span>
+                                Book This Guide
+                            </button>
+                            <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }, 500);
+    } else {
+        // Handle case where guide card is not found
+        setTimeout(() => {
+            const modalBody = modal.querySelector('.modal-body');
+            modalBody.innerHTML = `
+                <div class="error-message">
+                    <span class="material-icons-outlined">error</span>
+                    <h3>Guide Not Found</h3>
+                    <p>Unable to load guide information. Please try again later.</p>
+                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+                </div>
+            `;
+        }, 500);
+    }
+}
+
+// Helper function to get display name for category
+function getCategoryDisplayName(category) {
+    const categoryNames = {
+        'mountain': 'Mountain Hiking',
+        'city': 'City Tours',
+        'farm': 'Farm & Eco-Tourism',
+        'waterfall': 'Waterfall Tours',
+        'historical': 'Historical Tours',
+        'general': 'General Tours'
+    };
+    return categoryNames[category] || category;
+}
+
+// Helper function to generate star rating HTML
+function generateStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    let starsHTML = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+        starsHTML += '<span class="material-icons-outlined">star</span>';
+    }
+    
+    if (hasHalfStar) {
+        starsHTML += '<span class="material-icons-outlined">star_half</span>';
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+        starsHTML += '<span class="material-icons-outlined">star_outline</span>';
+    }
+    
+    return starsHTML;
+}
+
+// Function to handle booking a guide from profile modal
+function bookGuide(guideId) {
+    // Close the profile modal
+    document.querySelector('.modal-overlay').remove();
+    
+    // Navigate to booking page with pre-selected guide
+    window.location.href = `book.php?guide=${guideId}`;
+}
 
 // Hotel Booking Modal
 function showBookingModal(hotelName) {
@@ -738,120 +1384,334 @@ function initMobileSidebar() {
             }
         });
     });
-    
-    document.addEventListener('click', (e) => {
-        if (document.body.classList.contains('sidebar-open') && 
-            !e.target.closest('.sidebar') && 
-            !e.target.closest('.mobile-menu-toggle')) {
-            document.querySelector('.sidebar').classList.remove('active');
-            document.body.classList.remove('sidebar-open');
-        }
-    });
 }
 
 // Search Functionality
 function initSearch() {
     const searchInput = document.querySelector('.search-bar input');
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
+        searchInput.addEventListener('input', debounce((e) => {
             searchQuery = e.target.value.toLowerCase();
-            filterAndDisplayGuides();
+            performSearch(searchQuery);
+        }, 300));
+        
+        // Add search on Enter key
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchQuery = e.target.value.toLowerCase();
+                performSearch(searchQuery);
+            }
         });
     }
 }
 
-// Filter and Sort
-function initFilters() {
-    const guidesPage = document.getElementById('guides');
-    if (!guidesPage) return;
+// Debounce function to limit search calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Main search function
+function performSearch(query) {
+    if (!query || query.trim() === '') {
+        showHomePage();
+        return;
+    }
     
-    const filterSection = document.createElement('div');
-    filterSection.className = 'filter-section';
-    filterSection.innerHTML = `
-        <div class="filter-container">
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">All Guides</button>
-                <button class="filter-btn" data-filter="mountain">Mountain Hiking</button>
-                <button class="filter-btn" data-filter="nature">Nature & Waterfall</button>
-                <button class="filter-btn" data-filter="religious">Religious Tours</button>
-                <button class="filter-btn" data-filter="adventure">Adventure</button>
-                <button class="filter-btn" data-filter="food">Food Tours</button>
-                <button class="filter-btn" data-filter="city">City Tours</button>
+    const results = {
+        guides: searchGuides(query),
+        destinations: searchDestinations(query)
+    };
+    
+    displaySearchResults(results, query);
+}
+
+// Search guides - Updated to work with database-driven content
+function searchGuides(query) {
+    // Since guides are now loaded from database via PHP, 
+    // this function will work with DOM elements instead of array
+    const guideCards = document.querySelectorAll('.guide-card');
+    const results = [];
+    
+    guideCards.forEach(card => {
+        const guideName = card.querySelector('.guide-name')?.textContent.toLowerCase() || '';
+        const guideSpecialty = card.querySelector('.guide-specialty')?.textContent.toLowerCase() || '';
+        const guideDescription = card.querySelector('.guide-description')?.textContent.toLowerCase() || '';
+        
+        if (guideName.includes(query) || 
+            guideSpecialty.includes(query) || 
+            guideDescription.includes(query)) {
+            results.push({
+                element: card,
+                id: card.getAttribute('data-guide-id'),
+                name: card.querySelector('.guide-name')?.textContent || '',
+                specialty: card.querySelector('.guide-specialty')?.textContent || '',
+                category: card.getAttribute('data-category')
+            });
+        }
+    });
+    
+    return results;
+}
+
+// Search destinations from home page
+function searchDestinations(query) {
+    const destinations = [
+        {
+            name: "Mt. Balagbag",
+            description: "Known as the 'Mt. Pulag of Bulacan,' this 777-meter peak offers stunning views of Metro Manila and surrounding mountains. Perfect for beginner hikers!",
+            category: "nature",
+            image: "https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Mt.+Balagbag"
+        },
+        {
+            name: "Kaytitinga Falls",
+            description: "A hidden gem with three-level cascading falls nestled in the forest. One hour trek through pristine nature awaits adventure seekers.",
+            category: "nature",
+            image: "https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Kaytitinga+Falls"
+        },
+        {
+            name: "Grotto of Our Lady of Lourdes",
+            description: "A spiritual sanctuary replica of the French basilica. Beautiful compound with meditation areas and breathtaking views from the second floor.",
+            category: "religious",
+            image: "https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Grotto+Lourdes"
+        },
+        {
+            name: "Padre Pio Mountain of Healing",
+            description: "Features a giant statue of St. Padre Pio on the hill. Open 24/7 for prayer, meditation, and peaceful reflection with panoramic city views.",
+            category: "religious",
+            image: "https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Padre+Pio"
+        }
+    ];
+    
+    return destinations.filter(dest => 
+        dest.name.toLowerCase().includes(query) ||
+        dest.description.toLowerCase().includes(query) ||
+        dest.category.toLowerCase().includes(query)
+    );
+}
+
+// Display search results
+function displaySearchResults(results, query) {
+    const contentArea = document.querySelector('.content-area');
+    const pageTitle = document.getElementById('pageTitle');
+    
+    pageTitle.textContent = `Search Results for "${query}"`;
+    
+    let html = '<div class="search-results">';
+    
+    // Guides section
+    if (results.guides.length > 0) {
+        html += `
+            <section class="search-section">
+                <h2 class="section-title">Tour Guides (${results.guides.length})</h2>
+                <div class="guides-grid">
+                    ${results.guides.map(guide => createGuideCard(guide)).join('')}
+                </div>
+            </section>
+        `;
+    }
+    
+    // Destinations section
+    if (results.destinations.length > 0) {
+        html += `
+            <section class="search-section">
+                <h2 class="section-title">Destinations (${results.destinations.length})</h2>
+                <div class="destinations-grid">
+                    ${results.destinations.map(dest => createDestinationCard(dest)).join('')}
+                </div>
+            </section>
+        `;
+    }
+    
+    // No results
+    if (results.guides.length === 0 && results.destinations.length === 0) {
+        html += `
+            <div class="no-results">
+                <span class="material-icons-outlined">search_off</span>
+                <h3>No results found for "${query}"</h3>
+                <p>Try searching for guides or destinations</p>
+                <button class="btn-hero" onclick="clearSearch()">Clear Search</button>
             </div>
-            <div class="sort-section">
-                <label>Sort by:</label>
-                <select id="sortGuides">
-                    <option value="rating">Highest Rating</option>
-                    <option value="experience">Most Experience</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="reviews">Most Reviews</option>
-                </select>
+        `;
+    }
+    
+    html += '</div>';
+    contentArea.innerHTML = html;
+}
+
+// Create destination card for search results
+function createDestinationCard(destination) {
+    return `
+        <div class="destination-card" onclick="viewDestination('${destination.name}')">
+            <div class="destination-img">
+                <img src="${destination.image}" alt="${destination.name}">
+            </div>
+            <div class="destination-content">
+                <h3>${destination.name}</h3>
+                <p>${destination.description}</p>
+                <span class="category-badge">${destination.category}</span>
             </div>
         </div>
     `;
+}
+
+// View destination details
+function viewDestination(name) {
+    // Navigate to tourist spots page with filter
+    window.location.href = `tourist-spots.php?search=${encodeURIComponent(name)}`;
+}
+
+// Clear search and show home page
+function clearSearch() {
+    searchQuery = '';
+    const searchInput = document.querySelector('.search-bar input');
+    if (searchInput) searchInput.value = '';
+    showHomePage();
+}
+
+// Show original home page
+function showHomePage() {
+    const contentArea = document.querySelector('.content-area');
+    const pageTitle = document.getElementById('pageTitle');
     
-    const title = guidesPage.querySelector('.section-title');
-    if (title && title.nextSibling) {
-        guidesPage.insertBefore(filterSection, title.nextSibling);
-    }
+    pageTitle.textContent = 'Home';
     
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            currentFilter = this.dataset.filter;
-            filterAndDisplayGuides();
-        });
-    });
-    
-    const sortSelect = document.getElementById('sortGuides');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-            currentSort = this.value;
-            filterAndDisplayGuides();
-        });
-    }
+    // Restore original home page content
+    contentArea.innerHTML = `
+        <!-- HOME PAGE -->
+        <div class="hero">
+            <h1>Welcome to San Jose del Monte, Bulacan</h1>
+            <p>The Balcony of Metropolis - Where Nature Meets Progress</p>
+            <button class="btn-hero" onclick="window.location.href='user-guides.php'">Find Your Guide</button>
+        </div>
+
+        <h2 class="section-title">Featured Destinations</h2>
+        <div class="destinations-grid">
+            <div class="destination-card">
+                <div class="destination-img">
+                    <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Mt.+Balagbag" alt="Mt. Balagbag">
+                </div>
+                <div class="destination-content">
+                    <h3>Mt. Balagbag</h3>
+                    <p>Known as the "Mt. Pulag of Bulacan," this 777-meter peak offers stunning views of Metro Manila and surrounding mountains. Perfect for beginner hikers!</p>
+                </div>
+            </div>
+            <div class="destination-card">
+                <div class="destination-img">
+                    <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Kaytitinga+Falls" alt="Kaytitinga Falls">
+                </div>
+                <div class="destination-content">
+                    <h3>Kaytitinga Falls</h3>
+                    <p>A hidden gem with three-level cascading falls nestled in the forest. One hour trek through pristine nature awaits adventure seekers.</p>
+                </div>
+            </div>
+            <div class="destination-card">
+                <div class="destination-img">
+                    <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Grotto+Lourdes" alt="Grotto of Our Lady of Lourdes">
+                </div>
+                <div class="destination-content">
+                    <h3>Grotto of Our Lady of Lourdes</h3>
+                    <p>A spiritual sanctuary replica of the French basilica. Beautiful compound with meditation areas and breathtaking views from the second floor.</p>
+                </div>
+            </div>
+            <div class="destination-card">
+                <div class="destination-img">
+                    <img src="https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Padre+Pio" alt="Padre Pio Mountain of Healing">
+                </div>
+                <div class="destination-content">
+                    <h3>Padre Pio Mountain of Healing</h3>
+                    <p>Features a giant statue of St. Padre Pio on the hill. Open 24/7 for prayer, meditation, and peaceful reflection with panoramic city views.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Why Visit San Jose del Monte?</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>10+</h3>
+                <p>Natural Attractions</p>
+            </div>
+            <div class="stat-card">
+                <h3>30 min</h3>
+                <p>From Metro Manila</p>
+            </div>
+            <div class="stat-card">
+                <h3>Year-round</h3>
+                <p>Perfect Climate</p>
+            </div>
+        </div>
+    `;
 }
 
 function filterAndDisplayGuides() {
-    let filtered = guides.filter(guide => {
-        const matchesSearch = searchQuery === '' || 
-            guide.name.toLowerCase().includes(searchQuery) ||
-            guide.specialty.toLowerCase().includes(searchQuery) ||
-            guide.areas.toLowerCase().includes(searchQuery);
-        
-        const matchesFilter = currentFilter === 'all' || guide.category === currentFilter;
-        
-        return matchesSearch && matchesFilter;
-    });
+    // Since guides are now loaded from database via PHP, work with DOM elements
+    const guideCards = document.querySelectorAll('.guide-card');
     
-    filtered = sortGuides(filtered, currentSort);
-    displayFilteredGuides(filtered);
+    guideCards.forEach(card => {
+        const guideCategory = card.getAttribute('data-category');
+        const guideName = card.querySelector('.guide-name')?.textContent.toLowerCase() || '';
+        const guideSpecialty = card.querySelector('.guide-specialty')?.textContent.toLowerCase() || '';
+        const guideDescription = card.querySelector('.guide-description')?.textContent.toLowerCase() || '';
+        
+        // Check if card matches search query
+        const matchesSearch = searchQuery === '' || 
+            guideName.includes(searchQuery) ||
+            guideSpecialty.includes(searchQuery) ||
+            guideDescription.includes(searchQuery);
+        
+        // Check if card matches filter
+        const matchesFilter = currentFilter === 'all' || guideCategory === currentFilter;
+        
+        // Show or hide card based on filters
+        const shouldShow = matchesSearch && matchesFilter;
+        card.style.display = shouldShow ? 'block' : 'none';
+    });
 }
 
-function sortGuides(guidesList, sortBy) {
-    const sorted = [...guidesList];
+// Sort displayed guides in DOM
+function sortDisplayedGuides(sortBy) {
+    const container = document.getElementById('guidesList');
+    if (!container) return;
     
-    switch(sortBy) {
-        case 'rating':
-            sorted.sort((a, b) => b.rating - a.rating);
-            break;
-        case 'experience':
-            sorted.sort((a, b) => b.experienceYears - a.experienceYears);
-            break;
-        case 'price-low':
-            sorted.sort((a, b) => a.priceMin - b.priceMin);
-            break;
-        case 'price-high':
-            sorted.sort((a, b) => b.priceMax - a.priceMax);
-            break;
-        case 'reviews':
-            sorted.sort((a, b) => b.reviewCount - a.reviewCount);
-            break;
-    }
+    const cards = Array.from(container.querySelectorAll('.guide-card'));
     
-    return sorted;
+    cards.sort((a, b) => {
+        switch(sortBy) {
+            case 'rating':
+                const ratingA = parseFloat(a.querySelector('.rating-value')?.textContent || '0');
+                const ratingB = parseFloat(b.querySelector('.rating-value')?.textContent || '0');
+                return ratingB - ratingA;
+            case 'experience':
+                const expA = parseInt(a.querySelector('.meta-item:nth-child(1)')?.textContent.match(/\d+/)?.[0] || '0');
+                const expB = parseInt(b.querySelector('.meta-item:nth-child(1)')?.textContent.match(/\d+/)?.[0] || '0');
+                return expB - expA;
+            case 'price-low':
+                const priceA = parseInt(a.querySelector('.price-tag')?.textContent.match(/₱(\d+)/)?.[1] || '0');
+                const priceB = parseInt(b.querySelector('.price-tag')?.textContent.match(/₱(\d+)/)?.[1] || '0');
+                return priceA - priceB;
+            case 'price-high':
+                const priceHighA = parseInt(a.querySelector('.price-tag')?.textContent.match(/₱(\d+)/)?.[1] || '0');
+                const priceHighB = parseInt(b.querySelector('.price-tag')?.textContent.match(/₱(\d+)/)?.[1] || '0');
+                return priceHighB - priceHighA;
+            case 'reviews':
+                const reviewsA = parseInt(a.querySelector('.review-count')?.textContent.match(/\d+/)?.[0] || '0');
+                const reviewsB = parseInt(b.querySelector('.review-count')?.textContent.match(/\d+/)?.[0] || '0');
+                return reviewsB - reviewsA;
+            default:
+                return 0;
+        }
+    });
+    
+    // Re-append sorted cards
+    cards.forEach(card => container.appendChild(card));
 }
 
 function displayFilteredGuides(guidesList) {
@@ -926,7 +1786,6 @@ function createGuideCard(g) {
                     </div>
                 </div>
                 <div class="guide-footer">
-                    <span class="price-tag">${g.priceRange}</span>
                     <button class="btn-view-profile">View Profile</button>
                 </div>
             </div>
@@ -980,14 +1839,18 @@ function displayFavorites() {
                 <span class="material-icons-outlined">favorite_border</span>
                 <h3>No saved tours yet</h3>
                 <p>Start adding your favorite tour guides!</p>
-                <button class="btn-hero" onclick="showPage('guides')">Browse Tour Guides</button>
+                <button class="btn-hero" onclick="window.location.href='user-guides.php'">Browse Tour Guides</button>
             </div>
         `;
         return;
     }
     
-    const favoriteGuides = guides.filter(g => favorites.includes(g.id));
-    container.innerHTML = favoriteGuides.map(g => createGuideCard(g)).join('');
+    container.innerHTML = `
+        <div class="favorites-loading">
+            <p>Loading your favorite guides...</p>
+            <p><small>This feature will be enhanced with database integration</small></p>
+        </div>
+    `;
 }
 
 // Notifications
@@ -1024,69 +1887,218 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Profile Dropdown
 function initProfileDropdown() {
-    const profileButton = document.getElementById('profileButton');
-    const profileMenu = document.getElementById('profileMenu');
-
-    if (profileButton && profileMenu) {
-        profileButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            profileMenu.classList.toggle('active');
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
-                profileMenu.classList.remove('active');
-            }
-        });
-
-        const dropdownItems = profileMenu.querySelectorAll('.dropdown-item');
-        dropdownItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const text = this.textContent.trim();
-                profileMenu.classList.remove('active');
-                
-                if (text === 'My Account') {
-                    showPage('my-account');
-                } else if (text === 'Booking History') {
-                    showPage('booking-history');
-                    displayUserBookings();
-                } else if (text === 'Saved Tours') {
-                    showPage('saved-tours');
-                    displayFavorites();
-                } else if (text === 'Sign Out') {
-                    handleLogout();
-                }
-            });
-        });
-    }
+    // Temporarily disabled to prevent conflicts with inline script
+    // This function is now handled in index.php
+    console.log('Profile dropdown initialization skipped - using inline script');
 }
 
 function handleLogout() {
-    if (confirm('Are you sure you want to sign out?')) {
-        // Make a request to the server-side logout endpoint
-        fetch('/coderistyarn2/sjdm-user/logout.php')
-            .then(response => {
-                if (response.ok) {
-                    // Clear local storage
-                    localStorage.removeItem('currentUser');
-                    showNotification('Logged out successfully', 'info');
-                    // Redirect to login page after a brief delay
-                    setTimeout(() => {
-                        window.location.href = '/coderistyarn2/log-in/log-in.php';
-                    }, 1000);
-                } else {
-                    console.error('Logout failed:', response.statusText);
-                    showNotification('Logout failed, please try again', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error during logout:', error);
-                showNotification('Error during logout, please try again', 'error');
-            });
-    }
+    showLogoutModal();
+}
+
+function showLogoutModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content logout-modal">
+            <div class="modal-header">
+                <h2>Sign Out Confirmation</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="logout-message">
+                    <span class="material-icons-outlined logout-icon">logout</span>
+                    <p>Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">
+                        Cancel
+                    </button>
+                    <button class="btn-confirm-logout" onclick="confirmLogout()">
+                        <span class="material-icons-outlined">logout</span>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function confirmLogout() {
+    // Close the modal
+    document.querySelector('.modal-overlay').remove();
+    
+    // Make a request to the server-side logout endpoint
+    fetch('/coderistyarn2/sjdm-user/logout.php')
+        .then(response => {
+            if (response.ok) {
+                // Clear local storage
+                localStorage.removeItem('currentUser');
+                
+                // Show success message
+                showNotification('Successfully signed out!', 'success');
+                
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                    window.location.href = '/coderistyarn2/log-in/log-in.php';
+                }, 1000);
+            } else {
+                console.error('Logout failed:', response.statusText);
+                showNotification('Logout failed, please try again', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error during logout:', error);
+            showNotification('Error during logout, please try again', 'error');
+        });
+}
+
+// Profile Menu Modal Functions
+function showMyAccountModal() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'User', email: 'user@example.com' };
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content account-modal">
+            <div class="modal-header">
+                <h2>My Account</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="account-overview">
+                    <div class="account-avatar">
+                        <span class="material-icons-outlined">account_circle</span>
+                    </div>
+                    <div class="account-info">
+                        <h3>${currentUser.name}</h3>
+                        <p>${currentUser.email}</p>
+                        <span class="member-badge">Member since 2024</span>
+                    </div>
+                </div>
+                <div class="account-actions">
+                    <button class="btn-primary" onclick="editProfile()">
+                        <span class="material-icons-outlined">edit</span>
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showBookingHistoryModal() {
+    const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content booking-history-modal">
+            <div class="modal-header">
+                <h2>Booking History</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="empty-state">
+                    <span class="material-icons-outlined">event_busy</span>
+                    <h3>Booking History</h3>
+                    <p>Your booking history will appear here</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showSavedToursModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content saved-tours-modal">
+            <div class="modal-header">
+                <h2>Saved Tours</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="empty-state">
+                    <span class="material-icons-outlined">favorite_border</span>
+                    <h3>Saved Tours</h3>
+                    <p>Your favorite tours will appear here</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showSettingsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content settings-modal">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Settings</h3>
+                    <p>Settings panel coming soon</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showHelpSupportModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content help-support-modal">
+            <div class="modal-header">
+                <h2>Help & Support</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="help-sections">
+                    <div class="help-section">
+                        <h3>Contact Support</h3>
+                        <p>support@sjdmtours.com</p>
+                        <p>+63 2 1234 5678</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
 }
 
 // Booking History
@@ -1692,6 +2704,12 @@ function nextStep(current) {
     if (current === 3 && !validateStep3()) return;
     
     currentStep = current + 1;
+    
+    // Update review summary when moving to step 3 (Review & Pay)
+    if (currentStep === 3) {
+        updateReviewSummary();
+    }
+    
     if (currentStep === 4) {
         updateConfirmationSummary();
     }
@@ -1700,6 +2718,12 @@ function nextStep(current) {
 
 function prevStep(current) {
     currentStep = current - 1;
+    
+    // Update review summary when going back to step 3 (Review & Pay)
+    if (currentStep === 3) {
+        updateReviewSummary();
+    }
+    
     updateProgress(currentStep);
 }
 
@@ -1787,6 +2811,78 @@ function validateStep3() {
     return true;
 }
 
+function updateReviewSummary() {
+    if (!bookingData) return;
+    
+    // Get form values directly to ensure we have the latest data
+    const guideSelect = document.getElementById('selectedGuide');
+    const destinationSelect = document.getElementById('destination');
+    const checkInInput = document.getElementById('checkInDate');
+    const checkOutInput = document.getElementById('checkOutDate');
+    const guestsInput = document.getElementById('guestCount');
+    
+    // Update bookingData with latest form values
+    if (guideSelect && guideSelect.value) {
+        bookingData.guideId = guideSelect.value;
+        bookingData.guideName = guideSelect.options[guideSelect.selectedIndex].text.split(' - ')[0];
+    }
+    if (destinationSelect) bookingData.destination = destinationSelect.value;
+    if (checkInInput) bookingData.checkIn = checkInInput.value;
+    if (checkOutInput) bookingData.checkOut = checkOutInput.value;
+    if (guestsInput) bookingData.guests = guestsInput.value;
+    
+    // Calculate nights
+    const nights = calculateNights(bookingData.checkIn, bookingData.checkOut);
+    bookingData.nights = nights;
+    
+    // Format dates
+    const formattedCheckIn = new Date(bookingData.checkIn).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    const formattedCheckOut = new Date(bookingData.checkOut).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    // Update review section elements
+    const reviewEls = {
+        reviewGuideName: document.getElementById('reviewGuideName'),
+        reviewDestination: document.getElementById('reviewDestination'),
+        reviewCheckIn: document.getElementById('reviewCheckIn'),
+        reviewCheckOut: document.getElementById('reviewCheckOut'),
+        reviewGuests: document.getElementById('reviewGuests')
+    };
+    
+    if (reviewEls.reviewGuideName) reviewEls.reviewGuideName.textContent = bookingData.guideName || '-';
+    if (reviewEls.reviewDestination) reviewEls.reviewDestination.textContent = bookingData.destination || '-';
+    if (reviewEls.reviewCheckIn) reviewEls.reviewCheckIn.textContent = formattedCheckIn;
+    if (reviewEls.reviewCheckOut) reviewEls.reviewCheckOut.textContent = formattedCheckOut;
+    if (reviewEls.reviewGuests) reviewEls.reviewGuests.textContent = bookingData.guests || '-';
+    
+    // Update pricing based on actual guest count
+    const guestCount = parseInt(bookingData.guests) || 1;
+    const guideFee = 2500;
+    const entranceFees = 100 * guestCount;
+    const serviceFee = 200;
+    const total = guideFee + entranceFees + serviceFee;
+    
+    // Update price summary in review section
+    const priceEls = {
+        entranceFees: document.querySelector('.price-summary .price-row:nth-child(2) span:last-child'),
+        total: document.querySelector('.price-summary .price-row.total span:last-child')
+    };
+    
+    if (priceEls.entranceFees) priceEls.entranceFees.textContent = `₱${entranceFees.toLocaleString()}.00`;
+    if (priceEls.total) priceEls.total.textContent = `₱${total.toLocaleString()}.00`;
+    
+    // Store pricing data for later use
+    bookingData.pricing = {
+        guideFee,
+        entranceFees,
+        serviceFee,
+        total
+    };
+}
+
 function updateConfirmationSummary() {
     if (!bookingData) return;
     
@@ -1872,23 +2968,125 @@ function initBookingForm() {
     updateProgress(1);
 }
 
+function updateConfirmationPage(bookingData, bookingReference) {
+    // Update confirmation page elements with real booking data
+    const els = {
+        bookingNumber: document.getElementById('bookingNumber'),
+        guestName: document.getElementById('guestName'),
+        tourGuideName: document.getElementById('tourGuideName'),
+        tourDateRange: document.getElementById('tourDateRange'),
+        guestContact: document.getElementById('guestContact'),
+        confirmationEmail: document.getElementById('confirmationEmail'),
+        summaryTourName: document.getElementById('summaryTourName'),
+        summaryCheckIn: document.getElementById('summaryCheckIn'),
+        summaryCheckOut: document.getElementById('summaryCheckOut'),
+        summaryNights: document.getElementById('summaryNights')
+    };
+    
+    // Format dates
+    const formattedCheckIn = new Date(bookingData.check_in_date).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    const formattedCheckOut = new Date(bookingData.check_out_date).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    // Calculate nights
+    const nights = calculateNights(bookingData.check_in_date, bookingData.check_out_date);
+    
+    // Get guide name from select element
+    const guideSelect = document.getElementById('selectedGuide');
+    const guideName = guideSelect.options[guideSelect.selectedIndex].text.split(' - ')[0];
+    
+    // Update elements
+    if (els.bookingNumber) els.bookingNumber.textContent = bookingReference;
+    if (els.guestName) els.guestName.textContent = bookingData.full_name;
+    if (els.tourGuideName) els.tourGuideName.textContent = guideName;
+    if (els.tourDateRange) els.tourDateRange.textContent = `${formattedCheckIn} - ${formattedCheckOut}`;
+    if (els.guestContact) els.guestContact.textContent = `${bookingData.contact_number} | ${bookingData.email}`;
+    if (els.confirmationEmail) els.confirmationEmail.textContent = bookingData.email;
+    if (els.summaryTourName) els.summaryTourName.textContent = bookingData.destination;
+    if (els.summaryCheckIn) els.summaryCheckIn.textContent = formattedCheckIn.split(',')[0];
+    if (els.summaryCheckOut) els.summaryCheckOut.textContent = formattedCheckOut.split(',')[0];
+    if (els.summaryNights) els.summaryNights.textContent = `${nights} ${nights === 1 ? 'Night' : 'Nights'}`;
+    
+    // Calculate and update pricing
+    const guideFee = 2500;
+    const entranceFees = 100 * parseInt(bookingData.guest_count);
+    const serviceFee = 200;
+    const total = guideFee + entranceFees + serviceFee;
+    
+    const feeEls = {
+        guideFee: document.getElementById('summaryGuideFee'),
+        entranceFees: document.getElementById('summaryEntranceFees'),
+        total: document.getElementById('summaryTotal')
+    };
+    
+    if (feeEls.guideFee) feeEls.guideFee.textContent = `₱${guideFee.toLocaleString()}.00`;
+    if (feeEls.entranceFees) feeEls.entranceFees.textContent = `₱${entranceFees.toLocaleString()}.00`;
+    if (feeEls.total) feeEls.total.textContent = `₱${total.toLocaleString()}.00`;
+}
+
 function submitBooking() {
     if (!validateStep3()) return;
     
-    bookingData.bookingDate = new Date().toISOString();
-    bookingData.status = 'pending';
+    // Show loading state
+    const submitButton = document.querySelector('.btn-submit');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing...';
+    submitButton.disabled = true;
     
-    const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-    userBookings.push(bookingData);
-    localStorage.setItem('userBookings', JSON.stringify(userBookings));
+    // Collect all booking data
+    const bookingData = {
+        guide_id: document.getElementById('selectedGuide').value,
+        destination: document.getElementById('destination').value,
+        check_in_date: document.getElementById('checkInDate').value,
+        check_out_date: document.getElementById('checkOutDate').value,
+        guest_count: document.getElementById('guestCount').value,
+        full_name: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        contact_number: document.getElementById('contactNumber').value,
+        special_requests: document.getElementById('specialRequests').value,
+        payment_method: document.querySelector('input[name="paymentMethod"]:checked').value
+    };
     
-    currentStep = 4;
-    updateProgress(currentStep);
-    
-    showNotification('Booking submitted successfully!', 'success');
+    // Send booking to server
+    fetch('process_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Store booking reference for confirmation page
+            window.bookingReference = data.booking_reference;
+            window.bookingId = data.booking_id;
+            
+            // Update confirmation page with booking details
+            updateConfirmationPage(bookingData, data.booking_reference);
+            
+            // Move to confirmation step
+            currentStep = 4;
+            updateProgress(currentStep);
+            
+            showNotification('Booking submitted successfully!', 'success');
+        } else {
+            throw new Error(data.message || 'Booking failed');
+        }
+    })
+    .catch(error => {
+        console.error('Booking error:', error);
+        showNotification(error.message || 'Failed to submit booking. Please try again.', 'error');
+        
+        // Reset button state
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
 }
 
-// Filter functions for HTML version
 function filterSpots() {
     const category = document.getElementById('categoryFilter').value;
     const activity = document.getElementById('activityFilter').value;
@@ -1973,9 +3171,52 @@ function initSpotsFilters() {
     });
 }
 
+// Helper functions for profile modals
+function editProfile() {
+    showNotification('Profile editing coming soon!', 'info');
+}
 
-//content for tourist and hotels cards
+function changePassword() {
+    showNotification('Password change coming soon!', 'info');
+}
 
+function viewAllBookings() {
+    document.querySelector('.modal-overlay').remove();
+    showNotification('Redirecting to full booking history...', 'info');
+}
+
+function removeFavorite(guideId) {
+    toggleFavorite(guideId);
+    showSavedToursModal(); // Refresh the modal
+}
+
+function viewAllFavorites() {
+    document.querySelector('.modal-overlay').remove();
+    showNotification('Redirecting to all favorites...', 'info');
+}
+
+function saveSettings() {
+    showNotification('Settings saved successfully!', 'success');
+    setTimeout(() => {
+        document.querySelector('.modal-overlay').remove();
+    }, 1000);
+}
+
+function contactSupport() {
+    showNotification('Connecting to support chat...', 'info');
+}
+
+function viewFAQs() {
+    showNotification('Opening FAQs...', 'info');
+}
+
+function emailSupport() {
+    window.location.href = 'mailto:support@sjdmtours.com?subject=Help Request';
+}
+
+function viewFAQs() {
+    showNotification('Opening FAQs...', 'info');
+}
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', init);

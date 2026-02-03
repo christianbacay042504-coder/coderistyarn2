@@ -113,9 +113,7 @@ function getTouristSpotsList($conn, $page = 1, $limit = 15, $search = '') {
     $search = $conn->real_escape_string($search);
     
     // Get tourist spots with pagination
-    $spotsQuery = "SELECT ts.*, 
-                   (SELECT COUNT(*) FROM bookings WHERE spot_id = ts.id) as total_bookings
-                   FROM tourist_spots ts WHERE 1=1";
+    $spotsQuery = "SELECT ts.* FROM tourist_spots ts WHERE 1=1";
     
     if ($search) {
         $spotsQuery .= " AND (ts.name LIKE '%$search%' OR ts.category LIKE '%$search%' OR ts.location LIKE '%$search%')";
@@ -540,7 +538,7 @@ closeAdminConnection($conn);
                                         <small>(<?php echo $spot['review_count']; ?> reviews)</small>
                                     </div>
                                 </td>
-                                <td>₱<?php echo number_format($spot['entrance_fee'], 2); ?></td>
+                                <td><?php echo $spot['entrance_fee']; ?></td>
                                 <td>
                                     <span class="status-badge status-<?php echo $spot['status']; ?>">
                                         <?php echo ucfirst($spot['status']); ?>

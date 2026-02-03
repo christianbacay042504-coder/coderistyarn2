@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Form Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .debug-button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }
+        .debug-button:hover { background: #0056b3; }
+        .console-output { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Debug Form Submission</h1>
+    
+    <div class="debug-section">
+        <h2>Test Form Submission Directly</h2>
+        <p>This will test the exact same form submission as the booking page.</p>
+        
+        <form id="testBookingForm" method="POST" action="sjdm-user/book.php" target="_blank">
+            <input type="hidden" name="submit_booking" value="1">
+            <input type="hidden" name="guide_id" id="testGuideId" value="1">
+            <input type="hidden" name="guide_name" id="testGuideName" value="Marc Santos">
+            <input type="hidden" name="destination" id="testDestination" value="Mt. Balagbag">
+            <input type="hidden" name="check_in_date" id="testCheckInDate" value="2026-02-10">
+            <input type="hidden" name="check_out_date" id="testCheckOutDate" value="2026-02-11">
+            <input type="hidden" name="guest_count" id="testGuestCount" value="2">
+            <input type="hidden" name="contact_number" id="testContactNumber" value="+639123456789">
+            <input type="hidden" name="email" id="testEmail" value="test@example.com">
+            <input type="hidden" name="special_requests" id="testSpecialRequests" value="Test special request">
+            <input type="hidden" name="payment_method" id="testPaymentMethod" value="pay_later">
+            
+            <button type="submit" class="debug-button">Test Direct Form Submission</button>
+        </form>
+    </div>
+    
+    <div class="debug-section">
+        <h2>JavaScript Form Submission Test</h2>
+        <p>This will test the JavaScript submission method used in the booking page.</p>
+        
+        <button class="debug-button" onclick="testJavaScriptSubmission()">Test JavaScript Submission</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Debug Console</h2>
+        <div id="console" class="console-output">Console output will appear here...</div>
+    </div>
+    
+    <script>
+        function testJavaScriptSubmission() {
+            console.log('=== Testing JavaScript Form Submission ===');
+            
+            // Simulate the booking data
+            const bookingData = {
+                guideId: '1',
+                guideName: 'Marc Santos',
+                destination: 'Mt. Balagbag',
+                checkInDate: '2026-02-10',
+                checkOutDate: '2026-02-11',
+                guestCount: '2',
+                contactNumber: '+639123456789',
+                email: 'test@example.com',
+                specialRequests: 'Test special request',
+                paymentMethod: 'pay_later'
+            };
+            
+            console.log('Booking data:', bookingData);
+            
+            // Fill the test form
+            document.getElementById('testGuideId').value = bookingData.guideId;
+            document.getElementById('testGuideName').value = bookingData.guideName;
+            document.getElementById('testDestination').value = bookingData.destination;
+            document.getElementById('testCheckInDate').value = bookingData.checkInDate;
+            document.getElementById('testCheckOutDate').value = bookingData.checkOutDate;
+            document.getElementById('testGuestCount').value = bookingData.guestCount;
+            document.getElementById('testContactNumber').value = bookingData.contactNumber;
+            document.getElementById('testEmail').value = bookingData.email;
+            document.getElementById('testSpecialRequests').value = bookingData.specialRequests;
+            document.getElementById('testPaymentMethod').value = bookingData.paymentMethod;
+            
+            console.log('Form fields filled');
+            
+            // Check form data
+            const form = document.getElementById('testBookingForm');
+            const formData = new FormData(form);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ':', value);
+            }
+            
+            // Submit form
+            console.log('Submitting form...');
+            form.submit();
+        }
+        
+        // Override console.log to show in our debug console
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            const consoleDiv = document.getElementById('console');
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleDiv.textContent += message + '\n';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+    </script>
+</body>
+</html>

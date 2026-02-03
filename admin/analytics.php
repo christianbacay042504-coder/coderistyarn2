@@ -108,7 +108,7 @@ for ($i = 5; $i >= 0; $i--) {
 
 // Top destinations by bookings
 $topDestinations = [];
-$result = $conn->query("SELECT ts.name, COUNT(b.id) as booking_count FROM tourist_spots ts LEFT JOIN bookings b ON b.tour_name LIKE CONCAT('%', ts.name, '%') GROUP BY ts.id ORDER BY booking_count DESC LIMIT 10");
+$result = $conn->query("SELECT ts.name, COUNT(b.id) as booking_count FROM tourist_spots ts LEFT JOIN bookings b ON b.tour_name LIKE CONCAT('%', ts.name, '%') COLLATE utf8mb4_general_ci GROUP BY ts.id ORDER BY booking_count DESC LIMIT 10");
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $topDestinations[] = $row;

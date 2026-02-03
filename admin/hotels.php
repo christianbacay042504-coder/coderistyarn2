@@ -111,9 +111,7 @@ function getHotelsList($conn, $page = 1, $limit = 15, $search = '') {
     $search = $conn->real_escape_string($search);
     
     // Get hotels with pagination
-    $hotelsQuery = "SELECT h.*, 
-                    (SELECT COUNT(*) FROM bookings WHERE hotel_id = h.id) as total_bookings
-                    FROM hotels h WHERE 1=1";
+    $hotelsQuery = "SELECT h.* FROM hotels h WHERE 1=1";
     
     if ($search) {
         $hotelsQuery .= " AND (h.name LIKE '%$search%' OR h.category LIKE '%$search%' OR h.location LIKE '%$search%')";
