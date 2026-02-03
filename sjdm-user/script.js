@@ -3218,5 +3218,8 @@ function viewFAQs() {
     showNotification('Opening FAQs...', 'info');
 }
 
+
+
+
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', init);

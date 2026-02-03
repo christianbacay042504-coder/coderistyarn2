@@ -244,23 +244,6 @@ if ($conn) {
                             $badge = $badgeMap[$category] ?? $category;
                             $priceFilter = $priceRangeMap[$hotel['price_range']] ?? 'mid';
                             
-                            // Generate star rating HTML
-                            $rating = floatval($hotel['rating']);
-                            $fullStars = floor($rating);
-                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                            $starsHtml = '';
-                            
-                            for ($i = 0; $i < $fullStars; $i++) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star</span>';
-                            }
-                            if ($hasHalfStar) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star_half</span>';
-                            }
-                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                            for ($i = 0; $i < $emptyStars; $i++) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ddd; font-size: 16px;">star_outline</span>';
-                            }
-                            
                             // Parse amenities for display
                             $amenitiesArray = [];
                             if (!empty($hotel['amenities'])) {
@@ -288,23 +271,9 @@ if ($conn) {
                             echo '<h3 class="card-title">' . htmlspecialchars($hotel['name']) . '</h3>';
                             echo '<span class="card-category">' . htmlspecialchars($displayCategory) . '</span>';
                             echo '<p class="card-description">' . htmlspecialchars($hotel['description'] ?? 'Experience comfort and convenience in San Jose del Monte.') . '</p>';
-                            echo '<div class="card-stats">';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Rating</span>';
-                            echo '<div style="display: flex; align-items: center; gap: 4px;">';
-                            echo $starsHtml;
-                            echo '<span style="font-size: 12px; color: #666;">(' . $hotel['review_count'] . ')</span>';
-                            echo '</div>';
-                            echo '</div>';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Price</span>';
-                            echo '<span class="stat-value">' . htmlspecialchars($hotel['price_range']) . '</span>';
-                            echo '</div>';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Contact</span>';
-                            echo '<span class="stat-value">' . htmlspecialchars($hotel['phone'] ?? 'Available') . '</span>';
-                            echo '</div>';
-                            echo '</div>';
+                            
+                            // REMOVED: card-stats section (RATING, PRICE, CONTACT) - Lines removed here
+                            
                             echo '<div class="card-features">';
                             foreach ($amenitiesArray as $amenity) {
                                 echo '<span class="feature-tag">' . htmlspecialchars($amenity) . '</span>';
@@ -391,7 +360,7 @@ if ($conn) {
                         echo '</div>';
                         
                         echo '<div class="info-card">';
-                        echo '<h4>� Hotel Statistics</h4>';
+                        echo '<h4>ℹ Hotel Statistics</h4>';
                         echo '<ul>';
                         if ($ratingData) {
                             echo '<li><strong>Total Hotels:</strong> ' . $ratingData['total_hotels'] . ' available</li>';
@@ -847,7 +816,7 @@ if ($conn) {
             flex-direction: column;
             max-height: calc(95vh - 180px);
             overflow-y: auto;
-            padding: 0;
+            padding: 40px 50px;
             background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
         }
         
@@ -869,99 +838,103 @@ if ($conn) {
             background: linear-gradient(135deg, #3d6341, #244d26);
         }
         
-        .booking-form-container {
-            width: 100%;
-        }
-        
-        .form-section {
-            margin-bottom: 40px;
-        }
-        
-        .form-section h3 {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin: 0 0 24px 0;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: #fafafa;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4a7c4e;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(74, 124, 78, 0.1);
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .booking-summary {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border: 1px solid #e0e0e0;
-            border-radius: 16px;
-            padding: 24px;
+        .hotel-overview {
             margin-bottom: 32px;
         }
         
-        .booking-summary h3 {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin: 0 0 20px 0;
+        .hotel-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
         }
         
-        .summary-item {
+        .info-item {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            flex-direction: column;
+            gap: 6px;
         }
         
-        .summary-item:last-child {
-            border-bottom: none;
-        }
-        
-        .summary-item span:first-child {
-            font-weight: 500;
+        .info-label {
+            font-size: 0.85em;
             color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .summary-item span:last-child {
+        .info-value {
+            font-size: 1.1em;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .hotel-description,
+        .hotel-features,
+        .hotel-schedule {
+            margin-bottom: 32px;
+        }
+        
+        .hotel-description h3,
+        .hotel-features h3,
+        .hotel-schedule h3 {
+            font-size: 1.3em;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .hotel-description p {
+            line-height: 1.7;
+            color: #444;
+        }
+        
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .feature-badge {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2c5f2d;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .schedule-icon {
+            font-size: 2em;
+        }
+        
+        .schedule-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .schedule-time {
+            font-size: 1.2em;
             font-weight: 600;
             color: #1a1a1a;
         }
@@ -1044,6 +1017,11 @@ if ($conn) {
         .notification-error {
             background: linear-gradient(135deg, #f44336, #d32f2f);
         }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 100%;
+                margin: 10px;
                 max-height: calc(100vh - 20px);
             }
             
@@ -1059,9 +1037,9 @@ if ($conn) {
                 padding: 24px;
             }
             
-            .form-grid {
+            .hotel-info-grid,
+            .schedule-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
             }
             
             .modal-actions {

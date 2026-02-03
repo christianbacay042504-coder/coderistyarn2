@@ -27,6 +27,18 @@ if (isLoggedIn()) {
     }
     exit();
 }
+
+// Check for logout messages
+$logoutMessage = '';
+$logoutStatus = '';
+if (isset($_SESSION['logout_message'])) {
+    $logoutMessage = $_SESSION['logout_message'];
+    $logoutStatus = $_SESSION['logout_status'] ?? 'success';
+    
+    // Clear the session messages after displaying
+    unset($_SESSION['logout_message']);
+    unset($_SESSION['logout_status']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -96,6 +108,12 @@ if (isLoggedIn()) {
                     </div>
                     
                     <div id="alertMessage" class="alert" style="display: none;"></div>
+                    
+                    <?php if (!empty($logoutMessage)): ?>
+                    <div id="logoutMessage" class="alert alert-<?php echo htmlspecialchars($logoutStatus); ?>" style="display: block;">
+                        <?php echo htmlspecialchars($logoutMessage); ?>
+                    </div>
+                    <?php endif; ?>
                     
                     <form id="loginForm" class="auth-form">
                         <div class="form-group">

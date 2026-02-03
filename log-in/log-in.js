@@ -30,6 +30,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
+    // Handle logout message display
+    const logoutMessage = document.getElementById('logoutMessage');
+    if (logoutMessage) {
+        setTimeout(() => {
+            logoutMessage.style.display = 'none';
+        }, 5000);
+    }
+
     // Form Validation
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {

@@ -4693,152 +4693,88 @@ img.loaded {
     background: var(--gray-200);
 }
 
-/* FIX: Card Stats Vertical Layout */
-.travelry-card .card-stats {
-    justify-content: space-around;
-    flex-wrap: wrap;
-}
-
-.travelry-card .stat-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 4px !important;
-    min-width: 80px;
-}
-
-.travelry-card .stat-label {
-    font-size: 11px;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.travelry-card .stat-value {
-    font-size: 16px;
-    text-align: center;
-    white-space: nowrap;
-}
-
-/* ========================================
-   FIX: Card Stats 3-Column Grid Layout
-   ======================================== */
-
+/* HOTEL CARD STATS - CLEAN LAYOUT FIX */
 .card-stats {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 16px !important;
-    padding: 16px 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
     border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin: 16px 0 !important;
+    margin: 12px 0 0 0;
+    width: 100%;
 }
 
 .stat-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    text-align: center !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    flex: 1;
+    min-width: 0;
 }
 
 .stat-label {
-    font-size: 10px !important;
-    font-weight: 600 !important;
-    color: #6b7280 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.8px !important;
-    white-space: nowrap !important;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .stat-value {
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    white-space: nowrap !important;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 /* Stack vertically on mobile */
 @media (max-width: 480px) {
     .card-stats {
-        grid-template-columns: 1fr !important;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
     }
 }
 
-
-/* ========================================
-   UNIVERSAL CARD FIX
-   ======================================== */
-
-/* Stats Grid - 3 Columns */
-.card-stats {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 16px !important;
-    padding: 16px 0 !important;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    margin: 16px 0 0 0 !important;
-}
-
-.stat-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 6px !important;
-    text-align: center !important;
-}
-
-.stat-label {
-    font-size: 10px !important;
-    font-weight: 600 !important;
-    color: #6b7280 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.8px !important;
-}
-
-.stat-value {
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-}
-
-/* Buttons - Full Width */
 .card-button {
-    position: relative !important;
-    bottom: auto !important;
-    right: auto !important;
-    width: 100% !important;
-    background: #2c5f2d !important;
-    color: white !important;
-    padding: 12px 24px !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    margin-top: 16px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: 100%;
+    background: #2c5f2d;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .card-button:hover {
-    background: #1e4220 !important;
-    transform: translateY(-2px) !important;
+    background: #1e4220;
+    transform: translateY(-2px);
 }
 
 .card-content {
-    padding: 20px !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-/* Mobile - Stack Stats Vertically */
-@media (max-width: 480px) {
-    .card-stats {
-        grid-template-columns: 1fr !important;
-    }
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ========================================
@@ -6164,5 +6100,94 @@ font-weight: 600;
     .modal-features li {
         padding: 10px 0;
         font-size: 0.95em;
+    }
+}
+/* ============================================
+   HOTEL CARD FIXES - Remove Rating/Price/Contact
+   ============================================ */
+
+/* Hide the card stats section (RATING, PRICE, CONTACT) */
+.travelry-card .card-stats,
+.card-stats {
+    display: none !important;
+}
+
+/* Adjust card content padding to prevent overlapping with button */
+.travelry-card .card-content {
+    padding: 20px;
+    padding-bottom: 70px; /* Make room for the View Details button */
+}
+
+/* Make sure the card description doesn't overlap */
+.travelry-card .card-description {
+    margin-bottom: 16px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+/* Ensure features have proper spacing */
+.travelry-card .card-features {
+    margin-top: 16px;
+    margin-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Adjust the View Details button position */
+.travelry-card .card-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    width: calc(100% - 40px);
+    text-align: center;
+    padding: 12px 24px;
+}
+
+/* Make feature tags more compact if needed */
+.feature-tag {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Ensure card has proper min-height */
+.travelry-card {
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Adjust card content to be flexible */
+.travelry-card .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Make sure title and category have proper spacing */
+.travelry-card .card-title {
+    margin-bottom: 8px;
+}
+
+.travelry-card .card-category {
+    margin-bottom: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .travelry-card .card-content {
+        padding-bottom: 65px;
+    }
+    
+    .travelry-card .card-button {
+        padding: 10px 20px;
+        font-size: 14px;
     }
 }
