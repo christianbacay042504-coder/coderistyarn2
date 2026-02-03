@@ -15,6 +15,7 @@ class AdminDashboard {
         this.setupForms();
         this.loadDashboardData();
         this.setupContextMenu();
+        this.setupUserDropdown();
     }
 
     setupNavigation() {
@@ -1332,7 +1333,24 @@ class AdminDashboard {
     loadSectionData(section) {
         // You can implement AJAX loading for section data here
         // Example: Fetch data for specific section
-        // fetch(`?ajax=1&section=${section}`).then(...)
+        // fetch(`?ajax=1&section=${section}`).then(...)  
+    }
+
+    setupUserDropdown() {
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const userProfile = document.querySelector('.user-profile');
+            if (userProfile && !userProfile.contains(e.target)) {
+                userProfile.classList.remove('active');
+            }
+        });
+    }
+
+    toggleUserDropdown() {
+        const userProfile = document.querySelector('.user-profile');
+        if (userProfile) {
+            userProfile.classList.toggle('active');
+        }
     }
 }
 
