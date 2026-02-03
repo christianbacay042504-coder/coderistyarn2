@@ -138,10 +138,7 @@ if ($conn) {
                     </div>
                 </div>
             </header>
-            
-            <!-- Dashboard Overview -->
             <div class="content-area">
-                <!-- Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card" data-stat="totalUsers">
                         <div class="stat-icon blue">
