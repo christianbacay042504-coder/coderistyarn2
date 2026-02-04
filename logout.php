@@ -10,6 +10,6 @@ $_SESSION['logout_message'] = 'Successfully signed out!';
 $_SESSION['logout_status'] = 'success';
 
 // Redirect to login page
-header('Location: /coderistyarn2/log-in.php');
+header('Location:log-in.php');
 exit();
 ?>
