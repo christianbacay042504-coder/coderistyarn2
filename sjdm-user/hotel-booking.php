@@ -79,10 +79,10 @@ if ($conn) {
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <header class="main-header">
-            <h1>Hotels</h1>
+            <h1>Hotels & Restaurants</h1>
             <div class="search-bar">
                 <span class="material-icons-outlined">search</span>
-                <input type="text" placeholder="Search accommodations...">
+                <input type="text" placeholder="Search hotels and restaurants...">
             </div>
             <div class="header-actions">
                 <button class="icon-button">
@@ -197,121 +197,344 @@ if ($conn) {
 
             <!-- Hotels Grid -->
             <div class="travelry-grid" id="hotelsGrid">
-                <?php
-                // Fetch hotels from database
-                $conn = getDatabaseConnection();
-                if ($conn) {
-                    $query = "SELECT * FROM hotels WHERE status = 'active' ORDER BY name";
-                    $result = $conn->query($query);
-                    
-                    if ($result && $result->num_rows > 0) {
-                        while ($hotel = $result->fetch_assoc()) {
-                            // Map database categories to display categories
-                            $categoryMap = [
-                                'luxury' => 'Luxury Hotels',
-                                'mid-range' => 'Mid-Range Hotels',
-                                'budget' => 'Budget Hotels',
-                                'event' => 'Event Venues'
-                            ];
-                            
-                            // Map database categories to badge icons
-                            $iconMap = [
-                                'luxury' => 'stars',
-                                'mid-range' => 'hotel',
-                                'budget' => 'savings',
-                                'event' => 'event'
-                            ];
-                            
-                            // Map database categories to badge labels
-                            $badgeMap = [
-                                'luxury' => 'Luxury',
-                                'mid-range' => 'Mid-Range',
-                                'budget' => 'Budget',
-                                'event' => 'Event'
-                            ];
-                            
-                            // Map price ranges to filter values
-                            $priceRangeMap = [
-                                '₱800 - ₱1,800 per night' => 'budget',
-                                '₱1,500 - ₱3,500 per night' => 'mid',
-                                '₱3,000 - ₱8,000 per night' => 'premium',
-                                '₱5,000 - ₱15,000 per event' => 'premium'
-                            ];
-                            
-                            $category = $hotel['category'];
-                            $displayCategory = $categoryMap[$category] ?? $category;
-                            $icon = $iconMap[$category] ?? 'hotel';
-                            $badge = $badgeMap[$category] ?? $category;
-                            $priceFilter = $priceRangeMap[$hotel['price_range']] ?? 'mid';
-                            
-                            // Parse amenities for display
-                            $amenitiesArray = [];
-                            if (!empty($hotel['amenities'])) {
-                                $amenitiesArray = array_map('trim', explode(',', $hotel['amenities']));
-                                $amenitiesArray = array_slice($amenitiesArray, 0, 3); // Show only first 3 amenities
-                            }
-                            
-                            echo '<div class="travelry-card" data-category="' . $category . '" data-nearby="all" data-price="' . $priceFilter . '">';
-                            echo '<div class="card-image">';
-                            echo '<img src="' . htmlspecialchars($hotel['image_url']) . '" alt="' . htmlspecialchars($hotel['name']) . '">';
-                            echo '<div class="card-badge">';
-                            echo '<span class="material-icons-outlined">' . $icon . '</span>';
-                            echo $badge;
-                            echo '</div>';
-                            echo '<div class="distance-badge">';
-                            echo '<span class="material-icons-outlined">location_on</span>';
-                            echo htmlspecialchars($hotel['location'] ?? 'San Jose del Monte');
-                            echo '</div>';
-                            echo '</div>';
-                            echo '<div class="card-content">';
-                            echo '<div class="card-date">';
-                            echo '<span class="material-icons-outlined">schedule</span>';
-                            echo 'Check-in: 2:00 PM • Check-out: 12:00 PM';
-                            echo '</div>';
-                            echo '<h3 class="card-title">' . htmlspecialchars($hotel['name']) . '</h3>';
-                            echo '<span class="card-category">' . htmlspecialchars($displayCategory) . '</span>';
-                            echo '<p class="card-description">' . htmlspecialchars($hotel['description'] ?? 'Experience comfort and convenience in San Jose del Monte.') . '</p>';
-                            
-                            // REMOVED: card-stats section (RATING, PRICE, CONTACT) - Lines removed here
-                            
-                            echo '<div class="card-features">';
-                            foreach ($amenitiesArray as $amenity) {
-                                echo '<span class="feature-tag">' . htmlspecialchars($amenity) . '</span>';
-                            }
-                            echo '</div>';
-                            echo '<button class="card-button" onclick="showHotelDetails(';
-                            echo "'" . addslashes($hotel['name']) . "', ";
-                            echo "'" . addslashes($displayCategory) . "', ";
-                            echo "'" . addslashes($hotel['image_url']) . "', ";
-                            echo "'" . $icon . "', ";
-                            echo "'" . $badge . "', ";
-                            echo "'" . addslashes($hotel['price_range']) . "', ";
-                            echo "'" . number_format($hotel['rating'], 1) . "', ";
-                            echo "'" . $hotel['review_count'] . "', ";
-                            echo "'" . addslashes($hotel['description'] ?? '') . "', ";
-                            echo "'" . addslashes($hotel['amenities'] ?? '') . "'";
-                            echo ')">';
-                            echo 'View Details';
-                            echo '</button>';
-                            echo '</div>';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo '<div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
-                        echo '<span class="material-icons-outlined" style="font-size: 48px; color: #9ca3af;">hotel</span>';
-                        echo '<h3 style="color: #6b7280; margin-top: 16px;">No hotels found</h3>';
-                        echo '<p style="color: #9ca3af;">Please check back later for available accommodations.</p>';
-                        echo '</div>';
-                    }
-                    closeDatabaseConnection($conn);
-                } else {
-                    echo '<div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
-                    echo '<span class="material-icons-outlined" style="font-size: 48px; color: #ef4444;">error</span>';
-                    echo '<h3 style="color: #ef4444; margin-top: 16px;">Database Connection Error</h3>';
-                    echo '<p style="color: #6b7280;">Unable to load hotels. Please try again later.</p>';
-                    echo '</div>';
-                }
-                ?>
+                <!-- Hotel Sogo -->
+                <div class="travelry-card" data-category="budget" data-nearby="all" data-price="budget">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop" alt="Hotel Sogo">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">savings</span>
+                            Budget
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            City Center
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Hotel Sogo</h3>
+                        <span class="card-category">Budget Hotels</span>
+                        <p class="card-description">Conveniently located budget hotel offering comfortable rooms with essential amenities for travelers visiting San Jose del Monte.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Air conditioning</span>
+                            <span class="feature-tag">TV</span>
+                            <span class="feature-tag">Free WiFi</span>
+                        </div>
+                        <a class="card-button" href="https://www.hotelsogo.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hotel Turista -->
+                <div class="travelry-card" data-category="mid-range" data-nearby="all" data-price="mid">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop" alt="Hotel Turista">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">hotel</span>
+                            Mid-Range
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            City Proper
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Hotel Turista</h3>
+                        <span class="card-category">Mid-Range Hotels</span>
+                        <p class="card-description">Mid-range hotel providing comfortable accommodations with modern amenities perfect for business and leisure travelers.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Air conditioning</span>
+                            <span class="feature-tag">Restaurant</span>
+                            <span class="feature-tag">Free WiFi</span>
+                        </div>
+                        <a class="card-button" href="https://www.hotelturista.com.ph/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Staycation Amaia -->
+                <div class="travelry-card" data-category="mid-range" data-nearby="all" data-price="mid">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2070&auto=format&fit=crop" alt="Staycation Amaia">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">hotel</span>
+                            Mid-Range
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Tungkong Mangga
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Staycation Amaia</h3>
+                        <span class="card-category">Mid-Range Hotels</span>
+                        <p class="card-description">Modern residential-style accommodation offering extended stay options with home-like amenities and facilities.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Kitchenette</span>
+                            <span class="feature-tag">Living area</span>
+                            <span class="feature-tag">Swimming pool</span>
+                        </div>
+                        <a class="card-button" href="https://www.amaialand.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Local Lodges Paradise 3 -->
+                <div class="travelry-card" data-category="budget" data-nearby="all" data-price="budget">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=2070&auto=format&fit=crop" alt="Local Lodges Paradise 3">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">savings</span>
+                            Budget
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Paradise 3 Area
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Local Lodges Paradise 3</h3>
+                        <span class="card-category">Budget Hotels</span>
+                        <p class="card-description">Budget-friendly local accommodations offering authentic SJDM experience near tourist attractions.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Basic room</span>
+                            <span class="feature-tag">Fan/AC</span>
+                            <span class="feature-tag">Common area</span>
+                        </div>
+                        <a class="card-button" href="https://www.google.com/maps/search/?api=1&query=Local Lodges Paradise 3 San Jose del Monte" target="_blank">
+                            Get Directions
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Los Arcos -->
+                <div class="travelry-card" data-category="luxury" data-nearby="all" data-price="premium">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2070&auto=format&fit=crop" alt="Los Arcos">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">stars</span>
+                            Luxury
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Paradise Area
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Los Arcos</h3>
+                        <span class="card-category">Luxury Hotels</span>
+                        <p class="card-description">Resort-style accommodation with swimming pools and event facilities, perfect for families and group gatherings.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Swimming pools</span>
+                            <span class="feature-tag">Restaurant</span>
+                            <span class="feature-tag">Function rooms</span>
+                        </div>
+                        <a class="card-button" href="https://www.losarcoresort.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pacific Waves Resort -->
+                <div class="travelry-card" data-category="luxury" data-nearby="all" data-price="premium">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=2070&auto=format&fit=crop" alt="Pacific Waves Resort">
+                        <div class="card-badge">
+                            <span class="material-icons-outlined">stars</span>
+                            Luxury
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Paradise Area
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Check-in: 2:00 PM • Check-out: 12:00 PM
+                        </div>
+                        <h3 class="card-title">Pacific Waves Resort</h3>
+                        <span class="card-category">Luxury Hotels</span>
+                        <p class="card-description">Beach-themed resort offering water activities and relaxation facilities in San Jose del Monte.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Water park</span>
+                            <span class="feature-tag">Restaurant</span>
+                            <span class="feature-tag">Cabanas</span>
+                        </div>
+                        <a class="card-button" href="https://www.pacificwavesresort.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurants Section -->
+            <h2 class="section-title" style="margin-top: 60px;">Restaurants & Dining</h2>
+            
+            <!-- Restaurant Location Header -->
+            <div class="calendar-header">
+                <div class="date-display">
+                    <div class="weekday">Local Cuisine</div>
+                    <div class="month-year">Authentic Filipino Dining Experience</div>
+                </div>
+                <div class="weather-info">
+                    <span class="material-icons-outlined">restaurant</span>
+                    <span class="temperature">10+ Options</span>
+                    <span class="weather-label">Verified Restaurants</span>
+                </div>
+            </div>
+
+            <!-- Restaurants Grid -->
+            <div class="travelry-grid" id="restaurantsGrid">
+                <!-- Escobar's -->
+                <div class="travelry-card restaurant-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop" alt="Escobar's">
+                        <div class="card-badge restaurant-badge">
+                            <span class="material-icons-outlined">restaurant</span>
+                            Restaurant
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            City Center
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Open Daily • Local Hours
+                        </div>
+                        <h3 class="card-title">Escobar's</h3>
+                        <span class="card-category">Casual Dining</span>
+                        <p class="card-description">Popular local restaurant serving authentic Filipino cuisine and comfort food in a cozy atmosphere.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Air conditioning</span>
+                            <span class="feature-tag">Private rooms</span>
+                            <span class="feature-tag">Parking</span>
+                        </div>
+                        <a class="card-button restaurant-button" href="https://www.escobarsrestaurant.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Roadside Dampa -->
+                <div class="travelry-card restaurant-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop" alt="Roadside Dampa">
+                        <div class="card-badge restaurant-badge">
+                            <span class="material-icons-outlined">local_dining</span>
+                            Eatery
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            City Center
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Open Daily • Local Hours
+                        </div>
+                        <h3 class="card-title">Roadside Dampa</h3>
+                        <span class="card-category">Local Eatery</span>
+                        <p class="card-description">Casual roadside eatery offering fresh seafood and grilled specialties at affordable prices.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Open-air seating</span>
+                            <span class="feature-tag">Grilling station</span>
+                            <span class="feature-tag">Parking</span>
+                        </div>
+                        <a class="card-button restaurant-button" href="https://www.google.com/maps/search/?api=1&query=Roadside Dampa San Jose del Monte" target="_blank">
+                            Get Directions
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Max's SM SJDM -->
+                <div class="travelry-card restaurant-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1563906267048-b0e351b2f5c9?q=80&w=2070&auto=format&fit=crop" alt="Max's SM SJDM">
+                        <div class="card-badge restaurant-badge">
+                            <span class="material-icons-outlined">restaurant</span>
+                            Restaurant
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Tungkong Mangga
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Open Daily • Local Hours
+                        </div>
+                        <h3 class="card-title">Max's SM SJDM</h3>
+                        <span class="card-category">Casual Dining</span>
+                        <p class="card-description">Well-known restaurant chain serving classic Filipino dishes and fried chicken in SM City San Jose del Monte.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Air conditioning</span>
+                            <span class="feature-tag">Family-friendly</span>
+                            <span class="feature-tag">Parking</span>
+                        </div>
+                        <a class="card-button restaurant-button" href="https://www.maxsrestaurant.com/" target="_blank">
+                            Visit Website
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Local Carinderias -->
+                <div class="travelry-card restaurant-card">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1506257266358-2ed037b69a05?q=80&w=2070&auto=format&fit=crop" alt="Local Carinderias">
+                        <div class="card-badge restaurant-badge">
+                            <span class="material-icons-outlined">local_dining</span>
+                            Eatery
+                        </div>
+                        <div class="distance-badge">
+                            <span class="material-icons-outlined">location_on</span>
+                            Various Areas
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-date">
+                            <span class="material-icons-outlined">schedule</span>
+                            Open Daily • Local Hours
+                        </div>
+                        <h3 class="card-title">Local Carinderias</h3>
+                        <span class="card-category">Local Eatery</span>
+                        <p class="card-description">Collection of local eateries serving authentic home-cooked Filipino meals at budget-friendly prices.</p>
+                        <div class="card-features">
+                            <span class="feature-tag">Simple seating</span>
+                            <span class="feature-tag">Local atmosphere</span>
+                            <span class="feature-tag">Affordable prices</span>
+                        </div>
+                        <a class="card-button restaurant-button" href="https://www.google.com/maps/search/?api=1&query=Local Carinderias San Jose del Monte" target="_blank">
+                            Get Directions
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Hotel Booking Tips -->
@@ -656,24 +879,39 @@ if ($conn) {
         }
         
         function showNotification(message, type = 'info') {
-            // Create notification element
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
             const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
+            notification.className = `notification-banner ${type}`;
             
-            // Add to page
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
             document.body.appendChild(notification);
             
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
+            setTimeout(() => notification.classList.add('show'), 100);
             
-            // Hide and remove after 3 seconds
             setTimeout(() => {
                 notification.classList.remove('show');
                 setTimeout(() => {
-                    document.body.removeChild(notification);
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
                 }, 300);
             }, 3000);
         }

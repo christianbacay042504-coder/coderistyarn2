@@ -513,8 +513,8 @@
                     <p class="description">
                         Named after the Filipino word "otso" meaning eight, Otso-Otso Falls is a magnificent 
                         series of eight interconnected waterfalls located in the pristine wilderness of San Jose del Monte. 
-                        This natural wonder offers a progressive hiking adventure where each waterfall reveals unique 
-                        characteristics and natural pools.
+                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide 
+                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.
                     </p>
                     
                     <!-- Safety Information -->
@@ -590,8 +590,8 @@
                         <div class="info-item">
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
-                                <span class="info-label">Entrance Fee</span>
-                                <span class="info-value">₱150 per person</span>
+                                <span class="info-label">Tour Guide Fee</span>
+                                <span class="info-value">₱350 per group (max 5 pax)</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -619,15 +619,15 @@
                         </div>
                     </div>
 
-                    <h3 class="section-subtitle">Guide Requirements</h3>
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <h3 class="section-subtitle">Trio Falls Tour Information</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="material-icons-outlined" style="color: #ff9800;">hiking</span>
-                            <span style="font-weight: 600; color: #ef6c00;">Certified Guide Required</span>
+                            <span class="material-icons-outlined" style="color: #4caf50;">tour</span>
+                            <span style="font-weight: 600; color: #2e7d32;">Trio Falls Adventure Package</span>
                         </div>
-                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #5d4037;">
-                            Mandatory for groups visiting beyond waterfall 3. Guides ensure safety and provide 
-                            valuable information about the ecosystem.
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            This tour covers three waterfalls: Burong Falls, Otso-Otso Falls, and Kaytitinga Falls. 
+                            The PHP 350 guide fee covers the entire group for all three destinations.
                         </p>
                     </div>
 

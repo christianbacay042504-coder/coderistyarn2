@@ -438,8 +438,9 @@
                     <h2 class="section-title">About Burong Falls</h2>
                     <p class="description">
                         Burong Falls is one of San Jose del Monte's most spectacular natural attractions, featuring 
-                        impressive multi-tiered cascades surrounded by pristine rainforest. This challenging yet 
-                        rewarding destination offers experienced hikers an unforgettable wilderness adventure.
+                        impressive multi-tiered cascades surrounded by pristine rainforest. This destination is part 
+                        of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide 
+                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.
                     </p>
                     
                     <!-- Safety Warning -->
@@ -494,8 +495,8 @@
                         <div class="info-item">
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
-                                <span class="info-label">Entrance Fee</span>
-                                <span class="info-value">₱100 per person</span>
+                                <span class="info-label">Tour Guide Fee</span>
+                                <span class="info-value">₱350 per group (max 5 pax)</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -540,15 +541,15 @@
                         <li>Headlamp (for early hikes)</li>
                     </ul>
 
-                    <h3 class="section-subtitle">Guide Requirement</h3>
-                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <h3 class="section-subtitle">Trio Falls Tour Information</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="material-icons-outlined" style="color: #d32f2f;">error</span>
-                            <span style="font-weight: 600; color: #d32f2f;">Certified Local Guide Mandatory</span>
+                            <span class="material-icons-outlined" style="color: #4caf50;">tour</span>
+                            <span style="font-weight: 600; color: #2e7d32;">Trio Falls Adventure Package</span>
                         </div>
-                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #5d4037;">
-                            For safety reasons, all visitors must be accompanied by a certified mountain guide.
-                            Guides can be booked through the tourism office.
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            This tour covers three waterfalls: Burong Falls, Otso-Otso Falls, and Kaytitinga Falls. 
+                            The PHP 350 guide fee covers the entire group for all three destinations.
                         </p>
                     </div>
 

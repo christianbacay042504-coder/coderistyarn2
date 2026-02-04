@@ -665,7 +665,7 @@
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
                                 <span class="info-label">Entrance Fee</span>
-                                <span class="info-value">₱200 per person</span>
+                                <span class="info-value">Free</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -684,7 +684,16 @@
                         </div>
                     </div>
 
-                    <h3 class="section-subtitle">Tour Packages</h3>
+                    <h3 class="section-subtitle">Tour Guide Information</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons-outlined" style="color: #4caf50;">check_circle</span>
+                            <span style="font-weight: 600; color: #2e7d32;">No Tour Guide Required</span>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            This destination is open for self-guided exploration. Feel free to visit at your own pace.
+                        </p>
+                    </div>
                     <div class="info-item">
                         <span class="material-icons-outlined">tour</span>
                         <div class="info-text">

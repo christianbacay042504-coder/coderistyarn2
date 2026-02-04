@@ -504,8 +504,29 @@
                         <div class="info-item">
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
-                                <span class="info-label">Registration Fee</span>
-                                <span class="info-value">₱50 per person</span>
+                                <span class="info-label">Barangay Entrance/Registration</span>
+                                <span class="info-value">~₱25 per person</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="material-icons-outlined">payments</span>
+                            <div class="info-text">
+                                <span class="info-label">Peak/Private Access Fee</span>
+                                <span class="info-value">~₱50 - ₱100+ per person</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="material-icons-outlined">groups</span>
+                            <div class="info-text">
+                                <span class="info-label">Mandatory Tour Guide</span>
+                                <span class="info-value">~₱350 per group (5-7 pax)</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="material-icons-outlined">hotel</span>
+                            <div class="info-text">
+                                <span class="info-label">Overnight Fee</span>
+                                <span class="info-value">~₱750 per group</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -575,6 +596,20 @@
                         <li>Proper hiking shoes</li>
                         <li>Sun protection (hat, sunscreen)</li>
                     </ul>
+
+                    <h3 class="section-subtitle">Mt. Balagbag Fee Structure</h3>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons-outlined" style="color: #ff9800;">payments</span>
+                            <span style="font-weight: 600; color: #ef6c00;">Complete Fee Breakdown</span>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #5d4037;">
+                            • Barangay Entrance/Registration: ~₱25 per person<br>
+                            • Peak/Private Access Fee: ~₱50 - ₱100+ per person<br>
+                            • Mandatory Tour Guide: ~₱350 per group (5-7 pax)<br>
+                            • Overnight Fee: ~₱750 per group (if camping)
+                        </p>
+                    </div>
 
                     <h3 class="section-subtitle">Guide Requirements</h3>
                     <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">

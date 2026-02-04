@@ -439,7 +439,8 @@
                     <p class="description">
                         Kaytitinga Falls is one of the most picturesque waterfalls in San Jose del Monte, 
                         featuring three stunning tiers of cascading water surrounded by lush tropical forest. 
-                        The name "Kaytitinga" originates from local dialect meaning "where water flows beautifully."
+                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide 
+                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.
                     </p>
                     
                     <!-- Swimming Information -->
@@ -502,8 +503,8 @@
                         <div class="info-item">
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
-                                <span class="info-label">Entrance Fee</span>
-                                <span class="info-value">₱80 per person</span>
+                                <span class="info-label">Tour Guide Fee</span>
+                                <span class="info-value">₱350 per group (max 5 pax)</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -562,6 +563,18 @@
                         <li>Waterproof camera or phone case</li>
                         <li>Sun protection (hat, sunscreen)</li>
                     </ul>
+
+                    <h3 class="section-subtitle">Trio Falls Tour Information</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons-outlined" style="color: #4caf50;">tour</span>
+                            <span style="font-weight: 600; color: #2e7d32;">Trio Falls Adventure Package</span>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            This tour covers three waterfalls: Burong Falls, Otso-Otso Falls, and Kaytitinga Falls. 
+                            The PHP 350 guide fee covers the entire group for all three destinations.
+                        </p>
+                    </div>
 
                     <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">waterfall</span>Book Waterfall Tour

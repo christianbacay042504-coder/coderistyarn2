@@ -697,8 +697,8 @@
                         <div class="info-item">
                             <span class="material-icons-outlined">payments</span>
                             <div class="info-text">
-                                <span class="info-label">Entrance Fee</span>
-                                <span class="info-value">₱100 per person</span>
+                                <span class="info-label">All-In Package</span>
+                                <span class="info-value">₱1,300 per person</span>
                             </div>
                         </div>
                         <div class="info-item">
@@ -733,15 +733,15 @@
                         </div>
                     </div>
 
-                    <h3 class="section-subtitle">Guide Recommendations</h3>
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <h3 class="section-subtitle">Tungtong Falls All-In Package</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="material-icons-outlined" style="color: #ff9800;">groups</span>
-                            <span style="font-weight: 600; color: #ef6c00;">Guide Recommended</span>
+                            <span class="material-icons-outlined" style="color: #4caf50;">all_inclusive</span>
+                            <span style="font-weight: 600; color: #2e7d32;">Complete Adventure Package</span>
                         </div>
-                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #5d4037;">
-                            First-time visitors and groups with children are advised to hire local guides. 
-                            Guides provide safety assistance and share local knowledge about the area.
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            The ₱1,300 ALL-IN package includes entrance fees, guide services, 
+                            equipment rental, and meals for a complete hassle-free adventure experience.
                         </p>
                     </div>
 

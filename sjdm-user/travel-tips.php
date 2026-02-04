@@ -35,8 +35,221 @@ if ($conn) {
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional styles for accommodation suggestions */
+        .accommodation-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #ffffff; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            color: var(--text-primary);
+        }
+
+        .accommodation-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .accommodation-section .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .spot-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .spot-card {
+            background: #ffffff; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .spot-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.3;
+        }
+
+        .spot-card h3 .material-icons-outlined {
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .area-badge {
+            display: inline-block;
+            background: var(--primary-light);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .suggestion-category {
+            margin-bottom: 15px;
+        }
+
+        .suggestion-category h4 {
+            color: var(--text-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestion-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .suggestion-list li {
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .suggestion-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+        }
+
+        .transport-tip {
+            background: var(--primary-light);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-left: 4px solid var(--primary);
+        }
+
+        .general-tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .general-tip-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .general-tip-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .general-tip-card h3 {
+            color: #25631cff;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .general-tip-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .general-tip-card ul li {
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+            color: #6b7280;
+        }
+
+        .general-tip-card ul li:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #3bc528ff;
+        }
+
+        .page-intro {
+            background: #ffffffff;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .page-intro h1 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .page-intro p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .spot-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .general-tips-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .accommodation-section {
+                padding: 20px;
+            }
+            
+            .page-intro {
+                padding: 30px 20px;
+            }
+            
+            .spot-card h3 {
+                font-size: 18px;
+            }
+            
+            .suggestion-category h4 {
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="travel-tips-page">
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-logo">
@@ -82,7 +295,7 @@ if ($conn) {
             <h1>Travel Tips</h1>
             <div class="search-bar">
                 <span class="material-icons-outlined">search</span>
-                <input type="text" placeholder="Search travel tips...">
+                <input type="text" placeholder="Search travel tips, hotels, or restaurants...">
             </div>
             <div class="header-actions">
                 <button class="icon-button">
@@ -134,8 +347,147 @@ if ($conn) {
         </header>
 
         <div class="content-area">
-            <h2 class="section-title">Travel Tips for SJDM Visitors</h2>
-            <div class="info-cards">
+            <!-- Page Intro -->
+            <div class="page-intro">
+                <h1>Travel Tips & Recommendations</h1>
+                <p>Find accommodation, restaurants, and practical advice for your SJDM adventure</p>
+            </div>
+
+            <!-- Accommodation & Restaurant Suggestions Section -->
+            <section class="accommodation-section">
+                <h2>Where to Stay & Eat Near Tourist Spots</h2>
+                <p class="section-subtitle">Find the best hotels, restaurants, and accommodations near popular tourist destinations</p>
+                
+                <div class="spot-cards" id="accommodationCards">
+                    <!-- Cards will be populated by JavaScript -->
+                    <div class="spot-card" data-spot="City Oval (People's Park)">
+                        <div class="area-badge">SJDM Center</div>
+                        <h3><span class="material-icons-outlined">park</span> City Oval (People's Park)</h3>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                            <ul class="suggestion-list">
+                                <li>Hotel Sogo</li>
+                                <li>Hotel Turista</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                            <ul class="suggestion-list">
+                                <li>Escobar's</li>
+                                <li>Roadside Dampa</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="transport-tip">
+                            <strong>Transport Tip:</strong> Very accessible via jeepney and tricycle. Parking available.
+                        </div>
+                    </div>
+                    
+                    <div class="spot-card" data-spot="Our Lady of Lourdes Parish / Padre Pio Parish">
+                        <div class="area-badge">Tungkong Mangga</div>
+                        <h3><span class="material-icons-outlined">church</span> Our Lady of Lourdes Parish / Padre Pio Parish</h3>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                            <ul class="suggestion-list">
+                                <li>Hotel Sogo</li>
+                                <li>Staycation Amaia</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                            <ul class="suggestion-list">
+                                <li>Max's SM SJDM</li>
+                                <li>Escobar's</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="transport-tip">
+                            <strong>Transport Tip:</strong> Near major highways. Easy access from city center.
+                        </div>
+                    </div>
+                    
+                    <div class="spot-card" data-spot="The Rising Heart Monument">
+                        <div class="area-badge">Paradise 3 area</div>
+                        <h3><span class="material-icons-outlined">landscape</span> The Rising Heart Monument</h3>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                            <ul class="suggestion-list">
+                                <li>Local lodges in Paradise 3 area</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                            <ul class="suggestion-list">
+                                <li>Los Arcos De Hermano (close resort)</li>
+                                <li>Escobar's (short drive)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="transport-tip">
+                            <strong>Transport Tip:</strong> Best visited by private vehicle. Photo spot along highway.
+                        </div>
+                    </div>
+                    
+                    <div class="spot-card" data-spot="Abes Farm / Paradise Hill Farm">
+                        <div class="area-badge">Paradise / Rural SJDM</div>
+                        <h3><span class="material-icons-outlined">agriculture</span> Abes Farm / Paradise Hill Farm</h3>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                            <ul class="suggestion-list">
+                                <li>Los Arcos</li>
+                                <li>Pacific Waves Resort</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                            <ul class="suggestion-list">
+                                <li>Farm-to-table restaurants in resort areas</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="transport-tip">
+                            <strong>Transport Tip:</strong> Requires private transportation. Rural roads may be narrow.
+                        </div>
+                    </div>
+                    
+                    <div class="spot-card" data-spot="Waterfalls">
+                        <div class="area-badge">Barangays San Isidro / Sto. Cristo</div>
+                        <h3><span class="material-icons-outlined">waterfall</span> Waterfalls (Burong, Kaytitinga, Otso-Otso, Tungtong Falls)</h3>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                            <ul class="suggestion-list">
+                                <li>Hotel Sogo</li>
+                                <li>Central SJDM accommodations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="suggestion-category">
+                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                            <ul class="suggestion-list">
+                                <li>Escobar's</li>
+                                <li>Local carinderias</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="transport-tip">
+                            <strong>Transport Tip:</strong> Requires local guides and transportation. Start early in the morning.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- General Travel Tips Section -->
+            <h2 class="section-title">General Travel Tips for SJDM</h2>
+            <div class="general-tips-grid">
                 <?php
                 // Fetch travel tips data from database
                 $conn = getDatabaseConnection();
@@ -145,8 +497,8 @@ if ($conn) {
                     
                     if ($result && $result->num_rows > 0) {
                         while ($tip = $result->fetch_assoc()) {
-                            echo '<div class="info-card">';
-                            echo '<h3>' . htmlspecialchars($tip['icon']) . ' ' . htmlspecialchars($tip['title']) . '</h3>';
+                            echo '<div class="general-tip-card" data-category="' . htmlspecialchars($tip['category']) . '">';
+                            echo '<h3><span class="material-icons-outlined">' . htmlspecialchars($tip['icon']) . '</span> ' . htmlspecialchars($tip['title']) . '</h3>';
                             
                             // Convert description from newlines to list items
                             $descriptionLines = explode("\n", $tip['description']);
@@ -182,15 +534,127 @@ if ($conn) {
 
     <script src="script.js"></script>
     <script>
+        // ========================================
+        // TRAVEL TIPS PAGE FUNCTIONALITY
+        // ========================================
+
         // Pass current user data to JavaScript
         <?php if (isset($currentUser)): ?>
         const currentUser = <?php echo json_encode($currentUser); ?>;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         <?php endif; ?>
-        
+
+        // Function to get nearby accommodations and restaurants for a tourist spot
+        function getNearbySuggestions(spotName) {
+            const suggestions = {
+                'City Oval (People\'s Park)': {
+                    'hotels': ['Hotel Sogo', 'Hotel Turista'],
+                    'restaurants': ['Escobar\'s', 'Roadside Dampa'],
+                    'malls': ['SM City SJDM', 'Starmall SJDM'],
+                    'area': 'SJDM Center',
+                    'transport_tip': 'Very accessible via jeepney and tricycle. Parking available.'
+                },
+                'Our Lady of Lourdes Parish / Padre Pio Parish': {
+                    'hotels': ['Hotel Sogo', 'Staycation Amaia'],
+                    'restaurants': ['Max\'s SM SJDM', 'Escobar\'s'],
+                    'malls': ['SM City SJDM (nearby)'],
+                    'area': 'Tungkong Mangga',
+                    'transport_tip': 'Near major highways. Easy access from city center.'
+                },
+                'The Rising Heart Monument': {
+                    'hotels': ['Local lodges in Paradise 3 area'],
+                    'restaurants': ['Los Arcos De Hermano (close resort)', 'Escobar\'s (short drive)'],
+                    'malls': [],
+                    'area': 'Paradise 3 area',
+                    'transport_tip': 'Best visited by private vehicle. Photo spot along highway.'
+                },
+                'Abes Farm / Paradise Hill Farm': {
+                    'hotels': ['Los Arcos', 'Pacific Waves Resort'],
+                    'restaurants': ['Farm-to-table restaurants in resort areas'],
+                    'malls': [],
+                    'area': 'Paradise / Rural SJDM',
+                    'transport_tip': 'Requires private transportation. Rural roads may be narrow.'
+                },
+                'Waterfalls (Burong, Kaytitinga, Otso-Otso, Tungtong Falls)': {
+                    'hotels': ['Hotel Sogo', 'Central SJDM accommodations'],
+                    'restaurants': ['Escobar\'s', 'Local carinderias'],
+                    'malls': [],
+                    'area': 'Barangays San Isidro / Sto. Cristo',
+                    'transport_tip': 'Requires local guides and transportation. Start early in the morning.'
+                }
+            };
+            
+            return suggestions[spotName] || {
+                'hotels': ['Hotel Sogo (central location)', 'Local lodges'],
+                'restaurants': ['Escobar\'s (central)', 'Local eateries'],
+                'malls': ['SM City SJDM', 'Starmall SJDM'],
+                'area': 'Central SJDM',
+                'transport_tip': 'Check local transportation options'
+            };
+        }
+
+        // Initialize travel tips search functionality
+        function initTravelTipsSearch() {
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    filterTravelTips(searchTerm);
+                });
+            }
+        }
+
+        // Filter travel tips based on search
+        function filterTravelTips(searchTerm) {
+            const cards = document.querySelectorAll('.general-tip-card, .spot-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm) || searchTerm === '') {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.5s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize travel tips page
+        function initTravelTipsPage() {
+            initTravelTipsSearch();
+            console.log('Travel tips page initialized');
+        }
+
+        // Add fadeInUp animation for cards
+        function addTravelTipsAnimations() {
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .spot-card,
+                .general-tip-card {
+                    animation: fadeInUp 0.5s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
         // Profile dropdown functionality
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded');
+            
+            // Initialize travel tips page
+            addTravelTipsAnimations();
+            initTravelTipsPage();
             
             const profileButton = document.getElementById('profileButton');
             const profileMenu = document.getElementById('profileMenu');

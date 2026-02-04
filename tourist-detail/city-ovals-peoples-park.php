@@ -549,7 +549,16 @@
                         </div>
                     </div>
 
-                    <h3 class="section-subtitle">Park Rules & Regulations</h3>
+                    <h3 class="section-subtitle">Tour Guide Information</h3>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons-outlined" style="color: #4caf50;">check_circle</span>
+                            <span style="font-weight: 600; color: #2e7d32;">No Tour Guide Required</span>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 0.9rem; color: #1b5e20;">
+                            This destination is open for self-guided exploration. Feel free to visit at your own pace.
+                        </p>
+                    </div>
                     <ul style="margin: 15px 0; padding-left: 20px; color: var(--text-light); font-size: 0.95rem;">
                         <li>No smoking within the premises</li>
                         <li>Proper disposal of waste in designated bins</li>

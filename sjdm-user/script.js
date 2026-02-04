@@ -15,7 +15,7 @@ let searchQuery = '';
 // Guide Profile Modal - Updated to work with database-driven content
 function viewGuideProfile(guideId) {
     console.log('viewGuideProfile called with guideId:', guideId);
-    
+
     // Create modal with enhanced aesthetics
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -42,7 +42,7 @@ function viewGuideProfile(guideId) {
             </div>
         </div>
     `;
-    
+
     // Add custom styles for enhanced aesthetics
     const style = document.createElement('style');
     style.textContent = `
@@ -610,10 +610,10 @@ function viewGuideProfile(guideId) {
         }
     `;
     document.head.appendChild(style);
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
-    
+
     // Fetch guide data from the DOM (since we're working with database-driven content)
     const guideCard = document.querySelector(`[data-guide-id="${guideId}"]`);
     if (guideCard) {
@@ -629,7 +629,7 @@ function viewGuideProfile(guideId) {
         const languages = guideCard.querySelector('.meta-item:nth-child(2)')?.textContent || '';
         const groupSize = guideCard.querySelector('.meta-item:nth-child(3)')?.textContent || '';
         const isVerified = guideCard.querySelector('.verified-badge') !== null;
-        
+
         // Update modal with guide information
         setTimeout(() => {
             const modalBody = modal.querySelector('.modal-body');
@@ -777,20 +777,20 @@ function generateStarRating(rating) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     let starsHTML = '';
-    
+
     for (let i = 0; i < fullStars; i++) {
         starsHTML += '<span class="material-icons-outlined">star</span>';
     }
-    
+
     if (hasHalfStar) {
         starsHTML += '<span class="material-icons-outlined">star_half</span>';
     }
-    
+
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
         starsHTML += '<span class="material-icons-outlined">star_outline</span>';
     }
-    
+
     return starsHTML;
 }
 
@@ -798,7 +798,7 @@ function generateStarRating(rating) {
 function bookGuide(guideId) {
     // Close the profile modal
     document.querySelector('.modal-overlay').remove();
-    
+
     // Navigate to booking page with pre-selected guide
     window.location.href = `book.php?guide=${guideId}`;
 }
@@ -863,19 +863,19 @@ function showBookingModal(hotelName) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Set min dates
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     document.getElementById('hotelCheckIn').min = today.toISOString().split('T')[0];
     document.getElementById('hotelCheckIn').value = today.toISOString().split('T')[0];
     document.getElementById('hotelCheckOut').min = tomorrow.toISOString().split('T')[0];
     document.getElementById('hotelCheckOut').value = tomorrow.toISOString().split('T')[0];
-    
+
     setTimeout(() => modal.classList.add('show'), 10);
 }
 
@@ -884,15 +884,15 @@ function submitHotelBooking(hotelName) {
     const checkOut = document.getElementById('hotelCheckOut').value;
     const guests = document.getElementById('hotelGuests').value;
     const contactName = document.getElementById('hotelContactName').value;
-    
+
     if (!checkIn || !checkOut || !contactName) {
         showNotification('Please fill in all required fields', 'error');
         return;
     }
-    
+
     showNotification(`Booking request for ${hotelName} submitted!`, 'success');
     document.querySelector('.modal-overlay').remove();
-    
+
     // Save to booking history
     const hotelBooking = {
         id: Date.now(),
@@ -904,7 +904,7 @@ function submitHotelBooking(hotelName) {
         date: new Date().toISOString(),
         status: 'pending'
     };
-    
+
     const hotelBookings = JSON.parse(localStorage.getItem('hotelBookings')) || [];
     hotelBookings.push(hotelBooking);
     localStorage.setItem('hotelBookings', JSON.stringify(hotelBookings));
@@ -915,20 +915,20 @@ function filterHotels() {
     const type = document.getElementById('hotelTypeFilter').value;
     const nearby = document.getElementById('nearbySpotFilter').value;
     const price = document.getElementById('priceFilter').value;
-    
+
     const cards = document.querySelectorAll('.travelry-card');
-    
+
     cards.forEach(card => {
         const cardType = card.getAttribute('data-category');
         const cardNearby = card.getAttribute('data-nearby');
         const cardPrice = card.getAttribute('data-price');
-        
+
         let show = true;
-        
+
         if (type !== 'all' && type !== cardType) show = false;
         if (nearby !== 'all' && nearby !== cardNearby) show = false;
         if (price !== 'all' && price !== cardPrice) show = false;
-        
+
         card.style.display = show ? 'block' : 'none';
     });
 }
@@ -947,7 +947,7 @@ function initHotelFilters() {
 // Add to your existing init function
 function init() {
     // ... existing code ...
-    
+
     // Initialize hotel filters when hotels page is shown
     if (window.location.hash === '#hotels' || document.getElementById('hotels')?.classList.contains('active')) {
         setTimeout(initHotelFilters, 100);
@@ -957,7 +957,7 @@ function init() {
 // WEATHER FUNCTIONS
 async function fetchWeatherData() {
     const url = "https://api.openweathermap.org/data/2.5/weather?q=San%20Jose%20Del%20Monte&appid=6c21a0d2aaf514cb8d21d56814312b19&units=metric";
-    
+
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -1037,10 +1037,10 @@ async function updateWeatherUI() {
 
     // Update main header weather
     updateMainHeaderWeather(weatherData);
-    
+
     // Update spots page weather
     updateSpotsPageWeather(weatherData);
-    
+
     // Update booking page with weather info
     updateBookingWeatherInfo(weatherData);
 }
@@ -1056,7 +1056,7 @@ function updateMainHeaderWeather(data) {
     const tempC = data.main.temp.toFixed(1);
     const conditions = data.weather[0].main;
     const icon = getWeatherIcon(conditions);
-    
+
     const weatherWidget = document.createElement('div');
     weatherWidget.className = 'weather-widget';
     weatherWidget.innerHTML = `
@@ -1066,7 +1066,7 @@ function updateMainHeaderWeather(data) {
             <div class="weather-desc">${conditions}</div>
         </div>
     `;
-    
+
     // Insert before profile dropdown
     const profileDropdown = headerActions.querySelector('.profile-dropdown');
     if (profileDropdown) {
@@ -1089,7 +1089,7 @@ function updateSpotsPageWeather(data) {
     const windSpeed = data.wind.speed;
     const windDir = degToCompass(data.wind.deg);
     const rainChance = getRainChance(conditions, humidity);
-    
+
     calendarHeader.innerHTML = `
         <span class="material-icons-outlined">${getWeatherIcon(data.weather[0].main)}</span>
         <span class="temperature">${tempC}°C</span>
@@ -1125,7 +1125,7 @@ function createWeatherAlert(data) {
     const humidity = data.main.humidity;
     const rainChance = getRainChance(conditions, humidity);
     const tips = generateAITips(data, rainChance);
-    
+
     const alertDiv = document.createElement('div');
     alertDiv.className = 'weather-alert';
     alertDiv.innerHTML = `
@@ -1145,7 +1145,7 @@ function createWeatherAlert(data) {
             ` : ''}
         </div>
     `;
-    
+
     return alertDiv;
 }
 
@@ -1300,18 +1300,18 @@ function addWeatherStyles() {
 // Initialize weather system
 function initWeatherSystem() {
     addWeatherStyles();
-    
+
     // Load weather on initial page load
     setTimeout(() => {
         updateWeatherUI();
     }, 1000);
-    
+
     // Refresh weather every 15 minutes
     setInterval(updateWeatherUI, 15 * 60 * 1000);
-    
+
     // Update weather when switching to spots page
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             setTimeout(() => {
                 if (document.getElementById('spots')?.classList.contains('active')) {
                     updateWeatherUI();
@@ -1334,10 +1334,10 @@ function init() {
     initProfileDropdown();
     updateUserInterface();
     checkNotifications();
-    
+
     // Initialize weather system
     initWeatherSystem();
-    
+
     // Initialize spots filters
     initSpotsFilters();
 }
@@ -1370,12 +1370,12 @@ function initMobileSidebar() {
         sidebar.classList.toggle('active');
         document.body.classList.toggle('sidebar-open');
     };
-    
+
     const header = document.querySelector('.main-header');
     if (header) {
         header.insertBefore(menuToggle, header.firstChild);
     }
-    
+
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             if (window.innerWidth < 1024) {
@@ -1394,7 +1394,7 @@ function initSearch() {
             searchQuery = e.target.value.toLowerCase();
             performSearch(searchQuery);
         }, 300));
-        
+
         // Add search on Enter key
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -1425,12 +1425,12 @@ function performSearch(query) {
         showHomePage();
         return;
     }
-    
+
     const results = {
         guides: searchGuides(query),
         destinations: searchDestinations(query)
     };
-    
+
     displaySearchResults(results, query);
 }
 
@@ -1440,14 +1440,14 @@ function searchGuides(query) {
     // this function will work with DOM elements instead of array
     const guideCards = document.querySelectorAll('.guide-card');
     const results = [];
-    
+
     guideCards.forEach(card => {
         const guideName = card.querySelector('.guide-name')?.textContent.toLowerCase() || '';
         const guideSpecialty = card.querySelector('.guide-specialty')?.textContent.toLowerCase() || '';
         const guideDescription = card.querySelector('.guide-description')?.textContent.toLowerCase() || '';
-        
-        if (guideName.includes(query) || 
-            guideSpecialty.includes(query) || 
+
+        if (guideName.includes(query) ||
+            guideSpecialty.includes(query) ||
             guideDescription.includes(query)) {
             results.push({
                 element: card,
@@ -1458,7 +1458,7 @@ function searchGuides(query) {
             });
         }
     });
-    
+
     return results;
 }
 
@@ -1490,8 +1490,8 @@ function searchDestinations(query) {
             image: "https://via.placeholder.com/400x300/2c5f2d/ffffff?text=Padre+Pio"
         }
     ];
-    
-    return destinations.filter(dest => 
+
+    return destinations.filter(dest =>
         dest.name.toLowerCase().includes(query) ||
         dest.description.toLowerCase().includes(query) ||
         dest.category.toLowerCase().includes(query)
@@ -1502,11 +1502,11 @@ function searchDestinations(query) {
 function displaySearchResults(results, query) {
     const contentArea = document.querySelector('.content-area');
     const pageTitle = document.getElementById('pageTitle');
-    
+
     pageTitle.textContent = `Search Results for "${query}"`;
-    
+
     let html = '<div class="search-results">';
-    
+
     // Guides section
     if (results.guides.length > 0) {
         html += `
@@ -1518,7 +1518,7 @@ function displaySearchResults(results, query) {
             </section>
         `;
     }
-    
+
     // Destinations section
     if (results.destinations.length > 0) {
         html += `
@@ -1530,7 +1530,7 @@ function displaySearchResults(results, query) {
             </section>
         `;
     }
-    
+
     // No results
     if (results.guides.length === 0 && results.destinations.length === 0) {
         html += `
@@ -1542,7 +1542,7 @@ function displaySearchResults(results, query) {
             </div>
         `;
     }
-    
+
     html += '</div>';
     contentArea.innerHTML = html;
 }
@@ -1581,9 +1581,9 @@ function clearSearch() {
 function showHomePage() {
     const contentArea = document.querySelector('.content-area');
     const pageTitle = document.getElementById('pageTitle');
-    
+
     pageTitle.textContent = 'Home';
-    
+
     // Restore original home page content
     contentArea.innerHTML = `
         <!-- HOME PAGE -->
@@ -1654,22 +1654,22 @@ function showHomePage() {
 function filterAndDisplayGuides() {
     // Since guides are now loaded from database via PHP, work with DOM elements
     const guideCards = document.querySelectorAll('.guide-card');
-    
+
     guideCards.forEach(card => {
         const guideCategory = card.getAttribute('data-category');
         const guideName = card.querySelector('.guide-name')?.textContent.toLowerCase() || '';
         const guideSpecialty = card.querySelector('.guide-specialty')?.textContent.toLowerCase() || '';
         const guideDescription = card.querySelector('.guide-description')?.textContent.toLowerCase() || '';
-        
+
         // Check if card matches search query
-        const matchesSearch = searchQuery === '' || 
+        const matchesSearch = searchQuery === '' ||
             guideName.includes(searchQuery) ||
             guideSpecialty.includes(searchQuery) ||
             guideDescription.includes(searchQuery);
-        
+
         // Check if card matches filter
         const matchesFilter = currentFilter === 'all' || guideCategory === currentFilter;
-        
+
         // Show or hide card based on filters
         const shouldShow = matchesSearch && matchesFilter;
         card.style.display = shouldShow ? 'block' : 'none';
@@ -1680,11 +1680,11 @@ function filterAndDisplayGuides() {
 function sortDisplayedGuides(sortBy) {
     const container = document.getElementById('guidesList');
     if (!container) return;
-    
+
     const cards = Array.from(container.querySelectorAll('.guide-card'));
-    
+
     cards.sort((a, b) => {
-        switch(sortBy) {
+        switch (sortBy) {
             case 'rating':
                 const ratingA = parseFloat(a.querySelector('.rating-value')?.textContent || '0');
                 const ratingB = parseFloat(b.querySelector('.rating-value')?.textContent || '0');
@@ -1709,7 +1709,7 @@ function sortDisplayedGuides(sortBy) {
                 return 0;
         }
     });
-    
+
     // Re-append sorted cards
     cards.forEach(card => container.appendChild(card));
 }
@@ -1717,7 +1717,7 @@ function sortDisplayedGuides(sortBy) {
 function displayFilteredGuides(guidesList) {
     const container = document.getElementById('guidesList');
     if (!container) return;
-    
+
     if (guidesList.length === 0) {
         container.innerHTML = `
             <div class="no-results">
@@ -1729,7 +1729,7 @@ function displayFilteredGuides(guidesList) {
         `;
         return;
     }
-    
+
     container.innerHTML = guidesList.map(g => createGuideCard(g)).join('');
 }
 
@@ -1737,17 +1737,17 @@ function resetFilters() {
     searchQuery = '';
     currentFilter = 'all';
     currentSort = 'rating';
-    
+
     const searchInput = document.querySelector('.search-bar input');
     if (searchInput) searchInput.value = '';
-    
+
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filter === 'all');
     });
-    
+
     const sortSelect = document.getElementById('sortGuides');
     if (sortSelect) sortSelect.value = 'rating';
-    
+
     filterAndDisplayGuides();
 }
 
@@ -1806,7 +1806,7 @@ function isFavorite(guideId) {
 function toggleFavorite(guideId) {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     const index = favorites.indexOf(guideId);
-    
+
     if (index > -1) {
         favorites.splice(index, 1);
         showNotification('Removed from favorites', 'info');
@@ -1814,16 +1814,16 @@ function toggleFavorite(guideId) {
         favorites.push(guideId);
         showNotification('Added to favorites', 'success');
     }
-    
+
     localStorage.setItem('favorites', JSON.stringify(favorites));
-    
+
     const favBtn = event.currentTarget;
     const icon = favBtn.querySelector('.material-icons-outlined');
     if (icon) {
         icon.textContent = isFavorite(guideId) ? 'favorite' : 'favorite_border';
         favBtn.classList.toggle('active');
     }
-    
+
     if (document.getElementById('saved-tours').classList.contains('active')) {
         displayFavorites();
     }
@@ -1832,7 +1832,7 @@ function toggleFavorite(guideId) {
 function displayFavorites() {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     const container = document.getElementById('savedToursList');
-    
+
     if (favorites.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -1844,7 +1844,7 @@ function displayFavorites() {
         `;
         return;
     }
-    
+
     container.innerHTML = `
         <div class="favorites-loading">
             <p>Loading your favorite guides...</p>
@@ -1857,7 +1857,7 @@ function displayFavorites() {
 function checkNotifications() {
     const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
     const unreadCount = notifications.filter(n => !n.read).length;
-    
+
     const badge = document.querySelector('.notification-badge');
     if (badge) {
         badge.textContent = unreadCount;
@@ -1866,24 +1866,47 @@ function checkNotifications() {
 }
 
 function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    const existingNotification = document.querySelector('.notification-banner');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // Create notification banner
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification-banner ${type}`;
+
+    // Icon mapping for different types
+    const icons = {
+        success: 'check_circle',
+        error: 'error',
+        warning: 'warning',
+        info: 'info'
+    };
+
     notification.innerHTML = `
-        <span class="material-icons-outlined">
-            ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}
-        </span>
-        <span>${message}</span>
+        <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+        <span class="notification-message">${message}</span>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <span class="material-icons-outlined">close</span>
+        </button>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
+    // Trigger show animation
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
+    // Auto-dismiss after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 400);
     }, 3000);
 }
 
@@ -1903,18 +1926,22 @@ function showLogoutModal() {
     modal.innerHTML = `
         <div class="modal-content logout-modal">
             <div class="modal-header">
-                <h2>Sign Out Confirmation</h2>
+                <h2>Sign Out</h2>
                 <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
                     <span class="material-icons-outlined">close</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="logout-message">
-                    <span class="material-icons-outlined logout-icon">logout</span>
-                    <p>Are you sure you want to sign out?</p>
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">logout</span>
+                    </div>
+                    <h3>Confirm Sign Out</h3>
+                    <p>Are you sure you want to sign out of your account?</p>
                 </div>
                 <div class="modal-actions">
                     <button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">
+                        <span class="material-icons-outlined">close</span>
                         Cancel
                     </button>
                     <button class="btn-confirm-logout" onclick="confirmLogout()">
@@ -1925,7 +1952,7 @@ function showLogoutModal() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -1933,17 +1960,17 @@ function showLogoutModal() {
 function confirmLogout() {
     // Close the modal
     document.querySelector('.modal-overlay').remove();
-    
+
     // Make a request to the server-side logout endpoint
     fetch('/coderistyarn2/sjdm-user/logout.php')
         .then(response => {
             if (response.ok) {
                 // Clear local storage
                 localStorage.removeItem('currentUser');
-                
+
                 // Show success message
                 showNotification('Successfully signed out!', 'success');
-                
+
                 // Redirect to login page after a short delay
                 setTimeout(() => {
                     window.location.href = '/coderistyarn2/log-in/log-in.php';
@@ -1962,7 +1989,7 @@ function confirmLogout() {
 // Profile Menu Modal Functions
 function showMyAccountModal() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'User', email: 'user@example.com' };
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -1981,26 +2008,40 @@ function showMyAccountModal() {
                     <div class="account-info">
                         <h3>${currentUser.name}</h3>
                         <p>${currentUser.email}</p>
-                        <span class="member-badge">Member since 2024</span>
+                        <span class="member-badge">
+                            <span class="material-icons-outlined" style="font-size: 16px;">verified_user</span>
+                            Member since 2024
+                        </span>
                     </div>
                 </div>
-                <div class="account-actions">
-                    <button class="btn-primary" onclick="editProfile()">
-                        <span class="material-icons-outlined">edit</span>
-                        Edit Profile
-                    </button>
+                <div class="modal-divider"></div>
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="material-icons-outlined">account_box</span>
+                        Quick Actions
+                    </div>
+                    <div class="account-actions">
+                        <button class="btn-primary" onclick="window.location.href='my-account.php'">
+                            <span class="material-icons-outlined">edit</span>
+                            Edit Profile
+                        </button>
+                        <button class="btn-secondary" onclick="window.location.href='booking-history.php'">
+                            <span class="material-icons-outlined">history</span>
+                            View Bookings
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
 
 function showBookingHistoryModal() {
     const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -2012,15 +2053,23 @@ function showBookingHistoryModal() {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="empty-state">
-                    <span class="material-icons-outlined">event_busy</span>
-                    <h3>Booking History</h3>
-                    <p>Your booking history will appear here</p>
+                <div class="modal-empty-state">
+                    <div class="empty-icon">
+                        <span class="material-icons-outlined">event_note</span>
+                    </div>
+                    <h3>No Bookings Yet</h3>
+                    <p>Your booking history will appear here once you make your first tour reservation with SJDM Tours.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='index.php'">
+                        <span class="material-icons-outlined">explore</span>
+                        Browse Tours
+                    </button>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2037,15 +2086,23 @@ function showSavedToursModal() {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="empty-state">
-                    <span class="material-icons-outlined">favorite_border</span>
-                    <h3>Saved Tours</h3>
-                    <p>Your favorite tours will appear here</p>
+                <div class="modal-empty-state">
+                    <div class="empty-icon">
+                        <span class="material-icons-outlined">favorite_border</span>
+                    </div>
+                    <h3>No Saved Tours Yet</h3>
+                    <p>Save your favorite tours and destinations to quickly access them later. Start exploring and click the heart icon to save.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='tourist-spots.php'">
+                        <span class="material-icons-outlined">place</span>
+                        Explore Destinations
+                    </button>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2062,14 +2119,49 @@ function showSettingsModal() {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="settings-section">
-                    <h3>Settings</h3>
-                    <p>Settings panel coming soon</p>
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="material-icons-outlined">notifications</span>
+                        Notifications
+                    </div>
+                    <div class="modal-info-grid">
+                        <div class="info-grid-item">
+                            <div class="label">Email Alerts</div>
+                            <div class="value" style="color: var(--primary);">Enabled</div>
+                        </div>
+                        <div class="info-grid-item">
+                            <div class="label">SMS Updates</div>
+                            <div class="value" style="color: var(--text-secondary);">Disabled</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="material-icons-outlined">language</span>
+                        Preferences
+                    </div>
+                    <div class="modal-info-grid">
+                        <div class="info-grid-item">
+                            <div class="label">Language</div>
+                            <div class="value">English</div>
+                        </div>
+                        <div class="info-grid-item">
+                            <div class="label">Currency</div>
+                            <div class="value">PHP (₱)</div>
+                        </div>
+                    </div>
+                </div>
+<div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='my-account.php'">
+                        <span class="material-icons-outlined">settings</span>
+                        Manage Settings
+                    </button>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2086,17 +2178,57 @@ function showHelpSupportModal() {
                 </button>
             </div>
             <div class="modal-body">
-                <div class="help-sections">
-                    <div class="help-section">
-                        <h3>Contact Support</h3>
-                        <p>support@sjdmtours.com</p>
-                        <p>+63 2 1234 5678</p>
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">support_agent</span>
                     </div>
+                    <h3>We're Here to Help</h3>
+                    <p>Get in touch with our support team for assistance with your bookings and inquiries.</p>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="material-icons-outlined">contact_support</span>
+                        Contact Information
+                    </div>
+                    <div class="modal-info-grid">
+                        <div class="info-grid-item">
+                            <div class="label">Email Support</div>
+                            <div class="value" style="font-size: 0.9rem;">support@sjdmtours.com</div>
+                        </div>
+                        <div class="info-grid-item">
+                            <div class="label">Phone</div>
+                            <div class="value">+63 2 1234 5678</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="material-icons-outlined">schedule</span>
+                        Business Hours
+                    </div>
+                    <div class="modal-info-grid">
+                        <div class="info-grid-item">
+                            <div class="label">Weekdays</div>
+                            <div class="value">9:00 AM - 6:00 PM</div>
+                        </div>
+                        <div class="info-grid-item">
+                            <div class="label">Weekends</div>
+                            <div class="value">10:00 AM - 4:00 PM</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='help-support.php'">
+                        <span class="material-icons-outlined">help_center</span>
+                        Visit Help Center
+                    </button>
                 </div>
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2105,9 +2237,9 @@ function showHelpSupportModal() {
 function displayUserBookings() {
     const container = document.getElementById('bookingsList');
     if (!container) return;
-    
+
     const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-    
+
     if (userBookings.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
@@ -2119,7 +2251,7 @@ function displayUserBookings() {
         `;
         return;
     }
-    
+
     container.innerHTML = userBookings.reverse().map(booking => `
         <div class="booking-card">
             <div class="booking-header">
@@ -2177,10 +2309,10 @@ function formatDate(dateString) {
 
 function cancelBooking(bookingNumber) {
     if (!confirm('Are you sure you want to cancel this booking?')) return;
-    
+
     const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
     const index = bookings.findIndex(b => b.bookingNumber === bookingNumber);
-    
+
     if (index > -1) {
         bookings[index].status = 'cancelled';
         localStorage.setItem('userBookings', JSON.stringify(bookings));
@@ -2192,9 +2324,9 @@ function cancelBooking(bookingNumber) {
 function viewBookingDetails(bookingNumber) {
     const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
     const booking = bookings.find(b => b.bookingNumber === bookingNumber);
-    
+
     if (!booking) return;
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -2251,7 +2383,7 @@ function viewBookingDetails(bookingNumber) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2259,7 +2391,7 @@ function viewBookingDetails(bookingNumber) {
 function showReviewModal(guideId) {
     const guide = guides.find(g => g.id === guideId);
     if (!guide) return;
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -2274,7 +2406,7 @@ function showReviewModal(guideId) {
                 <div class="rating-input">
                     <label>Your Rating:</label>
                     <div class="star-rating">
-                        ${[5,4,3,2,1].map(i => `
+                        ${[5, 4, 3, 2, 1].map(i => `
                             <input type="radio" name="rating" id="star${i}" value="${i}">
                             <label for="star${i}">★</label>
                         `).join('')}
@@ -2288,7 +2420,7 @@ function showReviewModal(guideId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2296,20 +2428,20 @@ function showReviewModal(guideId) {
 function submitReview(guideId) {
     const rating = document.querySelector('input[name="rating"]:checked');
     const reviewText = document.getElementById('reviewText');
-    
+
     if (!rating) {
         showNotification('Please select a rating', 'error');
         return;
     }
-    
+
     if (!reviewText.value.trim()) {
         showNotification('Please write a review', 'error');
         return;
     }
-    
+
     const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
     const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Anonymous' };
-    
+
     const review = {
         id: Date.now(),
         guideId: guideId,
@@ -2318,20 +2450,20 @@ function submitReview(guideId) {
         comment: reviewText.value.trim(),
         date: new Date().toISOString()
     };
-    
+
     reviews.push(review);
     localStorage.setItem('reviews', JSON.stringify(reviews));
-    
+
     showNotification('Review submitted successfully!', 'success');
     document.querySelector('.modal-overlay').remove();
-    
+
     updateGuideRating(guideId);
 }
 
 function updateGuideRating(guideId) {
     const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
     const guideReviews = reviews.filter(r => r.guideId === guideId);
-    
+
     if (guideReviews.length > 0) {
         const avgRating = guideReviews.reduce((sum, r) => sum + r.rating, 0) / guideReviews.length;
         const guide = guides.find(g => g.id === guideId);
@@ -2355,22 +2487,22 @@ function initDatePickers() {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const checkInInput = document.getElementById('checkInDate');
     const checkOutInput = document.getElementById('checkOutDate');
-    
+
     if (checkInInput && checkOutInput) {
         checkInInput.min = formatDateInput(today);
         checkOutInput.min = formatDateInput(tomorrow);
         checkInInput.value = formatDateInput(today);
         checkOutInput.value = formatDateInput(tomorrow);
-        
-        checkInInput.addEventListener('change', function() {
+
+        checkInInput.addEventListener('change', function () {
             const checkInDate = new Date(this.value);
             const nextDay = new Date(checkInDate);
             nextDay.setDate(checkInDate.getDate() + 1);
             checkOutInput.min = formatDateInput(nextDay);
-            
+
             const currentCheckOut = new Date(checkOutInput.value);
             if (currentCheckOut < nextDay) {
                 checkOutInput.value = formatDateInput(nextDay);
@@ -2400,12 +2532,12 @@ function calculateNights(checkIn, checkOut) {
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
+
     const page = document.getElementById(pageId);
     if (page) {
         page.classList.add('active');
     }
-    
+
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         const itemText = item.textContent.toLowerCase().trim();
@@ -2426,14 +2558,14 @@ function showPage(pageId) {
         'saved-tours': 'Saved Tours',
         'my-account': 'My Account'
     };
-    
+
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) {
         titleEl.textContent = pageTitles[pageId] || 'SJDM Tourism';
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     if (pageId === 'booking-history') {
         displayUserBookings();
     } else if (pageId === 'saved-tours') {
@@ -2445,7 +2577,7 @@ function showPage(pageId) {
             initSpotsFilters();
         }, 100);
     }
-    
+
     // Update weather when switching to relevant pages
     if (pageId === 'spots' || pageId === 'booking') {
         setTimeout(updateWeatherUI, 300);
@@ -2457,7 +2589,7 @@ function viewProfile(id) {
     currentGuideId = id;
     const guide = guides.find(g => g.id === id);
     if (!guide) return;
-    
+
     const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
     const guideReviews = reviews.filter(r => r.guideId === id).slice(-5).reverse();
 
@@ -2596,7 +2728,7 @@ function viewProfile(id) {
 function contactGuide(guideId) {
     const guide = guides.find(g => g.id === guideId);
     if (!guide) return;
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
@@ -2635,7 +2767,7 @@ function contactGuide(guideId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -2646,7 +2778,7 @@ function sendMessage(guideId) {
         showNotification('Please enter a message', 'error');
         return;
     }
-    
+
     showNotification('Message sent successfully!', 'success');
     document.querySelector('.modal-overlay').remove();
 }
@@ -2671,7 +2803,7 @@ function populateGuideSelect() {
 function updateProgress(step) {
     const progressSteps = document.querySelectorAll('.progress-step');
     if (!progressSteps.length) return;
-    
+
     progressSteps.forEach((el, index) => {
         if (index + 1 < step) {
             el.classList.remove('active');
@@ -2683,7 +2815,7 @@ function updateProgress(step) {
             el.classList.remove('active', 'completed');
         }
     });
-    
+
     document.querySelectorAll('.booking-step').forEach(el => {
         el.classList.remove('active');
     });
@@ -2691,7 +2823,7 @@ function updateProgress(step) {
     if (currentStepEl) {
         currentStepEl.classList.add('active');
     }
-    
+
     const activeStep = document.querySelector('.booking-step.active');
     if (activeStep) {
         activeStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2702,14 +2834,14 @@ function nextStep(current) {
     if (current === 1 && !validateStep1()) return;
     if (current === 2 && !validateStep2()) return;
     if (current === 3 && !validateStep3()) return;
-    
+
     currentStep = current + 1;
-    
+
     // Update review summary when moving to step 3 (Review & Pay)
     if (currentStep === 3) {
         updateReviewSummary();
     }
-    
+
     if (currentStep === 4) {
         updateConfirmationSummary();
     }
@@ -2718,12 +2850,12 @@ function nextStep(current) {
 
 function prevStep(current) {
     currentStep = current - 1;
-    
+
     // Update review summary when going back to step 3 (Review & Pay)
     if (currentStep === 3) {
         updateReviewSummary();
     }
-    
+
     updateProgress(currentStep);
 }
 
@@ -2733,7 +2865,7 @@ function validateStep1() {
     const checkIn = document.getElementById('checkInDate');
     const checkOut = document.getElementById('checkOutDate');
     const guests = document.getElementById('guestCount');
-    
+
     if (!guide || !guide.value) {
         showNotification('Please select a tour guide', 'error');
         return false;
@@ -2755,7 +2887,7 @@ function validateStep1() {
         showNotification('Please enter a valid number of guests', 'error');
         return false;
     }
-    
+
     bookingData = {
         ...bookingData,
         guideId: guide.value,
@@ -2774,7 +2906,7 @@ function validateStep2() {
     const email = document.getElementById('email');
     const contactNumber = document.getElementById('contactNumber');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!fullName || !fullName.value.trim()) {
         showNotification('Please enter your full name', 'error');
         return false;
@@ -2787,7 +2919,7 @@ function validateStep2() {
         showNotification('Please enter a valid contact number', 'error');
         return false;
     }
-    
+
     bookingData = {
         ...bookingData,
         fullName: fullName.value.trim(),
@@ -2804,7 +2936,7 @@ function validateStep3() {
         showNotification('Please select a payment method', 'error');
         return false;
     }
-    
+
     bookingData.payment = {
         method: paymentMethod.value
     };
@@ -2813,14 +2945,14 @@ function validateStep3() {
 
 function updateReviewSummary() {
     if (!bookingData) return;
-    
+
     // Get form values directly to ensure we have the latest data
     const guideSelect = document.getElementById('selectedGuide');
     const destinationSelect = document.getElementById('destination');
     const checkInInput = document.getElementById('checkInDate');
     const checkOutInput = document.getElementById('checkOutDate');
     const guestsInput = document.getElementById('guestCount');
-    
+
     // Update bookingData with latest form values
     if (guideSelect && guideSelect.value) {
         bookingData.guideId = guideSelect.value;
@@ -2830,19 +2962,19 @@ function updateReviewSummary() {
     if (checkInInput) bookingData.checkIn = checkInInput.value;
     if (checkOutInput) bookingData.checkOut = checkOutInput.value;
     if (guestsInput) bookingData.guests = guestsInput.value;
-    
+
     // Calculate nights
     const nights = calculateNights(bookingData.checkIn, bookingData.checkOut);
     bookingData.nights = nights;
-    
+
     // Format dates
-    const formattedCheckIn = new Date(bookingData.checkIn).toLocaleDateString('en-US', { 
+    const formattedCheckIn = new Date(bookingData.checkIn).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    const formattedCheckOut = new Date(bookingData.checkOut).toLocaleDateString('en-US', { 
+    const formattedCheckOut = new Date(bookingData.checkOut).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    
+
     // Update review section elements
     const reviewEls = {
         reviewGuideName: document.getElementById('reviewGuideName'),
@@ -2851,29 +2983,29 @@ function updateReviewSummary() {
         reviewCheckOut: document.getElementById('reviewCheckOut'),
         reviewGuests: document.getElementById('reviewGuests')
     };
-    
+
     if (reviewEls.reviewGuideName) reviewEls.reviewGuideName.textContent = bookingData.guideName || '-';
     if (reviewEls.reviewDestination) reviewEls.reviewDestination.textContent = bookingData.destination || '-';
     if (reviewEls.reviewCheckIn) reviewEls.reviewCheckIn.textContent = formattedCheckIn;
     if (reviewEls.reviewCheckOut) reviewEls.reviewCheckOut.textContent = formattedCheckOut;
     if (reviewEls.reviewGuests) reviewEls.reviewGuests.textContent = bookingData.guests || '-';
-    
+
     // Update pricing based on actual guest count
     const guestCount = parseInt(bookingData.guests) || 1;
     const guideFee = 2500;
     const entranceFees = 100 * guestCount;
     const serviceFee = 200;
     const total = guideFee + entranceFees + serviceFee;
-    
+
     // Update price summary in review section
     const priceEls = {
         entranceFees: document.querySelector('.price-summary .price-row:nth-child(2) span:last-child'),
         total: document.querySelector('.price-summary .price-row.total span:last-child')
     };
-    
+
     if (priceEls.entranceFees) priceEls.entranceFees.textContent = `₱${entranceFees.toLocaleString()}.00`;
     if (priceEls.total) priceEls.total.textContent = `₱${total.toLocaleString()}.00`;
-    
+
     // Store pricing data for later use
     bookingData.pricing = {
         guideFee,
@@ -2885,14 +3017,14 @@ function updateReviewSummary() {
 
 function updateConfirmationSummary() {
     if (!bookingData) return;
-    
-    const formattedCheckIn = new Date(bookingData.checkIn).toLocaleDateString('en-US', { 
+
+    const formattedCheckIn = new Date(bookingData.checkIn).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    const formattedCheckOut = new Date(bookingData.checkOut).toLocaleDateString('en-US', { 
+    const formattedCheckOut = new Date(bookingData.checkOut).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    
+
     const els = {
         guestName: document.getElementById('guestName'),
         tourGuideName: document.getElementById('tourGuideName'),
@@ -2905,7 +3037,7 @@ function updateConfirmationSummary() {
         confirmationEmail: document.getElementById('confirmationEmail'),
         bookingNumber: document.getElementById('bookingNumber')
     };
-    
+
     if (els.guestName) els.guestName.textContent = bookingData.fullName || '';
     if (els.tourGuideName) els.tourGuideName.textContent = bookingData.guideName || '';
     if (els.tourDateRange) els.tourDateRange.textContent = `${formattedCheckIn} - ${formattedCheckOut}`;
@@ -2918,32 +3050,32 @@ function updateConfirmationSummary() {
         els.summaryNights.textContent = `${nights} ${nights === 1 ? 'Night' : 'Nights'}`;
     }
     if (els.confirmationEmail) els.confirmationEmail.textContent = bookingData.email || '';
-    
+
     const bookingNumber = `SJDM-${Date.now().toString().slice(-6)}`;
     if (els.bookingNumber) els.bookingNumber.textContent = bookingNumber;
-    
+
     const guideFee = 2500;
     const entranceFee = 100 * (bookingData.nights || 1);
     const serviceFee = 200;
     const total = guideFee + entranceFee + serviceFee;
-    
+
     const feeEls = {
         guideFee: document.getElementById('summaryGuideFee'),
         entranceFees: document.getElementById('summaryEntranceFees'),
         total: document.getElementById('summaryTotal')
     };
-    
+
     if (feeEls.guideFee) feeEls.guideFee.textContent = `₱${guideFee.toLocaleString()}.00`;
     if (feeEls.entranceFees) feeEls.entranceFees.textContent = `₱${entranceFee.toLocaleString()}.00`;
     if (feeEls.total) feeEls.total.textContent = `₱${total.toLocaleString()}.00`;
-    
+
     bookingData.bookingNumber = bookingNumber;
     bookingData.totalAmount = total;
 }
 
 function initBookingForm() {
     document.querySelectorAll('.progress-step').forEach(step => {
-        step.addEventListener('click', function() {
+        step.addEventListener('click', function () {
             const stepNumber = parseInt(this.getAttribute('data-step'));
             if (stepNumber < currentStep) {
                 currentStep = stepNumber;
@@ -2951,11 +3083,11 @@ function initBookingForm() {
             }
         });
     });
-    
+
     const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
     if (paymentRadios.length) {
         paymentRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 const creditCardForm = document.getElementById('creditCardForm');
                 if (creditCardForm) {
                     creditCardForm.style.display = this.value === 'credit_card' ? 'block' : 'none';
@@ -2982,22 +3114,22 @@ function updateConfirmationPage(bookingData, bookingReference) {
         summaryCheckOut: document.getElementById('summaryCheckOut'),
         summaryNights: document.getElementById('summaryNights')
     };
-    
+
     // Format dates
-    const formattedCheckIn = new Date(bookingData.check_in_date).toLocaleDateString('en-US', { 
+    const formattedCheckIn = new Date(bookingData.check_in_date).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    const formattedCheckOut = new Date(bookingData.check_out_date).toLocaleDateString('en-US', { 
+    const formattedCheckOut = new Date(bookingData.check_out_date).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
     });
-    
+
     // Calculate nights
     const nights = calculateNights(bookingData.check_in_date, bookingData.check_out_date);
-    
+
     // Get guide name from select element
     const guideSelect = document.getElementById('selectedGuide');
     const guideName = guideSelect.options[guideSelect.selectedIndex].text.split(' - ')[0];
-    
+
     // Update elements
     if (els.bookingNumber) els.bookingNumber.textContent = bookingReference;
     if (els.guestName) els.guestName.textContent = bookingData.full_name;
@@ -3009,19 +3141,19 @@ function updateConfirmationPage(bookingData, bookingReference) {
     if (els.summaryCheckIn) els.summaryCheckIn.textContent = formattedCheckIn.split(',')[0];
     if (els.summaryCheckOut) els.summaryCheckOut.textContent = formattedCheckOut.split(',')[0];
     if (els.summaryNights) els.summaryNights.textContent = `${nights} ${nights === 1 ? 'Night' : 'Nights'}`;
-    
+
     // Calculate and update pricing
     const guideFee = 2500;
     const entranceFees = 100 * parseInt(bookingData.guest_count);
     const serviceFee = 200;
     const total = guideFee + entranceFees + serviceFee;
-    
+
     const feeEls = {
         guideFee: document.getElementById('summaryGuideFee'),
         entranceFees: document.getElementById('summaryEntranceFees'),
         total: document.getElementById('summaryTotal')
     };
-    
+
     if (feeEls.guideFee) feeEls.guideFee.textContent = `₱${guideFee.toLocaleString()}.00`;
     if (feeEls.entranceFees) feeEls.entranceFees.textContent = `₱${entranceFees.toLocaleString()}.00`;
     if (feeEls.total) feeEls.total.textContent = `₱${total.toLocaleString()}.00`;
@@ -3029,13 +3161,13 @@ function updateConfirmationPage(bookingData, bookingReference) {
 
 function submitBooking() {
     if (!validateStep3()) return;
-    
+
     // Show loading state
     const submitButton = document.querySelector('.btn-submit');
     const originalText = submitButton.innerHTML;
     submitButton.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing...';
     submitButton.disabled = true;
-    
+
     // Collect all booking data
     const bookingData = {
         guide_id: document.getElementById('selectedGuide').value,
@@ -3049,7 +3181,7 @@ function submitBooking() {
         special_requests: document.getElementById('specialRequests').value,
         payment_method: document.querySelector('input[name="paymentMethod"]:checked').value
     };
-    
+
     // Send booking to server
     fetch('process_booking.php', {
         method: 'POST',
@@ -3058,59 +3190,59 @@ function submitBooking() {
         },
         body: JSON.stringify(bookingData)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Store booking reference for confirmation page
-            window.bookingReference = data.booking_reference;
-            window.bookingId = data.booking_id;
-            
-            // Update confirmation page with booking details
-            updateConfirmationPage(bookingData, data.booking_reference);
-            
-            // Move to confirmation step
-            currentStep = 4;
-            updateProgress(currentStep);
-            
-            showNotification('Booking submitted successfully!', 'success');
-        } else {
-            throw new Error(data.message || 'Booking failed');
-        }
-    })
-    .catch(error => {
-        console.error('Booking error:', error);
-        showNotification(error.message || 'Failed to submit booking. Please try again.', 'error');
-        
-        // Reset button state
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Store booking reference for confirmation page
+                window.bookingReference = data.booking_reference;
+                window.bookingId = data.booking_id;
+
+                // Update confirmation page with booking details
+                updateConfirmationPage(bookingData, data.booking_reference);
+
+                // Move to confirmation step
+                currentStep = 4;
+                updateProgress(currentStep);
+
+                showNotification('Booking submitted successfully!', 'success');
+            } else {
+                throw new Error(data.message || 'Booking failed');
+            }
+        })
+        .catch(error => {
+            console.error('Booking error:', error);
+            showNotification(error.message || 'Failed to submit booking. Please try again.', 'error');
+
+            // Reset button state
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        });
 }
 
 function filterSpots() {
     const category = document.getElementById('categoryFilter').value;
     const activity = document.getElementById('activityFilter').value;
     const duration = document.getElementById('durationFilter').value;
-    
+
     const cards = document.querySelectorAll('.travelry-card');
-    
+
     cards.forEach(card => {
         const cardCategory = card.getAttribute('data-category');
         const cardActivity = card.getAttribute('data-activity');
         const cardDuration = card.getAttribute('data-duration');
-        
+
         let show = true;
-        
+
         // Filter by category
         if (category !== 'all' && category !== cardCategory) {
             show = false;
         }
-        
+
         // Filter by activity level
         if (activity !== 'all' && activity !== cardActivity) {
             show = false;
         }
-        
+
         // Filter by duration
         if (duration !== 'all') {
             if (duration === '1-2' && !cardDuration.includes('1-2')) {
@@ -3125,14 +3257,14 @@ function filterSpots() {
                 }
             }
         }
-        
+
         card.style.display = show ? 'block' : 'none';
     });
-    
+
     // Check if any cards are visible
     const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
     const noResults = document.querySelector('.no-results-spots');
-    
+
     if (visibleCards.length === 0) {
         if (!noResults) {
             const spotsGrid = document.getElementById('spotsGrid');
@@ -3218,7 +3350,141 @@ function viewFAQs() {
     showNotification('Opening FAQs...', 'info');
 }
 
+// ========================================
+// TRAVEL TIPS PAGE FUNCTIONALITY
+// ========================================
 
+// Function to get nearby accommodations and restaurants for a tourist spot
+function getNearbySuggestions(spotName) {
+    const suggestions = {
+        'City Oval (People\'s Park)': {
+            'hotels': ['Hotel Sogo', 'Hotel Turista'],
+            'restaurants': ['Escobar\'s', 'Roadside Dampa'],
+            'malls': ['SM City SJDM', 'Starmall SJDM'],
+            'area': 'SJDM Center',
+            'transport_tip': 'Very accessible via jeepney and tricycle. Parking available.'
+        },
+        'Our Lady of Lourdes Parish / Padre Pio Parish': {
+            'hotels': ['Hotel Sogo', 'Staycation Amaia'],
+            'restaurants': ['Max\'s SM SJDM', 'Escobar\'s'],
+            'malls': ['SM City SJDM (nearby)'],
+            'area': 'Tungkong Mangga',
+            'transport_tip': 'Near major highways. Easy access from city center.'
+        },
+        'The Rising Heart Monument': {
+            'hotels': ['Local lodges in Paradise 3 area'],
+            'restaurants': ['Los Arcos De Hermano (close resort)', 'Escobar\'s (short drive)'],
+            'malls': [],
+            'area': 'Paradise 3 area',
+            'transport_tip': 'Best visited by private vehicle. Photo spot along highway.'
+        },
+        'Abes Farm / Paradise Hill Farm': {
+            'hotels': ['Los Arcos', 'Pacific Waves Resort'],
+            'restaurants': ['Farm-to-table restaurants in resort areas'],
+            'malls': [],
+            'area': 'Paradise / Rural SJDM',
+            'transport_tip': 'Requires private transportation. Rural roads may be narrow.'
+        },
+        'Waterfalls (Burong, Kaytitinga, Otso-Otso, Tungtong Falls)': {
+            'hotels': ['Hotel Sogo', 'Central SJDM accommodations'],
+            'restaurants': ['Escobar\'s', 'Local carinderias'],
+            'malls': [],
+            'area': 'Barangays San Isidro / Sto. Cristo',
+            'transport_tip': 'Requires local guides and transportation. Start early in the morning.'
+        }
+    };
+
+    return suggestions[spotName] || {
+        'hotels': ['Hotel Sogo (central location)', 'Local lodges'],
+        'restaurants': ['Escobar\'s (central)', 'Local eateries'],
+        'malls': ['SM City SJDM', 'Starmall SJDM'],
+        'area': 'Central SJDM',
+        'transport_tip': 'Check local transportation options'
+    };
+}
+
+// Initialize travel tips search functionality
+function initTravelTipsSearch() {
+    const searchInput = document.querySelector('.travel-tips-page .search-bar input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filterTravelTips(searchTerm);
+        });
+    }
+}
+
+// Filter travel tips based on search
+function filterTravelTips(searchTerm) {
+    const cards = document.querySelectorAll('.info-card, .spot-card, .general-tip-card');
+
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm) || searchTerm === '') {
+            card.style.display = 'block';
+            card.style.animation = 'fadeInUp 0.5s ease';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Initialize travel tips page
+function initTravelTipsPage() {
+    if (document.querySelector('.travel-tips-page')) {
+        initTravelTipsSearch();
+        console.log('Travel tips page initialized');
+    }
+}
+
+// Add fadeInUp animation for cards
+function addTravelTipsAnimations() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .spot-card,
+        .general-tip-card {
+            animation: fadeInUp 0.5s ease;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add to your existing init function in script.js
+function init() {
+    // ... existing init code ...
+
+    // Initialize travel tips page if we're on that page
+    if (document.querySelector('.travel-tips-page')) {
+        addTravelTipsAnimations();
+        initTravelTipsPage();
+    }
+
+    // ... rest of existing init code ...
+}
+
+// Call this when DOM is loaded
+document.addEventListener('DOMContentLoaded', function () {
+    // ... existing code ...
+
+    // Initialize travel tips if on that page
+    if (document.querySelector('.travel-tips-page')) {
+        addTravelTipsAnimations();
+        initTravelTipsPage();
+    }
+
+    // ... rest of existing code ...
+});
 
 
 // Initialize on page load

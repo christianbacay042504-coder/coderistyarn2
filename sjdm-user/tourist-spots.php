@@ -3,6 +3,44 @@
 require_once '../config/database.php';
 require_once '../config/auth.php';
 
+// OpenWeatherMap API configuration
+$apiKey = '6c21a0d2aaf514cb8d21d56814312b19';
+$weatherUrl = "https://api.openweathermap.org/data/2.5/weather?q=San%20Jose%20Del%20Monte,Bulacan&appid={$apiKey}&units=metric";
+
+$weatherData = null;
+$weatherError = null;
+$currentTemp = '28';
+$weatherLabel = 'Sunny';
+
+// Fetch weather data
+try {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $weatherUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    $weatherResponse = curl_exec($ch);
+    
+    if (curl_errno($ch)) {
+        $weatherError = 'Weather API connection error';
+    } else {
+        $weatherData = json_decode($weatherResponse, true);
+        if ($weatherData && isset($weatherData['main']) && isset($weatherData['weather'][0])) {
+            $currentTemp = round($weatherData['main']['temp']);
+            $weatherLabel = ucfirst($weatherData['weather'][0]['description']);
+        } else {
+            $weatherError = 'Weather data unavailable';
+        }
+    }
+    curl_close($ch);
+} catch (Exception $e) {
+    $weatherError = 'Weather service unavailable';
+}
+
+// Get current date and weekday
+$currentWeekday = date('l'); // Full weekday name
+$currentDate = date('F Y'); // Month Year format
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../log-in/log-in.php');
@@ -139,13 +177,13 @@ if ($conn) {
             <!-- Calendar Header -->
             <div class="calendar-header">
                 <div class="date-display">
-                    <div class="weekday" id="currentWeekday">Today</div>
-                    <div class="month-year" id="currentDate">December 2024</div>
+                    <div class="weekday" id="currentWeekday"><?php echo htmlspecialchars($currentWeekday); ?></div>
+                    <div class="month-year" id="currentDate"><?php echo htmlspecialchars($currentDate); ?></div>
                 </div>
                 <div class="weather-info">
-                    <span class="material-icons-outlined"></span>
-                    <span class="temperature">28°C</span>
-                    <span class="weather-label">Sunny</span>
+                    <span class="material-icons-outlined"><?php echo $weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy'); ?></span>
+                    <span class="temperature"><?php echo $currentTemp; ?>°C</span>
+                    <span class="weather-label"><?php echo htmlspecialchars($weatherLabel); ?></span>
                 </div>
             </div>
 
@@ -182,13 +220,7 @@ if ($conn) {
                         </select>
                     </div>
                     <div class="filter-group">
-                        <label>Duration</label>
-                        <select class="filter-select" id="durationFilter">
-                            <option value="all">All Durations</option>
-                            <option value="1-2">1-2 Hours</option>
-                            <option value="2-4">2-4 Hours</option>
-                            <option value="4+">4+ Hours</option>
-                        </select>
+                        
                     </div>
                 </div>
             </div>
@@ -271,9 +303,10 @@ if ($conn) {
                             echo '</div>';
                             echo '</div>';
                             echo '<div class="card-content">';
-                            echo '<div class="card-date">';
-                            echo '<span class="material-icons-outlined">schedule</span>';
-                            echo htmlspecialchars($spot['duration'] ?? '2-3 hours tour');
+                            echo '<div class="card-weather">';
+                            echo '<span class="material-icons-outlined">' . ($weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy')) . '</span>';
+                            echo '<span class="weather-temp">' . $currentTemp . '°C</span>';
+                            echo '<span class="weather-desc">' . htmlspecialchars($weatherLabel) . '</span>';
                             echo '</div>';
                             echo '<h3 class="card-title">' . htmlspecialchars($spot['name']) . '</h3>';
                             echo '<span class="card-category">' . htmlspecialchars($displayCategory) . '</span>';
@@ -302,7 +335,8 @@ if ($conn) {
                             echo "'" . $icon . "', ";
                             echo "'" . $badge . "', ";
                             echo "'" . htmlspecialchars($spot['entrance_fee'] ?? 'Free') . "', ";
-                            echo "'" . htmlspecialchars($spot['duration'] ?? '2-3 hours') . "', ";
+                            echo "'" . $currentTemp . "°C', ";
+                            echo "'200 MASL', ";
                             echo "'" . ucfirst($spot['difficulty_level']) . "', ";
                             echo "'" . number_format($spot['rating'], 1) . "', ";
                             echo "'" . $spot['review_count'] . "'";
@@ -363,13 +397,288 @@ if ($conn) {
     ?>
 
     <script src="script.js"></script>
-    <script>
-        // Pass current user data to JavaScript
-        <?php if (isset($currentUser)): ?>
-        const currentUser = <?php echo json_encode($currentUser); ?>;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        <?php endif; ?>
+    <style>
+        /* Card Weather Styling */
+        .card-weather {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(74, 124, 78, 0.1), rgba(44, 95, 45, 0.05));
+            border-radius: 12px;
+            border: 1px solid rgba(74, 124, 78, 0.2);
+            font-size: 0.85rem;
+        }
         
+        .card-weather .material-icons-outlined {
+            color: #4a7c4e;
+            font-size: 18px;
+        }
+        
+        .weather-temp {
+            font-weight: 600;
+            color: #2c5f2d;
+            font-size: 0.9rem;
+        }
+        
+        .weather-desc {
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .card-weather {
+                padding: 6px 10px;
+                gap: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .card-weather .material-icons-outlined {
+                font-size: 16px;
+            }
+            
+            .weather-temp {
+                font-size: 0.85rem;
+            }
+            
+            .weather-desc {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    <script>
+        // Tourist Spot Modal Functions - Global Scope
+        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration) {
+            console.log('Modal function called with:', { name, category, type });
+            const modal = document.getElementById('touristSpotModal');
+            
+            if (!modal) {
+                console.error('Modal element not found!');
+                return;
+            }
+            
+            // Update modal content
+            document.getElementById('modalSpotName').textContent = name;
+            document.getElementById('modalSpotCategory').textContent = category;
+            document.getElementById('modalSpotTitle').textContent = name;
+            document.getElementById('modalSpotImage').src = image;
+            document.getElementById('modalSpotImage').alt = name;
+            document.getElementById('modalSpotType').textContent = type;
+            document.getElementById('modalSpotTemp').textContent = temp;
+            document.getElementById('modalSpotElevation').textContent = elevation;
+            document.getElementById('modalSpotDifficulty').textContent = difficulty;
+            
+            // Update badge icon
+            const badgeIcon = document.querySelector('#modalSpotBadge .material-icons-outlined');
+            badgeIcon.textContent = icon;
+            
+            // Generate dynamic description based on spot type
+            let description = '';
+            let features = [];
+            
+            if (type === 'Mountain') {
+                description = `Experience the breathtaking beauty of ${name}, one of San Jose del Monte's most majestic mountain peaks. This stunning destination offers panoramic views, challenging trails, and an unforgettable adventure for nature enthusiasts and hikers alike.`;
+                features = [
+                    'Challenging hiking trails with varying difficulty levels',
+                    'Spectacular panoramic views of Bulacan province',
+                    'Rich biodiversity and unique flora and fauna',
+                    'Perfect for sunrise and sunset photography',
+                    'Camping spots available for overnight stays'
+                ];
+            } else if (type === 'Waterfall') {
+                description = `Discover the natural wonder of ${name}, a hidden gem nestled in the lush landscapes of San Jose del Monte. This pristine waterfall offers a refreshing escape with its crystal-clear waters and serene surroundings.`;
+                features = [
+                    'Crystal-clear waters perfect for swimming',
+                    'Natural pools for relaxation',
+                    'Lush tropical surroundings',
+                    'Ideal for nature photography',
+                    'Accessible hiking trails with scenic views'
+                ];
+            } else if (type === 'Farm') {
+                description = `Experience sustainable agriculture and rural life at ${name}, a charming eco-tourism destination in San Jose del Monte. This working farm offers hands-on experiences and educational opportunities for visitors of all ages.`;
+                features = [
+                    'Organic farming practices and sustainable agriculture',
+                    'Fresh produce sampling and farm-to-table experiences',
+                    'Educational tours about farming techniques',
+                    'Interactive activities for children and families',
+                    'Scenic rural landscapes and peaceful environment'
+                ];
+            } else if (type === 'Park') {
+                description = `Enjoy recreational activities and natural beauty at ${name}, a well-maintained public space in San Jose del Monte. This park offers facilities for sports, relaxation, and family gatherings in a clean, safe environment.`;
+                features = [
+                    'Well-maintained sports facilities and equipment',
+                    'Children\'s playground and family-friendly areas',
+                    'Jogging paths and walking trails',
+                    'Picnic areas with benches and tables',
+                    'Regular community events and activities'
+                ];
+            } else if (type === 'Religious') {
+                description = `Find spiritual solace and architectural beauty at ${name}, a sacred destination in San Jose del Monte. This religious site offers a peaceful atmosphere for prayer, reflection, and cultural appreciation.`;
+                features = [
+                    'Beautiful religious architecture and artwork',
+                    'Peaceful atmosphere for prayer and meditation',
+                    'Cultural and historical significance',
+                    'Well-maintained grounds and gardens',
+                    'Regular religious services and community events'
+                ];
+            } else if (type === 'Sports') {
+                description = `Get active and enjoy sports facilities at ${name}, a premier recreational destination in San Jose del Monte. This venue offers various sports activities and programs for fitness enthusiasts and athletes.`;
+                features = [
+                    'Modern sports facilities and equipment',
+                    'Professional coaching and training programs',
+                    'Various sports courts and playing fields',
+                    'Fitness programs and group activities',
+                    'Regular tournaments and community sports events'
+                ];
+            }
+            
+            document.getElementById('modalSpotDescription').textContent = description;
+            
+            // Update features list
+            const featuresList = document.getElementById('modalSpotFeatures');
+            const featureIcons = ['🌟', '📸', '👨‍👩‍👧‍👦', '🍽️', '🏞️', '🥾', '⛰️', '🌿', '🏛️', '⚽'];
+            featuresList.innerHTML = features.map((feature, index) => `
+                <div class="feature-item">
+                    <span class="feature-icon">${featureIcons[index % featureIcons.length]}</span>
+                    <span>${feature}</span>
+                </div>
+            `).join('');
+            
+            // Show modal
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeTouristSpotModal() {
+            const modal = document.getElementById('touristSpotModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        function viewAllDetails() {
+            // Get current spot name from modal
+            const spotName = document.getElementById('modalSpotName').textContent;
+            console.log('Spot name from modal:', JSON.stringify(spotName)); // Debug log
+            closeTouristSpotModal();
+            
+            // Create mapping for spot names to detail pages
+            const spotPages = {
+                'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Mt. Balagbag Mountain': '../tourist-detail/mt-balagbag.php',
+                'Mount Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Abes Farm': '../tourist-detail/abes-farm.php',
+                'Abes Farm Resort': '../tourist-detail/abes-farm.php',
+                'Burong Falls': '../tourist-detail/burong-falls.php',
+                'Burong Falls San Jose del Monte': '../tourist-detail/burong-falls.php',
+                'City Oval & People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'Kaytitinga Falls': '../tourist-detail/kaytitinga-falls.php',
+                'Kaytitinga Falls San Jose del Monte': '../tourist-detail/kaytitinga-falls.php',
+                'Otso Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Otso-Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
+                'Our Lady of Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
+                'Padre Pio': '../tourist-detail/padre-pio.php',
+                'Padre Pio Shrine': '../tourist-detail/padre-pio.php',
+                'Paradise Hill Farm': '../tourist-detail/paradise-hill-farm.php',
+                'Paradise Hill Farm Resort': '../tourist-detail/paradise-hill-farm.php',
+                'The Rising Heart': '../tourist-detail/the-rising-heart.php',
+                'The Rising Heart Farm': '../tourist-detail/the-rising-heart.php',
+                'Tungtong Falls': '../tourist-detail/tungtong.php',
+                'Tungtong Falls San Jose del Monte': '../tourist-detail/tungtong.php'
+            };
+            
+            console.log('Available spot pages:', Object.keys(spotPages));
+            console.log('Looking for spot name:', JSON.stringify(spotName));
+            console.log('Direct match exists:', spotPages.hasOwnProperty(spotName));
+            const detailPage = spotPages[spotName] || '../tourist-detail/city-ovals-peoples-park.php';
+            console.log('Final detail page:', detailPage);
+            
+            // Redirect to the detail page
+            window.location.href = detailPage;
+        }
+        
+        function saveThisSpot() {
+            const spotName = document.getElementById('modalSpotName').textContent;
+            const saveBtn = document.querySelector('.modal-save-btn');
+            
+            // Toggle saved state
+            if (saveBtn.classList.contains('saved')) {
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
+                showNotification('Removed from favorites', 'info');
+            } else {
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
+                showNotification('Added to favorites!', 'success');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification banner
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            // Icon mapping for different types
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 400);
+            }, 3000);
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('touristSpotModal');
+            if (event.target === modal) {
+                closeTouristSpotModal();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTouristSpotModal();
+            }
+        });
+    </script>
+
+    <script>
         // Profile dropdown functionality
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded');
@@ -464,212 +773,6 @@ if ($conn) {
         });
     </script>
 
-    <script>
-        // Tourist Spot Modal Functions - Global Scope
-        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration) {
-            console.log('Modal function called with:', { name, category, type });
-            const modal = document.getElementById('touristSpotModal');
-            
-            if (!modal) {
-                console.error('Modal element not found!');
-                return;
-            }
-            
-            // Update modal content
-            document.getElementById('modalSpotName').textContent = name;
-            document.getElementById('modalSpotCategory').textContent = category;
-            document.getElementById('modalSpotTitle').textContent = name;
-            document.getElementById('modalSpotImage').src = image;
-            document.getElementById('modalSpotImage').alt = name;
-            document.getElementById('modalSpotType').textContent = type;
-            document.getElementById('modalSpotTemp').textContent = temp;
-            document.getElementById('modalSpotElevation').textContent = elevation;
-            document.getElementById('modalSpotDifficulty').textContent = difficulty;
-            document.getElementById('modalSpotDuration').textContent = duration;
-            
-            // Update badge icon
-            const badgeIcon = document.querySelector('#modalSpotBadge .material-icons-outlined');
-            badgeIcon.textContent = icon;
-            
-            // Generate dynamic description based on spot type
-            let description = '';
-            let features = [];
-            
-            if (type === 'Mountain') {
-                description = `Experience the breathtaking beauty of ${name}, one of San Jose del Monte's most majestic mountain peaks. This stunning destination offers panoramic views, challenging trails, and an unforgettable adventure for nature enthusiasts and hikers alike.`;
-                features = [
-                    'Challenging hiking trails with varying difficulty levels',
-                    'Spectacular panoramic views of Bulacan province',
-                    'Rich biodiversity and unique flora and fauna',
-                    'Perfect for sunrise and sunset photography',
-                    'Camping spots available for overnight stays'
-                ];
-            } else if (type === 'Waterfall') {
-                description = `Discover the natural wonder of ${name}, a hidden gem nestled in the lush landscapes of San Jose del Monte. This pristine waterfall offers a refreshing escape with its crystal-clear waters and serene surroundings.`;
-                features = [
-                    'Crystal-clear waters perfect for swimming',
-                    'Natural pools for relaxation',
-                    'Lush tropical surroundings',
-                    'Ideal for nature photography',
-                    'Accessible hiking trails with scenic views'
-                ];
-            } else if (type === 'Farm') {
-                description = `Experience sustainable agriculture and rural life at ${name}, a charming eco-tourism destination in San Jose del Monte. This working farm offers hands-on experiences and educational opportunities for visitors of all ages.`;
-                features = [
-                    'Organic farming practices and sustainable agriculture',
-                    'Fresh produce sampling and farm-to-table experiences',
-                    'Educational tours about farming techniques',
-                    'Interactive activities for children and families',
-                    'Scenic rural landscapes and peaceful environment'
-                ];
-            } else if (type === 'Park') {
-                description = `Enjoy recreational activities and natural beauty at ${name}, a well-maintained public space in San Jose del Monte. This park offers facilities for sports, relaxation, and family gatherings in a clean, safe environment.`;
-                features = [
-                    'Well-maintained sports facilities and equipment',
-                    'Children\'s playground and family-friendly areas',
-                    'Jogging paths and walking trails',
-                    'Picnic areas with benches and tables',
-                    'Regular community events and activities'
-                ];
-            } else if (type === 'Religious') {
-                description = `Find spiritual solace and architectural beauty at ${name}, a sacred destination in San Jose del Monte. This religious site offers a peaceful atmosphere for prayer, reflection, and cultural appreciation.`;
-                features = [
-                    'Beautiful religious architecture and artwork',
-                    'Peaceful atmosphere for prayer and meditation',
-                    'Cultural and historical significance',
-                    'Well-maintained grounds and gardens',
-                    'Regular religious services and community events'
-                ];
-            } else if (type === 'Sports') {
-                description = `Get active and enjoy sports facilities at ${name}, a premier recreational destination in San Jose del Monte. This venue offers various sports activities and programs for fitness enthusiasts and athletes.`;
-                features = [
-                    'Modern sports facilities and equipment',
-                    'Professional coaching and training programs',
-                    'Various sports courts and playing fields',
-                    'Fitness programs and group activities',
-                    'Regular tournaments and community sports events'
-                ];
-            }
-            
-            document.getElementById('modalSpotDescription').textContent = description;
-            
-            // Update features list
-            const featuresList = document.getElementById('modalSpotFeatures');
-            const featureIcons = ['🌟', '📸', '👨‍👩‍👧‍👦', '🍽️', '🏞️', '🥾', '⛰️', '🌿', '🏛️', '⚽'];
-            featuresList.innerHTML = features.map((feature, index) => `
-                <div class="feature-item">
-                    <span class="feature-icon">${featureIcons[index % featureIcons.length]}</span>
-                    <span>${feature}</span>
-                </div>
-            `).join('');
-            
-            // Show modal
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeTouristSpotModal() {
-            const modal = document.getElementById('touristSpotModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        
-        function viewAllDetails() {
-            // Get current spot name from modal
-            const spotName = document.getElementById('modalSpotName').textContent;
-            closeTouristSpotModal();
-            
-            // Create mapping for spot names to detail pages
-            const spotPages = {
-                'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
-                'Mt. Balagbag Mountain': '../tourist-detail/mt-balagbag.php',
-                'Mount Balagbag': '../tourist-detail/mt-balagbag.php',
-                'Abes Farm': '../tourist-detail/abes-farm.php',
-                'Abes Farm Resort': '../tourist-detail/abes-farm.php',
-                'Burong Falls': '../tourist-detail/burong-falls.php',
-                'Burong Falls San Jose del Monte': '../tourist-detail/burong-falls.php',
-                'City Ovals Peoples Park': '../tourist-detail/city-ovals-peoples-park.php',
-                'City Ovals People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
-                'City Ovals Park': '../tourist-detail/city-ovals-peoples-park.php',
-                'Kaytitinga Falls': '../tourist-detail/kaytitinga-falls.php',
-                'Kaytitinga Falls San Jose del Monte': '../tourist-detail/kaytitinga-falls.php',
-                'Otso Otso Falls': '../tourist-detail/otso-otso-falls.php',
-                'Otso-Otso Falls': '../tourist-detail/otso-otso-falls.php',
-                'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
-                'Our Lady of Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
-                'Padre Pio': '../tourist-detail/padre-pio.php',
-                'Padre Pio Shrine': '../tourist-detail/padre-pio.php',
-                'Paradise Hill Farm': '../tourist-detail/paradise-hill-farm.php',
-                'Paradise Hill Farm Resort': '../tourist-detail/paradise-hill-farm.php',
-                'The Rising Heart': '../tourist-detail/the-rising-heart.php',
-                'The Rising Heart Farm': '../tourist-detail/the-rising-heart.php',
-                'Tungtong Falls': '../tourist-detail/tungtong.php',
-                'Tungtong Falls San Jose del Monte': '../tourist-detail/tungtong.php'
-            };
-            
-            // Get the appropriate page URL or default to a generic page
-            const detailPage = spotPages[spotName] || '../tourist-detail/default.php';
-            
-            // Redirect to the detail page
-            window.location.href = detailPage;
-        }
-        
-        function saveThisSpot() {
-            const spotName = document.getElementById('modalSpotName').textContent;
-            const saveBtn = document.querySelector('.modal-save-btn');
-            
-            // Toggle saved state
-            if (saveBtn.classList.contains('saved')) {
-                saveBtn.classList.remove('saved');
-                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
-                showNotification('Removed from favorites', 'info');
-            } else {
-                saveBtn.classList.add('saved');
-                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
-                showNotification('Added to favorites!', 'success');
-            }
-        }
-        
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
-            
-            // Add to page
-            document.body.appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            // Hide and remove after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('touristSpotModal');
-            if (event.target === modal) {
-                closeTouristSpotModal();
-            }
-        }
-        
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeTouristSpotModal();
-            }
-        });
-    </script>
-
-    <!-- Inline CSS Fallback for Modal -->
     <style>
         .modal {
             display: none;
@@ -1398,16 +1501,6 @@ if ($conn) {
                             <div class="stat-info">
                                 <div class="stat-label">Difficulty</div>
                                 <div class="stat-value" id="modalSpotDifficulty">Moderate</div>
-                            </div>
-                        </div>
-                        
-                        <div class="modal-stat-card">
-                            <div class="stat-icon">
-                                <span class="material-icons-outlined">schedule</span>
-                            </div>
-                            <div class="stat-info">
-                                <div class="stat-label">Duration</div>
-                                <div class="stat-value" id="modalSpotDuration">2-3 hours</div>
                             </div>
                         </div>
                     </div>
