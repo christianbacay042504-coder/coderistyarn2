@@ -166,7 +166,7 @@ function logoutUser() {
 // Redirect if not logged in
 function requireLogin() {
     if (!isLoggedIn()) {
-        header('Location: /coderistyarn2/log-in/log-in.php');
+        header('Location: ../log-in.php');
         exit();
     }
 }
@@ -174,7 +174,7 @@ function requireLogin() {
 // Redirect if not admin
 function requireAdmin() {
     if (!isAdmin()) {
-        header('Location: /coderistyarn2/log-in/log-in.php');
+        header('Location: ../log-in.php');
         exit();
     }
 }

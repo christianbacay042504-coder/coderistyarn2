@@ -20,25 +20,123 @@ $totalUsers = 0;
 $totalBookings = 0;
 $activeUsers = 0;
 $todayLogins = 0;
-$totalGuides = 6;
-$totalDestinations = 8;
+$totalGuides = 0;
+$totalDestinations = 0;
+$totalHotels = 0;
+$pendingBookings = 0;
+$monthlyRevenue = 0;
 
 if ($conn) {
+    // Fetch dashboard settings
+    $settings = [];
+    $result = $conn->query("SELECT setting_key, setting_value FROM dashboard_settings");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $settings[$row['setting_key']] = $row['setting_value'];
+        }
+    }
+    
+    // Default settings if not found
+    $pageTitle = $settings['page_title'] ?? 'Dashboard Overview';
+    $pageSubtitle = $settings['page_subtitle'] ?? 'System statistics and analytics';
+    $logoText = $settings['admin_logo_text'] ?? 'SJDM ADMIN';
+
+    // Fetch admin specific info
+    $adminInfo = ['role_title' => 'Administrator', 'admin_mark' => 'A'];
+    $stmt = $conn->prepare("SELECT admin_mark, role_title FROM admins WHERE user_id = ?");
+    $userId = $currentUser['id'];
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $adminInfo = $row;
+    }
+    $stmt->close();
+
+    // Fetch sidebar menu
+    $menuItems = [];
+    $result = $conn->query("SELECT * FROM admin_menu WHERE is_active = 1 ORDER BY display_order ASC");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $menuItems[] = $row;
+        }
+    }
+
+    // Fetch dashboard widgets
+    $widgets = [];
+    $result = $conn->query("SELECT * FROM dashboard_widgets WHERE is_active = 1 ORDER BY display_order ASC");
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $widgets[] = $row;
+        }
+    }
+
     // Total users
     $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE user_type = 'user'");
-    $totalUsers = $result->fetch_assoc()['total'];
+    if ($result) {
+        $totalUsers = $result->fetch_assoc()['total'];
+    }
     
     // Active users
     $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE user_type = 'user' AND status = 'active'");
-    $activeUsers = $result->fetch_assoc()['total'];
+    if ($result) {
+        $activeUsers = $result->fetch_assoc()['total'];
+    }
     
     // Total bookings
     $result = $conn->query("SELECT COUNT(*) as total FROM bookings");
-    $totalBookings = $result->fetch_assoc()['total'];
+    if ($result) {
+        $totalBookings = $result->fetch_assoc()['total'];
+    }
+    
+    // Pending bookings
+    $result = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE status = 'pending'");
+    if ($result) {
+        $pendingBookings = $result->fetch_assoc()['total'];
+    }
     
     // Today's logins
     $result = $conn->query("SELECT COUNT(DISTINCT user_id) as total FROM login_activity WHERE DATE(login_time) = CURDATE() AND status = 'success'");
-    $todayLogins = $result->fetch_assoc()['total'];
+    if ($result) {
+        $todayLogins = $result->fetch_assoc()['total'];
+    }
+    
+    // Total tour guides
+    $result = $conn->query("SELECT COUNT(*) as total FROM tour_guides WHERE status = 'active'");
+    if ($result) {
+        $totalGuides = $result->fetch_assoc()['total'];
+    }
+    
+    // Total destinations
+    $result = $conn->query("SELECT COUNT(*) as total FROM tourist_spots WHERE status = 'active'");
+    if ($result) {
+        $totalDestinations = $result->fetch_assoc()['total'];
+    }
+    
+    // Total hotels
+    $result = $conn->query("SELECT COUNT(*) as total FROM hotels WHERE status = 'active'");
+    if ($result) {
+        $totalHotels = $result->fetch_assoc()['total'];
+    }
+    
+    // Monthly revenue
+    $result = $conn->query("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE status = 'confirmed' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
+    if ($result) {
+        $monthlyRevenue = $result->fetch_assoc()['total'];
+    }
+
+    // Map query keys to values for widgets
+    $queryValues = [
+        'totalUsers' => $totalUsers,
+        'activeUsers' => $activeUsers,
+        'totalBookings' => $totalBookings,
+        'pendingBookings' => $pendingBookings,
+        'todayLogins' => $todayLogins,
+        'totalGuides' => $totalGuides,
+        'totalDestinations' => $totalDestinations,
+        'totalHotels' => $totalHotels,
+        'monthlyRevenue' => '₱' . number_format($monthlyRevenue, 2)
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -46,7 +144,7 @@ if ($conn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | SJDM Tours</title>
+    <title><?php echo $pageTitle; ?> | SJDM Tours</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="admin-styles.css">
@@ -57,51 +155,28 @@ if ($conn) {
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
+                    <span class="mark-icon"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></span>
                     <span class="material-icons-outlined">admin_panel_settings</span>
-                    <span>SJDM ADMIN</span>
+                    <span><?php echo $logoText; ?></span>
                 </div>
             </div>
             
             <nav class="sidebar-nav">
-                <a href="dashboard.php" class="nav-item active">
-                    <span class="material-icons-outlined">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="user-management.php" class="nav-item">
-                    <span class="material-icons-outlined">people</span>
-                    <span>User Management</span>
-                    <?php if ($totalUsers > 0): ?>
-                        <span class="badge"><?php echo $totalUsers; ?></span>
+                <?php foreach ($menuItems as $item): 
+                    $isActive = basename($_SERVER['PHP_SELF']) == $item['link'] ? 'active' : '';
+                    $badgeVal = 0;
+                    if ($item['badge_query'] && isset($queryValues[$item['badge_query']])) {
+                        $badgeVal = $queryValues[$item['badge_query']];
+                    }
+                ?>
+                <a href="<?php echo $item['link']; ?>" class="nav-item <?php echo $isActive; ?>">
+                    <span class="material-icons-outlined"><?php echo $item['icon']; ?></span>
+                    <span><?php echo $item['title']; ?></span>
+                    <?php if ($badgeVal > 0): ?>
+                        <span class="badge"><?php echo $badgeVal; ?></span>
                     <?php endif; ?>
                 </a>
-                <a href="tour-guides.php" class="nav-item">
-                    <span class="material-icons-outlined">tour</span>
-                    <span>Tour Guides</span>
-                </a>
-                <a href="destinations.php" class="nav-item">
-                    <span class="material-icons-outlined">place</span>
-                    <span>Destinations</span>
-                </a>
-                <a href="hotels.php" class="nav-item">
-                    <span class="material-icons-outlined">hotel</span>
-                    <span>Hotels</span>
-                </a>
-                <a href="bookings.php" class="nav-item">
-                    <span class="material-icons-outlined">event</span>
-                    <span>Bookings</span>
-                </a>
-                <a href="analytics.php" class="nav-item">
-                    <span class="material-icons-outlined">analytics</span>
-                    <span>Analytics</span>
-                </a>
-                <a href="reports.php" class="nav-item">
-                    <span class="material-icons-outlined">description</span>
-                    <span>Reports</span>
-                </a>
-                <a href="settings.php" class="nav-item">
-                    <span class="material-icons-outlined">settings</span>
-                    <span>Settings</span>
-                </a>
+                <?php endforeach; ?>
             </nav>
             
             <div class="sidebar-footer">
@@ -117,8 +192,8 @@ if ($conn) {
             <!-- Top Bar -->
             <header class="top-bar">
                 <div class="page-title">
-                    <h1 id="pageTitle">Dashboard Overview</h1>
-                    <p id="pageSubtitle">System statistics and analytics</p>
+                    <h1 id="pageTitle"><?php echo $pageTitle; ?></h1>
+                    <p id="pageSubtitle"><?php echo $pageSubtitle; ?></p>
                 </div>
                 
                 <div class="top-bar-actions">
@@ -129,106 +204,36 @@ if ($conn) {
                     
                     <div class="user-profile">
                         <div class="avatar">
+                            <span class="admin-mark-badge"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></span>
                             <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
                         </div>
                         <div class="user-info">
                             <p class="user-name"><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></p>
-                            <p class="user-role">Administrator</p>
+                            <p class="user-role"><?php echo $adminInfo['role_title']; ?></p>
                         </div>
                     </div>
                 </div>
             </header>
             <div class="content-area">
                 <div class="stats-grid">
-                    <div class="stat-card" data-stat="totalUsers">
-                        <div class="stat-icon blue">
-                            <span class="material-icons-outlined">people</span>
+                    <?php foreach ($widgets as $widget): 
+                        $val = $queryValues[$widget['query_key']] ?? 0;
+                    ?>
+                    <div class="stat-card" data-stat="<?php echo $widget['query_key']; ?>">
+                        <div class="stat-icon <?php echo $widget['color_class']; ?>">
+                            <span class="material-icons-outlined"><?php echo $widget['icon']; ?></span>
                         </div>
                         <div class="stat-details">
-                            <h3><?php echo $totalUsers; ?></h3>
-                            <p>Total Users</p>
-                            <div class="stat-meta">Registered users in system</div>
+                            <h3><?php echo $val; ?></h3>
+                            <p><?php echo $widget['title']; ?></p>
+                            <div class="stat-meta"><?php echo $widget['subtitle']; ?></div>
                             <div class="stat-trend positive">
                                 <span class="material-icons-outlined">trending_up</span>
-                                <span>12% growth</span>
+                                <span>Updated</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="stat-card" data-stat="activeUsers">
-                        <div class="stat-icon green">
-                            <span class="material-icons-outlined">check_circle</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3><?php echo $activeUsers; ?></h3>
-                            <p>Active Users</p>
-                            <div class="stat-meta">Currently active accounts</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>8% increase</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" data-stat="totalBookings">
-                        <div class="stat-icon orange">
-                            <span class="material-icons-outlined">event</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalBookings; ?></h3>
-                            <p>Total Bookings</p>
-                            <div class="stat-meta">All-time bookings</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>15% increase</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" data-stat="todayLogins">
-                        <div class="stat-icon purple">
-                            <span class="material-icons-outlined">login</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3><?php echo $todayLogins; ?></h3>
-                            <p>Today's Logins</p>
-                            <div class="stat-meta">Successful login attempts</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>5% increase</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" data-stat="totalGuides">
-                        <div class="stat-icon teal">
-                            <span class="material-icons-outlined">tour</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalGuides; ?></h3>
-                            <p>Tour Guides</p>
-                            <div class="stat-meta">Available tour guides</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>3% increase</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" data-stat="totalDestinations">
-                        <div class="stat-icon pink">
-                            <span class="material-icons-outlined">landscape</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalDestinations; ?></h3>
-                            <p>Destinations</p>
-                            <div class="stat-meta">Tourist spots available</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>10% increase</span>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
                 
                 <!-- Recent Activity -->

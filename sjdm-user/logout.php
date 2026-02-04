@@ -10,7 +10,7 @@ if (!isLoggedIn()) {
 } else {
     // Logout the user
     logoutUser();
-    
+
     // Set success message
     session_start();
     $_SESSION['logout_message'] = 'Successfully signed out!';
@@ -18,6 +18,6 @@ if (!isLoggedIn()) {
 }
 
 // Redirect to login page
-header('Location: /coderistyarn2/log-in/log-in.php');
+header('Location: /coderistyarn2/log-in.php');
 exit();
 ?>

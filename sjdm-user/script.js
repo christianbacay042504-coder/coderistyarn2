@@ -1973,7 +1973,7 @@ function confirmLogout() {
 
                 // Redirect to login page after a short delay
                 setTimeout(() => {
-                    window.location.href = '/coderistyarn2/log-in/log-in.php';
+                    window.location.href = '/coderistyarn2/log-in.php';
                 }, 1000);
             } else {
                 console.error('Logout failed:', response.statusText);
