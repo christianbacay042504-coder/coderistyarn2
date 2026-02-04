@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(loginForm);
             
             // Send AJAX request to server
-            fetch('log-in.php', {
+            fetch('', {
                 method: 'POST',
                 body: formData
             })
@@ -93,9 +93,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Redirect based on user type
                     setTimeout(() => {
                         if (data.user_type === 'admin') {
-                            window.location.href = '/coderistyarn2/admin/dashboard.php';
+                            window.location.href = 'admin/dashboard.php';
                         } else {
-                            window.location.href = '/coderistyarn2/sjdm-user/index.php';
+                            window.location.href = 'sjdm-user/index.php';
                         }
                     }, 1000);
                 } else {
