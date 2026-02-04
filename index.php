@@ -32,7 +32,7 @@
             <h1 class="hero-title">DISCOVER<br>SAN JOSE DEL MONTE</h1>
             <p class="hero-description">Where nature meets adventure. Experience breathtaking mountains, pristine waterfalls, and authentic Filipino culture just 30 minutes from Metro Manila.</p>
             <div class="hero-buttons">
-                <button class="btn-primary" onclick="window.location.href='/coderistyarn2/log-in/log-in.php'">
+                <button class="btn-primary" onclick="window.location.href='log-in.php'">
                     Explore Now
                     <span class="material-icons-outlined">arrow_forward</span>
                 </button>
