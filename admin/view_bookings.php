@@ -193,7 +193,7 @@ while ($row = $statsResult->fetch_assoc()) {
                     <span class="material-icons-outlined">dashboard</span>
                     Dashboard
                 </a>
-                <a href="../log-in/logout.php" class="btn-secondary">
+                <a href="logout.php" class="btn-secondary">
                     <span class="material-icons-outlined">logout</span>
                     Logout
                 </a>

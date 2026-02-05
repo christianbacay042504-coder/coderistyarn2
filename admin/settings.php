@@ -532,7 +532,7 @@ closeUserConnection($conn);
                 localStorage.removeItem('currentUser');
                 showNotification('Signed out successfully', 'info');
                 setTimeout(() => {
-                    window.location.href = '/coderistyarn/landingpage/landingpage.php';
+                    window.location.href = '../log-in/log-in.php';
                 }, 1000);
             }
         }

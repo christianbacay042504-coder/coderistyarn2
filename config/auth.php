@@ -181,8 +181,37 @@ function logLoginActivity($conn, $userId, $status) {
 
 // Logout user
 function logoutUser() {
-    session_unset();
-    session_destroy();
+    try {
+        // Log the logout activity if user is logged in
+        if (isLoggedIn()) {
+            $currentUser = getCurrentUser();
+            if ($currentUser) {
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    // Log logout activity
+                    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+                    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+                    
+                    $stmt = $conn->prepare("INSERT INTO login_activity (user_id, ip_address, user_agent, status) VALUES (?, ?, ?, 'logout')");
+                    if ($stmt) {
+                        $stmt->bind_param("iss", $currentUser['id'], $ipAddress, $userAgent);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
+                    closeDatabaseConnection($conn);
+                }
+            }
+        }
+        
+        // Clear and destroy session
+        session_unset();
+        session_destroy();
+        
+        return true;
+    } catch (Exception $e) {
+        error_log("Logout error: " . $e->getMessage());
+        return false;
+    }
 }
 
 // Redirect if not logged in

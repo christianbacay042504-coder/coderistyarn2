@@ -16,7 +16,6 @@ $activeUsers = 0;
 $todayLogins = 0;
 $totalGuides = 0;
 $totalDestinations = 0;
-$totalHotels = 0;
 $pendingBookings = 0;
 $monthlyRevenue = 0;
 
@@ -65,12 +64,6 @@ if ($conn) {
     $result = $conn->query("SELECT COUNT(*) as total FROM tourist_spots WHERE status = 'active'");
     if ($result) {
         $totalDestinations = $result->fetch_assoc()['total'];
-    }
-    
-    // Total hotels
-    $result = $conn->query("SELECT COUNT(*) as total FROM hotels WHERE status = 'active'");
-    if ($result) {
-        $totalHotels = $result->fetch_assoc()['total'];
     }
     
     // Monthly revenue
@@ -393,10 +386,6 @@ if ($conn) {
                     <span class="material-icons-outlined">place</span>
                     <span>Destinations</span>
                 </a>
-                <a href="hotels.php" class="nav-item">
-                    <span class="material-icons-outlined">hotel</span>
-                    <span>Hotels</span>
-                </a>
                 <a href="bookings.php" class="nav-item">
                     <span class="material-icons-outlined">event</span>
                     <span>Bookings</span>
@@ -409,17 +398,38 @@ if ($conn) {
                     <span class="material-icons-outlined">description</span>
                     <span>Reports</span>
                 </a>
-                <a href="settings.php" class="nav-item">
-                    <span class="material-icons-outlined">settings</span>
-                    <span>Settings</span>
-                </a>
             </nav>
             
             <div class="sidebar-footer">
-                <a href="logout.php" class="logout-btn">
+                <a href="logout.php" class="logout-btn" id="logoutBtn" onclick="handleLogout(event)">
                     <span class="material-icons-outlined">logout</span>
                     <span>Logout</span>
                 </a>
+                <!-- Backup direct logout link (hidden by default, shown if JS fails) -->
+                <noscript>
+                    <style>
+                        .logout-btn { display: none; }
+                        .logout-direct { 
+                            display: flex !important; 
+                            align-items: center;
+                            gap: 12px;
+                            padding: 12px 16px;
+                            color: #f87171;
+                            text-decoration: none;
+                            border-radius: 8px;
+                            transition: var(--transition);
+                            margin-top: 10px;
+                        }
+                        .logout-direct:hover {
+                            background: var(--red);
+                            color: white;
+                        }
+                    </style>
+                    <a href="logout.php" class="logout-direct">
+                        <span class="material-icons-outlined">logout</span>
+                        <span>Logout (Direct)</span>
+                    </a>
+                </noscript>
             </div>
         </aside>
         
@@ -578,14 +588,14 @@ if ($conn) {
                         </div>
                     </div>
                     
-                    <div class="stat-card" data-stat="totalHotels">
+                    <div class="stat-card" data-stat="monthlyRevenue">
                         <div class="stat-icon yellow">
                             <span class="material-icons-outlined">hotel</span>
                         </div>
                         <div class="stat-details">
-                            <h3><?php echo $totalHotels; ?></h3>
-                            <p>Hotels</p>
-                            <div class="stat-meta">Available accommodations</div>
+                            <h3>85%</h3>
+                            <p>Occupancy Rate</p>
+                            <div class="stat-meta">Current hotel occupancy</div>
                             <div class="stat-trend positive">
                                 <span class="material-icons-outlined">trending_up</span>
                                 <span>5% increase</span>

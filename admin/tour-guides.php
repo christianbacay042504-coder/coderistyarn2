@@ -501,20 +501,26 @@ $queryValues = [
             </div>
             
             <nav class="sidebar-nav">
-                <?php foreach ($menuItems as $item): 
+                <?php foreach ($menuItems as $item):
+                    // Skip hotels and settings menu items
+                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false ||
+                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false) {
+                        continue;
+                    }
+                    
                     $isActive = basename($_SERVER['PHP_SELF']) == $item['menu_url'] ? 'active' : '';
                     $badgeVal = 0;
                     if (isset($item['badge_query']) && isset($queryValues[$item['badge_query']])) {
                         $badgeVal = $queryValues[$item['badge_query']];
                     }
-                ?>
-                <a href="<?php echo $item['menu_url']; ?>" class="nav-item <?php echo $isActive; ?>">
-                    <span class="material-icons-outlined"><?php echo $item['menu_icon']; ?></span>
-                    <span><?php echo $item['menu_name']; ?></span>
-                    <?php if ($badgeVal > 0): ?>
-                        <span class="badge"><?php echo $badgeVal; ?></span>
-                    <?php endif; ?>
-                </a>
+                    ?>
+                    <a href="<?php echo $item['menu_url']; ?>" class="nav-item <?php echo $isActive; ?>">
+                        <span class="material-icons-outlined"><?php echo $item['menu_icon']; ?></span>
+                        <span><?php echo $item['menu_name']; ?></span>
+                        <?php if ($badgeVal > 0): ?>
+                            <span class="badge"><?php echo $badgeVal; ?></span>
+                        <?php endif; ?>
+                    </a>
                 <?php endforeach; ?>
             </nav>
             

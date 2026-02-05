@@ -16,6 +16,7 @@ class AdminDashboard {
         this.loadDashboardData();
         this.setupContextMenu();
         this.setupUserDropdown();
+        this.setupLogoutConfirmation();
     }
 
     setupNavigation() {
@@ -1352,6 +1353,35 @@ class AdminDashboard {
             userProfile.classList.toggle('active');
         }
     }
+
+    setupLogoutConfirmation() {
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                if (confirm('Are you sure you want to sign out?')) {
+                    // Show loading state
+                    logoutBtn.innerHTML = `
+                        <span class="material-icons-outlined">hourglass_empty</span>
+                        <span>Signing out...</span>
+                    `;
+                    logoutBtn.style.pointerEvents = 'none';
+                    logoutBtn.style.opacity = '0.6';
+                    
+                    // Get the logout URL and navigate directly
+                    const logoutUrl = logoutBtn.getAttribute('href');
+                    if (logoutUrl) {
+                        // Use window.location.replace for immediate navigation
+                        window.location.replace(logoutUrl);
+                    } else {
+                        // Fallback: construct the URL manually
+                        window.location.replace('logout.php');
+                    }
+                }
+            });
+        }
+    }
 }
 
 // Initialize admin dashboard
@@ -1414,3 +1444,25 @@ document.addEventListener('DOMContentLoaded', () => {
         element.setAttribute('data-tooltip', element.getAttribute('title'));
     });
 });
+
+// Backup logout function
+function handleLogout(event) {
+    event.preventDefault();
+    
+    if (confirm('Are you sure you want to sign out?')) {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.innerHTML = `
+                <span class="material-icons-outlined">hourglass_empty</span>
+                <span>Signing out...</span>
+            `;
+            logoutBtn.style.pointerEvents = 'none';
+            logoutBtn.style.opacity = '0.6';
+        }
+        
+        // Immediate logout
+        window.location.replace('logout.php');
+    }
+    
+    return false;
+}
