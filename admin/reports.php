@@ -544,20 +544,40 @@ closeAdminConnection($conn);
                         <span class="material-icons-outlined">schedule</span>
                         Schedule Report
                     </button>
-
+                    
+                    <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
-                        <div class="profile-dropdown-toggle">
-                            <div class="avatar">
-                                <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
-                                <div class="admin-mark-badge"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></div>
+                        <button class="profile-button" id="adminProfileButton">
+                            <div class="profile-avatar"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu" id="adminProfileMenu">
+                            <div class="profile-info">
+                                <div class="profile-avatar large"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                                <div class="profile-details">
+                                    <h3 class="admin-name"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></h3>
+                                    <p class="admin-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></p>
+                                </div>
                             </div>
-                            <div class="user-info">
-                                <p class="user-name">
-                                    <?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?>
-                                </p>
-                                <p class="user-role"><?php echo $adminInfo['role_title']; ?></p>
-                            </div>
-                            <span class="material-icons-outlined dropdown-arrow">expand_more</span>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminAccountLink">
+                                <span class="material-icons-outlined">account_circle</span>
+                                <span>My Account</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSettingsLink">
+                                <span class="material-icons-outlined">settings</span>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminHelpLink">
+                                <span class="material-icons-outlined">help_outline</span>
+                                <span>Help & Support</span>
+                            </a>
+                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -796,6 +816,7 @@ closeAdminConnection($conn);
     </div>
 
     <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
     <script>
         function scheduleReport() {
             // Implement schedule report modal

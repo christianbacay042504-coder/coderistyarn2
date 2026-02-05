@@ -15,8 +15,9 @@ class AdminDashboard {
         this.setupForms();
         this.loadDashboardData();
         this.setupContextMenu();
-        this.setupUserDropdown();
         this.setupLogoutConfirmation();
+        this.setupTheme();
+        this.setupThemeToggle();
     }
 
     setupNavigation() {
@@ -25,7 +26,7 @@ class AdminDashboard {
         // Only keep the active state management for the current page
         const currentPath = window.location.pathname;
         const navItems = document.querySelectorAll('.nav-item');
-        
+
         navItems.forEach(item => {
             const href = item.getAttribute('href');
             if (href === currentPath || href === window.location.href.split('/').pop()) {
@@ -84,7 +85,7 @@ class AdminDashboard {
 
     applyFilters() {
         const status = document.getElementById('filterStatus')?.value;
-        
+
         if (status && status !== 'all') {
             const rows = document.querySelectorAll('#usersTable tbody tr');
             rows.forEach(row => {
@@ -144,7 +145,7 @@ class AdminDashboard {
     toggleUserSelection(checkbox) {
         const userId = checkbox.value;
         const row = checkbox.closest('tr');
-        
+
         if (checkbox.checked) {
             this.selectedUsers.add(userId);
             row.classList.add('selected');
@@ -153,14 +154,14 @@ class AdminDashboard {
             row.classList.remove('selected');
             document.getElementById('selectAllUsers').checked = false;
         }
-        
+
         this.updateBulkActions();
     }
 
     updateBulkActions() {
         const bulkActions = document.getElementById('bulkActionsPanel');
         const count = this.selectedUsers.size;
-        
+
         if (bulkActions) {
             if (count > 0) {
                 bulkActions.classList.remove('hidden');
@@ -194,7 +195,7 @@ class AdminDashboard {
             if (data) {
                 this.populateModal(modalId, data);
             }
-            
+
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
         }
@@ -204,7 +205,7 @@ class AdminDashboard {
         if (typeof modal === 'string') {
             modal = document.getElementById(modal);
         }
-        
+
         if (modal) {
             modal.classList.remove('show');
             document.body.style.overflow = '';
@@ -352,15 +353,15 @@ class AdminDashboard {
     async submitAddUser() {
         const form = document.getElementById('addUserForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=add_user', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('User added successfully', 'success');
                 this.closeModal('addUserModal');
@@ -377,15 +378,15 @@ class AdminDashboard {
     async submitEditUser() {
         const form = document.getElementById('editUserForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=edit_user', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('User updated successfully', 'success');
                 this.closeModal('editUserModal');
@@ -401,15 +402,15 @@ class AdminDashboard {
     async submitAddBooking() {
         const form = document.getElementById('addBookingForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=add_booking', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Booking added successfully', 'success');
                 this.closeModal('addBookingModal');
@@ -425,11 +426,11 @@ class AdminDashboard {
 
     async bulkUpdateStatus(status) {
         if (this.selectedUsers.size === 0) return;
-        
+
         if (!confirm(`Are you sure you want to ${status} ${this.selectedUsers.size} user(s)?`)) {
             return;
         }
-        
+
         try {
             const response = await fetch('?action=bulk_update_status', {
                 method: 'POST',
@@ -441,9 +442,9 @@ class AdminDashboard {
                     status: status
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast(`${this.selectedUsers.size} user(s) updated to ${status}`, 'success');
                 this.selectedUsers.clear();
@@ -458,11 +459,11 @@ class AdminDashboard {
 
     async bulkDeleteUsers() {
         if (this.selectedUsers.size === 0) return;
-        
+
         if (!confirm(`Are you sure you want to delete ${this.selectedUsers.size} user(s)? This action cannot be undone.`)) {
             return;
         }
-        
+
         try {
             const response = await fetch('?action=bulk_delete_users', {
                 method: 'POST',
@@ -473,9 +474,9 @@ class AdminDashboard {
                     user_ids: Array.from(this.selectedUsers)
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast(`${this.selectedUsers.size} user(s) deleted successfully`, 'success');
                 this.selectedUsers.clear();
@@ -492,7 +493,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_user&user_id=${userId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showUserDetailsModal(result.data);
             } else {
@@ -507,7 +508,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_user&user_id=${userId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showModal('editUserModal', result.data);
             } else {
@@ -522,11 +523,11 @@ class AdminDashboard {
         if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`?action=delete_user&user_id=${userId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('User deleted successfully', 'success');
                 location.reload();
@@ -542,7 +543,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_booking&booking_id=${bookingId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showBookingDetailsModal(result.data);
             } else {
@@ -564,9 +565,9 @@ class AdminDashboard {
                     },
                     body: `booking_id=${bookingId}&status=${newStatus}`
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     this.showToast('Booking status updated successfully', 'success');
                     location.reload();
@@ -583,11 +584,11 @@ class AdminDashboard {
         if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`?action=delete_booking&booking_id=${bookingId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Booking deleted successfully', 'success');
                 location.reload();
@@ -604,7 +605,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_spot&spot_id=${spotId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showSpotDetailsModal(result.data);
             } else {
@@ -619,7 +620,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_spot&spot_id=${spotId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showModal('editSpotModal', result.data);
             } else {
@@ -634,11 +635,11 @@ class AdminDashboard {
         if (!confirm('Are you sure you want to delete this tourist spot? This action cannot be undone.')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`?action=delete_spot&spot_id=${spotId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tourist spot deleted successfully', 'success');
                 location.reload();
@@ -653,15 +654,15 @@ class AdminDashboard {
     async submitAddSpot() {
         const form = document.getElementById('addSpotForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=add_spot', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tourist spot added successfully', 'success');
                 this.closeModal('addSpotModal');
@@ -678,15 +679,15 @@ class AdminDashboard {
     async submitEditSpot() {
         const form = document.getElementById('editSpotForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=edit_spot', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tourist spot updated successfully', 'success');
                 this.closeModal('editSpotModal');
@@ -704,7 +705,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_guide&guide_id=${guideId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showGuideDetailsModal(result.data);
             } else {
@@ -719,7 +720,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_guide&guide_id=${guideId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showModal('editGuideModal', result.data);
             } else {
@@ -734,11 +735,11 @@ class AdminDashboard {
         if (!confirm('Are you sure you want to delete this tour guide? This action cannot be undone.')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`?action=delete_guide&guide_id=${guideId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tour guide deleted successfully', 'success');
                 location.reload();
@@ -753,15 +754,15 @@ class AdminDashboard {
     async submitAddGuide() {
         const form = document.getElementById('addGuideForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=add_guide', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tour guide added successfully', 'success');
                 this.closeModal('addGuideModal');
@@ -778,15 +779,15 @@ class AdminDashboard {
     async submitEditGuide() {
         const form = document.getElementById('editGuideForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=edit_guide', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Tour guide updated successfully', 'success');
                 this.closeModal('editGuideModal');
@@ -804,7 +805,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_hotel&hotel_id=${hotelId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showHotelDetailsModal(result.data);
             } else {
@@ -819,7 +820,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_hotel&hotel_id=${hotelId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showModal('editHotelModal', result.data);
             } else {
@@ -834,11 +835,11 @@ class AdminDashboard {
         if (!confirm('Are you sure you want to delete this hotel? This action cannot be undone.')) {
             return;
         }
-        
+
         try {
             const response = await fetch(`?action=delete_hotel&hotel_id=${hotelId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Hotel deleted successfully', 'success');
                 location.reload();
@@ -853,15 +854,15 @@ class AdminDashboard {
     async submitAddHotel() {
         const form = document.getElementById('addHotelForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=add_hotel', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Hotel added successfully', 'success');
                 this.closeModal('addHotelModal');
@@ -878,15 +879,15 @@ class AdminDashboard {
     async submitEditHotel() {
         const form = document.getElementById('editHotelForm');
         const formData = new FormData(form);
-        
+
         try {
             const response = await fetch('?action=edit_hotel', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Hotel updated successfully', 'success');
                 this.closeModal('editHotelModal');
@@ -902,17 +903,17 @@ class AdminDashboard {
     showContextMenu(event, userId) {
         event.preventDefault();
         event.stopPropagation();
-        
+
         // Remove any existing context menu
         const existingMenu = document.querySelector('.context-menu');
         if (existingMenu) existingMenu.remove();
-        
+
         // Create new context menu
         const menu = document.createElement('div');
         menu.className = 'context-menu';
         menu.style.top = `${event.clientY}px`;
         menu.style.left = `${event.clientX}px`;
-        
+
         menu.innerHTML = `
             <div class="context-item" onclick="admin.sendEmail(${userId})">
                 <span class="material-icons-outlined">email</span>
@@ -928,16 +929,16 @@ class AdminDashboard {
                 View Activity
             </div>
         `;
-        
+
         document.body.appendChild(menu);
         menu.classList.add('show');
-        
+
         // Close menu on click outside
         const closeMenu = () => {
             menu.remove();
             document.removeEventListener('click', closeMenu);
         };
-        
+
         setTimeout(() => {
             document.addEventListener('click', closeMenu);
         }, 100);
@@ -946,16 +947,16 @@ class AdminDashboard {
     async sendEmail(userId) {
         const subject = prompt('Enter email subject:');
         if (!subject) return;
-        
+
         const message = prompt('Enter email message:');
         if (!message) return;
-        
+
         this.showToast('Email functionality requires backend setup', 'info');
     }
 
     async resetPassword(userId) {
         const newPassword = prompt('Enter new password (leave blank to generate random):');
-        
+
         try {
             const response = await fetch('?action=reset_password', {
                 method: 'POST',
@@ -967,9 +968,9 @@ class AdminDashboard {
                     new_password: newPassword
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showToast('Password reset successfully', 'success');
                 if (result.data.password) {
@@ -987,7 +988,7 @@ class AdminDashboard {
         try {
             const response = await fetch(`?action=get_user&user_id=${userId}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 this.showUserActivityModal(result.data);
             } else {
@@ -1084,8 +1085,8 @@ class AdminDashboard {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${userData.activity && userData.activity.length > 0 ? 
-                                    userData.activity.map(activity => `
+                                ${userData.activity && userData.activity.length > 0 ?
+                userData.activity.map(activity => `
                                         <tr>
                                             <td>${new Date(activity.login_time).toLocaleString()}</td>
                                             <td>${activity.ip_address || 'N/A'}</td>
@@ -1095,9 +1096,9 @@ class AdminDashboard {
                                                 </span>
                                             </td>
                                         </tr>
-                                    `).join('') : 
-                                    `<tr><td colspan="3" style="text-align: center; padding: 40px;">No activity found</td></tr>`
-                                }
+                                    `).join('') :
+                `<tr><td colspan="3" style="text-align: center; padding: 40px;">No activity found</td></tr>`
+            }
                             </tbody>
                         </table>
                     </div>
@@ -1266,23 +1267,23 @@ class AdminDashboard {
     showToast(message, type = 'info') {
         // Remove existing toasts
         document.querySelectorAll('.toast').forEach(toast => toast.remove());
-        
+
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.innerHTML = `
             <span class="material-icons-outlined">
-                ${type === 'success' ? 'check_circle' : 
-                  type === 'error' ? 'error' : 
-                  type === 'warning' ? 'warning' : 'info'}
+                ${type === 'success' ? 'check_circle' :
+                type === 'error' ? 'error' :
+                    type === 'warning' ? 'warning' : 'info'}
             </span>
             <span>${message}</span>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         // Show toast
         setTimeout(() => toast.classList.add('show'), 10);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             toast.classList.remove('show');
@@ -1294,7 +1295,7 @@ class AdminDashboard {
         const table = document.querySelector('#usersTable');
         const rows = table.querySelectorAll('tr');
         const csv = [];
-        
+
         rows.forEach(row => {
             const rowData = [];
             const cells = row.querySelectorAll('th, td');
@@ -1306,7 +1307,7 @@ class AdminDashboard {
             });
             csv.push(rowData.join(','));
         });
-        
+
         const csvContent = csv.join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -1317,7 +1318,7 @@ class AdminDashboard {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         this.showToast('CSV exported successfully', 'success');
     }
 
@@ -1337,29 +1338,16 @@ class AdminDashboard {
         // fetch(`?ajax=1&section=${section}`).then(...)  
     }
 
-    setupUserDropdown() {
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            const userProfile = document.querySelector('.user-profile');
-            if (userProfile && !userProfile.contains(e.target)) {
-                userProfile.classList.remove('active');
-            }
-        });
-    }
 
-    toggleUserDropdown() {
-        const userProfile = document.querySelector('.user-profile');
-        if (userProfile) {
-            userProfile.classList.toggle('active');
-        }
-    }
+
+
 
     setupLogoutConfirmation() {
         const logoutBtn = document.querySelector('.logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 if (confirm('Are you sure you want to sign out?')) {
                     // Show loading state
                     logoutBtn.innerHTML = `
@@ -1368,7 +1356,7 @@ class AdminDashboard {
                     `;
                     logoutBtn.style.pointerEvents = 'none';
                     logoutBtn.style.opacity = '0.6';
-                    
+
                     // Get the logout URL and navigate directly
                     const logoutUrl = logoutBtn.getAttribute('href');
                     if (logoutUrl) {
@@ -1382,6 +1370,67 @@ class AdminDashboard {
             });
         }
     }
+
+    setupTheme() {
+        const theme = localStorage.getItem('admin-theme') || 'light';
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    }
+
+    initProfileDropdown() {
+        const toggle = document.querySelector('.profile-dropdown-toggle');
+        const dropdown = document.querySelector('.profile-dropdown');
+
+        if (toggle && dropdown) {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    setupThemeToggle() {
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            const currentTheme = localStorage.getItem('admin-theme') || 'light';
+            themeToggle.checked = currentTheme === 'dark';
+
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    document.body.classList.add('dark-theme');
+                    localStorage.setItem('admin-theme', 'dark');
+                    this.showToast('Dark mode enabled', 'info');
+                } else {
+                    document.body.classList.remove('dark-theme');
+                    localStorage.setItem('admin-theme', 'light');
+                    this.showToast('Light mode enabled', 'info');
+                }
+            });
+        }
+    }
+
+    async adminFetch(action, data = {}) {
+        try {
+            const response = await fetch('admin-ajax.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, ...data })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return { success: false, message: 'Connection error' };
+        }
+    }
+
+
 }
 
 // Initialize admin dashboard
@@ -1438,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hash) {
         admin.switchToSection(hash);
     }
-    
+
     // Initialize tooltips
     document.querySelectorAll('[title]').forEach(element => {
         element.setAttribute('data-tooltip', element.getAttribute('title'));
@@ -1448,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Backup logout function
 function handleLogout(event) {
     event.preventDefault();
-    
+
     if (confirm('Are you sure you want to sign out?')) {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
@@ -1459,10 +1508,10 @@ function handleLogout(event) {
             logoutBtn.style.pointerEvents = 'none';
             logoutBtn.style.opacity = '0.6';
         }
-        
+
         // Immediate logout
         window.location.replace('logout.php');
     }
-    
+
     return false;
 }

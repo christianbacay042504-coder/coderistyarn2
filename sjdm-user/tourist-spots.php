@@ -123,42 +123,45 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
+                
+                <!-- User Profile Dropdown -->
                 <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                    <button class="profile-button" id="userProfileButton">
+                        <div class="profile-avatar"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                         <span class="material-icons-outlined">expand_more</span>
                     </button>
-                    <div class="dropdown-menu" id="profileMenu">
+                    <div class="dropdown-menu" id="userProfileMenu">
                         <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                            <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
-                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest User'; ?></h3>
+                                <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
+                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
+                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
-                            <span class="material-icons-outlined">favorite_border</span>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
+                            <span class="material-icons-outlined">favorite</span>
                             <span>Saved Tours</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
+                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
@@ -392,7 +395,7 @@ if ($conn) {
     }
     ?>
 
-    <script src="script.js"></script>
+
     <style>
         /* Card Weather Styling */
         .card-weather {
@@ -674,94 +677,7 @@ if ($conn) {
         });
     </script>
 
-    <script>
-        // Profile dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded');
-            
-            const profileButton = document.getElementById('profileButton');
-            const profileMenu = document.getElementById('profileMenu');
-            
-            console.log('Profile Button:', profileButton);
-            console.log('Profile Menu:', profileMenu);
-            
-            if (profileButton) {
-                console.log('Profile button found, adding click listener');
-                profileButton.addEventListener('click', function(e) {
-                    console.log('Profile button clicked!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (profileMenu) {
-                        console.log('Toggling menu. Current classes:', profileMenu.className);
-                        profileMenu.classList.toggle('active');
-                        console.log('Menu after toggle. Classes:', profileMenu.className);
-                    }
-                });
-            } else {
-                console.error('Profile button not found!');
-            }
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (profileButton && profileMenu && 
-                    !profileButton.contains(e.target) && 
-                    !profileMenu.contains(e.target)) {
-                    profileMenu.classList.remove('active');
-                }
-            });
-            
-            // Add event listeners for all profile menu items
-            const myAccountLink = document.getElementById('myAccountLink');
-            const bookingHistoryLink = document.getElementById('bookingHistoryLink');
-            const savedToursLink = document.getElementById('savedToursLink');
-            const settingsLink = document.getElementById('settingsLink');
-            const helpSupportLink = document.getElementById('helpSupportLink');
-            const signoutLink = document.getElementById('signoutLink');
-            
-            if (myAccountLink) {
-                myAccountLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showMyAccountModal();
-                });
-            }
-            
-            if (bookingHistoryLink) {
-                bookingHistoryLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showBookingHistoryModal();
-                });
-            }
-            
-            if (savedToursLink) {
-                savedToursLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showSavedToursModal();
-                });
-            }
-            
-            if (settingsLink) {
-                settingsLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showSettingsModal();
-                });
-            }
-            
-            if (helpSupportLink) {
-                helpSupportLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showHelpSupportModal();
-                });
-            }
-            
-            // Note: Direct logout link used, no JavaScript event listener needed for signoutLink
-        });
-    </script>
+    <script src="script.js"></script>
 
     <style>
         .modal {

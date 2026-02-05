@@ -12,796 +12,21 @@ let currentFilter = 'all';
 let currentSort = 'rating';
 let searchQuery = '';
 
-// Guide Profile Modal - Updated to work with database-driven content
-function viewGuideProfile(guideId) {
-    console.log('viewGuideProfile called with guideId:', guideId);
-
-    // Create modal with enhanced aesthetics
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-        <div class="modal-content guide-profile-modal">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <span class="material-icons-outlined modal-icon">person</span>
-                    <h2>Guide Profile</h2>
-                </div>
-                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="loading-message">
-                    <div class="loading-spinner">
-                        <div class="spinner-circle"></div>
-                        <span class="material-icons-outlined">hourglass_empty</span>
-                    </div>
-                    <p>Loading guide profile...</p>
-                    <p><small>Guide ID: ${guideId}</small></p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Add custom styles for enhanced aesthetics
-    const style = document.createElement('style');
-    style.textContent = `
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal-overlay.show {
-            opacity: 1;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9) translateY(20px);
-            transition: transform 0.3s ease;
-        }
-        
-        .modal-overlay.show .modal-content {
-            transform: scale(1) translateY(0);
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px 32px;
-            border-radius: 16px 16px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .modal-title h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .modal-icon {
-            font-size: 28px;
-        }
-        
-        .close-modal {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .close-modal:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-        
-        .modal-body {
-            padding: 32px;
-        }
-        
-        .loading-message {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .loading-spinner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .spinner-circle {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-spinner .material-icons-outlined {
-            font-size: 32px;
-            color: #667eea;
-        }
-        
-        .loading-message p {
-            color: #666;
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        
-        .loading-message small {
-            color: #999;
-            font-size: 14px;
-        }
-        
-        .guide-profile-content {
-            animation: fadeInUp 0.5s ease;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .guide-profile-header {
-            display: flex;
-            gap: 24px;
-            margin-bottom: 32px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .guide-profile-photo {
-            position: relative;
-            flex-shrink: 0;
-        }
-        
-        .guide-profile-photo img {
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .verified-badge {
-            position: absolute;
-            bottom: -8px;
-            right: -8px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            border: 2px solid white;
-            animation: verifiedPulse 2s infinite;
-            z-index: 10;
-        }
-        
-        @keyframes verifiedPulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
-            }
-        }
-        
-        .verified-badge .material-icons-outlined {
-            font-size: 14px;
-            animation: verifiedIconSpin 3s infinite;
-        }
-        
-        @keyframes verifiedIconSpin {
-            0%, 100% {
-                transform: rotate(0deg);
-            }
-            25% {
-                transform: rotate(5deg);
-            }
-            75% {
-                transform: rotate(-5deg);
-            }
-        }
-        
-        .guide-profile-info {
-            flex: 1;
-        }
-        
-        .guide-name-section {
-            margin-bottom: 12px;
-        }
-        
-        .guide-profile-info h3 {
-            margin: 0 0 8px 0;
-            font-size: 28px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        
-        .verified-ribbon {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            animation: ribbonShine 3s infinite;
-        }
-        
-        @keyframes ribbonShine {
-            0%, 100% {
-                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            }
-            50% {
-                box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
-            }
-        }
-        
-        .verified-ribbon .material-icons-outlined {
-            font-size: 14px;
-        }
-        
-        .verified-glow {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
-            border-radius: 20px;
-            animation: glowPulse 2s infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes glowPulse {
-            0%, 100% {
-                opacity: 0.3;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.6;
-                transform: scale(1.05);
-            }
-        }
-        
-        .verification-section {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-            border: 1px solid #a7f3d0;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 32px;
-            animation: verificationSlideIn 0.6s ease;
-        }
-        
-        @keyframes verificationSlideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .verification-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .verification-header .material-icons-outlined {
-            font-size: 24px;
-            color: #10b981;
-        }
-        
-        .verification-header h4 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            color: #065f46;
-        }
-        
-        .verification-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-        
-        .verification-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #d1fae5;
-            transition: all 0.3s ease;
-        }
-        
-        .verification-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
-            border-color: #10b981;
-        }
-        
-        .verification-item .material-icons-outlined {
-            font-size: 20px;
-            color: #10b981;
-            flex-shrink: 0;
-        }
-        
-        .verification-item span {
-            font-size: 14px;
-            font-weight: 500;
-            color: #047857;
-        }
-        
-        .guide-specialty {
-            color: #667eea;
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 12px;
-        }
-        
-        .guide-rating {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        
-        .guide-category-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #f3f4f6;
-            color: #4b5563;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .guide-description-section {
-            margin-bottom: 32px;
-        }
-        
-        .guide-description-section h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0 0 16px 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .guide-description-section p {
-            color: #4b5563;
-            line-height: 1.6;
-            margin: 0;
-        }
-        
-        .guide-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .detail-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 20px;
-            background: #f9fafb;
-            border-radius: 12px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .detail-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .detail-item .material-icons-outlined {
-            color: #667eea;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-        
-        .detail-item strong {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-        
-        .detail-item p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 14px;
-        }
-        
-        .guide-booking-section {
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .guide-booking-section h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .guide-booking-section p {
-            color: #4b5563;
-            margin-bottom: 20px;
-        }
-        
-        .booking-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
-        }
-        
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #4b5563;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            background: #e5e7eb;
-            transform: translateY(-2px);
-        }
-        
-        .error-message {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .error-message .material-icons-outlined {
-            font-size: 48px;
-            color: #ef4444;
-            margin-bottom: 16px;
-        }
-        
-        .error-message h3 {
-            color: #ef4444;
-            margin: 0 0 8px 0;
-        }
-        
-        .error-message p {
-            color: #6b7280;
-            margin: 0 0 24px 0;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 95%;
-                margin: 20px;
-            }
-            
-            .modal-header {
-                padding: 20px 24px;
-            }
-            
-            .modal-body {
-                padding: 24px;
-            }
-            
-            .guide-profile-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 16px;
-            }
-            
-            .guide-profile-info h3 {
-                font-size: 24px;
-            }
-            
-            .guide-details-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .booking-actions {
-                flex-direction: column;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(modal);
-    setTimeout(() => modal.classList.add('show'), 10);
-
-    // Fetch guide data from the DOM (since we're working with database-driven content)
-    const guideCard = document.querySelector(`[data-guide-id="${guideId}"]`);
-    if (guideCard) {
-        // Extract data from the guide card
-        const guideName = guideCard.querySelector('.guide-name')?.textContent || 'Unknown Guide';
-        const guideSpecialty = guideCard.querySelector('.guide-specialty')?.textContent || '';
-        const guideDescription = guideCard.querySelector('.guide-description')?.textContent || '';
-        const guidePhoto = guideCard.querySelector('.guide-photo img')?.src || '';
-        const guideCategory = guideCard.getAttribute('data-category') || '';
-        const ratingValue = guideCard.querySelector('.rating-value')?.textContent || '0';
-        const reviewCount = guideCard.querySelector('.review-count')?.textContent || '(0 reviews)';
-        const experienceYears = guideCard.querySelector('.meta-item:nth-child(1)')?.textContent || '';
-        const languages = guideCard.querySelector('.meta-item:nth-child(2)')?.textContent || '';
-        const groupSize = guideCard.querySelector('.meta-item:nth-child(3)')?.textContent || '';
-        const isVerified = guideCard.querySelector('.verified-badge') !== null;
-
-        // Update modal with guide information
-        setTimeout(() => {
-            const modalBody = modal.querySelector('.modal-body');
-            modalBody.innerHTML = `
-                <div class="guide-profile-content">
-                    <div class="guide-profile-header">
-                        <div class="guide-profile-photo">
-                            <img src="${guidePhoto}" alt="${guideName}" />
-                            ${isVerified ? `
-                            <div class="verified-badge">
-                                <span class="material-icons-outlined">verified</span>
-                                <span>Verified Guide</span>
-                            </div>
-                            <div class="verified-glow"></div>
-                            ` : ''}
-                        </div>
-                        <div class="guide-profile-info">
-                            <div class="guide-name-section">
-                                <h3>${guideName}</h3>
-                                ${isVerified ? `
-                                <div class="verified-ribbon">
-                                    <span class="material-icons-outlined">verified_user</span>
-                                    <span>Trusted Professional</span>
-                                </div>
-                                ` : ''}
-                            </div>
-                            <p class="guide-specialty">${guideSpecialty}</p>
-                            <div class="guide-rating">
-                                ${generateStarRating(parseFloat(ratingValue))}
-                                <span class="rating-value">${ratingValue}</span>
-                                <span class="review-count">${reviewCount}</span>
-                            </div>
-                            <div class="guide-category-badge">
-                                <span class="material-icons-outlined">category</span>
-                                ${getCategoryDisplayName(guideCategory)}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    ${isVerified ? `
-                    <div class="verification-section">
-                        <div class="verification-header">
-                            <span class="material-icons-outlined">security</span>
-                            <h4>Verification Details</h4>
-                        </div>
-                        <div class="verification-grid">
-                            <div class="verification-item">
-                                <span class="material-icons-outlined">check_circle</span>
-                                <span>Identity Verified</span>
-                            </div>
-                            <div class="verification-item">
-                                <span class="material-icons-outlined">workspace_premium</span>
-                                <span>Professional Certified</span>
-                            </div>
-                            <div class="verification-item">
-                                <span class="material-icons-outlined">reviews</span>
-                                <span>Background Checked</span>
-                            </div>
-                            <div class="verification-item">
-                                <span class="material-icons-outlined">handshake</span>
-                                <span>Trusted by Community</span>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
-                    
-                    <div class="guide-description-section">
-                        <h4><span class="material-icons-outlined">info</span> About</h4>
-                        <p>${guideDescription}</p>
-                    </div>
-                    
-                    <div class="guide-details-grid">
-                        <div class="detail-item">
-                            <span class="material-icons-outlined">schedule</span>
-                            <div>
-                                <strong>Experience</strong>
-                                <p>${experienceYears}</p>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <span class="material-icons-outlined">translate</span>
-                            <div>
-                                <strong>Languages</strong>
-                                <p>${languages}</p>
-                            </div>
-                        </div>
-                        ${groupSize ? `
-                        <div class="detail-item">
-                            <span class="material-icons-outlined">groups</span>
-                            <div>
-                                <strong>Group Size</strong>
-                                <p>${groupSize}</p>
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    <div class="guide-booking-section">
-                        <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
-                        <p>To book this guide and get detailed pricing information, please click the button below.</p>
-                        <div class="booking-actions">
-                            <button class="btn-primary" onclick="bookGuide(${guideId})">
-                                <span class="material-icons-outlined">calendar_today</span>
-                                Book This Guide
-                            </button>
-                            <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }, 500);
-    } else {
-        // Handle case where guide card is not found
-        setTimeout(() => {
-            const modalBody = modal.querySelector('.modal-body');
-            modalBody.innerHTML = `
-                <div class="error-message">
-                    <span class="material-icons-outlined">error</span>
-                    <h3>Guide Not Found</h3>
-                    <p>Unable to load guide information. Please try again later.</p>
-                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
-                </div>
-            `;
-        }, 500);
-    }
-}
-
-// Helper function to get display name for category
-function getCategoryDisplayName(category) {
-    const categoryNames = {
-        'mountain': 'Mountain Hiking',
-        'city': 'City Tours',
-        'farm': 'Farm & Eco-Tourism',
-        'waterfall': 'Waterfall Tours',
-        'historical': 'Historical Tours',
-        'general': 'General Tours'
-    };
-    return categoryNames[category] || category;
-}
-
-// Helper function to generate star rating HTML
-function generateStarRating(rating) {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    let starsHTML = '';
-
-    for (let i = 0; i < fullStars; i++) {
-        starsHTML += '<span class="material-icons-outlined">star</span>';
-    }
-
-    if (hasHalfStar) {
-        starsHTML += '<span class="material-icons-outlined">star_half</span>';
-    }
-
-    const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-        starsHTML += '<span class="material-icons-outlined">star_outline</span>';
-    }
-
-    return starsHTML;
-}
+// Guide Profile Modal Logic handled via inline JS in PHP loop
 
 // Function to handle booking a guide from profile modal
 function bookGuide(guideId) {
     // Close the profile modal
-    document.querySelector('.modal-overlay').remove();
+    const modal = document.getElementById(`modal-guide-${guideId}`);
+    if (modal) {
+        modal.classList.remove('show');
+    }
 
-    // Navigate to booking page with pre-selected guide
-    window.location.href = `book.php?guide=${guideId}`;
+    // Simulate navigation to booking page
+    window.location.href = `book.php?guide_id=${guideId}`;
 }
+
+
 
 // Hotel Booking Modal
 function showBookingModal(hotelName) {
@@ -2025,9 +1250,13 @@ function showMyAccountModal() {
                             <span class="material-icons-outlined">edit</span>
                             Edit Profile
                         </button>
-                        <button class="btn-secondary" onclick="window.location.href='booking-history.php'">
-                            <span class="material-icons-outlined">history</span>
-                            View Bookings
+                        <button class="btn-secondary" onclick="window.location.href='my-account.php'">
+                            <span class="material-icons-outlined">lock</span>
+                            Change Password
+                        </button>
+                        <button class="btn-outline" onclick="window.location.href='my-account.php'">
+                            <span class="material-icons-outlined">person</span>
+                            Account Details
                         </button>
                     </div>
                 </div>
@@ -2061,9 +1290,13 @@ function showBookingHistoryModal() {
                     <p>Your booking history will appear here once you make your first tour reservation with SJDM Tours.</p>
                 </div>
                 <div class="modal-action-buttons">
-                    <button class="btn-primary" onclick="window.location.href='index.php'">
-                        <span class="material-icons-outlined">explore</span>
-                        Browse Tours
+                    <button class="btn-primary" onclick="window.location.href='booking-history.php'">
+                        <span class="material-icons-outlined">history</span>
+                        View All Bookings
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='book.php'">
+                        <span class="material-icons-outlined">event</span>
+                        Book New Tour
                     </button>
                 </div>
             </div>
@@ -2094,7 +1327,11 @@ function showSavedToursModal() {
                     <p>Save your favorite tours and destinations to quickly access them later. Start exploring and click the heart icon to save.</p>
                 </div>
                 <div class="modal-action-buttons">
-                    <button class="btn-primary" onclick="window.location.href='tourist-spots.php'">
+                    <button class="btn-primary" onclick="window.location.href='saved-tours.php'">
+                        <span class="material-icons-outlined">favorite</span>
+                        View Saved Tours
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='tourist-spots.php'">
                         <span class="material-icons-outlined">place</span>
                         Explore Destinations
                     </button>
@@ -2153,9 +1390,13 @@ function showSettingsModal() {
                     </div>
                 </div>
 <div class="modal-action-buttons">
-                    <button class="btn-primary" onclick="window.location.href='my-account.php'">
+                    <button class="btn-primary" onclick="window.location.href='settings.php'">
                         <span class="material-icons-outlined">settings</span>
                         Manage Settings
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='my-account.php'">
+                        <span class="material-icons-outlined">account_circle</span>
+                        Account Settings
                     </button>
                 </div>
             </div>
@@ -2223,6 +1464,232 @@ function showHelpSupportModal() {
                     <button class="btn-primary" onclick="window.location.href='help-support.php'">
                         <span class="material-icons-outlined">help_center</span>
                         Visit Help Center
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='booking-history.php'">
+                        <span class="material-icons-outlined">history</span>
+                        Check Booking Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showHomeModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content home-modal">
+            <div class="modal-header">
+                <h2>Home Dashboard</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">home</span>
+                    </div>
+                    <h3>Welcome Back!</h3>
+                    <p>Access your dashboard and explore the best of San Jose del Monte.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='index.php'">
+                        <span class="material-icons-outlined">dashboard</span>
+                        Go to Dashboard
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='user-guides.php'">
+                        <span class="material-icons-outlined">explore</span>
+                        Explore Tours
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showTourGuidesModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content tour-guides-modal">
+            <div class="modal-header">
+                <h2>Tour Guides</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">people</span>
+                    </div>
+                    <h3>Expert Local Guides</h3>
+                    <p>Connect with certified tour guides who know San Jose del Monte inside and out.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='user-guides.php'">
+                        <span class="material-icons-outlined">person_search</span>
+                        Browse All Guides
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='book.php'">
+                        <span class="material-icons-outlined">event</span>
+                        Book a Guide
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showBookNowModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content book-now-modal">
+            <div class="modal-header">
+                <h2>Book Your Tour</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">event</span>
+                    </div>
+                    <h3>Ready for Adventure?</h3>
+                    <p>Book your perfect tour experience in San Jose del Monte today!</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='book.php'">
+                        <span class="material-icons-outlined">calendar_today</span>
+                        Start Booking
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='user-guides.php'">
+                        <span class="material-icons-outlined">people</span>
+                        Choose Guide First
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showTouristSpotsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content tourist-spots-modal">
+            <div class="modal-header">
+                <h2>Tourist Spots</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">place</span>
+                    </div>
+                    <h3>Discover SJDM</h3>
+                    <p>Explore the beautiful destinations and hidden gems of San Jose del Monte.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='tourist-spots.php'">
+                        <span class="material-icons-outlined">travel_explore</span>
+                        View All Spots
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='book.php'">
+                        <span class="material-icons-outlined">bookmark</span>
+                        Book a Visit
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showLocalCultureModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content local-culture-modal">
+            <div class="modal-header">
+                <h2>Local Culture</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">theater_comedy</span>
+                    </div>
+                    <h3>Experience Local Life</h3>
+                    <p>Immerse yourself in the rich culture and traditions of San Jose del Monte.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='local-culture.php'">
+                        <span class="material-icons-outlined">museum</span>
+                        Explore Culture
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='tourist-spots.php'">
+                        <span class="material-icons-outlined">location_on</span>
+                        Cultural Sites
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function showTravelTipsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content travel-tips-modal">
+            <div class="modal-header">
+                <h2>Travel Tips</h2>
+                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon-header">
+                    <div class="icon-circle">
+                        <span class="material-icons-outlined">tips_and_updates</span>
+                    </div>
+                    <h3>Travel Smart</h3>
+                    <p>Get essential tips and advice for making the most of your SJDM adventure.</p>
+                </div>
+                <div class="modal-action-buttons">
+                    <button class="btn-primary" onclick="window.location.href='travel-tips.php'">
+                        <span class="material-icons-outlined">lightbulb</span>
+                        View All Tips
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='book.php'">
+                        <span class="material-icons-outlined">help_outline</span>
+                        Planning Guide
                     </button>
                 </div>
             </div>
@@ -3489,3 +2956,587 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', init);
+
+// ==================== USER PROFILE DROPDOWN ====================
+
+/**
+ * User Profile Dropdown Functionality
+ * Handles the dropdown menu and its associated modals for user panel.
+ */
+
+function initUserProfileDropdown() {
+    console.log('initUserProfileDropdown: Initializing...');
+    const profileButton = document.getElementById('userProfileButton');
+    const profileMenu = document.getElementById('userProfileMenu');
+
+    console.log('initUserProfileDropdown: Elements found:', { profileButton, profileMenu });
+
+    if (profileButton && profileMenu) {
+        profileButton.addEventListener('click', function (e) {
+            console.log('User profile button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            profileMenu.classList.toggle('active');
+            console.log('User profile menu active state:', profileMenu.classList.contains('active'));
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+                profileMenu.classList.remove('active');
+            }
+        });
+    }
+
+    // Bind dropdown item links
+    const links = {
+        'userAccountLink': showUserAccountModal,
+        'userSettingsLink': showUserSettingsModal,
+        'userBookingHistoryLink': showUserBookingHistoryModal,
+        'userSavedToursLink': showUserSavedToursModal,
+        'userHelpLink': showUserHelpModal
+    };
+
+    for (const [id, func] of Object.entries(links)) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                profileMenu.classList.remove('active');
+                func();
+            });
+        }
+    }
+}
+
+// Modal Helper Function
+function createUserModal(id, title, content, icon = 'info') {
+    // Remove existing modal if any
+    const existing = document.getElementById(id);
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = id;
+    modal.className = 'modal-overlay';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-container">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="material-icons-outlined" style="color: var(--primary);">${icon}</span>
+                    <h2 style="margin: 0; color: var(--text-primary);">${title}</h2>
+                </div>
+                <button class="btn-action" onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; padding: 8px; cursor: pointer;">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body" id="${id}-body">
+                ${content}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Close modal on backdrop click
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+
+    return modal;
+}
+
+function showUserAccountModal() {
+    // Get user data from page or use defaults
+    const userName = document.querySelector('.user-name')?.textContent || 'Guest User';
+    const userEmail = document.querySelector('.user-email')?.textContent || 'user@sjdmtours.com';
+    
+    const nameParts = userName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const content = `
+        <div class="profile-view-mode">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div class="profile-avatar large" style="margin: 0 auto 16px; width: 60px; height: 60px; font-size: 24px;">
+                    ${firstName.charAt(0).toUpperCase()}
+                </div>
+                <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${userName}</h3>
+                <p style="margin: 0 0 4px 0; color: var(--primary); font-weight: 600;">Traveler</p>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">SJDM Tours Explorer</p>
+            </div>
+            
+            <div style="display: grid; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-secondary);">Full Name</span>
+                    <span style="font-weight: 600;">${userName}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-secondary);">Email Address</span>
+                    <span style="font-weight: 600;">${userEmail}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-secondary);">Member Since</span>
+                    <span style="font-weight: 600;">2024</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                    <span style="color: var(--text-secondary);">Status</span>
+                    <span style="font-weight: 600; color: var(--success);">Active</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('userAccountModal').remove()">Close</button>
+                <button type="button" class="btn-primary" onclick="showUserEditProfileForm()">
+                    <span class="material-icons-outlined" style="font-size: 18px;">edit</span> Edit Profile
+                </button>
+            </div>
+        </div>
+    `;
+    createUserModal('userAccountModal', 'My Account', content, 'account_circle');
+}
+
+function showUserEditProfileForm() {
+    const container = document.getElementById('userAccountModal-body');
+    if (!container) return;
+
+    const userName = document.querySelector('.user-name')?.textContent || 'Guest User';
+    const userEmail = document.querySelector('.user-email')?.textContent || 'user@sjdmtours.com';
+    
+    const nameParts = userName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join('') || '';
+
+    container.innerHTML = `
+        <form id="userProfileForm" onsubmit="event.preventDefault(); saveUserProfile();">
+            <div style="display: grid; gap: 16px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">First Name</label>
+                    <input type="text" id="userFirstName" value="${firstName}" required 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Last Name</label>
+                    <input type="text" id="userLastName" value="${lastName}" required 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Email Address</label>
+                    <input type="email" id="userEmail" value="${userEmail}" required 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="button" class="btn-secondary" onclick="showUserAccountModal()">Cancel</button>
+                <button type="submit" class="btn-primary">
+                    <span class="material-icons-outlined" style="font-size: 18px;">save</span> Save Changes
+                </button>
+            </div>
+        </form>
+    `;
+}
+
+function saveUserProfile() {
+    const fname = document.getElementById('userFirstName').value.trim();
+    const lname = document.getElementById('userLastName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
+
+    // Here you would typically send this data to server
+    // For now, we'll just show a success message
+    showUserNotification('Profile updated successfully!', 'success');
+
+    // Update the display if elements exist
+    const nameElement = document.querySelector('.user-name');
+    const emailElement = document.querySelector('.user-email');
+    
+    if (nameElement) {
+        nameElement.textContent = `${fname} ${lname}`.trim();
+    }
+    if (emailElement) {
+        emailElement.textContent = email;
+    }
+
+    document.getElementById('userAccountModal').remove();
+}
+
+function showUserSettingsModal() {
+    const content = `
+        <div style="display: grid; gap: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">Email Notifications</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Receive booking confirmations and updates</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="userEmailToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">SMS Notifications</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Get text alerts for tour reminders</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="userSMSToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">Location Services</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Share location for better recommendations</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="userLocationToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" onclick="saveUserSettings()">
+                    <span class="material-icons-outlined" style="font-size: 18px;">check</span> Apply Changes
+                </button>
+            </div>
+        </div>
+    `;
+    createUserModal('userSettingsModal', 'Settings', content, 'settings');
+}
+
+function saveUserSettings() {
+    const emailNotifications = document.getElementById('userEmailToggle').checked;
+    const smsNotifications = document.getElementById('userSMSToggle').checked;
+    const locationServices = document.getElementById('userLocationToggle').checked;
+
+    // Here you would typically send these settings to server
+    showUserNotification('Settings updated successfully!', 'success');
+    document.getElementById('userSettingsModal').remove();
+}
+
+function showUserHelpModal() {
+    const content = `
+        <div style="display: grid; gap: 16px;">
+            <div style="display: flex; align-items: center; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <span class="material-icons-outlined" style="color: var(--primary); margin-right: 16px; font-size: 24px;">email</span>
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">Customer Support</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">support@sjdmtours.com</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <span class="material-icons-outlined" style="color: var(--primary); margin-right: 16px; font-size: 24px;">call</span>
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">Hotline</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">+63 912 345 6789</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; padding: 16px; background: var(--bg-light); border-radius: 8px;">
+                <span class="material-icons-outlined" style="color: var(--primary); margin-right: 16px; font-size: 24px;">help</span>
+                <div>
+                    <strong style="display: block; margin-bottom: 4px;">Help Center</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Browse FAQs and guides</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" onclick="window.location.href='help-support.php'">
+                    <span class="material-icons-outlined" style="font-size: 18px;">help_outline</span> Visit Help Center
+                </button>
+            </div>
+        </div>
+    `;
+    createUserModal('userHelpModal', 'Help & Support', content, 'help_outline');
+}
+
+function showUserNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 20px;
+        background: ${type === 'success' ? '#dcfce7' : '#dbeafe'};
+        color: ${type === 'success' ? '#166534' : '#1e40af'};
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+    `;
+    
+    notification.innerHTML = `
+        <span class="material-icons-outlined" style="font-size: 20px;">
+            ${type === 'success' ? 'check_circle' : 'info'}
+        </span>
+        ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Add toggle switch styles if not already present
+const toggleStyles = `
+<style>
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+</style>
+`;
+
+// Inject toggle styles
+if (!document.querySelector('#user-toggle-styles')) {
+    const styleElement = document.createElement('div');
+    styleElement.id = 'user-toggle-styles';
+    styleElement.innerHTML = toggleStyles;
+    document.head.appendChild(styleElement.firstElementChild);
+}
+
+// Booking History Modal Function
+function showUserBookingHistoryModal() {
+    const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+    
+    const content = `
+        <div class="booking-history-modal">
+            ${userBookings.length === 0 ? `
+                <div class="modal-empty-state">
+                    <div class="empty-icon">
+                        <span class="material-icons-outlined">event_busy</span>
+                    </div>
+                    <h3>No Bookings Yet</h3>
+                    <p>You haven't made any bookings yet. Start your adventure by booking your first tour!</p>
+                    <div class="centered-actions">
+                        <button class="btn-hero" onclick="window.location.href='book.php'">
+                            <span class="material-icons-outlined">explore</span>
+                            Book Your First Tour
+                        </button>
+                    </div>
+                </div>
+            ` : `
+                <div class="bookings-list">
+                    ${userBookings.reverse().map(booking => `
+                        <div class="booking-item">
+                            <div class="booking-header">
+                                <div class="booking-info">
+                                    <h4>${booking.guideName}</h4>
+                                    <p class="booking-destination">
+                                        <span class="material-icons-outlined">place</span>
+                                        ${booking.destination}
+                                    </p>
+                                </div>
+                                <span class="status-badge status-${booking.status}">
+                                    ${getStatusIcon(booking.status)}
+                                    <span>${booking.status.toUpperCase()}</span>
+                                </span>
+                            </div>
+                            <div class="booking-details">
+                                <div class="detail-row">
+                                    <span class="material-icons-outlined">event</span>
+                                    <span>${formatBookingDate(booking.checkIn)} - ${formatBookingDate(booking.checkOut)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="material-icons-outlined">people</span>
+                                    <span>${booking.guests} Guest${booking.guests > 1 ? 's' : ''}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="material-icons-outlined">confirmation_number</span>
+                                    <span>Ref: ${booking.bookingNumber}</span>
+                                </div>
+                                <div class="detail-row price">
+                                    <span class="material-icons-outlined">payments</span>
+                                    <span>₱${booking.totalAmount ? booking.totalAmount.toLocaleString() : '2,600'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="window.location.href='booking-history.php'">
+                        <span class="material-icons-outlined">history</span>
+                        View Full History
+                    </button>
+                </div>
+            `}
+        </div>
+    `;
+    createUserModal('userBookingHistoryModal', 'Booking History', content, 'history');
+}
+
+// Saved Tours Modal Function
+function showUserSavedToursModal() {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    
+    const guides = [
+        {
+            id: 1,
+            name: "Rico Mendoza",
+            photo: "",
+            specialty: "Mt. Balagbag Hiking Expert",
+            rating: 5.0,
+            reviewCount: 127,
+            priceRange: "₱2,000 - ₱3,500 per day",
+            experience: "10 years"
+        },
+        {
+            id: 2,
+            name: "Anna Marie Santos",
+            photo: "",
+            specialty: "Nature & Waterfall Tours",
+            rating: 4.9,
+            reviewCount: 89,
+            priceRange: "₱2,500 - ₱4,000 per day",
+            experience: "7 years"
+        },
+        {
+            id: 3,
+            name: "Father Jose Reyes",
+            photo: "",
+            specialty: "Religious & Pilgrimage Tours",
+            rating: 4.8,
+            reviewCount: 156,
+            priceRange: "₱1,500 - ₱2,500 per day",
+            experience: "15 years"
+        }
+    ];
+    
+    const favoriteGuides = guides.filter(g => favorites.includes(g.id));
+    
+    const content = `
+        <div class="saved-tours-modal">
+            ${favoriteGuides.length === 0 ? `
+                <div class="modal-empty-state">
+                    <div class="empty-icon">
+                        <span class="material-icons-outlined">favorite_border</span>
+                    </div>
+                    <h3>No Saved Tours Yet</h3>
+                    <p>Save your favorite tour guides to quickly access them later. Start exploring and click the heart icon!</p>
+                    <div class="centered-actions">
+                        <button class="btn-hero" onclick="window.location.href='user-guides.php'">
+                            <span class="material-icons-outlined">explore</span>
+                            Browse Tour Guides
+                        </button>
+                    </div>
+                </div>
+            ` : `
+                <div class="saved-guides-list">
+                    ${favoriteGuides.map(guide => `
+                        <div class="saved-guide-item">
+                            <div class="guide-photo">${guide.photo}</div>
+                            <div class="guide-info">
+                                <h4>${guide.name}</h4>
+                                <p class="guide-specialty">${guide.specialty}</p>
+                                <div class="guide-meta">
+                                    <div class="rating-display">
+                                        <span class="material-icons-outlined">star</span>
+                                        <span>${guide.rating.toFixed(1)}</span>
+                                        <span class="review-count">(${guide.reviewCount})</span>
+                                    </div>
+                                    <div class="experience">
+                                        <span class="material-icons-outlined">work</span>
+                                        <span>${guide.experience}</span>
+                                    </div>
+                                </div>
+                                <div class="guide-price">${guide.priceRange}</div>
+                            </div>
+                            <button class="btn-remove-favorite" onclick="removeFavoriteFromModal(${guide.id})">
+                                <span class="material-icons-outlined">favorite</span>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="window.location.href='saved-tours.php'">
+                        <span class="material-icons-outlined">favorite</span>
+                        View All Saved Tours
+                    </button>
+                </div>
+            `}
+        </div>
+    `;
+    createUserModal('userSavedToursModal', 'Saved Tours', content, 'favorite');
+}
+
+// Helper functions for modals
+function getStatusIcon(status) {
+    const icons = {
+        'pending': '<span class="material-icons-outlined">schedule</span>',
+        'confirmed': '<span class="material-icons-outlined">check_circle</span>',
+        'completed': '<span class="material-icons-outlined">verified</span>',
+        'cancelled': '<span class="material-icons-outlined">cancel</span>'
+    };
+    return icons[status] || '<span class="material-icons-outlined">info</span>';
+}
+
+function formatBookingDate(dateString) {
+    const date = new Date(dateString);
+    const options = { month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+function removeFavoriteFromModal(guideId) {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const index = favorites.indexOf(guideId);
+    
+    if (index > -1) {
+        favorites.splice(index, 1);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        showUserBookingHistoryModal(); // Refresh the modal
+        showNotification('Removed from saved tours', 'info');
+    }
+}
+
+// Initialize when library loads or DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUserProfileDropdown);
+} else {
+    initUserProfileDropdown();
+}

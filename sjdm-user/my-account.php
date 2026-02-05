@@ -127,47 +127,6 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                            <div class="profile-details">
-                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
-                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
-                            <span class="material-icons-outlined">favorite_border</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
-                        </a>
-                    </div>
-                </div>
             </div>
         </header>
 
@@ -481,13 +440,14 @@ if ($conn) {
     </main>
 
     <script src="script.js"></script>
-    <script src="profile-dropdown.js"></script>
     <script>
         // Load account data
         window.addEventListener('DOMContentLoaded', function() {
             loadAccountData();
-            initProfileDropdown();
-            updateProfileUI();
+            // updateUserInterface is defined in script.js to handle UI updates
+            if (typeof updateUserInterface === 'function') {
+                updateUserInterface();
+            }
             initPasswordStrength();
         });
 
@@ -519,10 +479,12 @@ if ($conn) {
             localStorage.setItem('currentUser', JSON.stringify(user));
             showNotification('Account information updated successfully!', 'success');
             
-            // Update profile display
-            updateProfileUI();
+            // Update profile display using centralized function
+            if (typeof updateUserInterface === 'function') {
+                updateUserInterface();
+            }
             
-            // Update header info
+            // Update header info locally
             document.querySelector('.account-username').textContent = user.name;
             document.querySelector('.account-useremail').textContent = user.email;
         }
@@ -538,6 +500,8 @@ if ($conn) {
             const newPasswordInput = document.getElementById('newPassword');
             const strengthDiv = document.getElementById('passwordStrength');
             
+            if (!newPasswordInput || !strengthDiv) return;
+
             newPasswordInput.addEventListener('input', function() {
                 const password = this.value;
                 let strength = 0;
@@ -567,14 +531,14 @@ if ($conn) {
         function changePassword() {
             const current = document.getElementById('currentPassword').value;
             const newPass = document.getElementById('newPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
+            const confirmVal = document.getElementById('confirmPassword').value;
 
-            if (!current || !newPass || !confirm) {
+            if (!current || !newPass || !confirmVal) {
                 showNotification('Please fill all password fields', 'error');
                 return;
             }
 
-            if (newPass !== confirm) {
+            if (newPass !== confirmVal) {
                 showNotification('New passwords do not match', 'error');
                 return;
             }
@@ -607,51 +571,6 @@ if ($conn) {
                     showNotification('Account deletion feature coming soon', 'info');
                 }
             }
-        }
-
-        function handleSignOut(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to sign out?')) {
-                localStorage.removeItem('currentUser');
-                showNotification('Signed out successfully', 'info');
-                setTimeout(() => {
-                    window.location.href = '/coderistyarn/landingpage/landingpage.php';
-                }, 1000);
-            }
-        }
-
-        function showNotification(message, type) {
-            // Remove any existing notifications
-            const existingNotification = document.querySelector('.notification-banner');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-
-            const notification = document.createElement('div');
-            notification.className = `notification-banner ${type}`;
-            
-            const icons = {
-                success: 'check_circle',
-                error: 'error',
-                warning: 'warning',
-                info: 'info'
-            };
-            
-            notification.innerHTML = `
-                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
-                <span class="notification-message">${message}</span>
-                <button class="notification-close" onclick="this.parentElement.remove()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => notification.classList.add('show'), 100);
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
         }
     </script>
 </body>

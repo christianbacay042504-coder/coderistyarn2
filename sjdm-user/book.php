@@ -77,42 +77,46 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
+                
+                <!-- User Profile Dropdown -->
                 <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar">U</div>
+                    <button class="profile-button" id="userProfileButton">
+                        <div class="profile-avatar"><?php echo !empty($user_name) ? substr($user_name, 0, 1) : 'U'; ?></div>
                         <span class="material-icons-outlined">expand_more</span>
                     </button>
-                    <div class="dropdown-menu" id="profileMenu">
+                    <div class="dropdown-menu" id="userProfileMenu">
                         <div class="profile-info">
-                            <div class="profile-avatar large">U</div>
+                            <div class="profile-avatar large"><?php echo !empty($user_name) ? substr($user_name, 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3>User Name</h3>
-                                <p>user@example.com</p>
+                                <h3 class="user-name"><?php echo !empty($user_name) ? htmlspecialchars($user_name) : 'Guest User'; ?></h3>
+                                <p class="user-email"><?php echo !empty($user_email) ? htmlspecialchars($user_email) : 'user@sjdmtours.com'; ?></p>
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
+                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
-                            <span class="material-icons-outlined">favorite_border</span>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
+                            <span class="material-icons-outlined">favorite</span>
                             <span>Saved Tours</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
+                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
@@ -235,7 +239,7 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
                 </div>
             </div>
 
-            <div id="step-3" class="booking-step">
+                    <div id="step-3" class="booking-step">
                 <div class="form-container">
                     <h3>Review Your Booking</h3>
                     <div class="booking-review-summary">

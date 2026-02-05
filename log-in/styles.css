@@ -54,8 +54,8 @@ body {
 /* Left Panel */
 .login-left-panel {
     flex: 1;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
+    background: var(--white);
+    color: var(--text-primary);
     padding: 40px;
     display: flex;
     flex-direction: column;
@@ -95,13 +95,12 @@ body {
 .brand-logo {
     width: 60px;
     height: 60px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--primary);
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 16px;
-    backdrop-filter: blur(10px);
 }
 
 .brand-logo .material-icons-outlined {
@@ -134,11 +133,10 @@ body {
 .hero-image {
     width: 100%;
     height: 200px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: var(--gray-50);
     border-radius: var(--radius-lg);
     margin-bottom: 32px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border);
     overflow: hidden;
 }
 
@@ -191,9 +189,9 @@ body {
     z-index: 2;
     margin-top: auto;
     padding-top: 40px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid var(--border);
     font-size: 14px;
-    opacity: 0.8;
+    color: var(--text-secondary);
 }
 
 .login-footer p {

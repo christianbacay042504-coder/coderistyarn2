@@ -15,6 +15,10 @@ require_once '../config/database.php';
 // Get database connection
 $conn = getDatabaseConnection();
 
+require_once '../config/auth.php';
+$currentUser = getCurrentUser();
+$adminInfo = ['role_title' => 'Administrator', 'admin_mark' => 'A'];
+
 // Handle status updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id']) && isset($_POST['action'])) {
     $bookingId = (int)$_POST['booking_id'];
@@ -186,19 +190,14 @@ while ($row = $statsResult->fetch_assoc()) {
 </head>
 <body>
     <div class="admin-container">
-        <header class="admin-header">
-            <h1>View Bookings</h1>
-            <div class="header-actions">
-                <a href="dashboard.php" class="btn-secondary">
-                    <span class="material-icons-outlined">dashboard</span>
-                    Dashboard
-                </a>
-                <a href="logout.php" class="btn-secondary">
-                    <span class="material-icons-outlined">logout</span>
-                    Logout
-                </a>
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <h1>View Bookings</h1>
+                </div>
+                <div class="header-actions">
+
+                </div>
             </div>
-        </header>
 
         <main class="admin-content">
             <?php if (isset($message)): ?>
@@ -334,5 +333,6 @@ while ($row = $statsResult->fetch_assoc()) {
             </div>
         </main>
     </div>
+    <script src="admin-script.js"></script>
 </body>
 </html>

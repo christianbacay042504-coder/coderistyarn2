@@ -104,256 +104,6 @@ if ($conn) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="admin-styles.css">
-    <style>
-        /* Enhanced Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary, #3b82f6), var(--primary-light, #60a5fa));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            border-color: var(--primary, #3b82f6);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .stat-icon::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.4s ease;
-        }
-
-        .stat-card:hover .stat-icon {
-            transform: scale(1.1);
-        }
-
-        .stat-card:hover .stat-icon::after {
-            width: 100%;
-            height: 100%;
-        }
-
-        .stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
-        .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .stat-icon.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-        .stat-icon.pink { background: linear-gradient(135deg, #ec4899, #db2777); }
-        .stat-icon.yellow { background: linear-gradient(135deg, #eab308, #ca8a04); }
-        .stat-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
-
-        .stat-icon .material-icons-outlined {
-            font-size: 28px;
-            color: white;
-            z-index: 1;
-            position: relative;
-        }
-
-        .stat-details h3 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            color: #1f2937;
-            line-height: 1;
-        }
-
-        .stat-details p {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #6b7280;
-            margin: 0 0 12px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-meta {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            margin-bottom: 16px;
-        }
-
-        .stat-trend {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .stat-trend.positive { color: #10b981; }
-        .stat-trend.negative { color: #ef4444; }
-
-        .stat-trend .material-icons-outlined {
-            font-size: 18px;
-        }
-
-        /* Progress Bars */
-        .stat-progress {
-            margin-top: 16px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #f3f4f6;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent);
-            animation: progress-shine 3s infinite;
-        }
-
-        @keyframes progress-shine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .progress-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-        .progress-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
-        .progress-fill.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-        .progress-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-        .progress-fill.teal { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
-        .progress-fill.pink { background: linear-gradient(90deg, #ec4899, #f472b6); }
-        .progress-fill.yellow { background: linear-gradient(90deg, #eab308, #facc15); }
-        .progress-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
-
-        .progress-text {
-            font-size: 0.75rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            
-            .stat-card {
-                padding: 20px;
-            }
-            
-            .stat-details h3 {
-                font-size: 2rem;
-            }
-        }
-
-        /* Loading Animation */
-        .stat-card {
-            animation: slideUp 0.6s ease-out;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-        .stat-card:nth-child(5) { animation-delay: 0.5s; }
-        .stat-card:nth-child(6) { animation-delay: 0.6s; }
-        .stat-card:nth-child(7) { animation-delay: 0.7s; }
-        .stat-card:nth-child(8) { animation-delay: 0.8s; }
-        .stat-card:nth-child(9) { animation-delay: 0.9s; }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -448,14 +198,39 @@ if ($conn) {
                         <span class="badge"><?php echo $totalBookings > 0 ? $totalBookings : ''; ?></span>
                     </button>
                     
-                    <div class="user-profile">
-                        <div class="avatar">
-                            <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
-                            <div class="admin-mark-badge"><?php echo $adminMark; ?></div>
-                        </div>
-                        <div class="user-info">
-                            <p class="user-name"><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></p>
-                            <p class="user-role"><?php echo $roleTitle; ?></p>
+                    <!-- Admin Profile Dropdown -->
+                    <div class="profile-dropdown">
+                        <button class="profile-button" id="adminProfileButton">
+                            <div class="profile-avatar"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu" id="adminProfileMenu">
+                            <div class="profile-info">
+                                <div class="profile-avatar large"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                                <div class="profile-details">
+                                    <h3 class="admin-name"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></h3>
+                                    <p class="admin-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminAccountLink">
+                                <span class="material-icons-outlined">account_circle</span>
+                                <span>My Account</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSettingsLink">
+                                <span class="material-icons-outlined">settings</span>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminHelpLink">
+                                <span class="material-icons-outlined">help_outline</span>
+                                <span>Help & Support</span>
+                            </a>
+                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -712,9 +487,10 @@ if ($conn) {
             </div>
         </main>
     </div>
-    
+
     <!-- JavaScript -->
     <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
 </body>
 </html>
 <?php

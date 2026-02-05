@@ -207,47 +207,6 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                            <div class="profile-details">
-                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
-                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
-                            <span class="material-icons-outlined">favorite_border</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
-                        </a>
-                    </div>
-                </div>
             </div>
         </header>
 
@@ -342,12 +301,13 @@ if ($conn) {
     </main>
 
     <script src="script.js"></script>
-    <script src="profile-dropdown.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             loadUserSettings();
-            initProfileDropdown();
-            updateProfileUI();
+            // updateUserInterface is defined in script.js to handle UI updates
+            if (typeof updateUserInterface === 'function') {
+                updateUserInterface();
+            }
         });
 
         function loadUserSettings() {
@@ -388,20 +348,10 @@ if ($conn) {
             localStorage.removeItem('reviews');
 
             showNotification('Account deleted successfully', 'info');
+            // Simplified redirect - config likely handles logout
             setTimeout(() => {
-                window.location.href = '/coderistyarn/landingpage/landingpage.php';
+                window.location.href = '../logout.php';
             }, 1500);
-        }
-
-        function handleSignOut(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to sign out?')) {
-                localStorage.removeItem('currentUser');
-                showNotification('Signed out successfully', 'info');
-                setTimeout(() => {
-                    window.location.href = '/coderistyarn/landingpage/landingpage.php';
-                }, 1000);
-            }
         }
     </script>
 </body>

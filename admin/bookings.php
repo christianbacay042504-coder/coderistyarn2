@@ -310,175 +310,7 @@ $queryValues = [
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="admin-styles.css">
-    <style>
-        .booking-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--bg-light);
-            padding: 20px;
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
-            color: var(--primary);
-        }
-
-        .stat-card p {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-
-        .search-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .search-filters input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            min-width: 200px;
-        }
-
-        .search-filters select {
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            background: white;
-        }
-
-        .booking-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .booking-table th,
-        .booking-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .booking-table th {
-            background: var(--bg-light);
-            font-weight: 600;
-        }
-
-        .booking-table tr:hover {
-            background: var(--bg-light);
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-confirmed {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-cancelled {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-icon {
-            padding: 6px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--bg-light);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .pagination button {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .pagination button:hover {
-            background: var(--bg-light);
-        }
-
-        .pagination button.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .booking-amount {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--bg-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-    </style>
 </head>
-
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -535,20 +367,40 @@ $queryValues = [
                         <span class="material-icons-outlined">add</span>
                         Add Booking
                     </button>
-
+                    
+                    <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
-                        <div class="profile-dropdown-toggle">
-                            <div class="avatar">
-                                <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
-                                <div class="admin-mark-badge"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></div>
+                        <button class="profile-button" id="adminProfileButton">
+                            <div class="profile-avatar"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu" id="adminProfileMenu">
+                            <div class="profile-info">
+                                <div class="profile-avatar large"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                                <div class="profile-details">
+                                    <h3 class="admin-name"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></h3>
+                                    <p class="admin-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></p>
+                                </div>
                             </div>
-                            <div class="user-info">
-                                <p class="user-name">
-                                    <?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?>
-                                </p>
-                                <p class="user-role"><?php echo $adminInfo['role_title']; ?></p>
-                            </div>
-                            <span class="material-icons-outlined dropdown-arrow">expand_more</span>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminAccountLink">
+                                <span class="material-icons-outlined">account_circle</span>
+                                <span>My Account</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSettingsLink">
+                                <span class="material-icons-outlined">settings</span>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminHelpLink">
+                                <span class="material-icons-outlined">help_outline</span>
+                                <span>Help & Support</span>
+                            </a>
+                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -556,7 +408,7 @@ $queryValues = [
 
             <div class="content-area">
                 <!-- Booking Statistics -->
-                <div class="booking-stats">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <h3><?php echo $bookingStats['total']; ?></h3>
                         <p>Total Bookings</p>
@@ -601,7 +453,7 @@ $queryValues = [
 
                 <!-- Bookings Table -->
                 <div class="table-container">
-                    <table class="booking-table">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Booking ID</th>
@@ -688,6 +540,7 @@ $queryValues = [
     </div>
 
     <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
     <script>
         function searchBookings() {
             const searchValue = document.getElementById('searchInput').value;

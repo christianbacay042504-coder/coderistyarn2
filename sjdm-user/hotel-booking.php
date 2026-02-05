@@ -89,47 +89,6 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                            <div class="profile-details">
-                                <h3><?php echo isset($currentUser) ? htmlspecialchars($currentUser['name']) : 'User Name'; ?></h3>
-                                <p><?php echo isset($currentUser) ? htmlspecialchars($currentUser['email']) : 'user@example.com'; ?></p>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
-                            <span class="material-icons-outlined">favorite_border</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
-                        </a>
-                    </div>
-                </div>
             </div>
         </header>
 
@@ -451,99 +410,13 @@ if ($conn) {
         </div>
     </main>
 
+    <script src="script.js"></script>
     <script>
         // Pass current user data to JavaScript
         <?php if (isset($currentUser)): ?>
         const currentUser = <?php echo json_encode($currentUser); ?>;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         <?php endif; ?>
-        
-        // Profile dropdown functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM Content Loaded');
-            
-            const profileButton = document.getElementById('profileButton');
-            const profileMenu = document.getElementById('profileMenu');
-            
-            console.log('Profile Button:', profileButton);
-            console.log('Profile Menu:', profileMenu);
-            
-            if (profileButton) {
-                console.log('Profile button found, adding click listener');
-                profileButton.addEventListener('click', function(e) {
-                    console.log('Profile button clicked!');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (profileMenu) {
-                        console.log('Toggling menu. Current classes:', profileMenu.className);
-                        profileMenu.classList.toggle('active');
-                        console.log('Menu after toggle. Classes:', profileMenu.className);
-                    }
-                });
-            } else {
-                console.error('Profile button not found!');
-            }
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (profileButton && profileMenu && 
-                    !profileButton.contains(e.target) && 
-                    !profileMenu.contains(e.target)) {
-                    profileMenu.classList.remove('active');
-                }
-            });
-            
-            // Add event listeners for all profile menu items
-            const myAccountLink = document.getElementById('myAccountLink');
-            const bookingHistoryLink = document.getElementById('bookingHistoryLink');
-            const savedToursLink = document.getElementById('savedToursLink');
-            const settingsLink = document.getElementById('settingsLink');
-            const helpSupportLink = document.getElementById('helpSupportLink');
-            const signoutLink = document.getElementById('signoutLink');
-            
-            if (myAccountLink) {
-                myAccountLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showMyAccountModal();
-                });
-            }
-            
-            if (bookingHistoryLink) {
-                bookingHistoryLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showBookingHistoryModal();
-                });
-            }
-            
-            if (savedToursLink) {
-                savedToursLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showSavedToursModal();
-                });
-            }
-            
-            if (settingsLink) {
-                settingsLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showSettingsModal();
-                });
-            }
-            
-            if (helpSupportLink) {
-                helpSupportLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showHelpSupportModal();
-                });
-            }
-            
-            // Note: Direct logout link used, no JavaScript event listener needed for signoutLink
-        });
     </script>
 
     <!-- Hotel Booking Modal -->

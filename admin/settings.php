@@ -161,12 +161,45 @@ function removeFromFavorites($conn, $userId, $itemId, $itemType) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     };
 }
+
+function changePassword($conn, $userId, $currentPassword, $newPassword) {
+    try {
+        $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+
+        $user = $result->fetch_assoc();
+        if (!password_verify($currentPassword, $user['password'])) {
+            return ['success' => false, 'message' => 'Current password is incorrect'];
+        }
+
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $updateStmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $updateStmt->bind_param("si", $hashedPassword, $userId);
+
+        if ($updateStmt->execute()) {
+            return ['success' => true, 'message' => 'Password updated successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to update password'];
+        }
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
  
 // Initialize user authentication
 $currentUser = initUserAuth();
- 
+
 // Get database connection
 $conn = getUserConnection();
+
+// Fetch admin specific info for the dropdown (defaults for settings page)
+$adminInfo = ['role_title' => 'Administrator', 'admin_mark' => 'A'];
  
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -206,6 +239,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $response = removeFromFavorites($conn, $currentUser['id'], $_POST['item_id'], $_POST['item_type']);
             echo json_encode($response);
             exit;
+
+        case 'change_password':
+            $response = changePassword($conn, $currentUser['id'], $_POST['current_password'], $_POST['new_password']);
+            echo json_encode($response);
+            exit;
     }
 }
  
@@ -227,7 +265,7 @@ closeUserConnection($conn);
     <title>Settings - SJDM Tours</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
     <style>
         /* Toggle Switch Styles */
         .settings-group {
@@ -349,47 +387,8 @@ closeUserConnection($conn);
                 <button class="icon-button">
                     <span class="material-icons-outlined">notifications_none</span>
                 </button>
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="profileButton">
-                        <div class="profile-avatar">U</div>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large">U</div>
-                            <div class="profile-details">
-                                <h3>User Name</h3>
-                                <p>user@example.com</p>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="my-account.html" class="dropdown-item">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
-                        </a>
-                        <a href="booking-history.html" class="dropdown-item">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="saved-tours.html" class="dropdown-item">
-                            <span class="material-icons-outlined">favorite_border</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="settings.html" class="dropdown-item">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="help-support.html" class="dropdown-item">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <a href="/coderistyarn/landingpage/landingpage.php" class="dropdown-item" onclick="handleSignOut(event)">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
-                        </a>
-                    </div>
-                </div>
+
+
             </div>
         </header>
  
@@ -474,8 +473,7 @@ closeUserConnection($conn);
         </main>
     </div>
  
-    <script src="script.js"></script>
-    <script src="profile-dropdown.js"></script>
+    <script src="admin-script.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function() {
             loadUserSettings();

@@ -53,6 +53,10 @@ if (isLoggedIn()) {
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script
+      src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js"
+      type="module"
+    ></script>
 </head>
 <body>
     <div class="login-container">
@@ -68,7 +72,12 @@ if (isLoggedIn()) {
             
             <div class="login-hero">
                 <div class="hero-image">
-                    <div class="image-placeholder"></div>
+                    <dotlottie-wc
+                      src="https://lottie.host/104c69ad-6fe4-4dbf-926e-426ff5362ca5/EfPh5p1jDj.lottie"
+                      style="width: 300px;height: 300px; display: block; margin: 0 auto;"
+                      autoplay
+                      loop
+                    ></dotlottie-wc>
                 </div>
                 <h2>Start Your Journey</h2>
                 <p>Create an account to unlock exclusive tours, personalized recommendations, and easy booking management.</p>
@@ -99,7 +108,7 @@ if (isLoggedIn()) {
         <div class="login-right-panel">
             <div class="login-wrapper">
                 <!-- Back to Home -->
-                <a href="/coderistyarn2/landingpage/landingpage.php" class="back-home">
+                <a href="log-in.php" class="back-home">
                     <span class="material-icons-outlined">arrow_back</span>
                     Back to Home
                 </a>

@@ -341,154 +341,7 @@ $queryValues = [
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="admin-styles.css">
-    <style>
-        .guide-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--bg-light);
-            padding: 20px;
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
-            color: var(--primary);
-        }
-
-        .stat-card p {
-            margin: 0;
-            color: var(--text-secondary);
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-        }
-
-        .guide-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .guide-table th,
-        .guide-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .guide-table th {
-            background: var(--bg-light);
-            font-weight: 600;
-        }
-
-        .guide-table tr:hover {
-            background: var(--bg-light);
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .status-active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .verified-badge {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .unverified-badge {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-icon {
-            padding: 6px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--bg-light);
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .pagination button {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .pagination button:hover {
-            background: var(--bg-light);
-        }
-
-        .pagination button.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .guide-photo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .rating {
-            color: #f59e0b;
-        }
-    </style>
 </head>
-
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -546,17 +399,39 @@ $queryValues = [
                         Add Tour Guide
                     </button>
                     
+                    <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
-                        <div class="profile-dropdown-toggle">
-                            <div class="avatar">
-                                <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
-                                <div class="admin-mark-badge"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></div>
+                        <button class="profile-button" id="adminProfileButton">
+                            <div class="profile-avatar"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu" id="adminProfileMenu">
+                            <div class="profile-info">
+                                <div class="profile-avatar large"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                                <div class="profile-details">
+                                    <h3 class="admin-name"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></h3>
+                                    <p class="admin-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></p>
+                                </div>
                             </div>
-                            <div class="user-info">
-                                <p class="user-name"><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></p>
-                                <p class="user-role"><?php echo $adminInfo['role_title']; ?></p>
-                            </div>
-                            <span class="material-icons-outlined dropdown-arrow">expand_more</span>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminAccountLink">
+                                <span class="material-icons-outlined">account_circle</span>
+                                <span>My Account</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSettingsLink">
+                                <span class="material-icons-outlined">settings</span>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminHelpLink">
+                                <span class="material-icons-outlined">help_outline</span>
+                                <span>Help & Support</span>
+                            </a>
+                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -564,7 +439,7 @@ $queryValues = [
 
             <div class="content-area">
                 <!-- Guide Statistics -->
-                <div class="guide-stats">
+                <div class="stats-grid">
                     <div class="stat-card">
                         <h3><?php echo $stats['totalGuides']; ?></h3>
                         <p>Total Tour Guides</p>
@@ -595,7 +470,7 @@ $queryValues = [
 
                 <!-- Guides Table -->
                 <div class="table-container">
-                    <table class="guide-table">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Photo</th>
@@ -699,6 +574,7 @@ $queryValues = [
     </div>
 
     <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
     <script>
         function searchGuides() {
             const searchValue = document.getElementById('searchInput').value;
