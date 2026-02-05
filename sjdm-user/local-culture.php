@@ -61,10 +61,6 @@ if ($conn) {
                 <span class="material-icons-outlined">place</span>
                 <span>Tourist Spots</span>
             </a>
-            <a class="nav-item" href="hotel-booking.php">
-                <span class="material-icons-outlined">hotel</span>
-                <span>Hotels</span>
-            </a>
             <a class="nav-item active" href="javascript:void(0)">
                 <span class="material-icons-outlined">theater_comedy</span>
                 <span>Local Culture</span>

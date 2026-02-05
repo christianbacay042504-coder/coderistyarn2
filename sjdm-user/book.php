@@ -53,10 +53,6 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
                 <span class="material-icons-outlined">place</span>
                 <span>Tourist Spots</span>
             </a>
-            <a class="nav-item" href="hotel-booking.php">
-                <span class="material-icons-outlined">hotel</span>
-                <span>Hotels</span>
-            </a>
             <a class="nav-item" href="local-culture.php">
                 <span class="material-icons-outlined">theater_comedy</span>
                 <span>Local Culture</span>
