@@ -71,6 +71,10 @@ if ($conn) {
                 <span class="material-icons-outlined">event</span>
                 <span>Book Now</span>
             </a>
+            <a class="nav-item" href="tourist-spots.php">
+                <span class="material-icons-outlined">place</span>
+                <span>Tourist Spots</span>
+            </a>
             <a class="nav-item" href="local-culture.php">
                 <span class="material-icons-outlined">theater_comedy</span>
                 <span>Local Culture</span>
