@@ -5,16 +5,20 @@ require_once __DIR__ . '/config/auth.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if (empty($email) || empty($password)) {
-        echo json_encode(['success' => false, 'message' => 'Email and password are required']);
-        exit();
+    try {
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($email) || empty($password)) {
+            echo json_encode(['success' => false, 'message' => 'Email and password are required']);
+            exit();
+        }
+        
+        $result = loginUser($email, $password);
+        echo json_encode($result);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
     }
-    
-    $result = loginUser($email, $password);
-    echo json_encode($result);
     exit();
 }
 

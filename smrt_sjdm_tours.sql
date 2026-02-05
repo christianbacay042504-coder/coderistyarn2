@@ -2,8 +2,8 @@
 -- Import this file to set up the complete database with all tables and data
 
 -- Create database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS `sjdm_tours` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `sjdm_tours`;
+CREATE DATABASE IF NOT EXISTS `smrt_sjdm_tours` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `smrt_sjdm_tours`;
 
 -- --------------------------------------------------------
 

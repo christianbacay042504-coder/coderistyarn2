@@ -75,7 +75,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 // Reset button
                 submitBtn.innerHTML = originalText;
@@ -104,7 +109,15 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('An error occurred. Please try again.', 'error');
+                let errorMessage = 'An error occurred. Please try again.';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network error. Please check your connection.';
+                } else if (error.message.includes('JSON')) {
+                    errorMessage = 'Server response error. Please try again.';
+                }
+                
+                showAlert(errorMessage, 'error');
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             });

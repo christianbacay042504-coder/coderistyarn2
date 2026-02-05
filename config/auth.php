@@ -49,13 +49,26 @@ function getCurrentUser() {
 function loginUser($email, $password) {
     $conn = getDatabaseConnection();
     if (!$conn) {
+        error_log("Database connection failed in loginUser");
         return ['success' => false, 'message' => 'Database connection failed'];
     }
     
     // Get user by email
     $stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, user_type, status FROM users WHERE email = ?");
+    if (!$stmt) {
+        error_log("Prepare statement failed: " . $conn->error);
+        closeDatabaseConnection($conn);
+        return ['success' => false, 'message' => 'Database query failed'];
+    }
+    
     $stmt->bind_param("s", $email);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        error_log("Execute statement failed: " . $stmt->error);
+        $stmt->close();
+        closeDatabaseConnection($conn);
+        return ['success' => false, 'message' => 'Database query failed'];
+    }
+    
     $result = $stmt->get_result();
     
     if ($result->num_rows === 0) {
@@ -83,9 +96,11 @@ function loginUser($email, $password) {
     
     // Update last login
     $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-    $updateStmt->bind_param("i", $user['id']);
-    $updateStmt->execute();
-    $updateStmt->close();
+    if ($updateStmt) {
+        $updateStmt->bind_param("i", $user['id']);
+        $updateStmt->execute();
+        $updateStmt->close();
+    }
     
     // Log successful login
     logLoginActivity($conn, $user['id'], 'success');
@@ -148,13 +163,20 @@ function registerUser($firstName, $lastName, $email, $password) {
 
 // Log login activity
 function logLoginActivity($conn, $userId, $status) {
-    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-    
-    $stmt = $conn->prepare("INSERT INTO login_activity (user_id, ip_address, user_agent, status) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $userId, $ipAddress, $userAgent, $status);
-    $stmt->execute();
-    $stmt->close();
+    try {
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+        
+        $stmt = $conn->prepare("INSERT INTO login_activity (user_id, ip_address, user_agent, status) VALUES (?, ?, ?, ?)");
+        if ($stmt) {
+            $stmt->bind_param("isss", $userId, $ipAddress, $userAgent, $status);
+            $stmt->execute();
+            $stmt->close();
+        }
+    } catch (Exception $e) {
+        // Don't fail login if logging fails
+        error_log("Failed to log login activity: " . $e->getMessage());
+    }
 }
 
 // Logout user
