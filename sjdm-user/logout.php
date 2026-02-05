@@ -1,34 +1,28 @@
 <?php
-require_once __DIR__ . '/../config/auth.php';
+// Start session and destroy it completely
+session_start();
 
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Unset all session variables
+$_SESSION = array();
+
+// Destroy the session cookie
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
 }
 
-// Validate if user is actually logged in before logout
-if (!isLoggedIn()) {
-    $_SESSION['logout_message'] = 'You were not logged in.';
-    $_SESSION['logout_status'] = 'info';
-    header('Location: ../log-in.php');
-    exit();
-}
+// Destroy the session
+session_destroy();
 
-// Get user info for logging before logout
-$currentUser = getCurrentUser();
-$userName = $currentUser ? $currentUser['first_name'] . ' ' . $currentUser['last_name'] : 'Unknown User';
+// Start a new clean session for logout messages
+session_start();
 
-// Logout the user
-$logoutResult = logoutUser();
-
-// Set success message for the login page
-if ($logoutResult) {
-    $_SESSION['logout_message'] = "Goodbye, $userName! You have been successfully signed out.";
-    $_SESSION['logout_status'] = 'success';
-} else {
-    $_SESSION['logout_message'] = 'There was an issue signing out. Please try again.';
-    $_SESSION['logout_status'] = 'warning';
-}
+// Set logout message
+$_SESSION['logout_message'] = 'You have been successfully signed out.';
+$_SESSION['logout_status'] = 'success';
 
 // Redirect to login page
 header('Location: ../log-in.php');

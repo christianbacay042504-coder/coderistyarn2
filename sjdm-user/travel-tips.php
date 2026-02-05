@@ -333,7 +333,7 @@ if ($conn) {
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="signoutLink">
+                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>

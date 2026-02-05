@@ -91,28 +91,28 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
                             </div>
                         </div>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="myAccountLink">
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="bookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="savedToursLink">
                             <span class="material-icons-outlined">favorite_border</span>
                             <span>Saved Tours</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="settingsLink">
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="javascript:void(0)" class="dropdown-item" id="helpSupportLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item">
+                        <a href="../logout.php" class="dropdown-item" id="signoutLink">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>

@@ -1962,7 +1962,7 @@ function confirmLogout() {
     document.querySelector('.modal-overlay').remove();
 
     // Make a request to the server-side logout endpoint
-    fetch('/coderistyarn2/sjdm-user/logout.php')
+    fetch('/coderistyarn2/logout.php')
         .then(response => {
             if (response.ok) {
                 // Clear local storage
