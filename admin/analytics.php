@@ -6,56 +6,61 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 
 // Database connection functions
-function getAdminConnection() {
+function getAdminConnection()
+{
     return getDatabaseConnection();
 }
 
-function initAdminAuth() {
+function initAdminAuth()
+{
     requireAdmin();
     return getCurrentUser();
 }
 
-function closeAdminConnection($conn) {
+function closeAdminConnection($conn)
+{
     closeDatabaseConnection($conn);
 }
 
-function getAdminStats($conn) {
+function getAdminStats($conn)
+{
     $stats = [];
-    
+
     // Total users
     $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE user_type = 'user'");
     $stats['totalUsers'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Active users
     $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE user_type = 'user' AND status = 'active'");
     $stats['activeUsers'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Total bookings
     $result = $conn->query("SELECT COUNT(*) as total FROM bookings");
     $stats['totalBookings'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Today's logins
     $result = $conn->query("SELECT COUNT(DISTINCT user_id) as total FROM login_activity WHERE DATE(login_time) = CURDATE() AND status = 'success'");
     $stats['todayLogins'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Total guides
     $result = $conn->query("SELECT COUNT(*) as total FROM tour_guides");
     $stats['totalGuides'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Total destinations
     $result = $conn->query("SELECT COUNT(*) as total FROM tourist_spots");
     $stats['totalDestinations'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     return $stats;
 }
 
-function getBookingStats($conn) {
+function getBookingStats($conn)
+{
     $stats = [];
-    
+
     // Total bookings
     $result = $conn->query("SELECT COUNT(*) as total FROM bookings");
     $stats['total'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Bookings by status
     $result = $conn->query("SELECT status, COUNT(*) as count FROM bookings GROUP BY status");
     $stats['by_status'] = [];
@@ -64,19 +69,19 @@ function getBookingStats($conn) {
             $stats['by_status'][$row['status']] = $row['count'];
         }
     }
-    
+
     // Today's bookings
     $result = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE DATE(created_at) = CURDATE()");
     $stats['today'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // This month's bookings
     $result = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
     $stats['this_month'] = $result ? $result->fetch_assoc()['total'] : 0;
-    
+
     // Total revenue
     $result = $conn->query("SELECT SUM(total_amount) as total FROM bookings WHERE status = 'completed'");
     $stats['total_revenue'] = $result ? ($result->fetch_assoc()['total'] ?? 0) : 0;
-    
+
     return $stats;
 }
 
@@ -85,6 +90,51 @@ $currentUser = initAdminAuth();
 
 // Get database connection
 $conn = getAdminConnection();
+
+// Fetch dashboard settings
+$dbSettings = [];
+$result = $conn->query("SELECT setting_key, setting_value FROM admin_dashboard_settings");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $dbSettings[$row['setting_key']] = $row['setting_value'];
+    }
+}
+
+// Fetch analytics settings
+$anSettings = [];
+$result = $conn->query("SELECT setting_key, setting_value FROM analytics_settings");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $anSettings[$row['setting_key']] = $row['setting_value'];
+    }
+}
+
+// Common settings
+$logoText = $dbSettings['admin_logo_text'] ?? 'SJDM ADMIN';
+$moduleTitle = $anSettings['module_title'] ?? 'Analytics Dashboard';
+$moduleSubtitle = $anSettings['module_subtitle'] ?? 'System performance and insights';
+$adminMark = $dbSettings['admin_mark_label'] ?? 'A';
+
+// Fetch admin specific info
+$adminInfo = ['role_title' => 'Administrator', 'admin_mark' => 'A'];
+$stmt = $conn->prepare("SELECT admin_mark, role_title FROM admin_users WHERE user_id = ?");
+$userId = $currentUser['id'];
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($row = $result->fetch_assoc()) {
+    $adminInfo = $row;
+}
+$stmt->close();
+
+// Fetch sidebar menu
+$menuItems = [];
+$result = $conn->query("SELECT * FROM admin_menu_items WHERE is_active = 1 ORDER BY display_order ASC");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $menuItems[] = $row;
+    }
+}
 
 // Get statistics
 $stats = getAdminStats($conn);
@@ -136,17 +186,24 @@ if ($result) {
     }
 }
 
-// Close connection
-closeAdminConnection($conn);
+// Map query keys to values for menu badges
+$queryValues = [
+    'totalUsers' => $stats['totalUsers'],
+    'totalBookings' => $stats['totalBookings'],
+    'totalGuides' => $stats['totalGuides'],
+    'totalDestinations' => $stats['totalDestinations']
+];
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics | SJDM Tours Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="admin-styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -157,21 +214,25 @@ closeAdminConnection($conn);
             gap: 20px;
             margin-bottom: 30px;
         }
+
         .stat-card {
             background: var(--bg-light);
             padding: 20px;
             border-radius: var(--radius-md);
             border-left: 4px solid var(--primary);
         }
+
         .stat-card h3 {
             margin: 0 0 10px 0;
             font-size: 2rem;
             color: var(--primary);
         }
+
         .stat-card p {
             margin: 0;
             color: var(--text-secondary);
         }
+
         .chart-container {
             background: white;
             padding: 20px;
@@ -179,14 +240,17 @@ closeAdminConnection($conn);
             box-shadow: var(--shadow-sm);
             margin-bottom: 30px;
         }
+
         .chart-container h3 {
             margin: 0 0 20px 0;
             color: var(--text-primary);
         }
+
         .chart-wrapper {
             position: relative;
             height: 300px;
         }
+
         .analytics-table {
             width: 100%;
             border-collapse: collapse;
@@ -195,73 +259,62 @@ closeAdminConnection($conn);
             overflow: hidden;
             box-shadow: var(--shadow-sm);
         }
+
         .analytics-table th,
         .analytics-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
+
         .analytics-table th {
             background: var(--bg-light);
             font-weight: 600;
         }
+
         .analytics-table tr:hover {
             background: var(--bg-light);
         }
+
         .trend-up {
             color: #10b981;
         }
+
         .trend-down {
             color: #ef4444;
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <span class="material-icons-outlined">admin_panel_settings</span>
-                    <span>SJDM ADMIN</span>
+                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1) ?: 'A'); ?></div>
+                    <span><?php echo $logoText; ?></span>
                 </div>
             </div>
-            
+
             <nav class="sidebar-nav">
-                <a href="dashboard.php" class="nav-item">
-                    <span class="material-icons-outlined">dashboard</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="user-management.php" class="nav-item">
-                    <span class="material-icons-outlined">people</span>
-                    <span>User Management</span>
-                </a>
-                <a href="tour-guides.php" class="nav-item">
-                    <span class="material-icons-outlined">tour</span>
-                    <span>Tour Guides</span>
-                </a>
-                <a href="destinations.php" class="nav-item">
-                    <span class="material-icons-outlined">place</span>
-                    <span>Destinations</span>
-                </a>
-                <a href="hotels.php" class="nav-item">
-                    <span class="material-icons-outlined">hotel</span>
-                    <span>Hotels</span>
-                </a>
-                <a href="bookings.php" class="nav-item">
-                    <span class="material-icons-outlined">event</span>
-                    <span>Bookings</span>
-                </a>
-                <a href="analytics.php" class="nav-item active">
-                    <span class="material-icons-outlined">analytics</span>
-                    <span>Analytics</span>
-                </a>
-                <a href="reports.php" class="nav-item">
-                    <span class="material-icons-outlined">description</span>
-                    <span>Reports</span>
-                </a>
+                <?php foreach ($menuItems as $item):
+                    $isActive = basename($_SERVER['PHP_SELF']) == $item['menu_url'] ? 'active' : '';
+                    $badgeVal = 0;
+                    if (isset($item['badge_query']) && isset($queryValues[$item['badge_query']])) {
+                        $badgeVal = $queryValues[$item['badge_query']];
+                    }
+                    ?>
+                    <a href="<?php echo $item['menu_url']; ?>" class="nav-item <?php echo $isActive; ?>">
+                        <span class="material-icons-outlined"><?php echo $item['menu_icon']; ?></span>
+                        <span><?php echo $item['menu_name']; ?></span>
+                        <?php if ($badgeVal > 0): ?>
+                            <span class="badge"><?php echo $badgeVal; ?></span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
             </nav>
-            
+
             <div class="sidebar-footer">
                 <a href="logout.php" class="logout-btn">
                     <span class="material-icons-outlined">logout</span>
@@ -269,33 +322,39 @@ closeAdminConnection($conn);
                 </a>
             </div>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
                 <div class="page-title">
-                    <h1>Analytics Dashboard</h1>
-                    <p>System performance and insights</p>
+                    <h1><?php echo $moduleTitle; ?></h1>
+                    <p><?php echo $moduleSubtitle; ?></p>
                 </div>
-                
+
                 <div class="top-bar-actions">
                     <button class="btn-secondary" onclick="exportAnalytics()">
                         <span class="material-icons-outlined">download</span>
                         Export Report
                     </button>
-                    
-                    <div class="user-profile">
-                        <div class="avatar">
-                            <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
-                        </div>
-                        <div class="user-info">
-                            <p class="user-name"><?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?></p>
-                            <p class="user-role">Administrator</p>
+
+                    <div class="profile-dropdown">
+                        <div class="profile-dropdown-toggle">
+                            <div class="avatar">
+                                <span><?php echo strtoupper(substr($currentUser['first_name'], 0, 1)); ?></span>
+                                <div class="admin-mark-badge"><?php echo $adminInfo['admin_mark'] ?? 'A'; ?></div>
+                            </div>
+                            <div class="user-info">
+                                <p class="user-name">
+                                    <?php echo htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?>
+                                </p>
+                                <p class="user-role"><?php echo $adminInfo['role_title']; ?></p>
+                            </div>
+                            <span class="material-icons-outlined dropdown-arrow">expand_more</span>
                         </div>
                     </div>
                 </div>
             </header>
-            
+
             <div class="content-area">
                 <!-- Key Metrics -->
                 <div class="analytics-grid">
@@ -332,7 +391,7 @@ closeAdminConnection($conn);
                         </small>
                     </div>
                 </div>
-                
+
                 <!-- Charts Row 1 -->
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px;">
                     <!-- Monthly Revenue Chart -->
@@ -342,7 +401,7 @@ closeAdminConnection($conn);
                             <canvas id="revenueChart"></canvas>
                         </div>
                     </div>
-                    
+
                     <!-- Booking Status Pie Chart -->
                     <div class="chart-container">
                         <h3>Booking Status</h3>
@@ -351,7 +410,7 @@ closeAdminConnection($conn);
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Charts Row 2 -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                     <!-- User Registration Trend -->
@@ -361,7 +420,7 @@ closeAdminConnection($conn);
                             <canvas id="userTrendChart"></canvas>
                         </div>
                     </div>
-                    
+
                     <!-- Popular Categories -->
                     <div class="chart-container">
                         <h3>Popular Categories</h3>
@@ -370,7 +429,7 @@ closeAdminConnection($conn);
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Top Destinations Table -->
                 <div class="chart-container">
                     <h3>Top Destinations by Bookings</h3>
@@ -384,16 +443,16 @@ closeAdminConnection($conn);
                         </thead>
                         <tbody>
                             <?php foreach ($topDestinations as $destination): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($destination['name']); ?></td>
-                                <td><?php echo $destination['booking_count']; ?></td>
-                                <td>
-                                    <span class="trend-up">
-                                        <span class="material-icons-outlined">trending_up</span>
-                                        +<?php echo rand(5, 25); ?>%
-                                    </span>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($destination['name']); ?></td>
+                                    <td><?php echo $destination['booking_count']; ?></td>
+                                    <td>
+                                        <span class="trend-up">
+                                            <span class="material-icons-outlined">trending_up</span>
+                                            +<?php echo rand(5, 25); ?>%
+                                        </span>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -445,7 +504,7 @@ closeAdminConnection($conn);
                 }
             }
         });
-        
+
         // Booking Status Chart
         const statusCtx = document.getElementById('statusChart').getContext('2d');
         const statusChart = new Chart(statusCtx, {
@@ -462,7 +521,7 @@ closeAdminConnection($conn);
                 maintainAspectRatio: false
             }
         });
-        
+
         // User Registration Trend
         const userTrendCtx = document.getElementById('userTrendChart').getContext('2d');
         const userTrendChart = new Chart(userTrendCtx, {
@@ -480,7 +539,7 @@ closeAdminConnection($conn);
                 maintainAspectRatio: false
             }
         });
-        
+
         // Popular Categories
         const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
         const categoriesChart = new Chart(categoriesCtx, {
@@ -499,12 +558,14 @@ closeAdminConnection($conn);
                 indexAxis: 'y'
             }
         });
-        
+
         function exportAnalytics() {
             // Implement export functionality
             console.log('Export analytics data');
             alert('Export functionality will be implemented soon.');
         }
     </script>
+    <?php closeAdminConnection($conn); ?>
 </body>
+
 </html>

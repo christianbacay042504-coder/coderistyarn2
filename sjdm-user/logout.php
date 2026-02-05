@@ -18,6 +18,6 @@ if (!isLoggedIn()) {
 }
 
 // Redirect to login page
-header('Location:log-in.php');
+header('Location: ../log-in.php');
 exit();
 ?>

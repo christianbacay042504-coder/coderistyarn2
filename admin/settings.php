@@ -99,7 +99,7 @@ function getUserBookings($conn, $userId, $page = 1, $limit = 10) {
         $offset = ($page - 1) * $limit;
  
         $stmt = $conn->prepare("SELECT * FROM bookings WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
-        $stmt->bind_param("ii", $userId, $limit, $offset);
+        $stmt->bind_param("iii", $userId, $limit, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
  
@@ -143,8 +143,8 @@ function addToFavorites($conn, $userId, $itemId, $itemType) {
             return ['success' => false, 'message' => 'Failed to add to favorites'];
         }
     } catch (Exception $e) {
-        return ['success' => false, 'message' => 'Error: ' . . $e->getMessage()];
-    }
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    };
 }
  
 function removeFromFavorites($conn, $userId, $itemId, $itemType) {
@@ -158,8 +158,8 @@ function removeFromFavorites($conn, $userId, $itemId, $itemType) {
             return ['success' => false, 'message' => 'Failed to remove from favorites'];
         }
     } catch (Exception $e) {
-        return ['success' => false, 'message' => 'Error: ' . . $e->getMessage()];
-    }
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    };
 }
  
 // Initialize user authentication

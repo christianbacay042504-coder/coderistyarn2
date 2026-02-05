@@ -2,9 +2,9 @@
 -- Import this file to set up the complete database with all tables and data
 
 -- Create database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS `smrt_sjdm_tours` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS `sjdm_tours` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `smrt_sjdm_tours`;
+USE `sjdm_tours`;
 
 -- --------------------------------------------------------
 
@@ -1903,17 +1903,439 @@ VALUES (
 -- --------------------------------------------------------
 
 --
--- Constraints for dumped tables (Updated)
+-- Table structure for table `user_management_settings`
 --
 
-ALTER TABLE `admins`
-ADD CONSTRAINT `admins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+CREATE TABLE `user_management_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 --
--- Complete! The SJDM Tours database is now even more dynamic.
--- Features added:
--- - Admin specialized table with 'A' mark
--- - Dynamic dashboard settings (title, logo)
--- - Dynamic dashboard widgets
--- - Dynamic admin sidebar menu
+-- Dumping data for table `user_management_settings`
 --
+
+INSERT INTO
+    `user_management_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'User Management'
+    ),
+    (
+        'module_subtitle',
+        'Manage, monitor and authorize system users'
+    ),
+    ('admin_mark_label', 'A'),
+    ('default_user_limit', '15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tour_guide_settings`
+--
+
+CREATE TABLE `tour_guide_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `tour_guide_settings`
+--
+
+INSERT INTO
+    `tour_guide_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Tour Guides Management'
+    ),
+    (
+        'module_subtitle',
+        'Manage tour guides and their professional profiles'
+    ),
+    ('default_guide_limit', '15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `destination_settings`
+--
+
+CREATE TABLE `destination_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `destination_settings`
+--
+
+INSERT INTO
+    `destination_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Destinations Management'
+    ),
+    (
+        'module_subtitle',
+        'Manage tourist spots, landmarks and local destinations'
+    ),
+    (
+        'default_destination_limit',
+        '15'
+    );
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hotel_settings`
+--
+
+CREATE TABLE `hotel_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `hotel_settings`
+--
+
+INSERT INTO
+    `hotel_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Hotels Management'
+    ),
+    (
+        'module_subtitle',
+        'Manage hotels, resorts, and accommodations'
+    ),
+    ('default_hotel_limit', '15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `booking_settings`
+--
+
+CREATE TABLE `booking_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `booking_settings`
+--
+
+INSERT INTO
+    `booking_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Bookings Management'
+    ),
+    (
+        'module_subtitle',
+        'Manage, monitor and process system bookings'
+    ),
+    ('default_booking_limit', '15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `analytics_settings`
+--
+
+CREATE TABLE `analytics_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `analytics_settings`
+--
+
+INSERT INTO
+    `analytics_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Analytics Dashboard'
+    ),
+    (
+        'module_subtitle',
+        'System performance, trends and actionable insights'
+    );
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report_settings`
+--
+
+CREATE TABLE `report_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(50) NOT NULL,
+    `setting_value` text NOT NULL,
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_key` (`setting_key`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `report_settings`
+--
+
+INSERT INTO
+    `report_settings` (
+        `setting_key`,
+        `setting_value`
+    )
+VALUES (
+        'module_title',
+        'Reports Management'
+    ),
+    (
+        'module_subtitle',
+        'Generate, schedule and download system reports'
+    );
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin_users`
+--
+
+CREATE TABLE `admin_users` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL,
+    `admin_mark` varchar(10) DEFAULT 'A',
+    `role_title` varchar(100) DEFAULT 'Administrator',
+    `permissions` text DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `user_id` (`user_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_users`
+--
+
+INSERT INTO `admin_users` (`user_id`, `admin_mark`, `role_title`, `permissions`) VALUES
+(1, 'ADMIN', 'Super Administrator', 'all'),
+(1, 'ADMIN_DASHBOARD', 'Dashboard Administrator', 'dashboard,analytics,reports'),
+(1, 'ADMIN_USERS', 'User Administrator', 'users,bookings,guides'),
+(1, 'ADMIN_CONTENT', 'Content Administrator', 'destinations,hotels,content');
+
+--
+-- Table structure for table `admin_dashboards`
+--
+
+CREATE TABLE `admin_dashboards` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `admin_id` int(11) NOT NULL,
+    `dashboard_name` varchar(100) NOT NULL,
+    `dashboard_layout` text DEFAULT NULL,
+    `widgets_config` text DEFAULT NULL,
+    `theme_settings` text DEFAULT NULL,
+    `is_default` tinyint(1) DEFAULT 0,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `idx_admin_id` (`admin_id`),
+    FOREIGN KEY (`admin_id`) REFERENCES `admin_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_dashboards`
+--
+
+INSERT INTO `admin_dashboards` (`admin_id`, `dashboard_name`, `dashboard_layout`, `widgets_config`, `is_default`) VALUES
+(1, 'Main Dashboard', '{"layout": "grid", "columns": 3}', '{"widgets": ["users", "bookings", "revenue", "guides", "destinations", "hotels"]}', 1),
+(1, 'Analytics Dashboard', '{"layout": "charts", "columns": 2}', '{"widgets": ["user_growth", "booking_trends", "revenue_chart", "popular_destinations"]}', 0),
+(1, 'Quick Overview', '{"layout": "compact", "columns": 4}', '{"widgets": ["total_users", "today_bookings", "pending_tasks", "system_status"]}', 0);
+
+--
+-- Table structure for table `admin_permissions_table`
+--
+
+CREATE TABLE `admin_permissions_table` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `admin_id` int(11) NOT NULL,
+    `module` varchar(50) NOT NULL,
+    `permission_type` enum('read','write','delete','admin') NOT NULL,
+    `granted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `granted_by` int(11) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_admin_id` (`admin_id`),
+    KEY `idx_module` (`module`),
+    FOREIGN KEY (`admin_id`) REFERENCES `admin_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_permissions_table`
+--
+
+INSERT INTO `admin_permissions_table` (`admin_id`, `module`, `permission_type`) VALUES
+(1, 'dashboard', 'admin'),
+(1, 'users', 'admin'),
+(1, 'bookings', 'admin'),
+(1, 'guides', 'admin'),
+(1, 'destinations', 'admin'),
+(1, 'hotels', 'admin'),
+(1, 'analytics', 'admin'),
+(1, 'reports', 'admin'),
+(1, 'settings', 'admin');
+
+--
+-- Table structure for table `admin_preferences`
+--
+
+CREATE TABLE `admin_preferences` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `admin_id` int(11) NOT NULL,
+    `setting_key` varchar(100) NOT NULL,
+    `setting_value` text DEFAULT NULL,
+    `setting_type` enum('text','number','boolean','json') DEFAULT 'text',
+    `category` varchar(50) DEFAULT 'general',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_admin_setting` (`admin_id`, `setting_key`),
+    KEY `idx_admin_id` (`admin_id`),
+    KEY `idx_category` (`category`),
+    FOREIGN KEY (`admin_id`) REFERENCES `admin_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_preferences`
+--
+
+INSERT INTO `admin_preferences` (`admin_id`, `setting_key`, `setting_value`, `setting_type`, `category`) VALUES
+(1, 'theme', 'light', 'text', 'appearance'),
+(1, 'language', 'en', 'text', 'appearance'),
+(1, 'notifications_enabled', '1', 'boolean', 'notifications'),
+(1, 'auto_refresh_interval', '30', 'number', 'performance'),
+(1, 'items_per_page', '15', 'number', 'performance'),
+(1, 'default_dashboard', 'Main Dashboard', 'text', 'general'),
+(1, 'show_tooltips', '1', 'boolean', 'ui'),
+(1, 'compact_mode', '0', 'boolean', 'ui'),
+(1, 'admin_mark_display', 'badge', 'text', 'appearance'),
+(1, 'last_login_notification', '1', 'boolean', 'security');
+
+--
+-- Table structure for table `admin_dashboard_settings`
+--
+
+CREATE TABLE `admin_dashboard_settings` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `setting_key` varchar(100) NOT NULL,
+    `setting_value` text DEFAULT NULL,
+    `setting_type` enum('text','number','boolean') DEFAULT 'text',
+    `description` text DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `setting_key` (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_dashboard_settings`
+--
+
+INSERT INTO `admin_dashboard_settings` (`setting_key`, `setting_value`, `setting_type`, `description`) VALUES
+('page_title', 'Dashboard Overview', 'text', 'Main dashboard page title'),
+('page_subtitle', 'System statistics and analytics', 'text', 'Dashboard page subtitle'),
+('admin_logo_text', 'SJDM ADMIN', 'text', 'Admin panel logo text'),
+('show_user_badges', '1', 'boolean', 'Show user count badges in sidebar'),
+('refresh_interval', '30', 'number', 'Dashboard auto-refresh interval in seconds');
+
+--
+-- Table structure for table `admin_menu_items`
+--
+
+CREATE TABLE `admin_menu_items` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `menu_name` varchar(100) NOT NULL,
+    `menu_icon` varchar(50) DEFAULT NULL,
+    `menu_url` varchar(200) NOT NULL,
+    `display_order` int(11) DEFAULT 0,
+    `is_active` tinyint(1) DEFAULT 1,
+    `parent_id` int(11) DEFAULT 0,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `idx_display_order` (`display_order`),
+    KEY `idx_is_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data for table `admin_menu_items`
+--
+
+INSERT INTO `admin_menu_items` (`menu_name`, `menu_icon`, `menu_url`, `display_order`, `is_active`) VALUES
+('Dashboard', 'dashboard', 'dashboard.php', 1, 1),
+('User Management', 'people', 'user-management.php', 2, 1),
+('Tour Guides', 'tour', 'tour-guides.php', 3, 1),
+('Destinations', 'place', 'destinations.php', 4, 1),
+('Hotels', 'hotel', 'hotels.php', 5, 1),
+('Bookings', 'event', 'bookings.php', 6, 1),
+('Analytics', 'analytics', 'analytics.php', 7, 1),
+('Reports', 'description', 'reports.php', 8, 1),
+('Settings', 'settings', 'settings.php', 9, 1);
+
+--
+-- Add foreign key constraints for existing tables
+--
+
+ALTER TABLE `bookings`
+  ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_bookings_guide_id` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `login_activity`
+  ADD CONSTRAINT `login_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `saved_tours`
+  ADD CONSTRAINT `saved_tours_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
