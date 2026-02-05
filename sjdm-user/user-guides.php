@@ -254,7 +254,6 @@ if ($conn) {
         </div>
     </main>
 
-    <script src="script.js"></script>
     <script>
         // Pass current user data to JavaScript
         <?php if (isset($currentUser)): ?>
