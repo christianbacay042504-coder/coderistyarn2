@@ -337,13 +337,7 @@ if ($conn) {
                 });
             }
             
-            if (signoutLink) {
-                signoutLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    handleLogout();
-                });
-            }
+            // Note: Direct logout link used, no JavaScript event listener needed for signoutLink
         });
     </script>
 </body>

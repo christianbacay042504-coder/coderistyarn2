@@ -727,19 +727,144 @@ if ($conn) {
             if (helpSupportLink) {
                 helpSupportLink.addEventListener('click', function(e) {
                     e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    showHelpSupportModal();
-                });
+        });
+    }
+}
+
+// Filter travel tips based on search
+function filterTravelTips(searchTerm) {
+    const cards = document.querySelectorAll('.general-tip-card, .spot-card');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm) || searchTerm === '') {
+            card.style.display = 'block';
+            card.style.animation = 'fadeInUp 0.5s ease';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Initialize travel tips page
+function initTravelTipsPage() {
+    initTravelTipsSearch();
+    console.log('Travel tips page initialized');
+}
+
+// Add fadeInUp animation for cards
+function addTravelTipsAnimations() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .spot-card,
+        .general-tip-card {
+            animation: fadeInUp 0.5s ease;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Profile dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
+    // Initialize travel tips page
+    addTravelTipsAnimations();
+    initTravelTipsPage();
+    
+    const profileButton = document.getElementById('profileButton');
+    const profileMenu = document.getElementById('profileMenu');
+    
+    console.log('Profile Button:', profileButton);
+    console.log('Profile Menu:', profileMenu);
+    
+    if (profileButton) {
+        console.log('Profile button found, adding click listener');
+        profileButton.addEventListener('click', function(e) {
+            console.log('Profile button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
             
-            if (signoutLink) {
-                signoutLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    profileMenu.classList.remove('active');
-                    handleLogout();
-                });
+            if (profileMenu) {
+                console.log('Toggling menu. Current classes:', profileMenu.className);
+                profileMenu.classList.toggle('active');
+                console.log('Menu after toggle. Classes:', profileMenu.className);
             }
         });
-    </script>
+    } else {
+        console.error('Profile button not found!');
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (profileButton && profileMenu && 
+            !profileButton.contains(e.target) && 
+            !profileMenu.contains(e.target)) {
+            profileMenu.classList.remove('active');
+        }
+    });
+    
+    // Add event listeners for all profile menu items
+    const myAccountLink = document.getElementById('myAccountLink');
+    const bookingHistoryLink = document.getElementById('bookingHistoryLink');
+    const savedToursLink = document.getElementById('savedToursLink');
+    const settingsLink = document.getElementById('settingsLink');
+    const helpSupportLink = document.getElementById('helpSupportLink');
+    const signoutLink = document.getElementById('signoutLink');
+    
+    if (myAccountLink) {
+        myAccountLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileMenu.classList.remove('active');
+            showMyAccountModal();
+        });
+    }
+    
+    if (bookingHistoryLink) {
+        bookingHistoryLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileMenu.classList.remove('active');
+            showBookingHistoryModal();
+        });
+    }
+    
+    if (savedToursLink) {
+        savedToursLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileMenu.classList.remove('active');
+            showSavedToursModal();
+        });
+    }
+    
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileMenu.classList.remove('active');
+            showSettingsModal();
+        });
+    }
+    
+    if (helpSupportLink) {
+        helpSupportLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            profileMenu.classList.remove('active');
+            showHelpSupportModal();
+        });
+    }
+    
+    // Note: Direct logout link used, no JavaScript event listener needed for signoutLink
+});
+</script>
 </body>
 </html>
