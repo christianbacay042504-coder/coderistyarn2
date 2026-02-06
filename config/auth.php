@@ -54,7 +54,7 @@ function loginUser($email, $password) {
     }
     
     // Get user by email
-    $stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, user_type, status FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, user_type, status, preferences_set FROM users WHERE email = ?");
     if (!$stmt) {
         error_log("Prepare statement failed: " . $conn->error);
         closeDatabaseConnection($conn);
@@ -114,10 +114,14 @@ function loginUser($email, $password) {
     $_SESSION['email'] = $user['email'];
     $_SESSION['user_type'] = $user['user_type'];
     
+    // Check if user has set preferences
+    $preferencesSet = $user['preferences_set'] ?? 0;
+    
     return [
         'success' => true, 
         'message' => 'Login successful',
-        'user_type' => $user['user_type']
+        'user_type' => $user['user_type'],
+        'preferences_set' => $preferencesSet
     ];
 }
 
@@ -228,5 +232,94 @@ function requireAdmin() {
         header('Location: ../log-in.php');
         exit();
     }
+}
+
+// Save user preferences
+function saveUserPreferences($userId, $categories) {
+    $conn = getDatabaseConnection();
+    if (!$conn) {
+        return ['success' => false, 'message' => 'Database connection failed'];
+    }
+    
+    try {
+        // Start transaction
+        $conn->begin_transaction();
+        
+        // Clear existing preferences
+        $deleteStmt = $conn->prepare("DELETE FROM user_preferences WHERE user_id = ?");
+        $deleteStmt->bind_param("i", $userId);
+        $deleteStmt->execute();
+        $deleteStmt->close();
+        
+        // Insert new preferences
+        $insertStmt = $conn->prepare("INSERT INTO user_preferences (user_id, category) VALUES (?, ?)");
+        foreach ($categories as $category) {
+            $insertStmt->bind_param("is", $userId, $category);
+            $insertStmt->execute();
+        }
+        $insertStmt->close();
+        
+        // Mark preferences as set
+        $updateStmt = $conn->prepare("UPDATE users SET preferences_set = 1 WHERE id = ?");
+        $updateStmt->bind_param("i", $userId);
+        $updateStmt->execute();
+        $updateStmt->close();
+        
+        // Commit transaction
+        $conn->commit();
+        closeDatabaseConnection($conn);
+        
+        return ['success' => true, 'message' => 'Preferences saved successfully'];
+        
+    } catch (Exception $e) {
+        $conn->rollback();
+        closeDatabaseConnection($conn);
+        return ['success' => false, 'message' => 'Error saving preferences: ' . $e->getMessage()];
+    }
+}
+
+// Get user preferences
+function getUserPreferences($userId) {
+    $conn = getDatabaseConnection();
+    if (!$conn) {
+        return [];
+    }
+    
+    $stmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $preferences = [];
+    while ($row = $result->fetch_assoc()) {
+        $preferences[] = $row['category'];
+    }
+    
+    $stmt->close();
+    closeDatabaseConnection($conn);
+    
+    return $preferences;
+}
+
+// Get available categories
+function getAvailableCategories() {
+    $conn = getDatabaseConnection();
+    if (!$conn) {
+        return [];
+    }
+    
+    $stmt = $conn->prepare("SELECT name, display_name, icon FROM available_categories WHERE status = 'active' ORDER BY display_name");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $categories = [];
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row;
+    }
+    
+    $stmt->close();
+    closeDatabaseConnection($conn);
+    
+    return $categories;
 }
 ?>

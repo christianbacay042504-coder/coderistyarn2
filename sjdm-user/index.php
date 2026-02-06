@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Get current user data
+// Get current user data and preferences
 $conn = getDatabaseConnection();
 if ($conn) {
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
@@ -24,13 +24,49 @@ if ($conn) {
         ];
     }
     
-    // Fetch featured tourist spots from database
+    // Get user preferences
+    $userPreferences = [];
+    $prefStmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
+    $prefStmt->bind_param("i", $_SESSION['user_id']);
+    $prefStmt->execute();
+    $prefResult = $prefStmt->get_result();
+    while ($pref = $prefResult->fetch_assoc()) {
+        $userPreferences[] = $pref['category'];
+    }
+    $prefStmt->close();
+    
+    // Fetch featured tourist spots filtered by user preferences
     $featuredSpots = [];
-    $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 4";
-    $spotsResult = $conn->query($spotsQuery);
-    if ($spotsResult) {
-        while ($spot = $spotsResult->fetch_assoc()) {
-            $featuredSpots[] = $spot;
+    if (!empty($userPreferences)) {
+        // Create placeholders for preferences
+        $placeholders = str_repeat('?,', count($userPreferences));
+        $placeholders = rtrim($placeholders, ',');
+        
+        $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots 
+                      WHERE status = 'active' AND category IN ($placeholders) 
+                      ORDER BY rating DESC, review_count DESC LIMIT 8";
+        $spotsStmt = $conn->prepare($spotsQuery);
+        
+        // Bind parameters dynamically
+        $types = str_repeat('s', count($userPreferences));
+        $spotsStmt->bind_param($types, ...$userPreferences);
+        $spotsStmt->execute();
+        $spotsResult = $spotsStmt->get_result();
+        
+        if ($spotsResult) {
+            while ($spot = $spotsResult->fetch_assoc()) {
+                $featuredSpots[] = $spot;
+            }
+        }
+        $spotsStmt->close();
+    } else {
+        // Fallback: show all spots if no preferences (shouldn't happen with current flow)
+        $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 4";
+        $spotsResult = $conn->query($spotsQuery);
+        if ($spotsResult) {
+            while ($spot = $spotsResult->fetch_assoc()) {
+                $featuredSpots[] = $spot;
+            }
         }
     }
     
@@ -134,6 +170,10 @@ if ($conn) {
                             <span class="material-icons-outlined">favorite</span>
                             <span>Saved Tours</span>
                         </a>
+                        <a href="user-preferences.php" class="dropdown-item">
+                            <span class="material-icons-outlined">tune</span>
+                            <span>Change Preferences</span>
+                        </a>
                         <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
                             <span class="material-icons-outlined">settings</span>
@@ -162,7 +202,62 @@ if ($conn) {
                 </button>
             </div>
 
-            <h2 class="section-title"><?php echo htmlspecialchars($homepageContent['section_title']['featured_destinations'] ?? 'Featured Destinations'); ?></h2>
+            <?php if (!empty($userPreferences)): ?>
+            <div class="user-preferences-section">
+                <h2 class="section-title">Your Interests</h2>
+                <div class="preferences-display">
+                    <?php 
+                    // Get display names for user preferences
+                    $categoryMap = [
+                        'nature' => 'Nature & Waterfalls',
+                        'farm' => 'Farms & Eco-Tourism', 
+                        'park' => 'Parks & Recreation',
+                        'adventure' => 'Adventure & Activities',
+                        'cultural' => 'Cultural & Historical',
+                        'religious' => 'Religious Sites',
+                        'entertainment' => 'Entertainment & Leisure',
+                        'food' => 'Food & Dining',
+                        'shopping' => 'Shopping & Markets',
+                        'wellness' => 'Wellness & Relaxation',
+                        'education' => 'Educational & Learning',
+                        'family' => 'Family-Friendly',
+                        'photography' => 'Photography Spots',
+                        'wildlife' => 'Wildlife & Nature',
+                        'outdoor' => 'Outdoor Activities'
+                    ];
+                    
+                    foreach ($userPreferences as $preference): ?>
+                        <div class="preference-tag">
+                            <span class="material-icons-outlined">
+                                <?php 
+                                $iconMap = [
+                                    'nature' => 'forest',
+                                    'farm' => 'agriculture',
+                                    'park' => 'park',
+                                    'adventure' => 'hiking',
+                                    'cultural' => 'museum',
+                                    'religious' => 'church',
+                                    'entertainment' => 'sports_esports',
+                                    'food' => 'restaurant',
+                                    'shopping' => 'shopping_cart',
+                                    'wellness' => 'spa',
+                                    'education' => 'school',
+                                    'family' => 'family_restroom',
+                                    'photography' => 'photo_camera',
+                                    'wildlife' => 'pets',
+                                    'outdoor' => 'terrain'
+                                ];
+                                echo $iconMap[$preference] ?? 'category';
+                                ?>
+                            </span>
+                            <?php echo htmlspecialchars($categoryMap[$preference] ?? $preference); ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <h2 class="section-title">Featured Destinations for You</h2>
             <div class="destinations-grid">
                 <?php if (!empty($featuredSpots)): ?>
                     <?php foreach ($featuredSpots as $spot): ?>

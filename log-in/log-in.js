@@ -95,12 +95,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         localStorage.setItem('userEmail', email);
                     }
                     
-                    // Redirect based on user type
+                    // Redirect based on user type and preferences
                     setTimeout(() => {
                         if (data.user_type === 'admin') {
                             window.location.href = 'admin/dashboard.php';
                         } else {
-                            window.location.href = 'sjdm-user/index.php';
+                            // Check if user has set preferences
+                            if (data.preferences_set == 0) {
+                                window.location.href = 'sjdm-user/user-preferences.php';
+                            } else {
+                                window.location.href = 'sjdm-user/index.php';
+                            }
                         }
                     }, 1000);
                 } else {

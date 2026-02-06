@@ -50,6 +50,95 @@ body {
 /* Mobile Menu Toggle */
 .mobile-menu-toggle {
     display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+/* User Preferences Section */
+.user-preferences-section {
+    background: linear-gradient(135deg, rgba(44, 95, 45, 0.05), rgba(44, 95, 45, 0.02));
+    border: 1px solid rgba(44, 95, 45, 0.1);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.preferences-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.preference-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.preference-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.preference-tag .material-icons-outlined {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* Responsive adjustments for preferences */
+@media (max-width: 768px) {
+    .user-preferences-section {
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .preferences-display {
+        gap: 10px;
+    }
+    
+    .preference-tag {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .preference-tag .material-icons-outlined {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .preferences-display {
+        justify-content: flex-start;
+    }
+    
+    .preference-tag {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+}
+.mobile-menu-toggle {
+    display: none;
     width: 40px;
     height: 40px;
     border: none;

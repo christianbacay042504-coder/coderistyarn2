@@ -17,7 +17,7 @@ if ($conn) {
     
     // Fetch tour guides from database
     if ($conn) {
-        $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY rating DESC, review_count DESC");
+        $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY name ASC");
         if ($guidesStmt) {
             $guidesStmt->execute();
             $guidesResult = $guidesStmt->get_result();
@@ -160,318 +160,758 @@ if ($conn) {
                     <div class="sort-section">
                         <label>Sort by:</label>
                         <select id="sortGuides">
-                            <option value="rating">Highest Rating</option>
                             <option value="experience">Most Experience</option>
                             <option value="price-low">Price: Low to High</option>
                             <option value="price-high">Price: High to Low</option>
-                            <option value="reviews">Most Reviews</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div id="guidesList" class="guides-grid">
-                <!-- Debug Info -->
-                <?php 
-                echo "<!-- Debug: Database connection: " . ($conn ? "Connected" : "Not connected") . " -->";
-                echo "<!-- Debug: Tour guides count: " . count($tourGuides) . " -->";
-                if (!empty($tourGuides)) {
-                    echo "<!-- Debug: First guide: " . $tourGuides[0]['name'] . " -->";
-                    echo "<!-- Debug: First guide data: " . print_r($tourGuides[0], true) . " -->";
-                }
-                ?>
-                
-                <?php if (!empty($tourGuides)): ?>
-                    <?php foreach ($tourGuides as $guide): ?>
-                        <div class="guide-card" 
-                             data-guide-id="<?php echo $guide['id']; ?>" 
-                             data-category="<?php echo $guide['category']; ?>"
-                             data-email="<?php echo isset($guide['email']) ? htmlspecialchars($guide['email']) : ''; ?>"
-                             data-phone="<?php echo isset($guide['contact_number']) ? htmlspecialchars($guide['contact_number']) : ''; ?>"
-                             data-location="<?php echo isset($guide['location']) ? htmlspecialchars($guide['location']) : (isset($guide['address']) ? htmlspecialchars($guide['address']) : ''); ?>"
-                             data-bio="<?php echo isset($guide['bio']) ? htmlspecialchars($guide['bio']) : ''; ?>">
-                            <div class="guide-photo">
-                                <img src="<?php echo !empty($guide['photo_url']) ? htmlspecialchars($guide['photo_url']) : 'https://via.placeholder.com/400x300/2c5f2d/ffffff?text=' . urlencode($guide['name']); ?>" alt="Guide <?php echo htmlspecialchars($guide['name']); ?>">
-                                <button class="favorite-btn" data-guide-id="<?php echo $guide['id']; ?>">
-                                    <span class="material-icons-outlined">favorite_border</span>
-                                </button>
-                                <?php if ($guide['verified']): ?>
-                                    <div class="verified-badge">
-                                        <span class="material-icons-outlined">verified</span>
-                                        Verified Guide
-                                    </div>
-                                <?php endif; ?>
+                <div class="guide-card" data-guide-id="1" data-category="general">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Alex Rodriguez</h3>
+                        <span class="guide-specialty">Cultural & Heritage Tours</span>
+                        <p class="guide-description">Passionate about sharing the rich history and vibrant culture of San Jose del Monte. Let me take you on a journey through our city's most treasured landmarks and hidden gems.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                8+ years experience
                             </div>
-                            <div class="guide-info">
-                                <h3 class="guide-name"><?php echo htmlspecialchars($guide['name']); ?></h3>
-                                <span class="guide-specialty"><?php echo htmlspecialchars($guide['specialty']); ?></span>
-                                <p class="guide-description"><?php echo htmlspecialchars($guide['description']); ?></p>
-                                <div class="guide-meta">
-                                    <div class="meta-item">
-                                        <span class="material-icons-outlined">schedule</span>
-                                        <?php echo $guide['experience_years']; ?>+ years experience
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="material-icons-outlined">translate</span>
-                                        <?php echo htmlspecialchars($guide['languages']); ?>
-                                    </div>
-                                    <?php if (!empty($guide['group_size'])): ?>
-                                    <div class="meta-item">
-                                        <span class="material-icons-outlined">groups</span>
-                                        <?php echo htmlspecialchars($guide['group_size']); ?>
-                                    </div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="rating-display">
-                                    <?php
-                                    $rating = floatval($guide['rating']);
-                                    $fullStars = floor($rating);
-                                    $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                    
-                                    for ($i = 0; $i < $fullStars; $i++) {
-                                        echo '<span class="material-icons-outlined">star</span>';
-                                    }
-                                    if ($hasHalfStar && $fullStars < 5) {
-                                        echo '<span class="material-icons-outlined">star_half</span>';
-                                        $fullStars++;
-                                    }
-                                    for ($i = $fullStars; $i < 5; $i++) {
-                                        echo '<span class="material-icons-outlined">star_outline</span>';
-                                    }
-                                    ?>
-                                    <span class="rating-value"><?php echo number_format($rating, 1); ?></span>
-                                    <span class="review-count">(<?php echo $guide['review_count']; ?> reviews)</span>
-                                </div>
-                                <div class="guide-footer">
-                                    <button class="btn-view-profile" onclick="document.getElementById('modal-guide-<?php echo $guide['id']; ?>').classList.add('show')">View Profile</button>
-                                </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 15 guests
                             </div>
                         </div>
-
-                        <!-- Guide Profile Modal (Server-Side Rendered) -->
-                        <div class="modal-overlay" id="modal-guide-<?php echo $guide['id']; ?>">
-                            <div class="modal-content guide-profile-modal">
-                                <div class="modal-header">
-                                    <div class="modal-title">
-                                        <span class="material-icons-outlined modal-icon">person</span>
-                                        <h2>Guide Profile</h2>
-                                    </div>
-                                    <button class="close-modal" onclick="this.closest('.modal-overlay').classList.remove('show')">
-                                        <span class="material-icons-outlined">close</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="guide-profile-content">
-                                        <div class="guide-profile-header">
-                                            <div class="guide-profile-photo">
-                                                <img src="<?php echo !empty($guide['photo_url']) ? htmlspecialchars($guide['photo_url']) : 'https://via.placeholder.com/400x300/2c5f2d/ffffff?text=' . urlencode($guide['name']); ?>" alt="Guide <?php echo htmlspecialchars($guide['name']); ?>">
-                                                <?php if ($guide['verified']): ?>
-                                                    <div class="verified-badge">
-                                                        <span class="material-icons-outlined">verified</span>
-                                                        Verified Guide
-                                                    </div>
-                                                    <div class="verified-glow"></div>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="guide-profile-info">
-                                                <div class="guide-name-section">
-                                                    <h3><?php echo htmlspecialchars($guide['name']); ?></h3>
-                                                    <?php if ($guide['verified']): ?>
-                                                        <div class="verified-ribbon">
-                                                            <span class="material-icons-outlined">verified_user</span>
-                                                            <span>Trusted Professional</span>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <p class="guide-specialty"><?php echo htmlspecialchars($guide['specialty']); ?></p>
-                                                <div class="guide-rating">
-                                                    <?php
-                                                    $rating = floatval($guide['rating']);
-                                                    $fullStars = floor($rating);
-                                                    $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                                    
-                                                    for ($i = 0; $i < $fullStars; $i++) {
-                                                        echo '<span class="material-icons-outlined">star</span>';
-                                                    }
-                                                    if ($hasHalfStar && $fullStars < 5) {
-                                                        echo '<span class="material-icons-outlined">star_half</span>';
-                                                        $fullStars++;
-                                                    }
-                                                    for ($i = $fullStars; $i < 5; $i++) {
-                                                        echo '<span class="material-icons-outlined">star_outline</span>';
-                                                    }
-                                                    ?>
-                                                    <span class="rating-value"><?php echo number_format($rating, 1); ?></span>
-                                                    <span class="review-count">(<?php echo $guide['review_count']; ?> reviews)</span>
-                                                </div>
-                                                <div class="guide-category-badge">
-                                                    <span class="material-icons-outlined">category</span>
-                                                    <?php 
-                                                        $categories = [
-                                                            'mountain' => 'Mountain Hiking',
-                                                            'city' => 'City Tours',
-                                                            'farm' => 'Farm & Eco-Tourism',
-                                                            'waterfall' => 'Waterfall Tours',
-                                                            'historical' => 'Historical Tours',
-                                                            'general' => 'General Tours'
-                                                        ];
-                                                        echo array_key_exists($guide['category'], $categories) ? $categories[$guide['category']] : htmlspecialchars($guide['category']); 
-                                                    ?>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <?php if ($guide['verified']): ?>
-                                        <div class="verification-section">
-                                            <div class="verification-header">
-                                                <span class="material-icons-outlined">security</span>
-                                                <h4>Verification Details</h4>
-                                            </div>
-                                            <div class="verification-grid">
-                                                <div class="verification-item">
-                                                    <span class="material-icons-outlined">check_circle</span>
-                                                    <span>Identity Verified</span>
-                                                </div>
-                                                <div class="verification-item">
-                                                    <span class="material-icons-outlined">workspace_premium</span>
-                                                    <span>Professional Certified</span>
-                                                </div>
-                                                <div class="verification-item">
-                                                    <span class="material-icons-outlined">reviews</span>
-                                                    <span>Background Checked</span>
-                                                </div>
-                                                <div class="verification-item">
-                                                    <span class="material-icons-outlined">handshake</span>
-                                                    <span>Trusted by Community</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <?php endif; ?>
-
-                                        <div class="guide-description-section">
-                                            <h4><span class="material-icons-outlined">info</span> About</h4>
-                                            <p><?php echo isset($guide['bio']) ? htmlspecialchars($guide['bio']) : htmlspecialchars($guide['description']); ?></p>
-                                        </div>
-
-                                        <div class="guide-details-grid">
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">wc</span>
-                                                <div>
-                                                    <strong>Gender</strong>
-                                                    <p><?php echo ($guide['id'] % 2 == 0) ? 'Male' : 'Female'; ?></p>
-                                                </div>
-                                            </div>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">translate</span>
-                                                <div>
-                                                    <strong>Languages</strong>
-                                                    <p><?php echo !empty($guide['languages']) ? htmlspecialchars($guide['languages']) : 'Tagalog, English'; ?></p>
-                                                </div>
-                                            </div>
-                                            
-                                            <?php if (!empty($guide['price_range']) || (!empty($guide['price_min']) && !empty($guide['price_max']))): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">payments</span>
-                                                <div>
-                                                    <strong>Pricing</strong>
-                                                    <p><?php 
-                                                        if (!empty($guide['price_range'])) {
-                                                            echo htmlspecialchars($guide['price_range']);
-                                                        } else {
-                                                            echo '₱' . number_format($guide['price_min']) . ' - ₱' . number_format($guide['price_max']);
-                                                        }
-                                                    ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($guide['schedules'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">event_available</span>
-                                                <div>
-                                                    <strong>Availability</strong>
-                                                    <p><?php echo htmlspecialchars($guide['schedules']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($guide['areas_of_expertise'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">travel_explore</span>
-                                                <div>
-                                                    <strong>Expertise</strong>
-                                                    <p><?php echo htmlspecialchars($guide['areas_of_expertise']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($guide['group_size'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">groups</span>
-                                                <div>
-                                                    <strong>Group Size</strong>
-                                                    <p><?php echo htmlspecialchars($guide['group_size']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-                                            
-                                            <?php if (isset($guide['location']) || isset($guide['address'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">place</span>
-                                                <div>
-                                                    <strong>Location</strong>
-                                                    <p><?php echo isset($guide['location']) ? htmlspecialchars($guide['location']) : htmlspecialchars($guide['address']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-
-                                            <?php if (isset($guide['email'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">email</span>
-                                                <div>
-                                                    <strong>Email</strong>
-                                                    <p><?php echo htmlspecialchars($guide['email']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-
-                                            <?php if (isset($guide['contact_number'])): ?>
-                                            <div class="detail-item">
-                                                <span class="material-icons-outlined">phone</span>
-                                                <div>
-                                                    <strong>Phone</strong>
-                                                    <p><?php echo htmlspecialchars($guide['contact_number']); ?></p>
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <div class="guide-booking-section">
-                                            <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
-                                            <p>To book this guide and get detailed pricing information, please click the button below.</p>
-                                            <div class="booking-actions">
-                                                <button class="btn-primary" onclick="bookGuide(<?php echo $guide['id']; ?>)">
-                                                    <span class="material-icons-outlined">calendar_today</span>
-                                                    Book This Guide
-                                                </button>
-                                                <button class="btn-secondary" onclick="this.closest('.modal-overlay').classList.remove('show')">
-                                                    Close
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(1)">View Profile</button>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="no-guides-message">
-                        <p>No tour guides available at the moment. Please check back later.</p>
-                        <!-- Additional debug info -->
-                        <p><small>Debug: Database connection status: <?php echo $conn ? "Connected" : "Not connected"; ?></small></p>
                     </div>
-                <?php endif; ?>
-              </div>
+                </div>
+
+                <div class="guide-card" data-guide-id="2" data-category="mountain">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Maria Santos</h3>
+                        <span class="guide-specialty">Mountain Hiking Adventures</span>
+                        <p class="guide-description">Experienced mountaineer specializing in guided treks through Bulacan's scenic mountain trails. Safety-focused with extensive knowledge of local flora and fauna.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                6+ years experience
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog, Basic Japanese
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 8 guests
+                            </div>
+                        </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(2)">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card" data-guide-id="3" data-category="waterfall">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Carlos Mendoza</h3>
+                        <span class="guide-specialty">Waterfall Tours & Swimming</span>
+                        <p class="guide-description">Local expert on San Jose del Monte's hidden waterfalls. Certified lifeguard with deep knowledge of the best swimming spots and seasonal conditions.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                5+ years experience
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 12 guests
+                            </div>
+                        </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(3)">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card" data-guide-id="4" data-category="city">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Elena Reyes</h3>
+                        <span class="guide-specialty">Urban City Tours</span>
+                        <p class="guide-description">City explorer with insider knowledge of San Jose del Monte's urban landscape. Specializes in architecture, local markets, and contemporary culture.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                4+ years experience
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog, Mandarin
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 20 guests
+                            </div>
+                        </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(4)">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card" data-guide-id="5" data-category="farm">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Roberto Cruz</h3>
+                        <span class="guide-specialty">Farm & Eco-Tourism</span>
+                        <p class="guide-description">Agricultural specialist offering authentic farm experiences. Learn about sustainable farming practices and enjoy fresh farm-to-table experiences.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                10+ years experience
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 25 guests
+                            </div>
+                        </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(5)">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-card" data-guide-id="6" data-category="historical">
+                    <div class="guide-info">
+                        <h3 class="guide-name">Isabella Fernandez</h3>
+                        <span class="guide-specialty">Historical Tours & Storytelling</span>
+                        <p class="guide-description">History buff and storyteller bringing San Jose del Monte's past to life. Expert on colonial history, revolutionary sites, and local legends.</p>
+                        <div class="guide-meta">
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">schedule</span>
+                                7+ years experience
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">translate</span>
+                                English, Tagalog, Spanish
+                            </div>
+                            <div class="meta-item">
+                                <span class="material-icons-outlined">groups</span>
+                                Up to 18 guests
+                            </div>
+                        </div>
+                        <div class="guide-footer">
+                            <button class="btn-view-profile" onclick="openGuideModal(6)">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guide Profile Modal -->
+                <div class="modal-overlay" id="modal-guide-1">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-1')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Alex Rodriguez</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Cultural & Heritage Tours</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            General Tours
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>Passionate about sharing the rich history and vibrant culture of San Jose del Monte. Let me take you on a journey through our city's most treasured landmarks and hidden gems. I specialize in creating immersive cultural experiences that connect visitors with the authentic spirit of our community.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Male</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 15 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>alex@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 912 345 6789</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(1)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-1')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maria Santos Modal -->
+                <div class="modal-overlay" id="modal-guide-2">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-2')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Maria Santos</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Mountain Hiking Adventures</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            Mountain Hiking
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>Experienced mountaineer specializing in guided treks through Bulacan's scenic mountain trails. Safety-focused with extensive knowledge of local flora and fauna. I'll ensure you have an unforgettable adventure while staying safe and learning about our mountain ecosystem.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Female</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog, Basic Japanese</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 8 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>maria@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 923 456 7890</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(2)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-2')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carlos Mendoza Modal -->
+                <div class="modal-overlay" id="modal-guide-3">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-3')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Carlos Mendoza</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Waterfall Tours & Swimming</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            Waterfall Tours
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>Local expert on San Jose del Monte's hidden waterfalls. Certified lifeguard with deep knowledge of the best swimming spots and seasonal conditions. Let me guide you to the most beautiful waterfalls while ensuring your safety and comfort.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Male</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 12 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>carlos@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 934 567 8901</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(3)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-3')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Elena Reyes Modal -->
+                <div class="modal-overlay" id="modal-guide-4">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-4')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Elena Reyes</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Urban City Tours</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            City Tours
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>City explorer with insider knowledge of San Jose del Monte's urban landscape. Specializes in architecture, local markets, and contemporary culture. Let me show you the modern face of our city while sharing stories about its development and hidden urban gems.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Female</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog, Mandarin</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 20 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>elena@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 945 678 9012</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(4)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-4')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roberto Cruz Modal -->
+                <div class="modal-overlay" id="modal-guide-5">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-5')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Roberto Cruz</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Farm & Eco-Tourism</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            Farm & Eco-Tourism
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>Agricultural specialist offering authentic farm experiences. Learn about sustainable farming practices and enjoy fresh farm-to-table experiences. I'll introduce you to the agricultural heritage of San Jose del Monte and show you how modern farming meets traditional wisdom.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Male</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 25 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>roberto@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 956 789 0123</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(5)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-5')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Isabella Fernandez Modal -->
+                <div class="modal-overlay" id="modal-guide-6">
+                    <div class="modal-content guide-profile-modal">
+                        <div class="modal-header">
+                            <div class="modal-title">
+                                <span class="material-icons-outlined modal-icon">person</span>
+                                <h2>Guide Profile</h2>
+                            </div>
+                            <button class="close-modal" onclick="closeModal('modal-guide-6')">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="guide-profile-content">
+                                <div class="guide-profile-header">
+                                    <div class="guide-profile-info">
+                                        <div class="guide-name-section">
+                                            <h3>Isabella Fernandez</h3>
+                                            <div class="verified-ribbon">
+                                                <span class="material-icons-outlined">verified_user</span>
+                                                <span>Trusted Professional</span>
+                                            </div>
+                                        </div>
+                                        <p class="guide-specialty">Historical Tours & Storytelling</p>
+                                        <div class="guide-category-badge">
+                                            <span class="material-icons-outlined">category</span>
+                                            Historical Tours
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-description-section">
+                                    <h4><span class="material-icons-outlined">info</span> About</h4>
+                                    <p>History buff and storyteller bringing San Jose del Monte's past to life. Expert on colonial history, revolutionary sites, and local legends. Let me transport you through time as I share captivating stories about our city's rich historical heritage.</p>
+                                </div>
+
+                                <div class="guide-details-grid">
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">wc</span>
+                                        <div>
+                                            <strong>Gender</strong>
+                                            <p>Female</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">translate</span>
+                                        <div>
+                                            <strong>Languages</strong>
+                                            <p>English, Tagalog, Spanish</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">groups</span>
+                                        <div>
+                                            <strong>Group Size</strong>
+                                            <p>Up to 18 guests</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">place</span>
+                                        <div>
+                                            <strong>Location</strong>
+                                            <p>San Jose del Monte, Bulacan</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">email</span>
+                                        <div>
+                                            <strong>Email</strong>
+                                            <p>isabella@sjdmtours.com</p>
+                                        </div>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="material-icons-outlined">phone</span>
+                                        <div>
+                                            <strong>Phone</strong>
+                                            <p>+63 967 890 1234</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="guide-booking-section">
+                                    <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                    <p>To book this guide and get detailed tour information, please click the button below.</p>
+                                    <div class="booking-actions">
+                                        <button class="btn-primary" onclick="bookGuide(6)">
+                                            <span class="material-icons-outlined">calendar_today</span>
+                                            Book This Guide
+                                        </button>
+                                        <button class="btn-secondary" onclick="closeModal('modal-guide-6')">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
           </main>
 

@@ -73,375 +73,75 @@ if ($conn) {
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h1>SJDM Tours</h1>
-            <p>Explore San Jose del Monte</p>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a class="nav-item" href="index.php">
-                <span class="material-icons-outlined">home</span>
-                <span>Home</span>
-            </a>
-            <a class="nav-item" href="user-guides.php">
-                <span class="material-icons-outlined">people</span>
-                <span>Tour Guides</span>
-            </a>
-            <a class="nav-item" href="book.php">
-                <span class="material-icons-outlined">event</span>
-                <span>Book Now</span>
-            </a>
-            <a class="nav-item active" href="javascript:void(0)">
-                <span class="material-icons-outlined">place</span>
-                <span>Tourist Spots</span>
-            </a>
-            <a class="nav-item" href="local-culture.php">
-                <span class="material-icons-outlined">theater_comedy</span>
-                <span>Local Culture</span>
-            </a>
-            <a class="nav-item" href="travel-tips.php">
-                <span class="material-icons-outlined">tips_and_updates</span>
-                <span>Travel Tips</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <header class="main-header">
-            <h1>Tourist Spots</h1>
-            <div class="search-bar">
-                <span class="material-icons-outlined">search</span>
-                <input type="text" placeholder="Search destinations...">
-            </div>
-            <div class="header-actions">
-                <button class="icon-button">
-                    <span class="material-icons-outlined">notifications_none</span>
-                    <span class="notification-badge" style="display: none;">0</span>
-                </button>
-                
-                <!-- User Profile Dropdown -->
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="userProfileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu" id="userProfileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                            <div class="profile-details">
-                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
-                                <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
-                            </div>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
-                            <span class="material-icons-outlined">favorite</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="logout.php" class="dropdown-item">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
-                        </a>
-                    </div>
-                </div>
-                
-                
-        </header>
-
-        <div class="content-area">
-            <h2 class="section-title">San Jose del Monte Tourist Spots</h2>
-            
-            <!-- Calendar Header -->
-            <div class="calendar-header">
-                <div class="date-display">
-                    <div class="weekday" id="currentWeekday"><?php echo htmlspecialchars($currentWeekday); ?></div>
-                    <div class="month-year" id="currentDate"><?php echo htmlspecialchars($currentDate); ?></div>
-                </div>
-                <div class="weather-info">
-                    <span class="material-icons-outlined"><?php echo $weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy'); ?></span>
-                    <span class="temperature"><?php echo $currentTemp; ?>°C</span>
-                    <span class="weather-label"><?php echo htmlspecialchars($weatherLabel); ?></span>
-                </div>
-            </div>
-
-            <!-- Filters -->
-            <div class="travelry-filters">
-                <div class="filter-row">
-                    <div class="filter-group">
-                        <label>Category</label>
-                        <select class="filter-select" id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <?php
-                            // Fetch unique categories from database
-                            $conn = getDatabaseConnection();
-                            if ($conn) {
-                                $query = "SELECT DISTINCT category FROM tourist_spots WHERE status = 'active'";
-                                $result = $conn->query($query);
-                                if ($result && $result->num_rows > 0) {
-                                    while ($category = $result->fetch_assoc()) {
-                                        echo '<option value="' . $category['category'] . '">' . ucfirst($category['category']) . '</option>';
-                                    }
-                                }
-                                closeDatabaseConnection($conn);
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Activity Level</label>
-                        <select class="filter-select" id="activityFilter">
-                            <option value="all">All Levels</option>
-                            <option value="easy">Easy</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="difficult">Difficult</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tourist Spots Grid -->
-            <div class="travelry-grid" id="spotsGrid">
-                <?php
-                // Fetch tourist spots from database with assigned guides
-                $conn = getDatabaseConnection();
-                if ($conn) {
-                    $query = "SELECT ts.*, 
-                             GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
-                             FROM tourist_spots ts 
-                             LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
-                             LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
-                             WHERE ts.status = 'active' 
-                             GROUP BY ts.id 
-                             ORDER BY ts.name";
-                    $result = $conn->query($query);
-                    
-                    if ($result && $result->num_rows > 0) {
-                        while ($spot = $result->fetch_assoc()) {
-                            // Map database categories to display categories
-                            $categoryMap = [
-                                'nature' => 'Nature & Waterfalls',
-                                'farm' => 'Farms & Eco-Tourism', 
-                                'park' => 'Parks & Recreation',
-                                'religious' => 'Religious Sites',
-                                'urban' => 'Urban Landmarks',
-                                'historical' => 'Historical Sites',
-                                'waterfalls' => 'Waterfalls',
-                                'mountains' => 'Mountains & Hiking',
-                                'agri-tourism' => 'Agri-Tourism',
-                                'religious sites' => 'Religious Sites',
-                                'parks & recreation' => 'Parks & Recreation',
-                                'tourist spot' => 'Tourist Spots'
-                            ];
-                            
-                            // Map database categories to badge icons
-                            $iconMap = [
-                                'nature' => 'landscape',
-                                'farm' => 'agriculture',
-                                'park' => 'park',
-                                'religious' => 'church',
-                                'urban' => 'location_city',
-                                'historical' => 'account_balance',
-                                'waterfalls' => 'water',
-                                'mountains' => 'terrain',
-                                'agri-tourism' => 'agriculture',
-                                'religious sites' => 'church',
-                                'parks & recreation' => 'park',
-                                'tourist spot' => 'place'
-                            ];
-                            
-                            // Map database categories to badge labels
-                            $badgeMap = [
-                                'nature' => 'Nature',
-                                'farm' => 'Farm',
-                                'park' => 'Park',
-                                'religious' => 'Religious',
-                                'urban' => 'Urban',
-                                'historical' => 'Historical',
-                                'waterfalls' => 'Waterfalls',
-                                'mountains' => 'Mountain',
-                                'agri-tourism' => 'Farm',
-                                'religious sites' => 'Religious',
-                                'parks & recreation' => 'Park',
-                                'tourist spot' => 'Tourist'
-                            ];
-                            
-                            $category = $spot['category'];
-                            $displayCategory = $categoryMap[$category] ?? $category;
-                            $icon = $iconMap[$category] ?? 'place';
-                            $badge = $badgeMap[$category] ?? $category;
-                            
-                            // Generate star rating HTML
-                            $rating = floatval($spot['rating']);
-                            $fullStars = floor($rating);
-                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                            $starsHtml = '';
-                            
-                            for ($i = 0; $i < $fullStars; $i++) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star</span>';
-                            }
-                            if ($hasHalfStar) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star_half</span>';
-                            }
-                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                            for ($i = 0; $i < $emptyStars; $i++) {
-                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ddd; font-size: 16px;">star_outline</span>';
-                            }
-                            
-                            // Determine activity level based on difficulty
-                            $activityLevel = $spot['difficulty_level'];
-                            
-                            // Get duration for filtering
-                            $duration = $spot['duration'] ?? '2-3 hours';
-                            
-                            // Parse guides information
-                            $guides = [];
-                            if (!empty($spot['guides_info'])) {
-                                $guideData = explode('|', $spot['guides_info']);
-                                foreach ($guideData as $guide) {
-                                    $guideParts = explode(':', $guide);
-                                    if (count($guideParts) >= 5) {
-                                        $guides[] = [
-                                            'id' => $guideParts[0],
-                                            'name' => $guideParts[1],
-                                            'specialty' => $guideParts[2],
-                                            'rating' => $guideParts[3],
-                                            'verified' => $guideParts[4]
-                                        ];
-                                    }
-                                }
-                            }
-                            
-                            echo '<div class="travelry-card" data-category="' . $category . '" data-activity="' . $activityLevel . '" data-duration="' . $duration . '">';
-                            echo '<div class="card-image">';
-                            echo '<img src="' . htmlspecialchars($spot['image_url']) . '" alt="' . htmlspecialchars($spot['name']) . '">';
-                            echo '<div class="card-badge">';
-                            echo '<span class="material-icons-outlined">' . $icon . '</span>';
-                            echo $badge;
-                            echo '</div>';
-                            echo '</div>';
-                            echo '<div class="card-content">';
-                            echo '<div class="card-weather">';
-                            echo '<span class="material-icons-outlined">' . ($weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy')) . '</span>';
-                            echo '<span class="weather-temp">' . $currentTemp . '°C</span>';
-                            echo '<span class="weather-desc">' . htmlspecialchars($weatherLabel) . '</span>';
-                            echo '</div>';
-                            echo '<h3 class="card-title">' . htmlspecialchars($spot['name']) . '</h3>';
-                            echo '<span class="card-category">' . htmlspecialchars($displayCategory) . '</span>';
-                            echo '<div class="card-stats">';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Rating</span>';
-                            echo '<div style="display: flex; align-items: center; gap: 4px;">';
-                            echo $starsHtml;
-                            echo '<span style="font-size: 12px; color: #666;">(' . $spot['review_count'] . ')</span>';
-                            echo '</div>';
-                            echo '</div>';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Difficulty</span>';
-                            echo '<span class="stat-value">' . ucfirst($spot['difficulty_level']) . '</span>';
-                            echo '</div>';
-                            echo '<div class="stat-item">';
-                            echo '<span class="stat-label">Entrance</span>';
-                            echo '<span class="stat-value">' . htmlspecialchars($spot['entrance_fee'] ?? 'Free') . '</span>';
-                            echo '</div>';
-                            echo '</div>';
-                            echo '<div class="card-buttons">';
-                            echo '<button class="card-button" onclick="showTouristSpotModal(';
-                            echo "'" . addslashes($spot['name']) . "', ";
-                            echo "'" . addslashes($displayCategory) . "', ";
-                            echo "'" . addslashes($spot['image_url']) . "', ";
-                            echo "'" . $icon . "', ";
-                            echo "'" . $badge . "', ";
-                            echo "'" . htmlspecialchars($spot['entrance_fee'] ?? 'Free') . "', ";
-                            echo "'" . $currentTemp . "°C', ";
-                            echo "'200 MASL', ";
-                            echo "'" . ucfirst($spot['difficulty_level']) . "', ";
-                            echo "'" . number_format($spot['rating'], 1) . "', ";
-                            echo "'" . $spot['review_count'] . "', ";
-                            echo "'" . json_encode($guides) . "'";
-                            echo ')">';
-                            echo 'View Details';
-                            echo '</button>';
-                            echo '</div>';
-                            echo '</div>';
-                            echo '</div>';
-                        }
-                    } else {
-                        echo '<div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
-                        echo '<span class="material-icons-outlined" style="font-size: 48px; color: #9ca3af;">place</span>';
-                        echo '<h3 style="color: #6b7280; margin-top: 16px;">No tourist spots found</h3>';
-                        echo '<p style="color: #9ca3af;">Please check back later for available destinations.</p>';
-                        echo '</div>';
-                    }
-                    closeDatabaseConnection($conn);
-                } else {
-                    echo '<div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
-                    echo '<span class="material-icons-outlined" style="font-size: 48px; color: #ef4444;">error</span>';
-                    echo '<h3 style="color: #ef4444; margin-top: 16px;">Database Connection Error</h3>';
-                    echo '<p style="color: #6b7280;">Unable to load tourist spots. Please try again later.</p>';
-                    echo '</div>';
-                }
-                ?>
-            </div>
-        </div>
-    </main>
-
-    <?php
-    // Include database connection and authentication
-    require_once '../config/database.php';
-    require_once '../config/auth.php';
-
-    // Check if user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: ../log-in/log-in.php');
-        exit();
-    }
-
-    // Get current user data
-    $conn = getDatabaseConnection();
-    if ($conn) {
-        $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
-        $stmt->bind_param("i", $_SESSION['user_id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            $currentUser = [
-                'name' => $user['first_name'] . ' ' . $user['last_name'],
-                'email' => $user['email']
-            ];
-        }
-        closeDatabaseConnection($conn);
-    }
-    ?>
-
-
     <style>
+        /* Modal Animation */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal.show .modal-content {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .modal-guides-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-guide-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(74, 124, 78, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(74, 124, 78, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-guide-item:hover {
+            background: rgba(74, 124, 78, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .modal-guide-info {
+            flex: 1;
+        }
+
+        .modal-guide-name {
+            font-weight: 600;
+            color: #2c5f2d;
+            font-size: 14px;
+        }
+
+        .modal-guide-specialty {
+            font-size: 12px;
+            color: #666;
+            margin: 2px 0;
+        }
+
+        .modal-guide-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .verified-badge {
+            color: #4caf50 !important;
+            font-size: 14px !important;
+            margin-left: 4px;
+        }
+        
         /* Card Weather Styling */
         .card-weather {
             display: flex;
@@ -581,270 +281,8 @@ if ($conn) {
                 font-size: 0.75rem;
             }
         }
-    </style>
-    <script>
-        // Tourist Spot Modal Functions - Global Scope
-        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration, guides) {
-            console.log('Modal function called with:', { name, category, type, guides });
-            const modal = document.getElementById('touristSpotModal');
-            
-            if (!modal) {
-                console.error('Modal element not found!');
-                return;
-            }
-            
-            // Update modal content
-            document.getElementById('modalSpotName').textContent = name;
-            document.getElementById('modalSpotCategory').textContent = category;
-            document.getElementById('modalSpotTitle').textContent = name;
-            document.getElementById('modalSpotImage').src = image;
-            document.getElementById('modalSpotImage').alt = name;
-            document.getElementById('modalSpotType').textContent = type;
-            document.getElementById('modalSpotTemp').textContent = temp;
-            document.getElementById('modalSpotElevation').textContent = elevation;
-            document.getElementById('modalSpotDifficulty').textContent = difficulty;
-            
-            // Update badge icon
-            const badgeIcon = document.querySelector('#modalSpotBadge .material-icons-outlined');
-            badgeIcon.textContent = icon;
-            
-            // Display guides in modal
-            const guidesContainer = document.getElementById('modalSpotGuides');
-            if (guidesContainer && guides && guides.length > 0) {
-                guidesContainer.innerHTML = `
-                    <h4><span class="material-icons-outlined">people</span> Available Tour Guides</h4>
-                    <div class="modal-guides-list">
-                        ${guides.map(guide => `
-                            <div class="modal-guide-item" onclick="viewGuideProfile(${guide.id})">
-                                <div class="modal-guide-info">
-                                    <div class="modal-guide-name">${guide.name}</div>
-                                    <div class="modal-guide-specialty">${guide.specialty}</div>
-                                    <div class="modal-guide-rating">
-                                        ${generateStars(guide.rating)}
-                                        <span class="rating-number">${parseFloat(guide.rating).toFixed(1)}</span>
-                                        ${guide.verified ? '<span class="material-icons-outlined verified-badge">verified</span>' : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                guidesContainer.style.display = 'block';
-            } else {
-                guidesContainer.style.display = 'none';
-            }
-            
-            // Generate dynamic description based on spot type
-            let description = '';
-            let features = [];
-            
-            if (type === 'Mountain') {
-                description = `Experience the breathtaking beauty of ${name}, one of San Jose del Monte's most majestic mountain peaks. This stunning destination offers panoramic views, challenging trails, and an unforgettable adventure for nature enthusiasts and hikers alike.`;
-                features = [
-                    'Challenging hiking trails with varying difficulty levels',
-                    'Spectacular panoramic views of Bulacan province',
-                    'Rich biodiversity and unique flora and fauna',
-                    'Perfect for sunrise and sunset photography',
-                    'Camping spots available for overnight stays'
-                ];
-            } else if (type === 'Waterfall') {
-                description = `Discover the natural wonder of ${name}, a hidden gem nestled in the lush landscapes of San Jose del Monte. This pristine waterfall offers a refreshing escape with its crystal-clear waters and serene surroundings.`;
-                features = [
-                    'Crystal-clear waters perfect for swimming',
-                    'Natural pools for relaxation',
-                    'Lush tropical surroundings',
-                    'Ideal for nature photography',
-                    'Accessible hiking trails with scenic views'
-                ];
-            } else if (type === 'Farm') {
-                description = `Experience sustainable agriculture and rural life at ${name}, a charming eco-tourism destination in San Jose del Monte. This working farm offers hands-on experiences and educational opportunities for visitors of all ages.`;
-                features = [
-                    'Organic farming practices and sustainable agriculture',
-                    'Fresh produce sampling and farm-to-table experiences',
-                    'Educational tours about farming techniques',
-                    'Interactive activities for children and families',
-                    'Scenic rural landscapes and peaceful environment'
-                ];
-            } else if (type === 'Park') {
-                description = `Enjoy recreational activities and natural beauty at ${name}, a well-maintained public space in San Jose del Monte. This park offers facilities for sports, relaxation, and family gatherings in a clean, safe environment.`;
-                features = [
-                    'Well-maintained sports facilities and equipment',
-                    'Children\'s playground and family-friendly areas',
-                    'Jogging paths and walking trails',
-                    'Picnic areas with benches and tables',
-                    'Regular community events and activities'
-                ];
-            } else if (type === 'Religious') {
-                description = `Find spiritual solace and architectural beauty at ${name}, a sacred destination in San Jose del Monte. This religious site offers a peaceful atmosphere for prayer, reflection, and cultural appreciation.`;
-                features = [
-                    'Beautiful religious architecture and artwork',
-                    'Peaceful atmosphere for prayer and meditation',
-                    'Cultural and historical significance',
-                    'Well-maintained grounds and gardens',
-                    'Regular religious services and community events'
-                ];
-            } else if (type === 'Sports') {
-                description = `Get active and enjoy sports facilities at ${name}, a premier recreational destination in San Jose del Monte. This venue offers various sports activities and programs for fitness enthusiasts and athletes.`;
-                features = [
-                    'Modern sports facilities and equipment',
-                    'Professional coaching and training programs',
-                    'Various sports courts and playing fields',
-                    'Fitness programs and group activities',
-                    'Regular tournaments and community sports events'
-                ];
-            }
-            
-            document.getElementById('modalSpotDescription').textContent = description;
-            
-            // Update features list
-            const featuresList = document.getElementById('modalSpotFeatures');
-            const featureIcons = ['🌟', '📸', '👨‍👩‍👧‍👦', '🍽️', '🏞️', '🥾', '⛰️', '🌿', '🏛️', '⚽'];
-            featuresList.innerHTML = features.map((feature, index) => `
-                <div class="feature-item">
-                    <span class="feature-icon">${featureIcons[index % featureIcons.length]}</span>
-                    <span>${feature}</span>
-                </div>
-            `).join('');
-            
-            // Show modal
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
         
-        function viewGuideProfile(guideId) {
-            // Redirect to user-guides.php with guide ID parameter
-            window.location.href = 'user-guides.php?guide=' + guideId;
-        }
-        
-        function closeTouristSpotModal() {
-            const modal = document.getElementById('touristSpotModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        
-        function viewAllDetails() {
-            // Get current spot name from modal
-            const spotName = document.getElementById('modalSpotName').textContent;
-            console.log('Spot name from modal:', JSON.stringify(spotName)); // Debug log
-            closeTouristSpotModal();
-            
-            // Create mapping for spot names to detail pages
-            const spotPages = {
-                'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
-                'Mt. Balagbag Mountain': '../tourist-detail/mt-balagbag.php',
-                'Mount Balagbag': '../tourist-detail/mt-balagbag.php',
-                'Abes Farm': '../tourist-detail/abes-farm.php',
-                'Abes Farm Resort': '../tourist-detail/abes-farm.php',
-                'Burong Falls': '../tourist-detail/burong-falls.php',
-                'Burong Falls San Jose del Monte': '../tourist-detail/burong-falls.php',
-                'City Oval & People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
-                'Kaytitinga Falls': '../tourist-detail/kaytitinga-falls.php',
-                'Kaytitinga Falls San Jose del Monte': '../tourist-detail/kaytitinga-falls.php',
-                'Otso Otso Falls': '../tourist-detail/otso-otso-falls.php',
-                'Otso-Otso Falls': '../tourist-detail/otso-otso-falls.php',
-                'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
-                'Our Lady of Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
-                'Padre Pio': '../tourist-detail/padre-pio.php',
-                'Padre Pio Shrine': '../tourist-detail/padre-pio.php',
-                'Paradise Hill Farm': '../tourist-detail/paradise-hill-farm.php',
-                'Paradise Hill Farm Resort': '../tourist-detail/paradise-hill-farm.php',
-                'The Rising Heart': '../tourist-detail/the-rising-heart.php',
-                'The Rising Heart Farm': '../tourist-detail/the-rising-heart.php',
-                'Tungtong Falls': '../tourist-detail/tungtong.php',
-                'Tungtong Falls San Jose del Monte': '../tourist-detail/tungtong.php'
-            };
-            
-            console.log('Available spot pages:', Object.keys(spotPages));
-            console.log('Looking for spot name:', JSON.stringify(spotName));
-            console.log('Direct match exists:', spotPages.hasOwnProperty(spotName));
-            const detailPage = spotPages[spotName] || '../tourist-detail/city-ovals-peoples-park.php';
-            console.log('Final detail page:', detailPage);
-            
-            // Redirect to the detail page
-            window.location.href = detailPage;
-        }
-        
-        function saveThisSpot() {
-            const spotName = document.getElementById('modalSpotName').textContent;
-            const saveBtn = document.querySelector('.modal-save-btn');
-            
-            // Toggle saved state
-            if (saveBtn.classList.contains('saved')) {
-                saveBtn.classList.remove('saved');
-                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
-                showNotification('Removed from favorites', 'info');
-            } else {
-                saveBtn.classList.add('saved');
-                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
-                showNotification('Added to favorites!', 'success');
-            }
-        }
-        
-        function showNotification(message, type = 'info') {
-            // Remove any existing notifications
-            const existingNotification = document.querySelector('.notification-banner');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-
-            // Create notification banner
-            const notification = document.createElement('div');
-            notification.className = `notification-banner ${type}`;
-            
-            // Icon mapping for different types
-            const icons = {
-                success: 'check_circle',
-                error: 'error',
-                warning: 'warning',
-                info: 'info'
-            };
-            
-            notification.innerHTML = `
-                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
-                <span class="notification-message">${message}</span>
-                <button class="notification-close" onclick="this.parentElement.remove()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            `;
-            
-            // Add to page
-            document.body.appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            // Hide and remove after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    if (notification.parentElement) {
-                        document.body.removeChild(notification);
-                    }
-                }, 400);
-            }, 3000);
-        }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('touristSpotModal');
-            if (event.target === modal) {
-                closeTouristSpotModal();
-            }
-        }
-        
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeTouristSpotModal();
-            }
-        });
-    </script>
-
-    <script src="script.js"></script>
-
-    <style>
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -881,54 +319,54 @@ if ($conn) {
         
         /* Enhanced Modal Styles */
         .modal-header {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px 60px 20px 24px; /* Extra right padding for close button */
-    background: linear-gradient(135deg, #4a8c4a 0%, #2c5f2d 100%);
-    position: relative;
-}
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px 60px 20px 24px; /* Extra right padding for close button */
+            background: linear-gradient(135deg, #4a8c4a 0%, #2c5f2d 100%);
+            position: relative;
+        }
 
-.category-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 16px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: white;
-    width: fit-content;
-    backdrop-filter: blur(10px);
-}
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: white;
+            width: fit-content;
+            backdrop-filter: blur(10px);
+        }
 
-.modal-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-    line-height: 1.3;
-}
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            line-height: 1.3;
+        }
 
-.close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: white;
-    font-size: 1.25rem;
-}
-        
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.25rem;
+        }
+                
         .modal-header-content {
             display: flex;
             justify-content: space-between;
@@ -1429,6 +867,19 @@ if ($conn) {
                 padding: 16px 24px;
                 font-size: 1em;
             }
+            
+            .modal-guides-section {
+                padding: 24px;
+            }
+            
+            .modal-guides-list {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .modal-guide-item {
+                padding: 16px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1509,6 +960,346 @@ if ($conn) {
             }
         }
     </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>SJDM Tours</h1>
+            <p>Explore San Jose del Monte</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="index.php">
+                <span class="material-icons-outlined">home</span>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" href="user-guides.php">
+                <span class="material-icons-outlined">people</span>
+                <span>Tour Guides</span>
+            </a>
+            <a class="nav-item" href="book.php">
+                <span class="material-icons-outlined">event</span>
+                <span>Book Now</span>
+            </a>
+            <a class="nav-item active" href="javascript:void(0)">
+                <span class="material-icons-outlined">place</span>
+                <span>Tourist Spots</span>
+            </a>
+            <a class="nav-item" href="local-culture.php">
+                <span class="material-icons-outlined">theater_comedy</span>
+                <span>Local Culture</span>
+            </a>
+            <a class="nav-item" href="travel-tips.php">
+                <span class="material-icons-outlined">tips_and_updates</span>
+                <span>Travel Tips</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="main-header">
+            <h1>Tourist Spots</h1>
+            <div class="search-bar">
+                <span class="material-icons-outlined">search</span>
+                <input type="text" placeholder="Search destinations...">
+            </div>
+            <div class="header-actions">
+                <button class="icon-button">
+                    <span class="material-icons-outlined">notifications_none</span>
+                    <span class="notification-badge" style="display: none;">0</span>
+                </button>
+                
+                <!-- User Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-button" id="userProfileButton">
+                        <div class="profile-avatar"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                        <span class="material-icons-outlined">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu" id="userProfileMenu">
+                        <div class="profile-info">
+                            <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                            <div class="profile-details">
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
+                                <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
+                            <span class="material-icons-outlined">account_circle</span>
+                            <span>My Account</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
+                            <span class="material-icons-outlined">history</span>
+                            <span>Booking History</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
+                            <span class="material-icons-outlined">favorite</span>
+                            <span>Saved Tours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
+                            <span class="material-icons-outlined">settings</span>
+                            <span>Settings</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
+                            <span class="material-icons-outlined">help_outline</span>
+                            <span>Help & Support</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="logout.php" class="dropdown-item">
+                            <span class="material-icons-outlined">logout</span>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <h2 class="section-title">San Jose del Monte Tourist Spots</h2>
+            
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <div class="date-display">
+                    <div class="weekday" id="currentWeekday"><?php echo htmlspecialchars($currentWeekday); ?></div>
+                    <div class="month-year" id="currentDate"><?php echo htmlspecialchars($currentDate); ?></div>
+                </div>
+                <div class="weather-info">
+                    <span class="material-icons-outlined"><?php echo $weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy'); ?></span>
+                    <span class="temperature"><?php echo $currentTemp; ?>°C</span>
+                    <span class="weather-label"><?php echo htmlspecialchars($weatherLabel); ?></span>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="travelry-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <select class="filter-select" id="categoryFilter">
+                            <option value="all">All Categories</option>
+                            <?php
+                            // Fetch unique categories from database
+                            $conn = getDatabaseConnection();
+                            if ($conn) {
+                                $query = "SELECT DISTINCT category FROM tourist_spots WHERE status = 'active'";
+                                $result = $conn->query($query);
+                                if ($result && $result->num_rows > 0) {
+                                    while ($category = $result->fetch_assoc()) {
+                                        echo '<option value="' . $category['category'] . '">' . ucfirst($category['category']) . '</option>';
+                                    }
+                                }
+                                closeDatabaseConnection($conn);
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Activity Level</label>
+                        <select class="filter-select" id="activityFilter">
+                            <option value="all">All Levels</option>
+                            <option value="easy">Easy</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="difficult">Difficult</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Duration</label>
+                        <select class="filter-select" id="durationFilter">
+                            <option value="all">All Durations</option>
+                            <option value="1-2">1-2 hours</option>
+                            <option value="2-4">2-4 hours</option>
+                            <option value="4+">4+ hours</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tourist Spots Grid -->
+            <div class="travelry-grid" id="spotsGrid">
+                <?php
+                // Fetch tourist spots from database with assigned guides
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    $query = "SELECT ts.*, 
+                             GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
+                             FROM tourist_spots ts 
+                             LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
+                             LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
+                             WHERE ts.status = 'active' 
+                             GROUP BY ts.id 
+                             ORDER BY ts.name";
+                    $result = $conn->query($query);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        while ($spot = $result->fetch_assoc()) {
+                            // Map database categories to display categories
+                            $categoryMap = [
+                                'nature' => 'Nature & Waterfalls',
+                                'farm' => 'Farms & Eco-Tourism', 
+                                'park' => 'Parks & Recreation',
+                                'religious' => 'Religious Sites',
+                                'urban' => 'Urban Landmarks',
+                                'historical' => 'Historical Sites',
+                                'waterfalls' => 'Waterfalls',
+                                'mountains' => 'Mountains & Hiking',
+                                'agri-tourism' => 'Agri-Tourism',
+                                'religious sites' => 'Religious Sites',
+                                'parks & recreation' => 'Parks & Recreation',
+                                'tourist spot' => 'Tourist Spots'
+                            ];
+                            
+                            // Map database categories to badge icons
+                            $iconMap = [
+                                'nature' => 'landscape',
+                                'farm' => 'agriculture',
+                                'park' => 'park',
+                                'religious' => 'church',
+                                'urban' => 'location_city',
+                                'historical' => 'account_balance',
+                                'waterfalls' => 'water',
+                                'mountains' => 'terrain',
+                                'agri-tourism' => 'agriculture',
+                                'religious sites' => 'church',
+                                'parks & recreation' => 'park',
+                                'tourist spot' => 'place'
+                            ];
+                            
+                            // Map database categories to badge labels
+                            $badgeMap = [
+                                'nature' => 'Nature',
+                                'farm' => 'Farm',
+                                'park' => 'Park',
+                                'religious' => 'Religious',
+                                'urban' => 'Urban',
+                                'historical' => 'Historical',
+                                'waterfalls' => 'Waterfalls',
+                                'mountains' => 'Mountain',
+                                'agri-tourism' => 'Farm',
+                                'religious sites' => 'Religious',
+                                'parks & recreation' => 'Park',
+                                'tourist spot' => 'Tourist'
+                            ];
+                            
+                            $category = $spot['category'];
+                            $displayCategory = $categoryMap[$category] ?? $category;
+                            $icon = $iconMap[$category] ?? 'place';
+                            $badge = $badgeMap[$category] ?? $category;
+                            
+                            // Generate star rating HTML
+                            $rating = floatval($spot['rating']);
+                            $fullStars = floor($rating);
+                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                            $starsHtml = '';
+                            
+                            for ($i = 0; $i < $fullStars; $i++) {
+                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star</span>';
+                            }
+                            if ($hasHalfStar) {
+                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ffc107; font-size: 16px;">star_half</span>';
+                            }
+                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                            for ($i = 0; $i < $emptyStars; $i++) {
+                                $starsHtml .= '<span class="material-icons-outlined" style="color: #ddd; font-size: 16px;">star_outline</span>';
+                            }
+                            
+                            // Determine activity level based on difficulty
+                            $activityLevel = $spot['difficulty_level'];
+                            
+                            // Get duration for filtering
+                            $duration = $spot['duration'] ?? '2-3 hours';
+                            
+                            // Parse guides information
+                            $guides = [];
+                            if (!empty($spot['guides_info'])) {
+                                $guideData = explode('|', $spot['guides_info']);
+                                foreach ($guideData as $guide) {
+                                    $guideParts = explode(':', $guide);
+                                    if (count($guideParts) >= 5) {
+                                        $guides[] = [
+                                            'id' => $guideParts[0],
+                                            'name' => $guideParts[1],
+                                            'specialty' => $guideParts[2],
+                                            'rating' => $guideParts[3],
+                                            'verified' => $guideParts[4]
+                                        ];
+                                    }
+                                }
+                            }
+                            
+                            echo '<div class="travelry-card" data-category="' . $category . '" data-activity="' . $activityLevel . '" data-duration="' . $duration . '">';
+                            echo '<div class="card-image">';
+                            echo '<img src="' . htmlspecialchars($spot['image_url']) . '" alt="' . htmlspecialchars($spot['name']) . '">';
+                            echo '<div class="card-badge">';
+                            echo '<span class="material-icons-outlined">' . $icon . '</span>';
+                            echo $badge;
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="card-content">';
+                            echo '<div class="card-weather">';
+                            echo '<span class="material-icons-outlined">' . ($weatherLabel === 'Clear' ? 'wb_sunny' : ($weatherLabel === 'Clouds' ? 'cloud' : 'wb_cloudy')) . '</span>';
+                            echo '<span class="weather-temp">' . $currentTemp . '°C</span>';
+                            echo '<span class="weather-desc">' . htmlspecialchars($weatherLabel) . '</span>';
+                            echo '</div>';
+                            echo '<h3 class="card-title">' . htmlspecialchars($spot['name']) . '</h3>';
+                            echo '<span class="card-category">' . htmlspecialchars($displayCategory) . '</span>';
+                            echo '<div class="card-stats">';
+                            echo '<div class="stat-item">';
+                            echo '<span class="stat-label">Rating</span>';
+                            echo '<div style="display: flex; align-items: center; gap: 4px;">';
+                            echo $starsHtml;
+                            echo '<span style="font-size: 12px; color: #666;">(' . $spot['review_count'] . ')</span>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="stat-item">';
+                            echo '<span class="stat-label">Difficulty</span>';
+                            echo '<span class="stat-value">' . ucfirst($spot['difficulty_level']) . '</span>';
+                            echo '</div>';
+                            echo '<div class="stat-item">';
+                            echo '<span class="stat-label">Entrance</span>';
+                            echo '<span class="stat-value">' . htmlspecialchars($spot['entrance_fee'] ?? 'Free') . '</span>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="card-buttons">';
+                            // Fixed the onclick function call
+                            echo '<button class="card-button" onclick="showTouristSpotModal(\'' . 
+                                 addslashes($spot['name']) . '\', \'' . 
+                                 addslashes($displayCategory) . '\', \'' . 
+                                 addslashes($spot['image_url']) . '\', \'' . 
+                                 $icon . '\', \'' . 
+                                 $badge . '\', \'' . 
+                                 $currentTemp . '°C\', \'' . 
+                                 ($spot['elevation'] ?? '200') . ' MASL\', \'' . 
+                                 ucfirst($spot['difficulty_level']) . '\', \'' . 
+                                 ($spot['duration'] ?? '2-3 hours') . '\', \'' . 
+                                 htmlspecialchars(json_encode($guides), ENT_QUOTES, 'UTF-8') . '\')">';
+                            echo 'View Details';
+                            echo '</button>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    } else {
+                        echo '<div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
+                        echo '<span class="material-icons-outlined" style="font-size: 48px; color: #9ca3af;">place</span>';
+                        echo '<h3 style="color: #6b7280; margin-top: 16px;">No tourist spots found</h3>';
+                        echo '<p style="color: #9ca3af;">Please check back later for available destinations.</p>';
+                        echo '</div>';
+                    }
+                    closeDatabaseConnection($conn);
+                } else {
+                    echo '<div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">';
+                    echo '<span class="material-icons-outlined" style="font-size: 48px; color: #ef4444;">error</span>';
+                    echo '<h3 style="color: #ef4444; margin-top: 16px;">Database Connection Error</h3>';
+                    echo '<p style="color: #6b7280;">Unable to load tourist spots. Please try again later.</p>';
+                    echo '</div>';
+                }
+                ?>
+            </div>
+        </div>
+    </main>
 
     <!-- Tourist Spot Detail Modal -->
     <div id="touristSpotModal" class="modal">
@@ -1603,6 +1394,10 @@ if ($conn) {
                         </div>
                     </div>
 
+                    <div class="modal-guides-section" id="modalSpotGuides" style="display: none;">
+                        <!-- Guides will be dynamically inserted here -->
+                    </div>
+
                     <div class="modal-actions-section">
                         <div class="action-buttons">
                             <button class="btn-primary modal-book-btn" onclick="viewAllDetails()">
@@ -1619,5 +1414,456 @@ if ($conn) {
             </div>
         </div>
     </div>
+
+    <script>
+        // Tourist Spot Modal Functions
+        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration, guides) {
+            console.log('Modal function called with:', { name, category, type });
+            
+            const modal = document.getElementById('touristSpotModal');
+            
+            if (!modal) {
+                console.error('Modal element not found!');
+                alert('Modal element not found. Please refresh the page.');
+                return;
+            }
+            
+            // Update basic modal content
+            document.getElementById('modalSpotName').textContent = name;
+            document.getElementById('modalSpotCategory').textContent = category;
+            document.getElementById('modalSpotTitle').textContent = name;
+            document.getElementById('modalSpotType').textContent = type;
+            document.getElementById('modalSpotTemp').textContent = temp;
+            document.getElementById('modalSpotElevation').textContent = elevation;
+            document.getElementById('modalSpotDifficulty').textContent = difficulty;
+            
+            // Update image
+            const modalImage = document.getElementById('modalSpotImage');
+            if (modalImage) {
+                modalImage.src = image;
+                modalImage.alt = name;
+            }
+            
+            // Update badge icon
+            const badgeIcon = document.querySelector('#modalSpotBadge .material-icons-outlined');
+            if (badgeIcon) {
+                badgeIcon.textContent = icon;
+            }
+            
+            // Parse guides
+            let guidesData = [];
+            try {
+                // Clean up the guides string if needed
+                let guidesStr = guides;
+                if (typeof guides === 'string') {
+                    // Remove any extra quotes or slashes
+                    guidesStr = guides.replace(/^'|'$/g, '');
+                    guidesStr = guidesStr.replace(/\\'/g, "'");
+                    console.log('Cleaned guides string:', guidesStr);
+                    
+                    guidesData = JSON.parse(guidesStr);
+                } else if (Array.isArray(guides)) {
+                    guidesData = guides;
+                }
+                console.log('Parsed guides data:', guidesData);
+            } catch (e) {
+                console.error('Error parsing guides data:', e);
+                console.log('Raw guides value that failed:', guides);
+                guidesData = [];
+            }
+            
+            // Display guides in modal
+            const guidesContainer = document.getElementById('modalSpotGuides');
+            if (guidesContainer) {
+                if (guidesData && guidesData.length > 0) {
+                    guidesContainer.innerHTML = `
+                        <h4><span class="material-icons-outlined">people</span> Available Tour Guides</h4>
+                        <div class="modal-guides-list">
+                            ${guidesData.map(guide => `
+                                <div class="modal-guide-item" onclick="viewGuideProfile(${guide.id})">
+                                    <div class="modal-guide-info">
+                                        <div class="modal-guide-name">${guide.name || 'Guide Name'}</div>
+                                        <div class="modal-guide-specialty">${guide.specialty || 'Tour Guide'}</div>
+                                        <div class="modal-guide-rating">
+                                            ${generateStars(guide.rating || 0)}
+                                            <span class="rating-number">${parseFloat(guide.rating || 0).toFixed(1)}</span>
+                                            ${guide.verified ? '<span class="material-icons-outlined verified-badge">verified</span>' : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    guidesContainer.style.display = 'block';
+                } else {
+                    guidesContainer.style.display = 'none';
+                }
+            }
+            
+            // Generate dynamic description based on spot type
+            let description = '';
+            let features = [];
+            
+            const spotType = type.toLowerCase();
+            
+            if (spotType.includes('mountain')) {
+                description = `Experience the breathtaking beauty of ${name}, one of San Jose del Monte's most majestic mountain peaks. This stunning destination offers panoramic views, challenging trails, and an unforgettable adventure for nature enthusiasts and hikers alike.`;
+                features = [
+                    'Challenging hiking trails with varying difficulty levels',
+                    'Spectacular panoramic views of Bulacan province',
+                    'Rich biodiversity and unique flora and fauna',
+                    'Perfect for sunrise and sunset photography',
+                    'Camping spots available for overnight stays'
+                ];
+            } else if (spotType.includes('waterfall')) {
+                description = `Discover the natural wonder of ${name}, a hidden gem nestled in the lush landscapes of San Jose del Monte. This pristine waterfall offers a refreshing escape with its crystal-clear waters and serene surroundings.`;
+                features = [
+                    'Crystal-clear waters perfect for swimming',
+                    'Natural pools for relaxation',
+                    'Lush tropical surroundings',
+                    'Ideal for nature photography',
+                    'Accessible hiking trails with scenic views'
+                ];
+            } else if (spotType.includes('farm')) {
+                description = `Experience sustainable agriculture and rural life at ${name}, a charming eco-tourism destination in San Jose del Monte. This working farm offers hands-on experiences and educational opportunities for visitors of all ages.`;
+                features = [
+                    'Organic farming practices and sustainable agriculture',
+                    'Fresh produce sampling and farm-to-table experiences',
+                    'Educational tours about farming techniques',
+                    'Interactive activities for children and families',
+                    'Scenic rural landscapes and peaceful environment'
+                ];
+            } else if (spotType.includes('park')) {
+                description = `Enjoy recreational activities and natural beauty at ${name}, a well-maintained public space in San Jose del Monte. This park offers facilities for sports, relaxation, and family gatherings in a clean, safe environment.`;
+                features = [
+                    'Well-maintained sports facilities and equipment',
+                    'Children\'s playground and family-friendly areas',
+                    'Jogging paths and walking trails',
+                    'Picnic areas with benches and tables',
+                    'Regular community events and activities'
+                ];
+            } else if (spotType.includes('religious')) {
+                description = `Find spiritual solace and architectural beauty at ${name}, a sacred destination in San Jose del Monte. This religious site offers a peaceful atmosphere for prayer, reflection, and cultural appreciation.`;
+                features = [
+                    'Beautiful religious architecture and artwork',
+                    'Peaceful atmosphere for prayer and meditation',
+                    'Cultural and historical significance',
+                    'Well-maintained grounds and gardens',
+                    'Regular religious services and community events'
+                ];
+            } else {
+                description = `Explore the beauty and attractions of ${name}, a popular destination in San Jose del Monte. This spot offers unique experiences and memorable moments for all types of travelers.`;
+                features = [
+                    'Unique local attractions and activities',
+                    'Beautiful scenery and photo opportunities',
+                    'Accessible location with various amenities',
+                    'Cultural and historical significance',
+                    'Friendly local community'
+                ];
+            }
+            
+            // Update description
+            const descElement = document.getElementById('modalSpotDescription');
+            if (descElement) {
+                descElement.textContent = description;
+            }
+            
+            // Update features list
+            const featuresList = document.getElementById('modalSpotFeatures');
+            if (featuresList) {
+                const featureIcons = ['🌟', '📸', '👨‍👩‍👧‍👦', '🍽️', '🏞️', '🥾', '⛰️', '🌿', '🏛️', '⚽'];
+                featuresList.innerHTML = features.map((feature, index) => `
+                    <div class="feature-item">
+                        <span class="feature-icon">${featureIcons[index % featureIcons.length]}</span>
+                        <span>${feature}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // Show modal
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Add animation class for smooth appearance
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+        
+        // Helper function to generate star rating HTML
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = (rating - fullStars) >= 0.5;
+            let starsHtml = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star</span>';
+            }
+            if (hasHalfStar) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star_half</span>';
+            }
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ddd; font-size: 14px;">star_outline</span>';
+            }
+            return starsHtml;
+        }
+        
+        function viewGuideProfile(guideId) {
+            console.log('Viewing guide profile:', guideId);
+            closeTouristSpotModal();
+            // Redirect to user-guides.php with guide ID parameter
+            window.location.href = 'user-guides.php?guide=' + guideId;
+        }
+        
+        function closeTouristSpotModal() {
+            const modal = document.getElementById('touristSpotModal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+        }
+        
+        function viewAllDetails() {
+            // Get current spot name from modal
+            const spotName = document.getElementById('modalSpotName').textContent;
+            console.log('Spot name from modal:', spotName);
+            closeTouristSpotModal();
+            
+            // Create mapping for spot names to detail pages
+            const spotPages = {
+                'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Mt. Balagbag Mountain': '../tourist-detail/mt-balagbag.php',
+                'Mount Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Abes Farm': '../tourist-detail/abes-farm.php',
+                'Abes Farm Resort': '../tourist-detail/abes-farm.php',
+                'Burong Falls': '../tourist-detail/burong-falls.php',
+                'Burong Falls San Jose del Monte': '../tourist-detail/burong-falls.php',
+                'City Oval & People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'City Oval and People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'City Oval Peoples Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'Kaytitinga Falls': '../tourist-detail/kaytitinga-falls.php',
+                'Kaytitinga Falls San Jose del Monte': '../tourist-detail/kaytitinga-falls.php',
+                'Otso Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Otso-Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
+                'Our Lady of Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
+                'Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
+                'Padre Pio': '../tourist-detail/padre-pio.php',
+                'Padre Pio Shrine': '../tourist-detail/padre-pio.php',
+                'Paradise Hill Farm': '../tourist-detail/paradise-hill-farm.php',
+                'Paradise Hill Farm Resort': '../tourist-detail/paradise-hill-farm.php',
+                'The Rising Heart': '../tourist-detail/the-rising-heart.php',
+                'The Rising Heart Farm': '../tourist-detail/the-rising-heart.php',
+                'Tungtong Falls': '../tourist-detail/tungtong.php',
+                'Tungtong Falls San Jose del Monte': '../tourist-detail/tungtong.php'
+            };
+            
+            console.log('Available spot pages:', Object.keys(spotPages));
+            console.log('Looking for spot name:', spotName);
+            const detailPage = spotPages[spotName] || '../tourist-detail/city-ovals-peoples-park.php';
+            console.log('Final detail page:', detailPage);
+            
+            // Redirect to the detail page
+            window.location.href = detailPage;
+        }
+        
+        function saveThisSpot() {
+            const spotName = document.getElementById('modalSpotName').textContent;
+            const saveBtn = document.querySelector('.modal-save-btn');
+            
+            // Toggle saved state
+            if (saveBtn.classList.contains('saved')) {
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
+                showNotification('Removed from favorites', 'info');
+            } else {
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
+                showNotification('Added to favorites!', 'success');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification banner
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            // Icon mapping for different types
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 400);
+            }, 3000);
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('touristSpotModal');
+            if (event.target === modal) {
+                closeTouristSpotModal();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTouristSpotModal();
+            }
+        });
+
+        // Filter functionality
+        function filterSpots() {
+            const category = document.getElementById('categoryFilter').value;
+            const activity = document.getElementById('activityFilter').value;
+            const duration = document.getElementById('durationFilter').value;
+
+            const cards = document.querySelectorAll('.travelry-card');
+
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const cardActivity = card.getAttribute('data-activity');
+                const cardDuration = card.getAttribute('data-duration');
+
+                let show = true;
+
+                // Filter by category
+                if (category !== 'all' && category !== cardCategory) {
+                    show = false;
+                }
+
+                // Filter by activity level
+                if (activity !== 'all' && activity !== cardActivity) {
+                    show = false;
+                }
+
+                // Filter by duration
+                if (duration !== 'all') {
+                    if (duration === '1-2' && !cardDuration.includes('1-2')) {
+                        show = false;
+                    } else if (duration === '2-4') {
+                        if (!cardDuration.includes('2-3') && !cardDuration.includes('3-4') && !cardDuration.includes('2-4') && !cardDuration.includes('3-5')) {
+                            show = false;
+                        }
+                    } else if (duration === '4+') {
+                        if (!cardDuration.includes('4-5') && !cardDuration.includes('5-7') && !cardDuration.includes('4-6')) {
+                            show = false;
+                        }
+                    }
+                }
+
+                card.style.display = show ? 'block' : 'none';
+            });
+
+            // Check if any cards are visible
+            const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
+            const noResults = document.querySelector('.no-results-spots');
+
+            if (visibleCards.length === 0) {
+                if (!noResults) {
+                    const spotsGrid = document.getElementById('spotsGrid');
+                    const message = document.createElement('div');
+                    message.className = 'no-results-spots';
+                    message.innerHTML = `
+                        <div class="empty-state">
+                            <span class="material-icons-outlined">search_off</span>
+                            <h3>No destinations found</h3>
+                            <p>Try adjusting your filters to find the perfect tour</p>
+                            <button class="btn-hero" onclick="resetSpotFilters()">Reset Filters</button>
+                        </div>
+                    `;
+                    spotsGrid.appendChild(message);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
+
+        function resetSpotFilters() {
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('activityFilter').value = 'all';
+            document.getElementById('durationFilter').value = 'all';
+            filterSpots();
+        }
+
+        // Initialize filters
+        document.addEventListener('DOMContentLoaded', function() {
+            const filters = ['categoryFilter', 'activityFilter', 'durationFilter'];
+            filters.forEach(filterId => {
+                const filter = document.getElementById(filterId);
+                if (filter) {
+                    filter.addEventListener('change', filterSpots);
+                }
+            });
+
+            // Initialize search
+            const searchInput = document.querySelector('.search-bar input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    searchSpots(searchTerm);
+                });
+            }
+
+            console.log('Tourist spots page initialized');
+            console.log('Modal functions available:', {
+                showTouristSpotModal: typeof showTouristSpotModal,
+                closeTouristSpotModal: typeof closeTouristSpotModal
+            });
+        });
+
+        function searchSpots(searchTerm) {
+            const cards = document.querySelectorAll('.travelry-card');
+            
+            cards.forEach(card => {
+                const cardTitle = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                const cardCategory = card.querySelector('.card-category')?.textContent.toLowerCase() || '';
+                
+                if (cardTitle.includes(searchTerm) || 
+                    cardCategory.includes(searchTerm) || 
+                    searchTerm === '') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

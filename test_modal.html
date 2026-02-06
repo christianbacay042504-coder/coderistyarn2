@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modal Test</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+        .modal-content {
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modal Test</h1>
+    <button onclick="showTouristSpotModal('Test Spot', 'Nature', 'https://via.placeholder.com/300', 'landscape', 'Nature', '25°C', '200 MASL', 'Easy', '2-3 hours', '[]')">Test Modal</button>
+    
+    <div id="touristSpotModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalSpotName">Test Spot</h2>
+            <p>Modal content would appear here</p>
+            <button onclick="closeTouristSpotModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration, guides) {
+            console.log('Modal function called with:', arguments);
+            const modal = document.getElementById('touristSpotModal');
+            if (modal) {
+                document.getElementById('modalSpotName').textContent = name;
+                modal.style.display = 'block';
+                console.log('Modal should be visible now');
+            } else {
+                console.error('Modal not found');
+            }
+        }
+        
+        function closeTouristSpotModal() {
+            document.getElementById('touristSpotModal').style.display = 'none';
+        }
+        
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = (rating - fullStars) >= 0.5;
+            let starsHtml = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<span style="color: #ffc107;">★</span>';
+            }
+            if (hasHalfStar) {
+                starsHtml += '<span style="color: #ffc107;">☆</span>';
+            }
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<span style="color: #ddd;">☆</span>';
+            }
+            return starsHtml;
+        }
+    </script>
+</body>
+</html>

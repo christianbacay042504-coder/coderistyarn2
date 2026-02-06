@@ -555,7 +555,7 @@
 
                     <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">hiking</span>
-                        Book Adventure Expedition
+                        Book a Guide
                     </button>
                 </div>
             </div>

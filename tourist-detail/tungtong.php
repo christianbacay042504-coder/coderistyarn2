@@ -770,8 +770,7 @@
                     </ul>
 
                     <button class="booking-btn glow-effect" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'">
-                        <span class="material-icons-outlined">waterfall</span>
-                        BOOK CANYON ADVENTURE
+                        Book a Guide
                     </button>
                 </div>
             </div>
