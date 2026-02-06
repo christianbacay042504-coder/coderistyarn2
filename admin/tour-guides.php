@@ -26,40 +26,97 @@ function closeAdminConnection($conn)
 function addTourGuide($conn, $data)
 {
     try {
-        $stmt = $conn->prepare("INSERT INTO tour_guides (name, specialty, category, description, bio, areas_of_expertise, rating, review_count, price_range, price_min, price_max, languages, contact_number, email, schedules, experience_years, group_size, verified, total_tours, photo_url, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
-        $verified = isset($data['verified']) ? 1 : 0;
-        $stmt->bind_param(
-            "sssssssssssssssiisis",
-            $data['name'],
-            $data['specialty'],
-            $data['category'],
-            $data['description'],
-            $data['bio'],
-            $data['areas_of_expertise'],
-            $data['rating'],
-            $data['review_count'],
-            $data['price_range'],
-            $data['price_min'],
-            $data['price_max'],
-            $data['languages'],
-            $data['contact_number'],
-            $data['email'],
-            $data['schedules'],
-            $data['experience_years'],
-            $data['group_size'],
-            $verified,
-            $data['total_tours'],
-            $data['photo_url']
-        );
-
-        if ($stmt->execute()) {
-            return ['success' => true, 'message' => 'Tour guide added successfully'];
-        } else {
-            return ['success' => false, 'message' => 'Failed to add tour guide'];
+        // Check which columns exist in the table
+        $columns_to_insert = [];
+        $values = [];
+        $types = '';
+        
+        // Basic columns that should always exist
+        $columns_to_insert[] = 'name';
+        $values[] = $data['name'];
+        $types .= 's';
+        
+        $columns_to_insert[] = 'specialty';
+        $values[] = $data['specialty'];
+        $types .= 's';
+        
+        $columns_to_insert[] = 'contact_number';
+        $values[] = $data['contact_number'];
+        $types .= 's';
+        
+        $columns_to_insert[] = 'email';
+        $values[] = $data['email'];
+        $types .= 's';
+        
+        // Optional columns - check if they exist and add them
+        $optional_columns = [
+            'category' => 's',
+            'description' => 's', 
+            'bio' => 's',
+            'areas_of_expertise' => 's',
+            'rating' => 'd',
+            'review_count' => 'i',
+            'price_range' => 's',
+            'price_min' => 'd',
+            'price_max' => 'd',
+            'languages' => 's',
+            'schedules' => 's',
+            'experience_years' => 'i',
+            'group_size' => 's',
+            'verified' => 'i',
+            'total_tours' => 'i',
+            'photo_url' => 's',
+            'status' => 's'
+        ];
+        
+        foreach ($optional_columns as $column => $type) {
+            if (columnExists($conn, 'tour_guides', $column)) {
+                $columns_to_insert[] = $column;
+                
+                if ($column === 'verified') {
+                    $values[] = isset($data['verified']) ? 1 : 0;
+                } elseif ($column === 'status') {
+                    $values[] = 'active';
+                } else {
+                    $value = $data[$column] ?? '';
+                    // Convert empty strings to appropriate defaults
+                    if ($value === '' && in_array($column, ['rating', 'review_count', 'experience_years', 'total_tours'])) {
+                        $value = 0;
+                    } elseif ($value === '' && in_array($column, ['price_min', 'price_max'])) {
+                        $value = 0.00;
+                    }
+                    $values[] = $value;
+                }
+                $types .= $type;
+            }
         }
+        
+        // Build the query
+        $columns_str = implode(', ', $columns_to_insert);
+        $placeholders = str_repeat('?,', count($values) - 1) . '?';
+        
+        $sql = "INSERT INTO tour_guides ($columns_str) VALUES ($placeholders)";
+        $stmt = $conn->prepare($sql);
+        
+        // Bind parameters dynamically
+        $stmt->bind_param($types, ...$values);
+        $result = $stmt->execute();
+        
+        if ($result) {
+            return ['success' => true, 'message' => 'Tour guide added successfully!'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to add tour guide: ' . $stmt->error];
+        }
+        
     } catch (Exception $e) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     }
+}
+
+// Helper function to check if column exists
+function columnExists($conn, $table, $column) {
+    $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+    return $result && $result->num_rows > 0;
 }
 
 function editTourGuide($conn, $data)
@@ -399,6 +456,11 @@ $queryValues = [
                         Add Tour Guide
                     </button>
                     
+                    <!-- Test Button -->
+                    <button class="btn-secondary" onclick="testModal()">
+                        Test Modal
+                    </button>
+                    
                     <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
                         <button class="profile-button" id="adminProfileButton">
@@ -573,6 +635,127 @@ $queryValues = [
         </main>
     </div>
 
+    <!-- Add Tour Guide Modal -->
+    <div id="addGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Tour Guide</h2>
+                <button class="modal-close" onclick="closeAddGuideModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="addGuideForm" onsubmit="handleAddGuide(event)">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guideName">Name *</label>
+                            <input type="text" id="guideName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guideEmail">Email *</label>
+                            <input type="email" id="guideEmail" name="email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guideSpecialty">Specialty *</label>
+                            <input type="text" id="guideSpecialty" name="specialty" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guideCategory">Category *</label>
+                            <select id="guideCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Nature">Nature</option>
+                                <option value="Historical">Historical</option>
+                                <option value="Food & Cuisine">Food & Cuisine</option>
+                                <option value="Photography">Photography</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guideDescription">Description</label>
+                        <textarea id="guideDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="guideBio">Bio</label>
+                        <textarea id="guideBio" name="bio" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="guideAreasOfExpertise">Areas of Expertise</label>
+                        <input type="text" id="guideAreasOfExpertise" name="areas_of_expertise" placeholder="e.g., Mountain trekking, Local history, Photography">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guideContactNumber">Contact Number *</label>
+                            <input type="tel" id="guideContactNumber" name="contact_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guideLanguages">Languages</label>
+                            <input type="text" id="guideLanguages" name="languages" placeholder="e.g., English, Tagalog, Japanese">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guideExperience">Experience (Years)</label>
+                            <input type="number" id="guideExperience" name="experience_years" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="guideGroupSize">Max Group Size</label>
+                            <input type="number" id="guideGroupSize" name="group_size" min="1" max="100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guidePriceRange">Price Range</label>
+                            <select id="guidePriceRange" name="price_range">
+                                <option value="">Select Range</option>
+                                <option value="Budget">Budget (₱500-1000)</option>
+                                <option value="Mid-range">Mid-range (₱1000-3000)</option>
+                                <option value="Premium">Premium (₱3000-5000)</option>
+                                <option value="Luxury">Luxury (₱5000+)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="guidePhotoUrl">Photo URL</label>
+                            <input type="url" id="guidePhotoUrl" name="photo_url" placeholder="https://example.com/photo.jpg">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guideRating">Rating</label>
+                            <input type="number" id="guideRating" name="rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="guideReviewCount">Review Count</label>
+                            <input type="number" id="guideReviewCount" name="review_count" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guideSchedules">Schedules</label>
+                        <textarea id="guideSchedules" name="schedules" rows="2" placeholder="e.g., Monday-Friday: 9AM-5PM, Weekends: 8AM-6PM"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="guideTotalTours">Total Tours Completed</label>
+                        <input type="number" id="guideTotalTours" name="total_tours" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="guideVerified" name="verified">
+                            <span class="checkmark"></span>
+                            Verified Guide
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddGuideModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Tour Guide</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
@@ -645,9 +828,194 @@ $queryValues = [
             }
         }
 
+        function testModal() {
+            console.log('Test button clicked');
+            const modal = document.getElementById('addGuideModal');
+            console.log('Modal element:', modal);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                console.log('Modal displayed with display: block');
+            } else {
+                console.error('Modal element not found!');
+            }
+        }
+
         function showAddGuideModal() {
-            // Implement add guide modal
-            console.log('Show add guide modal');
+            console.log('Opening modal...');
+            const modal = document.getElementById('addGuideModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                console.log('Modal should now be visible');
+            } else {
+                console.error('Modal not found!');
+            }
+        }
+
+        function closeAddGuideModal() {
+            console.log('Closing modal...');
+            const modal = document.getElementById('addGuideModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                const form = document.getElementById('addGuideForm');
+                if (form) {
+                    form.reset();
+                }
+                console.log('Modal closed successfully');
+            } else {
+                console.error('Modal element not found when trying to close!');
+            }
+        }
+
+        // Enhanced close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addGuideModal');
+            if (event.target === modal) {
+                closeAddGuideModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('addGuideModal');
+                if (modal && modal.style.display === 'block') {
+                    closeAddGuideModal();
+                }
+            }
+        });
+
+        function handleAddGuide(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Adding...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convert checkbox to boolean
+            data.verified = formData.has('verified') ? 1 : 0;
+            
+            // Set default values for empty fields
+            data.rating = data.rating || 0;
+            data.review_count = data.review_count || 0;
+            data.experience_years = data.experience_years || 0;
+            data.group_size = data.group_size || 10;
+            data.total_tours = data.total_tours || 0;
+            
+            // Add action for server-side handling
+            data.action = 'add_guide';
+            
+            // Send data to server
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Show success animation
+                    showSuccessAnimation();
+                    
+                    // Reset form and close modal after delay
+                    setTimeout(() => {
+                        closeAddGuideModal();
+                        location.reload();
+                    }, 2000);
+                } else {
+                    // Show error animation
+                    showErrorAnimation(result.message);
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorAnimation('An error occurred while adding the tour guide.');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        function showSuccessAnimation() {
+            // Create success overlay
+            const successOverlay = document.createElement('div');
+            successOverlay.className = 'success-overlay';
+            successOverlay.innerHTML = `
+                <div class="success-content">
+                    <div class="success-icon">
+                        <span class="material-icons-outlined">check_circle</span>
+                    </div>
+                    <h3>Success!</h3>
+                    <p>Tour guide added successfully</p>
+                    <div class="success-progress"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(successOverlay);
+            
+            // Animate in
+            setTimeout(() => {
+                successOverlay.classList.add('show');
+            }, 100);
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (successOverlay.parentNode) {
+                    successOverlay.remove();
+                }
+            }, 2000);
+        }
+
+        function showErrorAnimation(message) {
+            // Create error notification
+            const errorNotification = document.createElement('div');
+            errorNotification.className = 'error-notification';
+            errorNotification.innerHTML = `
+                <div class="error-content">
+                    <div class="error-icon">
+                        <span class="material-icons-outlined">error</span>
+                    </div>
+                    <div class="error-message">
+                        <strong>Error</strong>
+                        <p>${message}</p>
+                    </div>
+                    <button class="error-close" onclick="this.parentElement.parentElement.remove()">
+                        <span class="material-icons-outlined">close</span>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(errorNotification);
+            
+            // Animate in
+            setTimeout(() => {
+                errorNotification.classList.add('show');
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (errorNotification.parentNode) {
+                    errorNotification.classList.add('hide');
+                    setTimeout(() => errorNotification.remove(), 300);
+                }
+            }, 5000);
         }
 
         // Search on Enter key

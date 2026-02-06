@@ -556,7 +556,6 @@ function init() {
     initMobileSidebar();
     initSearch();
     initFilters();
-    initProfileDropdown();
     updateUserInterface();
     checkNotifications();
 
@@ -566,6 +565,12 @@ function init() {
     // Initialize spots filters
     initSpotsFilters();
 }
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    init();
+    initUserProfileDropdown();
+});
 
 // Update User Interface
 function updateUserInterface() {
@@ -2972,7 +2977,12 @@ function initUserProfileDropdown() {
     console.log('initUserProfileDropdown: Elements found:', { profileButton, profileMenu });
 
     if (profileButton && profileMenu) {
-        profileButton.addEventListener('click', function (e) {
+        // Remove any existing event listeners by cloning the button
+        const newProfileButton = profileButton.cloneNode(true);
+        profileButton.parentNode.replaceChild(newProfileButton, profileButton);
+        
+        // Add fresh event listener for toggle
+        newProfileButton.addEventListener('click', function (e) {
             console.log('User profile button clicked');
             e.preventDefault();
             e.stopPropagation();
@@ -2982,7 +2992,7 @@ function initUserProfileDropdown() {
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function (e) {
-            if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+            if (!newProfileButton.contains(e.target) && !profileMenu.contains(e.target)) {
                 profileMenu.classList.remove('active');
             }
         });
@@ -3002,8 +3012,14 @@ function initUserProfileDropdown() {
         if (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
                 profileMenu.classList.remove('active');
-                func();
+                if (typeof func === 'function') {
+                    func();
+                    console.log(`${id} clicked and modal opened`);
+                } else {
+                    console.log(`Error: ${id} function not found`);
+                }
             });
         }
     }
@@ -3018,7 +3034,7 @@ function createUserModal(id, title, content, icon = 'info') {
     const modal = document.createElement('div');
     modal.id = id;
     modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
+    modal.style.display = 'none'; // Start hidden
     modal.innerHTML = `
         <div class="modal-container">
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -3040,9 +3056,15 @@ function createUserModal(id, title, content, icon = 'info') {
     // Close modal on backdrop click
     modal.addEventListener('click', function (e) {
         if (e.target === modal) {
-            modal.remove();
+            modal.classList.remove('show');
+            setTimeout(() => modal.remove(), 300);
         }
     });
+
+    // Show modal with animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
 
     return modal;
 }

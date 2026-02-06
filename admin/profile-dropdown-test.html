@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Dropdown Test</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        .profile-dropdown { position: relative; }
+        .profile-button { 
+            display: flex; align-items: center; gap: 8px; 
+            background: none; border: none; cursor: pointer; 
+            padding: 8px; border-radius: 8px;
+        }
+        .profile-avatar { 
+            width: 32px; height: 32px; border-radius: 50%; 
+            background: #2c5f2d; color: white; display: flex; 
+            align-items: center; justify-content: center; font-weight: bold;
+        }
+        .dropdown-menu { 
+            position: absolute; top: 100%; right: 0; 
+            background: white; border: 1px solid #ddd; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 200px;
+            display: none; z-index: 1000;
+        }
+        .dropdown-menu.active { display: block; }
+        .dropdown-item { 
+            display: flex; align-items: center; gap: 12px; 
+            padding: 12px 16px; text-decoration: none; color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        .dropdown-item:hover { background: #f5f5f5; }
+        .profile-info { padding: 16px; border-bottom: 1px solid #eee; }
+        .profile-details { margin-left: 12px; }
+        .profile-details h3 { margin: 0 0 4px 0; font-size: 16px; }
+        .profile-details p { margin: 0; color: #666; font-size: 14px; }
+        .dropdown-divider { height: 1px; background: #eee; }
+    </style>
+</head>
+<body>
+    <div class="profile-dropdown">
+        <button class="profile-button" id="userProfileButton">
+            <div class="profile-avatar">U</div>
+            <span class="material-icons-outlined">expand_more</span>
+        </button>
+        <div class="dropdown-menu" id="userProfileMenu">
+            <div class="profile-info">
+                <div class="profile-avatar large">U</div>
+                <div class="profile-details">
+                    <h3 class="user-name">Test User</h3>
+                    <p class="user-email">test@sjdmtours.com</p>
+                </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
+                <span class="material-icons-outlined">account_circle</span>
+                <span>My Account</span>
+            </a>
+            <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
+                <span class="material-icons-outlined">settings</span>
+                <span>Settings</span>
+            </a>
+            <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
+                <span class="material-icons-outlined">help_outline</span>
+                <span>Help & Support</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="logout.php" class="dropdown-item" id="userSignoutLink">
+                <span class="material-icons-outlined">logout</span>
+                <span>Sign Out</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Test profile dropdown functionality
+        console.log('Testing profile dropdown...');
+
+        const profileButton = document.getElementById('userProfileButton');
+        const profileMenu = document.getElementById('userProfileMenu');
+
+        if (profileButton && profileMenu) {
+            console.log('✅ Elements found');
+
+            // Toggle dropdown
+            profileButton.addEventListener('click', function (e) {
+                console.log('🔘 Profile button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+                profileMenu.classList.toggle('active');
+                console.log('Menu active:', profileMenu.classList.contains('active'));
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+                    profileMenu.classList.remove('active');
+                }
+            });
+
+            // Test modal functions
+            window.showUserAccountModal = function() {
+                alert('✅ My Account modal would appear here!');
+                console.log('My Account clicked');
+                profileMenu.classList.remove('active');
+            };
+
+            window.showUserSettingsModal = function() {
+                alert('⚙️ Settings modal would appear here!');
+                console.log('Settings clicked');
+                profileMenu.classList.remove('active');
+            };
+
+            window.showUserHelpModal = function() {
+                alert('❓ Help & Support modal would appear here!');
+                console.log('Help clicked');
+                profileMenu.classList.remove('active');
+            };
+
+            // Bind dropdown items
+            const links = {
+                'userAccountLink': showUserAccountModal,
+                'userSettingsLink': showUserSettingsModal,
+                'userHelpLink': showUserHelpModal
+            };
+
+            for (const [id, func] of Object.entries(links)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        profileMenu.classList.remove('active');
+                        func();
+                    });
+                }
+            }
+
+            console.log('✅ Profile dropdown initialized successfully!');
+        } else {
+            console.log('❌ Elements not found');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test SJDM-User Profile Dropdown</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="sjdm-user/styles.css">
+</head>
+<body>
+    <div class="main-content">
+        <header class="main-header">
+            <h1>Test Profile Dropdown</h1>
+            <div class="header-actions">
+                <!-- User Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-button" id="userProfileButton">
+                        <div class="profile-avatar">U</div>
+                        <span class="material-icons-outlined">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu" id="userProfileMenu">
+                        <div class="profile-info">
+                            <div class="profile-avatar large">U</div>
+                            <div class="profile-details">
+                                <h3 class="user-name">Test User</h3>
+                                <p class="user-email">test@sjdmtours.com</p>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
+                            <span class="material-icons-outlined">account_circle</span>
+                            <span>My Account</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
+                            <span class="material-icons-outlined">history</span>
+                            <span>Booking History</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
+                            <span class="material-icons-outlined">favorite</span>
+                            <span>Saved Tours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
+                            <span class="material-icons-outlined">settings</span>
+                            <span>Settings</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
+                            <span class="material-icons-outlined">help_outline</span>
+                            <span>Help & Support</span>
+                        </a>
+                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
+                            <span class="material-icons-outlined">logout</span>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <script src="sjdm-user/script.js"></script>
+    <script>
+        // Test the profile dropdown
+        console.log('Testing profile dropdown...');
+        
+        // Check if functions exist
+        if (typeof initUserProfileDropdown === 'function') {
+            console.log('✅ initUserProfileDropdown function exists');
+        } else {
+            console.log('❌ initUserProfileDropdown function missing');
+        }
+        
+        if (typeof showUserAccountModal === 'function') {
+            console.log('✅ showUserAccountModal function exists');
+        } else {
+            console.log('❌ showUserAccountModal function missing');
+        }
+        
+        // Initialize dropdown manually if needed
+        setTimeout(() => {
+            const profileButton = document.getElementById('userProfileButton');
+            const profileMenu = document.getElementById('userProfileMenu');
+            
+            if (profileButton && profileMenu) {
+                console.log('✅ Profile elements found');
+                
+                profileButton.addEventListener('click', function (e) {
+                    console.log('Profile button clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    profileMenu.classList.toggle('active');
+                    console.log('Menu active state:', profileMenu.classList.contains('active'));
+                });
+                
+                document.addEventListener('click', function (e) {
+                    if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+                        profileMenu.classList.remove('active');
+                    }
+                });
+            } else {
+                console.log('❌ Profile elements not found');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

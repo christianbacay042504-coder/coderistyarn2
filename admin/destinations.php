@@ -226,6 +226,181 @@ function getAdminStats($conn)
     return $stats;
 }
 
+function getTouristDetailFiles()
+{
+    $touristDetailDir = __DIR__ . '/../tourist-detail/';
+    $files = [];
+    
+    if (is_dir($touristDetailDir)) {
+        $fileList = scandir($touristDetailDir);
+        foreach ($fileList as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+                $filePath = $touristDetailDir . $file;
+                $files[] = [
+                    'filename' => $file,
+                    'filepath' => $filePath,
+                    'data' => extractTouristDataFromFile($filePath)
+                ];
+            }
+        }
+    }
+    
+    return $files;
+}
+
+function extractTouristDataFromFile($filePath)
+{
+    $content = file_get_contents($filePath);
+    $data = [];
+    
+    // Extract title
+    if (preg_match('/<title>([^<]+) - San Jose del Monte Tourism<\/title>/', $content, $matches)) {
+        $data['name'] = trim($matches[1]);
+    }
+    
+    // Extract hero title
+    if (preg_match('/<h1 class="hero-title">([^<]+)<\/h1>/', $content, $matches)) {
+        $data['name'] = trim($matches[1]);
+    }
+    
+    // Extract hero subtitle
+    if (preg_match('/<p class="hero-subtitle">([^<]+)<\/p>/', $content, $matches)) {
+        $data['subtitle'] = trim($matches[1]);
+    }
+    
+    // Extract description
+    if (preg_match('/<h2 class="section-title">About [^<]+<\/h2>\s*<p class="description">([^<]+)<\/p>/', $content, $matches)) {
+        $data['description'] = trim($matches[1]);
+    }
+    
+    // Extract category based on filename patterns
+    $filename = basename($filePath, '.php');
+    $data['category'] = categorizeFromFilename($filename);
+    
+    // Extract location (default to San Jose del Monte)
+    $data['location'] = 'San Jose del Monte, Bulacan';
+    
+    // Extract difficulty level
+    $data['difficulty_level'] = extractDifficultyFromContent($content);
+    
+    // Extract entrance fee
+    $data['entrance_fee'] = extractEntranceFeeFromContent($content);
+    
+    // Extract activities
+    $data['activities'] = extractActivitiesFromContent($content);
+    
+    // Extract amenities
+    $data['amenities'] = extractAmenitiesFromContent($content);
+    
+    // Extract operating hours
+    $data['operating_hours'] = extractOperatingHoursFromContent($content);
+    
+    // Extract best time to visit
+    $data['best_time_to_visit'] = extractBestTimeFromContent($content);
+    
+    // Set default values
+    $data['rating'] = 0.0;
+    $data['review_count'] = 0;
+    $data['status'] = 'active';
+    $data['image_url'] = '';
+    $data['contact_info'] = '';
+    $data['website'] = '';
+    $data['address'] = '';
+    
+    return $data;
+}
+
+function categorizeFromFilename($filename)
+{
+    $categories = [
+        'falls' => 'nature',
+        'mt' => 'nature',
+        'farm' => 'farm',
+        'park' => 'park',
+        'shrine' => 'religious',
+        'grotto' => 'religious',
+        'monument' => 'historical'
+    ];
+    
+    foreach ($categories as $keyword => $category) {
+        if (stripos($filename, $keyword) !== false) {
+            return $category;
+        }
+    }
+    
+    return 'nature'; // default
+}
+
+function extractDifficultyFromContent($content)
+{
+    if (stripos($content, 'beginner') !== false || stripos($content, 'easy') !== false) {
+        return 'easy';
+    } elseif (stripos($content, 'challenging') !== false || stripos($content, 'difficult') !== false) {
+        return 'difficult';
+    }
+    return 'moderate'; // default
+}
+
+function extractEntranceFeeFromContent($content)
+{
+    if (preg_match('/₱\s*\d+/', $content, $matches)) {
+        return $matches[0];
+    } elseif (preg_match('/PHP\s*\d+/', $content, $matches)) {
+        return $matches[0];
+    }
+    return 'Free';
+}
+
+function extractActivitiesFromContent($content)
+{
+    $activities = [];
+    
+    // Look for activity keywords
+    $activityKeywords = ['hiking', 'swimming', 'photography', 'picnic', 'camping', 'nature tripping', 'sightseeing'];
+    
+    foreach ($activityKeywords as $activity) {
+        if (stripos($content, $activity) !== false) {
+            $activities[] = ucfirst($activity);
+        }
+    }
+    
+    return implode(', ', $activities);
+}
+
+function extractAmenitiesFromContent($content)
+{
+    $amenities = [];
+    
+    // Look for amenity keywords
+    $amenityKeywords = ['parking', 'restroom', 'shower', 'cottage', 'shed', 'store', 'restaurant'];
+    
+    foreach ($amenityKeywords as $amenity) {
+        if (stripos($content, $amenity) !== false) {
+            $amenities[] = ucfirst($amenity);
+        }
+    }
+    
+    return implode(', ', $amenities);
+}
+
+function extractOperatingHoursFromContent($content)
+{
+    if (preg_match('/(\d{1,2}:\d{2}\s*(AM|PM|am|pm)\s*-\s*\d{1,2}:\d{2}\s*(AM|PM|am|pm))/', $content, $matches)) {
+        return $matches[1];
+    }
+    return '6:00 AM - 6:00 PM'; // default
+}
+
+function extractBestTimeFromContent($content)
+{
+    if (stripos($content, 'morning') !== false) {
+        return 'Morning';
+    } elseif (stripos($content, 'summer') !== false || stripos($content, 'dry season') !== false) {
+        return 'Dry season';
+    }
+    return 'All year round'; // default
+}
+
 // Initialize admin authentication
 $currentUser = initAdminAuth();
 
@@ -277,6 +452,37 @@ if ($result) {
     }
 }
 
+// Get statistics
+$stats = getAdminStats($conn);
+
+// Map query keys to values for menu badges
+$queryValues = [
+    'totalUsers' => $stats['totalUsers'],
+    'totalBookings' => $stats['totalBookings'],
+    'totalGuides' => $stats['totalGuides'],
+    'totalDestinations' => $stats['totalDestinations']
+];
+
+// Fetch destinations
+$spots = [];
+$result = $conn->query("SELECT * FROM tourist_spots ORDER BY name ASC");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $spots[] = $row;
+    }
+}
+
+// Create pagination data for display
+$pagination = [
+    'current_page' => 1,
+    'total_pages' => 1,
+    'total_count' => count($spots),
+    'limit' => 15
+];
+
+// Initialize search variable
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -300,27 +506,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
     }
 }
-
-// Pagination variables
-$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$limit = intval($destSettings['default_destination_limit'] ?? 15);
-$search = isset($_GET['search']) ? ($conn ? $conn->real_escape_string($_GET['search']) : '') : '';
-
-// Get destinations data
-$spotsData = getTouristSpotsList($conn, $page, $limit, $search);
-$spots = $spotsData['spots'];
-$pagination = $spotsData['pagination'];
-
-// Get statistics
-$stats = getAdminStats($conn);
-
-// Map query keys to values for menu badges
-$queryValues = [
-    'totalUsers' => $stats['totalUsers'],
-    'totalBookings' => $stats['totalBookings'],
-    'totalGuides' => $stats['totalGuides'],
-    'totalDestinations' => $stats['totalDestinations']
-];
 
 ?>
 <!DOCTYPE html>
@@ -506,7 +691,7 @@ $queryValues = [
                                     </td>
                                     <td>
                                         <div class="rating">
-                                            <?php echo number_format($spot['rating'], 1); ?> ⭐
+                                            <?php echo number_format($spot['rating'], 1); ?> 
                                             <small>(<?php echo $spot['review_count']; ?> reviews)</small>
                                         </div>
                                     </td>
@@ -560,8 +745,131 @@ $queryValues = [
         </main>
     </div>
 
+    <!-- Add Destination Modal -->
+    <div id="addDestinationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Destination</h2>
+                <button class="modal-close" onclick="closeAddDestinationModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="addDestinationForm" onsubmit="handleAddDestination(event)">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="destName">Name *</label>
+                            <input type="text" id="destName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="destCategory">Category *</label>
+                            <select id="destCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="nature">Nature</option>
+                                <option value="historical">Historical</option>
+                                <option value="religious">Religious</option>
+                                <option value="farm">Farm</option>
+                                <option value="park">Park</option>
+                                <option value="urban">Urban</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="destDescription">Description</label>
+                        <textarea id="destDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="destLocation">Location *</label>
+                        <input type="text" id="destLocation" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="destAddress">Address</label>
+                        <input type="text" id="destAddress" name="address">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="destOperatingHours">Operating Hours</label>
+                            <input type="text" id="destOperatingHours" name="operating_hours" placeholder="e.g., 8:00 AM - 5:00 PM">
+                        </div>
+                        <div class="form-group">
+                            <label for="destEntranceFee">Entrance Fee</label>
+                            <input type="text" id="destEntranceFee" name="entrance_fee" placeholder="e.g., ₱100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="destDifficulty">Difficulty Level</label>
+                            <select id="destDifficulty" name="difficulty_level">
+                                <option value="">Select Difficulty</option>
+                                <option value="easy">Easy</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="difficult">Difficult</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="destDuration">Duration</label>
+                            <input type="text" id="destDuration" name="duration" placeholder="e.g., 2-3 hours">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="destBestTime">Best Time to Visit</label>
+                        <input type="text" id="destBestTime" name="best_time_to_visit" placeholder="e.g., Morning, Dry season">
+                    </div>
+                    <div class="form-group">
+                        <label for="destActivities">Activities</label>
+                        <textarea id="destActivities" name="activities" rows="2" placeholder="e.g., Hiking, Photography, Swimming"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="destAmenities">Amenities</label>
+                        <textarea id="destAmenities" name="amenities" rows="2" placeholder="e.g., Parking, Restrooms, Food stalls"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="destContact">Contact Info</label>
+                            <input type="text" id="destContact" name="contact_info" placeholder="Phone number or email">
+                        </div>
+                        <div class="form-group">
+                            <label for="destWebsite">Website</label>
+                            <input type="url" id="destWebsite" name="website" placeholder="https://example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="destImageUrl">Image URL</label>
+                        <input type="url" id="destImageUrl" name="image_url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="destRating">Rating</label>
+                            <input type="number" id="destRating" name="rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="destReviewCount">Review Count</label>
+                            <input type="number" id="destReviewCount" name="review_count" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddDestinationModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Destination</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
+    <style>
+        .file-source-indicator {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            display: inline-block;
+        }
+    </style>
     <script>
         function searchDestinations() {
             const searchValue = document.getElementById('searchInput').value;
@@ -579,50 +887,88 @@ $queryValues = [
             window.location.href = url;
         }
 
-        function viewDestination(spotId) {
-            // Implement view destination modal
-            console.log('View destination:', spotId);
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=delete_spot&spot_id=${spotId}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
         }
+    }
 
-        function editDestination(spotId) {
-            // Implement edit destination modal
-            console.log('Edit destination:', spotId);
+    function showAddDestinationModal() {
+        console.log('Opening modal...');
+        const modal = document.getElementById('addDestinationModal');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            console.log('Modal should now be visible');
+        } else {
+            console.error('Modal not found!');
         }
+    }
 
-        function deleteDestination(spotId) {
-            if (confirm('Are you sure you want to delete this destination? This action cannot be undone.')) {
-                fetch('', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete_spot&spot_id=${spotId}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    });
+    function closeAddDestinationModal() {
+        console.log('Closing modal...');
+        const modal = document.getElementById('addDestinationModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            document.getElementById('addDestinationForm').reset();
+        }
+    }
+
+    function handleAddDestination(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+        data.action = 'add_spot';
+        
+        fetch('', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert(result.message);
+                closeAddDestinationModal();
+                location.reload();
+            } else {
+                alert(result.message);
             }
-        }
-
-        function showAddDestinationModal() {
-            // Implement add destination modal
-            console.log('Show add destination modal');
-        }
-
-        // Search on Enter key
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchDestinations();
-            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while adding the destination.');
         });
-    </script>
-    <?php closeAdminConnection($conn); ?>
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addDestinationModal');
+        if (event.target === modal) {
+            closeAddDestinationModal();
+        }
+    }
+</script>
+<?php closeAdminConnection($conn); ?>
 </body>
 
 </html>
