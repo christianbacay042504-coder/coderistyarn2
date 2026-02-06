@@ -89,6 +89,50 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
+                
+                <!-- User Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-button" id="userProfileButton">
+                        <div class="profile-avatar"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                        <span class="material-icons-outlined">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu" id="userProfileMenu">
+                        <div class="profile-info">
+                            <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                            <div class="profile-details">
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
+                                <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
+                            <span class="material-icons-outlined">account_circle</span>
+                            <span>My Account</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
+                            <span class="material-icons-outlined">history</span>
+                            <span>Booking History</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
+                            <span class="material-icons-outlined">favorite</span>
+                            <span>Saved Tours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
+                            <span class="material-icons-outlined">settings</span>
+                            <span>Settings</span>
+                        </a>
+                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
+                            <span class="material-icons-outlined">help_outline</span>
+                            <span>Help & Support</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="logout.php" class="dropdown-item">
+                            <span class="material-icons-outlined">logout</span>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </header>
 

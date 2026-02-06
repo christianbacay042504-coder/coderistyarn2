@@ -103,6 +103,18 @@ function addTourGuide($conn, $data)
         $result = $stmt->execute();
         
         if ($result) {
+            $guideId = $conn->insert_id;
+            
+            // Handle destination assignments
+            if (isset($data['destinations']) && is_array($data['destinations'])) {
+                foreach ($data['destinations'] as $destinationId) {
+                    $destStmt = $conn->prepare("INSERT INTO guide_destinations (guide_id, destination_id) VALUES (?, ?)");
+                    $destStmt->bind_param("ii", $guideId, $destinationId);
+                    $destStmt->execute();
+                    $destStmt->close();
+                }
+            }
+            
             return ['success' => true, 'message' => 'Tour guide added successfully!'];
         } else {
             return ['success' => false, 'message' => 'Failed to add tour guide: ' . $stmt->error];
@@ -151,6 +163,23 @@ function editTourGuide($conn, $data)
         );
 
         if ($stmt->execute()) {
+            // Update destination assignments
+            // First, delete existing assignments
+            $deleteStmt = $conn->prepare("DELETE FROM guide_destinations WHERE guide_id = ?");
+            $deleteStmt->bind_param("i", $data['guide_id']);
+            $deleteStmt->execute();
+            $deleteStmt->close();
+            
+            // Then insert new assignments
+            if (isset($data['destinations']) && is_array($data['destinations'])) {
+                foreach ($data['destinations'] as $destinationId) {
+                    $destStmt = $conn->prepare("INSERT INTO guide_destinations (guide_id, destination_id) VALUES (?, ?)");
+                    $destStmt->bind_param("ii", $data['guide_id'], $destinationId);
+                    $destStmt->execute();
+                    $destStmt->close();
+                }
+            }
+            
             return ['success' => true, 'message' => 'Tour guide updated successfully'];
         } else {
             return ['success' => false, 'message' => 'Failed to update tour guide'];
@@ -189,6 +218,43 @@ function getTourGuide($conn, $guideId)
         } else {
             return ['success' => false, 'message' => 'Tour guide not found'];
         }
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
+function getActiveDestinations($conn)
+{
+    try {
+        $stmt = $conn->prepare("SELECT id, name FROM tourist_spots WHERE status = 'active' ORDER BY name ASC");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $destinations = [];
+        while ($row = $result->fetch_assoc()) {
+            $destinations[] = $row;
+        }
+        
+        return ['success' => true, 'data' => $destinations];
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
+function getGuideDestinations($conn, $guideId)
+{
+    try {
+        $stmt = $conn->prepare("SELECT destination_id FROM guide_destinations WHERE guide_id = ?");
+        $stmt->bind_param("i", $guideId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $destinations = [];
+        while ($row = $result->fetch_assoc()) {
+            $destinations[] = $row['destination_id'];
+        }
+        
+        return ['success' => true, 'data' => $destinations];
     } catch (Exception $e) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     }

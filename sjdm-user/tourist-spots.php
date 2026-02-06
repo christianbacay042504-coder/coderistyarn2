@@ -134,7 +134,7 @@ if ($conn) {
                         <div class="profile-info">
                             <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest User'; ?></h3>
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
                                 <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
                             </div>
                         </div>
@@ -156,18 +156,19 @@ if ($conn) {
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="logout.php" class="dropdown-item">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
                     </div>
                 </div>
-            </div>
+                
+                
         </header>
 
         <div class="content-area">
@@ -227,10 +228,17 @@ if ($conn) {
             <!-- Tourist Spots Grid -->
             <div class="travelry-grid" id="spotsGrid">
                 <?php
-                // Fetch tourist spots from database
+                // Fetch tourist spots from database with assigned guides
                 $conn = getDatabaseConnection();
                 if ($conn) {
-                    $query = "SELECT * FROM tourist_spots WHERE status = 'active' ORDER BY name";
+                    $query = "SELECT ts.*, 
+                             GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
+                             FROM tourist_spots ts 
+                             LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
+                             LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
+                             WHERE ts.status = 'active' 
+                             GROUP BY ts.id 
+                             ORDER BY ts.name";
                     $result = $conn->query($query);
                     
                     if ($result && $result->num_rows > 0) {
@@ -311,6 +319,24 @@ if ($conn) {
                             // Get duration for filtering
                             $duration = $spot['duration'] ?? '2-3 hours';
                             
+                            // Parse guides information
+                            $guides = [];
+                            if (!empty($spot['guides_info'])) {
+                                $guideData = explode('|', $spot['guides_info']);
+                                foreach ($guideData as $guide) {
+                                    $guideParts = explode(':', $guide);
+                                    if (count($guideParts) >= 5) {
+                                        $guides[] = [
+                                            'id' => $guideParts[0],
+                                            'name' => $guideParts[1],
+                                            'specialty' => $guideParts[2],
+                                            'rating' => $guideParts[3],
+                                            'verified' => $guideParts[4]
+                                        ];
+                                    }
+                                }
+                            }
+                            
                             echo '<div class="travelry-card" data-category="' . $category . '" data-activity="' . $activityLevel . '" data-duration="' . $duration . '">';
                             echo '<div class="card-image">';
                             echo '<img src="' . htmlspecialchars($spot['image_url']) . '" alt="' . htmlspecialchars($spot['name']) . '">';
@@ -356,7 +382,8 @@ if ($conn) {
                             echo "'200 MASL', ";
                             echo "'" . ucfirst($spot['difficulty_level']) . "', ";
                             echo "'" . number_format($spot['rating'], 1) . "', ";
-                            echo "'" . $spot['review_count'] . "'";
+                            echo "'" . $spot['review_count'] . "', ";
+                            echo "'" . json_encode($guides) . "'";
                             echo ')">';
                             echo 'View Details';
                             echo '</button>';
@@ -445,7 +472,96 @@ if ($conn) {
             text-transform: capitalize;
         }
         
+        /* Card Guides Styling */
+        .card-guides {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(74, 124, 78, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(74, 124, 78, 0.1);
+        }
+        
+        .guides-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2c5f2d;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .guides-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .guide-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid rgba(74, 124, 78, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .guide-item:hover {
+            background: rgba(74, 124, 78, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .guide-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .guide-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2c5f2d;
+        }
+        
+        .guide-specialty {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .guide-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .verified-icon {
+            color: #4caf50 !important;
+        }
+        
         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .card-guides {
+                padding: 10px;
+                margin-top: 10px;
+            }
+            
+            .guide-item {
+                padding: 6px 10px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .guide-info {
+                width: 100%;
+            }
+            
+            .guide-rating {
+                align-self: flex-end;
+            }
+        }
         @media (max-width: 768px) {
             .card-weather {
                 padding: 6px 10px;
@@ -468,8 +584,8 @@ if ($conn) {
     </style>
     <script>
         // Tourist Spot Modal Functions - Global Scope
-        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration) {
-            console.log('Modal function called with:', { name, category, type });
+        function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration, guides) {
+            console.log('Modal function called with:', { name, category, type, guides });
             const modal = document.getElementById('touristSpotModal');
             
             if (!modal) {
@@ -491,6 +607,32 @@ if ($conn) {
             // Update badge icon
             const badgeIcon = document.querySelector('#modalSpotBadge .material-icons-outlined');
             badgeIcon.textContent = icon;
+            
+            // Display guides in modal
+            const guidesContainer = document.getElementById('modalSpotGuides');
+            if (guidesContainer && guides && guides.length > 0) {
+                guidesContainer.innerHTML = `
+                    <h4><span class="material-icons-outlined">people</span> Available Tour Guides</h4>
+                    <div class="modal-guides-list">
+                        ${guides.map(guide => `
+                            <div class="modal-guide-item" onclick="viewGuideProfile(${guide.id})">
+                                <div class="modal-guide-info">
+                                    <div class="modal-guide-name">${guide.name}</div>
+                                    <div class="modal-guide-specialty">${guide.specialty}</div>
+                                    <div class="modal-guide-rating">
+                                        ${generateStars(guide.rating)}
+                                        <span class="rating-number">${parseFloat(guide.rating).toFixed(1)}</span>
+                                        ${guide.verified ? '<span class="material-icons-outlined verified-badge">verified</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                guidesContainer.style.display = 'block';
+            } else {
+                guidesContainer.style.display = 'none';
+            }
             
             // Generate dynamic description based on spot type
             let description = '';
@@ -567,6 +709,11 @@ if ($conn) {
             // Show modal
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+        }
+        
+        function viewGuideProfile(guideId) {
+            // Redirect to user-guides.php with guide ID parameter
+            window.location.href = 'user-guides.php?guide=' + guideId;
         }
         
         function closeTouristSpotModal() {

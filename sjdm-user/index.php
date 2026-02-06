@@ -117,7 +117,7 @@ if ($conn) {
                         <div class="profile-info">
                             <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest User'; ?></h3>
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
                                 <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
                             </div>
                         </div>
@@ -126,7 +126,6 @@ if ($conn) {
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
@@ -140,12 +139,12 @@ if ($conn) {
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="logout.php" class="dropdown-item">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>

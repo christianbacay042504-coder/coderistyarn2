@@ -700,7 +700,51 @@ INSERT INTO `tour_guides` (`id`, `name`, `specialty`, `category`, `description`,
 (4, 'Ana Cruz', 'Historical Tours', 'general', NULL, 'History enthusiast with deep knowledge of San Jose del Monte\'s colonial past and historical landmarks.', NULL, 4.60, 0, NULL, NULL, NULL, NULL, '+6393456789012', 'ana.cruz@sjdmtours.com', NULL, 4, NULL, 0, 0, '/images/guide-ana.jpg', 'active', '2026-01-13 04:00:00', '2026-01-13 04:00:00'),
 (5, 'David Lee', 'Food & Culinary Tours', 'general', NULL, 'Food expert offering culinary tours showcasing local delicacies and traditional Bulacan cuisine.', NULL, 4.50, 0, NULL, NULL, NULL, NULL, '+639234567890', 'david.lee@sjdmtours.com', NULL, 2, NULL, 0, 0, '/images/guide-david.jpg', 'active', '2026-01-14 05:00:00', '2026-01-14 05:00:00'),
 (6, 'dwdwdwd', 'dadwadwadwa', '', 'dwdwdwdw', 'dwdwdwdwd', 'wdwdwdw', 5.00, 900, 'Budget', 0.00, 0.00, 'English', '656565656', 'wdwdwdwd@g', 'dwdwdwdwdwd', 7, '10', 1, 4, 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'active', '2026-02-06 08:07:55', '2026-02-06 08:07:55'),
-(7, 'cwwwd', 'dwdwdwd', '', 'dwdwdwdwd', 'dwdwdwdwd', 'wdwdwdwd', 1.60, 8, 'Budget', 0.00, 0.00, 'dwdwd', '4343434', 'wdwdwd@g', 'dwdwdwd', 8, '7', 1, 6, 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'active', '2026-02-06 08:23:15', '2026-02-06 08:23:15');
+(7, 'cwwwd', 'dwdwdwd', '', 'dwdwdwdwd', 'dwdwdwdwd', 'wdwdwdwd', 1.60, 8, 'Budget', 0.00, 0.00, 'dwdwd', '4343434', 'wdwdwd@g', 'dwdwdwd', 8, '7', 1, 6, 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'active', '2026-02-06 08:23:15', '2026-02-06 08:23:15'),
+(8, 'Ricardo Fernandez', 'Waterfall Tours', 'waterfall', 'Specialized guide for waterfall destinations and nature treks', 'Expert in leading tours to Burong Falls, Kaytitinga Falls, Otso-Otso Falls, and Tungtong Falls. Certified in wilderness safety and rescue operations.', 'Waterfall trekking, Nature photography, Swimming safety', 4.70, 25, '800-1500', 800.00, 1500.00, 'English, Tagalog', '+639123456788', 'ricardo.fernandez@sjdmtours.com', 'Available daily 6AM-6PM', 6, '1-8', 1, 45, '/images/guide-ricardo.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
+(9, 'Sofia Martinez', 'Religious Sites', 'historical', 'Expert guide for religious and historical destinations', 'Deep knowledge of Catholic heritage sites and religious landmarks. Provides spiritual and historical context for pilgrimages and cultural tours.', 'Religious history, Cultural heritage, Pilgrimage guidance', 4.80, 30, '500-1200', 500.00, 1200.00, 'English, Tagalog, Spanish', '+639987654322', 'sofia.martinez@sjdmtours.com', 'Available Tue-Sun 5AM-8PM', 4, '1-12', 1, 38, '/images/guide-sofia.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
+(10, 'Marco Alvarez', 'Mountain Trekking', 'mountain', 'Professional mountain guide and outdoor enthusiast', 'Specializes in Mt. Balagbag and other mountain destinations. Expert in trail navigation, weather assessment, and mountain safety protocols.', 'Mountain trekking, Rock climbing, Outdoor survival', 4.60, 18, '600-1000', 600.00, 1000.00, 'English, Tagalog', '+639567890124', 'marco.alvarez@sjdmtours.com', 'Available daily 5AM-5PM', 5, '1-6', 1, 28, '/images/guide-marco.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
+(11, 'Elena Rodriguez', 'City Landmarks', 'city', 'Urban tourism specialist and cultural guide', 'Expert in city tours focusing on monuments, landmarks, and urban cultural sites. Provides comprehensive historical and architectural insights.', 'Urban exploration, Cultural tours, Photography guidance', 4.50, 22, '400-800', 400.00, 800.00, 'English, Tagalog', '+6393456789013', 'elena.rodriguez@sjdmtours.com', 'Available Mon-Sat 8AM-6PM', 3, '1-10', 1, 32, '/images/guide-elena.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `guide_destinations`
+--
+
+CREATE TABLE `guide_destinations` (
+  `id` int(11) NOT NULL,
+  `guide_id` int(11) NOT NULL,
+  `destination_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `guide_destinations`
+--
+
+INSERT INTO `guide_destinations` (`id`, `guide_id`, `destination_id`, `created_at`) VALUES
+(1, 1, 13, '2026-02-06 15:00:00'),
+(2, 1, 16, '2026-02-06 15:00:00'),
+(3, 1, 22, '2026-02-06 15:00:00'),
+(4, 2, 18, '2026-02-06 15:00:00'),
+(5, 2, 21, '2026-02-06 15:00:00'),
+(6, 3, 13, '2026-02-06 15:00:00'),
+(7, 3, 15, '2026-02-06 15:00:00'),
+(8, 3, 17, '2026-02-06 15:00:00'),
+(9, 4, 18, '2026-02-06 15:00:00'),
+(10, 4, 21, '2026-02-06 15:00:00'),
+(11, 5, 13, '2026-02-06 15:00:00'),
+(12, 5, 15, '2026-02-06 15:00:00'),
+(13, 5, 16, '2026-02-06 15:00:00'),
+(14, 8, 13, '2026-02-07 00:00:00'),
+(15, 8, 15, '2026-02-07 00:00:00'),
+(16, 8, 17, '2026-02-07 00:00:00'),
+(17, 8, 22, '2026-02-07 00:00:00'),
+(18, 9, 2, '2026-02-07 00:00:00'),
+(19, 9, 18, '2026-02-07 00:00:00'),
+(20, 10, 16, '2026-02-07 00:00:00'),
+(21, 11, 21, '2026-02-07 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1027,6 +1071,15 @@ ALTER TABLE `tourist_spots`
   ADD KEY `idx_rating` (`rating`);
 
 --
+-- Indexes for table `guide_destinations`
+--
+ALTER TABLE `guide_destinations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_guide_id` (`guide_id`),
+  ADD KEY `idx_destination_id` (`destination_id`),
+  ADD UNIQUE KEY `unique_guide_destination` (`guide_id`,`destination_id`);
+
+--
 -- Indexes for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
@@ -1206,6 +1259,12 @@ ALTER TABLE `tourist_spots`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT for table `guide_destinations`
+--
+ALTER TABLE `guide_destinations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
 -- AUTO_INCREMENT for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
@@ -1287,6 +1346,13 @@ ALTER TABLE `admin_users`
 ALTER TABLE `bookings`
   ADD CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_bookings_guide_id` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `guide_destinations`
+--
+ALTER TABLE `guide_destinations`
+  ADD CONSTRAINT `fk_guide_destinations_guide` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_guide_destinations_destination` FOREIGN KEY (`destination_id`) REFERENCES `tourist_spots` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `login_activity`

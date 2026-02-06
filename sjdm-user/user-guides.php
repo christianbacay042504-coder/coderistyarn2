@@ -3,14 +3,11 @@
 require_once '../config/database.php';
 require_once '../config/auth.php';
 
-// Temporarily bypass login for testing - remove this in production
-// if (!isset($_SESSION['user_id'])) {
-//     header('Location: ../log-in/log-in.php');
-//     exit();
-// }
-
 // Get current user data (optional for testing)
 $conn = getDatabaseConnection();
+$tourGuides = []; // Initialize tour guides array
+$currentUser = []; // Initialize current user array
+
 if ($conn) {
     // Temporarily set a mock user for testing
     $currentUser = [
@@ -19,7 +16,6 @@ if ($conn) {
     ];
     
     // Fetch tour guides from database
-    $tourGuides = [];
     if ($conn) {
         $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY rating DESC, review_count DESC");
         if ($guidesStmt) {
@@ -110,7 +106,7 @@ if ($conn) {
                         <div class="profile-info">
                             <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
                             <div class="profile-details">
-                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest User'; ?></h3>
+                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
                                 <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
                             </div>
                         </div>
@@ -119,7 +115,6 @@ if ($conn) {
                             <span class="material-icons-outlined">account_circle</span>
                             <span>My Account</span>
                         </a>
-                        <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
                             <span class="material-icons-outlined">history</span>
                             <span>Booking History</span>
@@ -133,18 +128,18 @@ if ($conn) {
                             <span class="material-icons-outlined">settings</span>
                             <span>Settings</span>
                         </a>
-                        <div class="dropdown-divider"></div>
                         <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
                             <span class="material-icons-outlined">help_outline</span>
                             <span>Help & Support</span>
                         </a>
-                        <a href="logout.php" class="dropdown-item" id="userSignoutLink">
+                        <div class="dropdown-divider"></div>
+                        <a href="logout.php" class="dropdown-item">
                             <span class="material-icons-outlined">logout</span>
                             <span>Sign Out</span>
                         </a>
                     </div>
                 </div>
-            </div>
+                
         </header>
 
         <div class="content-area">
@@ -192,7 +187,7 @@ if ($conn) {
                              data-guide-id="<?php echo $guide['id']; ?>" 
                              data-category="<?php echo $guide['category']; ?>"
                              data-email="<?php echo isset($guide['email']) ? htmlspecialchars($guide['email']) : ''; ?>"
-                             data-phone="<?php echo isset($guide['phone']) ? htmlspecialchars($guide['phone']) : ''; ?>"
+                             data-phone="<?php echo isset($guide['contact_number']) ? htmlspecialchars($guide['contact_number']) : ''; ?>"
                              data-location="<?php echo isset($guide['location']) ? htmlspecialchars($guide['location']) : (isset($guide['address']) ? htmlspecialchars($guide['address']) : ''); ?>"
                              data-bio="<?php echo isset($guide['bio']) ? htmlspecialchars($guide['bio']) : ''; ?>">
                             <div class="guide-photo">
@@ -440,12 +435,12 @@ if ($conn) {
                                             </div>
                                             <?php endif; ?>
 
-                                            <?php if (isset($guide['phone'])): ?>
+                                            <?php if (isset($guide['contact_number'])): ?>
                                             <div class="detail-item">
                                                 <span class="material-icons-outlined">phone</span>
                                                 <div>
                                                     <strong>Phone</strong>
-                                                    <p><?php echo htmlspecialchars($guide['phone']); ?></p>
+                                                    <p><?php echo htmlspecialchars($guide['contact_number']); ?></p>
                                                 </div>
                                             </div>
                                             <?php endif; ?>
@@ -523,24 +518,6 @@ if ($conn) {
         </div>
     </div>
 
-    <!-- Saved Tours Modal -->
-    <div class="modal-overlay" id="savedToursModal">
-        <div class="modal-content saved-tours-modal">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <span class="material-icons-outlined modal-icon">favorite</span>
-                    <h2>Saved Tours</h2>
-                </div>
-                <button class="close-modal" onclick="closeModal('savedToursModal')">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="modalSavedToursList" class="guides-grid"></div>
-            </div>
-        </div>
-    </div>
-
     <script src="script.js"></script>
     <script>
         // Pass current user data to JavaScript
@@ -559,8 +536,6 @@ if ($conn) {
                 // Load content based on modal type
                 if (modalId === 'bookingHistoryModal') {
                     loadBookingHistory();
-                } else if (modalId === 'savedToursModal') {
-                    loadSavedTours();
                 }
             }
         }
@@ -572,6 +547,27 @@ if ($conn) {
                 document.body.style.overflow = 'auto';
             }
         }
+
+        function openGuideModal(guideId) {
+            const modal = document.getElementById('modal-guide-' + guideId);
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Check for guide parameter in URL and open modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const guideId = urlParams.get('guide');
+            
+            if (guideId) {
+                // Open the guide modal after a short delay
+                setTimeout(() => {
+                    openGuideModal(guideId);
+                }, 500);
+            }
+        });
 
         function loadBookingHistory() {
             const container = document.getElementById('modalBookingsList');
@@ -654,76 +650,6 @@ if ($conn) {
             `).join('');
         }
 
-        function loadSavedTours() {
-            const container = document.getElementById('modalSavedToursList');
-            if (!container) return;
-            
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            
-            if (favorites.length === 0) {
-                container.innerHTML = `
-                    <div class="modal-empty-state">
-                        <div class="empty-icon">
-                            <span class="material-icons-outlined">favorite_border</span>
-                        </div>
-                        <h3>No Saved Tours Yet</h3>
-                        <p>Save your favorite tour guides and destinations to quickly access them later.</p>
-                        <div class="centered-actions">
-                            <button class="btn-hero" onclick="closeModal('savedToursModal'); window.location.href='user-guides.php'">
-                                <span class="material-icons-outlined">explore</span>
-                                Browse Tour Guides
-                            </button>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Load favorites from the page data
-            const guides = document.querySelectorAll('.guide-card');
-            const favoriteGuides = [];
-            
-            guides.forEach(guideCard => {
-                const guideId = guideCard.dataset.guideId;
-                if (favorites.includes(guideId)) {
-                    const guideName = guideCard.querySelector('.guide-name')?.textContent || 'Unknown';
-                    const guideSpecialty = guideCard.querySelector('.guide-specialty')?.textContent || '';
-                    const guideDescription = guideCard.querySelector('.guide-description')?.textContent || '';
-                    const guideRating = guideCard.querySelector('.rating-value')?.textContent || '0';
-                    const guidePhoto = guideCard.querySelector('.guide-photo img')?.src || '';
-                    
-                    favoriteGuides.push({
-                        id: guideId,
-                        name: guideName,
-                        specialty: guideSpecialty,
-                        description: guideDescription,
-                        rating: guideRating,
-                        photo: guidePhoto
-                    });
-                }
-            });
-            
-            container.innerHTML = favoriteGuides.map(guide => `
-                <div class="guide-card" onclick="closeModal('savedToursModal'); window.location.href='#profile-${guide.id}'">
-                    <div class="guide-photo">
-                        ${guide.photo ? `<img src="${guide.photo}" alt="${guide.name}">` : '<div class="guide-photo-placeholder"><span class="material-icons-outlined">person</span></div>'}
-                        <button class="favorite-btn active" onclick="event.stopPropagation(); toggleFavorite(${guide.id})">
-                            <span class="material-icons-outlined">favorite</span>
-                        </button>
-                    </div>
-                    <div class="guide-info">
-                        <div class="guide-name">${guide.name}</div>
-                        <span class="guide-specialty">${guide.specialty}</span>
-                        <p class="guide-description">${guide.description}</p>
-                        <div class="rating-display">
-                            <span class="material-icons-outlined">star</span>
-                            <span class="rating-value">${guide.rating}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         function getStatusIcon(status) {
             const icons = {
                 'pending': '<span class="material-icons-outlined">schedule</span>',
@@ -748,15 +674,6 @@ if ($conn) {
                 bookingHistoryLink.addEventListener('click', function(e) {
                     e.preventDefault();
                     openModal('bookingHistoryModal');
-                });
-            }
-
-            // Saved Tours link
-            const savedToursLink = document.getElementById('userSavedToursLink');
-            if (savedToursLink) {
-                savedToursLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    openModal('savedToursModal');
                 });
             }
 

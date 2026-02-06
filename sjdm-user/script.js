@@ -567,7 +567,7 @@ function init() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     init();
     initUserProfileDropdown();
 });
@@ -1440,7 +1440,7 @@ function showHelpSupportModal() {
                     <div class="modal-info-grid">
                         <div class="info-grid-item">
                             <div class="label">Email Support</div>
-                            <div class="value" style="font-size: 0.9rem;">support@sjdmtours.com</div>
+                            <div class="value" style="font-size: 0.9rem;">support@example.com</div>
                         </div>
                         <div class="info-grid-item">
                             <div class="label">Phone</div>
@@ -2815,7 +2815,7 @@ function viewFAQs() {
 }
 
 function emailSupport() {
-    window.location.href = 'mailto:support@sjdmtours.com?subject=Help Request';
+    window.location.href = 'mailto:support@example.com?subject=Help Request';
 }
 
 function viewFAQs() {
@@ -2962,8 +2962,6 @@ document.addEventListener('DOMContentLoaded', function () {
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', init);
 
-// ==================== USER PROFILE DROPDOWN ====================
-
 /**
  * User Profile Dropdown Functionality
  * Handles the dropdown menu and its associated modals for user panel.
@@ -2977,12 +2975,7 @@ function initUserProfileDropdown() {
     console.log('initUserProfileDropdown: Elements found:', { profileButton, profileMenu });
 
     if (profileButton && profileMenu) {
-        // Remove any existing event listeners by cloning the button
-        const newProfileButton = profileButton.cloneNode(true);
-        profileButton.parentNode.replaceChild(newProfileButton, profileButton);
-        
-        // Add fresh event listener for toggle
-        newProfileButton.addEventListener('click', function (e) {
+        profileButton.addEventListener('click', function (e) {
             console.log('User profile button clicked');
             e.preventDefault();
             e.stopPropagation();
@@ -2992,7 +2985,7 @@ function initUserProfileDropdown() {
 
         // Close dropdown when clicking outside
         document.addEventListener('click', function (e) {
-            if (!newProfileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+            if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
                 profileMenu.classList.remove('active');
             }
         });
@@ -3001,9 +2994,9 @@ function initUserProfileDropdown() {
     // Bind dropdown item links
     const links = {
         'userAccountLink': showUserAccountModal,
+        'userBookingHistoryLink': showBookingHistoryModal,
+        'userSavedToursLink': showSavedToursModal,
         'userSettingsLink': showUserSettingsModal,
-        'userBookingHistoryLink': showUserBookingHistoryModal,
-        'userSavedToursLink': showUserSavedToursModal,
         'userHelpLink': showUserHelpModal
     };
 
@@ -3012,14 +3005,8 @@ function initUserProfileDropdown() {
         if (el) {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
-                e.stopPropagation();
                 profileMenu.classList.remove('active');
-                if (typeof func === 'function') {
-                    func();
-                    console.log(`${id} clicked and modal opened`);
-                } else {
-                    console.log(`Error: ${id} function not found`);
-                }
+                func();
             });
         }
     }
@@ -3034,7 +3021,7 @@ function createUserModal(id, title, content, icon = 'info') {
     const modal = document.createElement('div');
     modal.id = id;
     modal.className = 'modal-overlay';
-    modal.style.display = 'none'; // Start hidden
+    modal.style.display = 'flex';
     modal.innerHTML = `
         <div class="modal-container">
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -3056,22 +3043,16 @@ function createUserModal(id, title, content, icon = 'info') {
     // Close modal on backdrop click
     modal.addEventListener('click', function (e) {
         if (e.target === modal) {
-            modal.classList.remove('show');
-            setTimeout(() => modal.remove(), 300);
+            modal.remove();
         }
     });
-
-    // Show modal with animation
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
 
     return modal;
 }
 
 function showUserAccountModal() {
-    // Get user data from page or use defaults
-    const userName = document.querySelector('.user-name')?.textContent || 'Guest User';
+    // Get user data from PHP or localStorage
+    const userName = document.querySelector('.user-name')?.textContent || 'User';
     const userEmail = document.querySelector('.user-email')?.textContent || 'user@sjdmtours.com';
     
     const nameParts = userName.split(' ');
@@ -3082,11 +3063,10 @@ function showUserAccountModal() {
         <div class="profile-view-mode">
             <div style="text-align: center; margin-bottom: 24px;">
                 <div class="profile-avatar large" style="margin: 0 auto 16px; width: 60px; height: 60px; font-size: 24px;">
-                    ${firstName.charAt(0).toUpperCase()}
+                    ${firstName.charAt(0)}
                 </div>
                 <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">${userName}</h3>
-                <p style="margin: 0 0 4px 0; color: var(--primary); font-weight: 600;">Traveler</p>
-                <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">SJDM Tours Explorer</p>
+                <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Tourist</p>
             </div>
             
             <div style="display: grid; gap: 16px;">
@@ -3098,13 +3078,9 @@ function showUserAccountModal() {
                     <span style="color: var(--text-secondary);">Email Address</span>
                     <span style="font-weight: 600;">${userEmail}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; padding: 12px 0;">
                     <span style="color: var(--text-secondary);">Member Since</span>
                     <span style="font-weight: 600;">2024</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 12px 0;">
-                    <span style="color: var(--text-secondary);">Status</span>
-                    <span style="font-weight: 600; color: var(--success);">Active</span>
                 </div>
             </div>
 
@@ -3123,12 +3099,12 @@ function showUserEditProfileForm() {
     const container = document.getElementById('userAccountModal-body');
     if (!container) return;
 
-    const userName = document.querySelector('.user-name')?.textContent || 'Guest User';
+    const userName = document.querySelector('.user-name')?.textContent || 'User';
     const userEmail = document.querySelector('.user-email')?.textContent || 'user@sjdmtours.com';
     
     const nameParts = userName.split(' ');
     const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join('') || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     container.innerHTML = `
         <form id="userProfileForm" onsubmit="event.preventDefault(); saveUserProfile();">
@@ -3164,7 +3140,7 @@ function saveUserProfile() {
     const lname = document.getElementById('userLastName').value.trim();
     const email = document.getElementById('userEmail').value.trim();
 
-    // Here you would typically send this data to server
+    // Here you would typically send this data to the server
     // For now, we'll just show a success message
     showUserNotification('Profile updated successfully!', 'success');
 
@@ -3180,6 +3156,38 @@ function saveUserProfile() {
     }
 
     document.getElementById('userAccountModal').remove();
+}
+
+function showBookingHistoryModal() {
+    const content = `
+        <div style="display: grid; gap: 16px;">
+            <div style="text-align: center; padding: 40px 20px;">
+                <span class="material-icons-outlined" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;">event_available</span>
+                <h3 style="margin: 16px 0 8px 0; color: var(--text-primary);">No Bookings Yet</h3>
+                <p style="margin: 0; color: var(--text-secondary);">Your booking history will appear here once you make your first reservation.</p>
+                <button class="btn-primary" style="margin-top: 20px;" onclick="window.location.href='book.php'">
+                    <span class="material-icons-outlined" style="font-size: 18px;">add</span> Book a Tour
+                </button>
+            </div>
+        </div>
+    `;
+    createUserModal('userBookingHistoryModal', 'Booking History', content, 'history');
+}
+
+function showSavedToursModal() {
+    const content = `
+        <div style="display: grid; gap: 16px;">
+            <div style="text-align: center; padding: 40px 20px;">
+                <span class="material-icons-outlined" style="font-size: 64px; color: var(--text-secondary); opacity: 0.3;">favorite_border</span>
+                <h3 style="margin: 16px 0 8px 0; color: var(--text-primary);">No Saved Tours</h3>
+                <p style="margin: 0; color: var(--text-secondary);">Save your favorite tours and destinations to access them quickly later.</p>
+                <button class="btn-primary" style="margin-top: 20px;" onclick="window.location.href='tourist-spots.php'">
+                    <span class="material-icons-outlined" style="font-size: 18px;">explore</span> Explore Tours
+                </button>
+            </div>
+        </div>
+    `;
+    createUserModal('userSavedToursModal', 'Saved Tours', content, 'favorite');
 }
 
 function showUserSettingsModal() {
@@ -3198,7 +3206,7 @@ function showUserSettingsModal() {
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-light); border-radius: 8px;">
                 <div>
                     <strong style="display: block; margin-bottom: 4px;">SMS Notifications</strong>
-                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Get text alerts for tour reminders</p>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Get tour reminders via text message</p>
                 </div>
                 <label class="toggle-switch">
                     <input type="checkbox" id="userSMSToggle">
@@ -3207,11 +3215,11 @@ function showUserSettingsModal() {
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-light); border-radius: 8px;">
                 <div>
-                    <strong style="display: block; margin-bottom: 4px;">Location Services</strong>
-                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Share location for better recommendations</p>
+                    <strong style="display: block; margin-bottom: 4px;">Newsletter</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Receive travel tips and special offers</p>
                 </div>
                 <label class="toggle-switch">
-                    <input type="checkbox" id="userLocationToggle" checked>
+                    <input type="checkbox" id="userNewsletterToggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -3228,9 +3236,9 @@ function showUserSettingsModal() {
 function saveUserSettings() {
     const emailNotifications = document.getElementById('userEmailToggle').checked;
     const smsNotifications = document.getElementById('userSMSToggle').checked;
-    const locationServices = document.getElementById('userLocationToggle').checked;
+    const newsletter = document.getElementById('userNewsletterToggle').checked;
 
-    // Here you would typically send these settings to server
+    // Here you would typically send these settings to the server
     showUserNotification('Settings updated successfully!', 'success');
     document.getElementById('userSettingsModal').remove();
 }
@@ -3253,15 +3261,15 @@ function showUserHelpModal() {
                 </div>
             </div>
             <div style="display: flex; align-items: center; padding: 16px; background: var(--bg-light); border-radius: 8px;">
-                <span class="material-icons-outlined" style="color: var(--primary); margin-right: 16px; font-size: 24px;">help</span>
+                <span class="material-icons-outlined" style="color: var(--primary); margin-right: 16px; font-size: 24px;">schedule</span>
                 <div>
-                    <strong style="display: block; margin-bottom: 4px;">Help Center</strong>
-                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Browse FAQs and guides</p>
+                    <strong style="display: block; margin-bottom: 4px;">Business Hours</strong>
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Mon-Sat: 8:00 AM - 6:00 PM</p>
                 </div>
             </div>
             <div style="display: flex; gap: 12px;">
-                <button class="btn-primary" onclick="window.location.href='help-support.php'">
-                    <span class="material-icons-outlined" style="font-size: 18px;">help_outline</span> Visit Help Center
+                <button class="btn-primary" onclick="window.open('https://facebook.com/sjdmtours', '_blank')">
+                    <span class="material-icons-outlined" style="font-size: 18px;">chat</span> Contact Us
                 </button>
             </div>
         </div>
@@ -3361,204 +3369,4 @@ if (!document.querySelector('#user-toggle-styles')) {
     styleElement.id = 'user-toggle-styles';
     styleElement.innerHTML = toggleStyles;
     document.head.appendChild(styleElement.firstElementChild);
-}
-
-// Booking History Modal Function
-function showUserBookingHistoryModal() {
-    const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-    
-    const content = `
-        <div class="booking-history-modal">
-            ${userBookings.length === 0 ? `
-                <div class="modal-empty-state">
-                    <div class="empty-icon">
-                        <span class="material-icons-outlined">event_busy</span>
-                    </div>
-                    <h3>No Bookings Yet</h3>
-                    <p>You haven't made any bookings yet. Start your adventure by booking your first tour!</p>
-                    <div class="centered-actions">
-                        <button class="btn-hero" onclick="window.location.href='book.php'">
-                            <span class="material-icons-outlined">explore</span>
-                            Book Your First Tour
-                        </button>
-                    </div>
-                </div>
-            ` : `
-                <div class="bookings-list">
-                    ${userBookings.reverse().map(booking => `
-                        <div class="booking-item">
-                            <div class="booking-header">
-                                <div class="booking-info">
-                                    <h4>${booking.guideName}</h4>
-                                    <p class="booking-destination">
-                                        <span class="material-icons-outlined">place</span>
-                                        ${booking.destination}
-                                    </p>
-                                </div>
-                                <span class="status-badge status-${booking.status}">
-                                    ${getStatusIcon(booking.status)}
-                                    <span>${booking.status.toUpperCase()}</span>
-                                </span>
-                            </div>
-                            <div class="booking-details">
-                                <div class="detail-row">
-                                    <span class="material-icons-outlined">event</span>
-                                    <span>${formatBookingDate(booking.checkIn)} - ${formatBookingDate(booking.checkOut)}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="material-icons-outlined">people</span>
-                                    <span>${booking.guests} Guest${booking.guests > 1 ? 's' : ''}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="material-icons-outlined">confirmation_number</span>
-                                    <span>Ref: ${booking.bookingNumber}</span>
-                                </div>
-                                <div class="detail-row price">
-                                    <span class="material-icons-outlined">payments</span>
-                                    <span>₱${booking.totalAmount ? booking.totalAmount.toLocaleString() : '2,600'}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-primary" onclick="window.location.href='booking-history.php'">
-                        <span class="material-icons-outlined">history</span>
-                        View Full History
-                    </button>
-                </div>
-            `}
-        </div>
-    `;
-    createUserModal('userBookingHistoryModal', 'Booking History', content, 'history');
-}
-
-// Saved Tours Modal Function
-function showUserSavedToursModal() {
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    
-    const guides = [
-        {
-            id: 1,
-            name: "Rico Mendoza",
-            photo: "",
-            specialty: "Mt. Balagbag Hiking Expert",
-            rating: 5.0,
-            reviewCount: 127,
-            priceRange: "₱2,000 - ₱3,500 per day",
-            experience: "10 years"
-        },
-        {
-            id: 2,
-            name: "Anna Marie Santos",
-            photo: "",
-            specialty: "Nature & Waterfall Tours",
-            rating: 4.9,
-            reviewCount: 89,
-            priceRange: "₱2,500 - ₱4,000 per day",
-            experience: "7 years"
-        },
-        {
-            id: 3,
-            name: "Father Jose Reyes",
-            photo: "",
-            specialty: "Religious & Pilgrimage Tours",
-            rating: 4.8,
-            reviewCount: 156,
-            priceRange: "₱1,500 - ₱2,500 per day",
-            experience: "15 years"
-        }
-    ];
-    
-    const favoriteGuides = guides.filter(g => favorites.includes(g.id));
-    
-    const content = `
-        <div class="saved-tours-modal">
-            ${favoriteGuides.length === 0 ? `
-                <div class="modal-empty-state">
-                    <div class="empty-icon">
-                        <span class="material-icons-outlined">favorite_border</span>
-                    </div>
-                    <h3>No Saved Tours Yet</h3>
-                    <p>Save your favorite tour guides to quickly access them later. Start exploring and click the heart icon!</p>
-                    <div class="centered-actions">
-                        <button class="btn-hero" onclick="window.location.href='user-guides.php'">
-                            <span class="material-icons-outlined">explore</span>
-                            Browse Tour Guides
-                        </button>
-                    </div>
-                </div>
-            ` : `
-                <div class="saved-guides-list">
-                    ${favoriteGuides.map(guide => `
-                        <div class="saved-guide-item">
-                            <div class="guide-photo">${guide.photo}</div>
-                            <div class="guide-info">
-                                <h4>${guide.name}</h4>
-                                <p class="guide-specialty">${guide.specialty}</p>
-                                <div class="guide-meta">
-                                    <div class="rating-display">
-                                        <span class="material-icons-outlined">star</span>
-                                        <span>${guide.rating.toFixed(1)}</span>
-                                        <span class="review-count">(${guide.reviewCount})</span>
-                                    </div>
-                                    <div class="experience">
-                                        <span class="material-icons-outlined">work</span>
-                                        <span>${guide.experience}</span>
-                                    </div>
-                                </div>
-                                <div class="guide-price">${guide.priceRange}</div>
-                            </div>
-                            <button class="btn-remove-favorite" onclick="removeFavoriteFromModal(${guide.id})">
-                                <span class="material-icons-outlined">favorite</span>
-                            </button>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-primary" onclick="window.location.href='saved-tours.php'">
-                        <span class="material-icons-outlined">favorite</span>
-                        View All Saved Tours
-                    </button>
-                </div>
-            `}
-        </div>
-    `;
-    createUserModal('userSavedToursModal', 'Saved Tours', content, 'favorite');
-}
-
-// Helper functions for modals
-function getStatusIcon(status) {
-    const icons = {
-        'pending': '<span class="material-icons-outlined">schedule</span>',
-        'confirmed': '<span class="material-icons-outlined">check_circle</span>',
-        'completed': '<span class="material-icons-outlined">verified</span>',
-        'cancelled': '<span class="material-icons-outlined">cancel</span>'
-    };
-    return icons[status] || '<span class="material-icons-outlined">info</span>';
-}
-
-function formatBookingDate(dateString) {
-    const date = new Date(dateString);
-    const options = { month: 'short', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-}
-
-function removeFavoriteFromModal(guideId) {
-    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    const index = favorites.indexOf(guideId);
-    
-    if (index > -1) {
-        favorites.splice(index, 1);
-        localStorage.setItem('favorites', JSON.stringify(favorites));
-        showUserBookingHistoryModal(); // Refresh the modal
-        showNotification('Removed from saved tours', 'info');
-    }
-}
-
-// Initialize when library loads or DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initUserProfileDropdown);
-} else {
-    initUserProfileDropdown();
 }
