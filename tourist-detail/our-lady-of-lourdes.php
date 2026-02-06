@@ -722,7 +722,10 @@
                     <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#events'">
                         View Religious Events
                     </button>
-                </div>
+                <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/tourist-spots.php'">
+                        <span class="material-icons-outlined">place</span>
+                        View All Destinations
+                    </button></div>
             </div>
         </div>
     </main>

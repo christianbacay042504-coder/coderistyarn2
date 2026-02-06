@@ -242,7 +242,13 @@ if ($conn) {
                                 'park' => 'Parks & Recreation',
                                 'religious' => 'Religious Sites',
                                 'urban' => 'Urban Landmarks',
-                                'historical' => 'Historical Sites'
+                                'historical' => 'Historical Sites',
+                                'waterfalls' => 'Waterfalls',
+                                'mountains' => 'Mountains & Hiking',
+                                'agri-tourism' => 'Agri-Tourism',
+                                'religious sites' => 'Religious Sites',
+                                'parks & recreation' => 'Parks & Recreation',
+                                'tourist spot' => 'Tourist Spots'
                             ];
                             
                             // Map database categories to badge icons
@@ -252,7 +258,13 @@ if ($conn) {
                                 'park' => 'park',
                                 'religious' => 'church',
                                 'urban' => 'location_city',
-                                'historical' => 'account_balance'
+                                'historical' => 'account_balance',
+                                'waterfalls' => 'water',
+                                'mountains' => 'terrain',
+                                'agri-tourism' => 'agriculture',
+                                'religious sites' => 'church',
+                                'parks & recreation' => 'park',
+                                'tourist spot' => 'place'
                             ];
                             
                             // Map database categories to badge labels
@@ -262,7 +274,13 @@ if ($conn) {
                                 'park' => 'Park',
                                 'religious' => 'Religious',
                                 'urban' => 'Urban',
-                                'historical' => 'Historical'
+                                'historical' => 'Historical',
+                                'waterfalls' => 'Waterfalls',
+                                'mountains' => 'Mountain',
+                                'agri-tourism' => 'Farm',
+                                'religious sites' => 'Religious',
+                                'parks & recreation' => 'Park',
+                                'tourist spot' => 'Tourist'
                             ];
                             
                             $category = $spot['category'];
