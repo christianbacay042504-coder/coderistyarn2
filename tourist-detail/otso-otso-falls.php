@@ -1407,7 +1407,7 @@
                 <div class="modal-tabs">
                     <button class="tab-btn active" onclick="switchTab('guide')">
                         <span class="material-icons-outlined">person</span>
-                        <span>Guide Profile</span>
+                        <span>Guide Profileeee</span>
                     </button>
                     <button class="tab-btn" onclick="switchTab('booking')">
                         <span class="material-icons-outlined">info</span>
