@@ -1862,7 +1862,11 @@
         function bookSelectedDate() {
             if (selectedDate) {
                 // Redirect to booking page with destination, date, and Carlos Mendoza (ID 1) as guide
-                const dateStr = selectedDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                // Use local date to avoid timezone issues
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
                 const bookingUrl = `/coderistyarn2/sjdm-user/book.php?destination=Otso-Otso Falls&date=${dateStr}&guide=1`;
                 window.location.href = bookingUrl;
             }

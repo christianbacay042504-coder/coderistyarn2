@@ -2655,7 +2655,7 @@ function submitBooking() {
     };
 
     // Send booking to server
-    fetch('process_booking.php', {
+    fetch('../process_booking.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -273,23 +273,23 @@ $preselected_guide = $_GET['guide'] ?? '';
 
                                 <option value="">-- Choose a Guide --</option>
 
-                                <option value="1">Carlos Mendoza - Adventure Tours</option>
+                                <option value="1" <?php echo ($preselected_guide == '1') ? 'selected' : ''; ?>>Carlos Mendoza - Adventure Tours</option>
 
-                                <option value="2">Maria Santos - Cultural Tours</option>
+                                <option value="2" <?php echo ($preselected_guide == '2') ? 'selected' : ''; ?>>Maria Santos - Cultural Tours</option>
 
-                                <option value="3">Roberto Reyes - Nature & Photography</option>
+                                <option value="3" <?php echo ($preselected_guide == '3') ? 'selected' : ''; ?>>Roberto Reyes - Nature & Photography</option>
 
-                                <option value="4">Ana Cruz - Historical Tours</option>
+                                <option value="4" <?php echo ($preselected_guide == '4') ? 'selected' : ''; ?>>Ana Cruz - Historical Tours</option>
 
-                                <option value="5">David Lee - Food & Culinary Tours</option>
+                                <option value="5" <?php echo ($preselected_guide == '5') ? 'selected' : ''; ?>>David Lee - Food & Culinary Tours</option>
 
                                 <option value="8" <?php echo ($preselected_guide == '8') ? 'selected' : ''; ?>>Ricardo Fernandez - Waterfall Tours</option>
 
-                                <option value="9">Sofia Martinez - Religious Sites</option>
+                                <option value="9" <?php echo ($preselected_guide == '9') ? 'selected' : ''; ?>>Sofia Martinez - Religious Sites</option>
 
-                                <option value="10">Marco Alvarez - Mountain Trekking</option>
+                                <option value="10" <?php echo ($preselected_guide == '10') ? 'selected' : ''; ?>>Marco Alvarez - Mountain Trekking</option>
 
-                                <option value="11">Elena Rodriguez - City Landmarks</option>
+                                <option value="11" <?php echo ($preselected_guide == '11') ? 'selected' : ''; ?>>Elena Rodriguez - City Landmarks</option>
 
                             </select>
 
@@ -393,7 +393,7 @@ $preselected_guide = $_GET['guide'] ?? '';
 
                             <label>Full Name *</label>
 
-                            <input type="text" id="fullName" placeholder="Juan Dela Cruz" required>
+                            <input type="text" id="fullName" placeholder="Juan Dela Cruz" value="<?php echo htmlspecialchars($user_name); ?>" required>
 
                         </div>
 
@@ -403,7 +403,7 @@ $preselected_guide = $_GET['guide'] ?? '';
 
                                 <label>Email Address *</label>
 
-                                <input type="email" id="email" placeholder="juan@example.com" required>
+                                <input type="email" id="email" placeholder="juan@example.com" value="<?php echo htmlspecialchars($user_email); ?>" required>
 
                             </div>
 
