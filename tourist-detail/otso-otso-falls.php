@@ -1411,7 +1411,7 @@
                     </button>
                     <button class="tab-btn" onclick="switchTab('booking')">
                         <span class="material-icons-outlined">info</span>
-                        <span>Tour Info</span>
+                        <span>Tour Info Yarneeee</span>
                     </button>
                 </div>
                 <button class="modal-close" onclick="closeBookingModal()">
