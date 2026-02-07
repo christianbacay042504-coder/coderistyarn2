@@ -134,35 +134,88 @@ function columnExists($conn, $table, $column) {
 function editTourGuide($conn, $data)
 {
     try {
-        $stmt = $conn->prepare("UPDATE tour_guides SET name = ?, specialty = ?, category = ?, description = ?, bio = ?, areas_of_expertise = ?, rating = ?, review_count = ?, price_range = ?, price_min = ?, price_max = ?, languages = ?, contact_number = ?, email = ?, schedules = ?, experience_years = ?, group_size = ?, verified = ?, total_tours = ?, photo_url = ?, status = ? WHERE id = ?");
-        $verified = isset($data['verified']) ? 1 : 0;
-        $stmt->bind_param(
-            "sssssssssssssssiisisi",
-            $data['name'],
-            $data['specialty'],
-            $data['category'],
-            $data['description'],
-            $data['bio'],
-            $data['areas_of_expertise'],
-            $data['rating'],
-            $data['review_count'],
-            $data['price_range'],
-            $data['price_min'],
-            $data['price_max'],
-            $data['languages'],
-            $data['contact_number'],
-            $data['email'],
-            $data['schedules'],
-            $data['experience_years'],
-            $data['group_size'],
-            $verified,
-            $data['total_tours'],
-            $data['photo_url'],
-            $data['status'],
-            $data['guide_id']
-        );
-
-        if ($stmt->execute()) {
+        // Build dynamic UPDATE query based on available columns
+        $columns_to_update = [];
+        $values = [];
+        $types = '';
+        
+        // Basic columns that should always exist
+        $columns_to_update[] = 'name';
+        $values[] = $data['name'];
+        $types .= 's';
+        
+        $columns_to_update[] = 'specialty';
+        $values[] = $data['specialty'];
+        $types .= 's';
+        
+        $columns_to_update[] = 'contact_number';
+        $values[] = $data['contact_number'];
+        $types .= 's';
+        
+        $columns_to_update[] = 'email';
+        $values[] = $data['email'];
+        $types .= 's';
+        
+        // Optional columns - check if they exist and add them
+        $optional_columns = [
+            'category' => 's',
+            'description' => 's', 
+            'bio' => 's',
+            'areas_of_expertise' => 's',
+            'rating' => 'd',
+            'review_count' => 'i',
+            'price_range' => 's',
+            'languages' => 's',
+            'schedules' => 's',
+            'experience_years' => 'i',
+            'group_size' => 's',
+            'verified' => 'i',
+            'total_tours' => 'i',
+            'photo_url' => 's',
+            'status' => 's'
+        ];
+        
+        foreach ($optional_columns as $column => $type) {
+            if (columnExists($conn, 'tour_guides', $column) && isset($data[$column])) {
+                $columns_to_update[] = $column;
+                
+                if ($column === 'verified') {
+                    $values[] = isset($data['verified']) ? 1 : 0;
+                } elseif ($column === 'status') {
+                    $values[] = $data['status'] ?? 'active';
+                } else {
+                    $value = $data[$column] ?? '';
+                    // Convert empty strings to appropriate defaults
+                    if ($value === '' && in_array($column, ['rating', 'review_count', 'experience_years', 'total_tours'])) {
+                        $value = 0;
+                    } elseif ($value === '' && in_array($column, ['group_size'])) {
+                        $value = 10;
+                    }
+                    $values[] = $value;
+                }
+                $types .= $type;
+            }
+        }
+        
+        // Add the guide ID for WHERE clause
+        $values[] = $data['guide_id'];
+        $types .= 'i';
+        
+        // Build the UPDATE query
+        $set_clauses = [];
+        foreach ($columns_to_update as $column) {
+            $set_clauses[] = "$column = ?";
+        }
+        $set_str = implode(', ', $set_clauses);
+        
+        $sql = "UPDATE tour_guides SET $set_str WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        
+        // Bind parameters dynamically
+        $stmt->bind_param($types, ...$values);
+        $result = $stmt->execute();
+        
+        if ($result) {
             // Update destination assignments
             // First, delete existing assignments
             $deleteStmt = $conn->prepare("DELETE FROM guide_destinations WHERE guide_id = ?");
@@ -182,7 +235,7 @@ function editTourGuide($conn, $data)
             
             return ['success' => true, 'message' => 'Tour guide updated successfully'];
         } else {
-            return ['success' => false, 'message' => 'Failed to update tour guide'];
+            return ['success' => false, 'message' => 'Failed to update tour guide: ' . $stmt->error];
         }
     } catch (Exception $e) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
@@ -657,17 +710,11 @@ $queryValues = [
                                                 title="View">
                                                 <span class="material-icons-outlined">visibility</span>
                                             </button>
-                                            <button class="btn-icon" onclick="editGuide(<?php echo $guide['id']; ?>)"
+                                            <button class="btn-icon" onclick="showEditGuideModal(<?php echo $guide['id']; ?>)"
                                                 title="Edit">
                                                 <span class="material-icons-outlined">edit</span>
                                             </button>
-                                            <button class="btn-icon"
-                                                onclick="toggleVerification(<?php echo $guide['id']; ?>, <?php echo $guide['verified']; ?>)"
-                                                title="Toggle Verification">
-                                                <span
-                                                    class="material-icons-outlined"><?php echo $guide['verified'] ? 'verified' : 'gpp_maybe'; ?></span>
-                                            </button>
-                                            <button class="btn-icon" onclick="deleteGuide(<?php echo $guide['id']; ?>)"
+                                            <button class="btn-icon" onclick="showDeleteGuideModal(<?php echo $guide['id']; ?>)"
                                                 title="Delete">
                                                 <span class="material-icons-outlined">delete</span>
                                             </button>
@@ -822,6 +869,150 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Edit Tour Guide Modal -->
+    <div id="editGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Tour Guide</h2>
+                <button class="modal-close" onclick="closeEditGuideModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="editGuideForm" onsubmit="handleEditGuide(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="editGuideId" name="id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuideName">Name *</label>
+                            <input type="text" id="editGuideName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuideEmail">Email *</label>
+                            <input type="email" id="editGuideEmail" name="email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuideSpecialty">Specialty *</label>
+                            <input type="text" id="editGuideSpecialty" name="specialty" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuideCategory">Category *</label>
+                            <select id="editGuideCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Nature">Nature</option>
+                                <option value="Historical">Historical</option>
+                                <option value="Food & Cuisine">Food & Cuisine</option>
+                                <option value="Photography">Photography</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuideDescription">Description</label>
+                        <textarea id="editGuideDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuideBio">Bio</label>
+                        <textarea id="editGuideBio" name="bio" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuideAreasOfExpertise">Areas of Expertise</label>
+                        <input type="text" id="editGuideAreasOfExpertise" name="areas_of_expertise" placeholder="e.g., Mountain trekking, Local history, Photography">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuideContactNumber">Contact Number *</label>
+                            <input type="tel" id="editGuideContactNumber" name="contact_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuideLanguages">Languages</label>
+                            <input type="text" id="editGuideLanguages" name="languages" placeholder="e.g., English, Tagalog, Japanese">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuideExperience">Experience (Years)</label>
+                            <input type="number" id="editGuideExperience" name="experience_years" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuideGroupSize">Max Group Size</label>
+                            <input type="number" id="editGuideGroupSize" name="group_size" min="1" max="100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuidePriceRange">Price Range</label>
+                            <select id="editGuidePriceRange" name="price_range">
+                                <option value="">Select Range</option>
+                                <option value="Budget">Budget (₱500-1000)</option>
+                                <option value="Mid-range">Mid-range (₱1000-3000)</option>
+                                <option value="Premium">Premium (₱3000-5000)</option>
+                                <option value="Luxury">Luxury (₱5000+)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuidePhotoUrl">Photo URL</label>
+                            <input type="url" id="editGuidePhotoUrl" name="photo_url" placeholder="https://example.com/photo.jpg">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editGuideRating">Rating</label>
+                            <input type="number" id="editGuideRating" name="rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editGuideReviewCount">Review Count</label>
+                            <input type="number" id="editGuideReviewCount" name="review_count" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuideSchedules">Schedules</label>
+                        <textarea id="editGuideSchedules" name="schedules" rows="2" placeholder="e.g., Monday-Friday: 9AM-5PM, Weekends: 8AM-6PM"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editGuideTotalTours">Total Tours Completed</label>
+                        <input type="number" id="editGuideTotalTours" name="total_tours" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editGuideVerified" name="verified">
+                            <span class="checkmark"></span>
+                            Verified Guide
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditGuideModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Tour Guide Modal -->
+    <div id="deleteGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Delete Tour Guide</h2>
+                <button class="modal-close" onclick="closeDeleteGuideModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="deleteGuideForm" onsubmit="handleDeleteGuide(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="deleteGuideId" name="id">
+                    <p>Are you sure you want to delete this tour guide?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeDeleteGuideModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
@@ -846,52 +1037,75 @@ $queryValues = [
             console.log('View guide:', guideId);
         }
 
-        function editGuide(guideId) {
-            // Implement edit guide modal
-            console.log('Edit guide:', guideId);
+        function showEditGuideModal(guideId) {
+            // Fetch guide data and populate edit modal
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_guide&guide_id=${guideId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    populateEditModal(data.data);
+                    const modal = document.getElementById('editGuideModal');
+                    modal.style.display = 'block';
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error fetching guide data');
+            });
         }
 
-        function toggleVerification(guideId, currentStatus) {
-            const newStatus = !currentStatus;
-            if (confirm(`Are you sure you want to ${newStatus ? 'verify' : 'unverify'} this guide?`)) {
-                fetch('', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=toggle_verification&guide_id=${guideId}&verified=${newStatus ? 1 : 0}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    });
-            }
+        function populateEditModal(guide) {
+            document.getElementById('editGuideId').value = guide.id;
+            document.getElementById('editGuideName').value = guide.name;
+            document.getElementById('editGuideEmail').value = guide.email;
+            document.getElementById('editGuideSpecialty').value = guide.specialty;
+            document.getElementById('editGuideCategory').value = guide.category || '';
+            document.getElementById('editGuideDescription').value = guide.description || '';
+            document.getElementById('editGuideBio').value = guide.bio || '';
+            document.getElementById('editGuideAreasOfExpertise').value = guide.areas_of_expertise || '';
+            document.getElementById('editGuideContactNumber').value = guide.contact_number;
+            document.getElementById('editGuideLanguages').value = guide.languages || '';
+            document.getElementById('editGuideExperience').value = guide.experience_years || 0;
+            document.getElementById('editGuideGroupSize').value = guide.group_size || 10;
+            document.getElementById('editGuidePriceRange').value = guide.price_range || '';
+            document.getElementById('editGuidePhotoUrl').value = guide.photo_url || '';
+            document.getElementById('editGuideRating').value = guide.rating || 0;
+            document.getElementById('editGuideReviewCount').value = guide.review_count || 0;
+            document.getElementById('editGuideSchedules').value = guide.schedules || '';
+            document.getElementById('editGuideTotalTours').value = guide.total_tours || 0;
+            document.getElementById('editGuideVerified').checked = guide.verified == 1;
         }
 
-        function deleteGuide(guideId) {
-            if (confirm('Are you sure you want to delete this tour guide? This action cannot be undone.')) {
-                fetch('', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete_guide&guide_id=${guideId}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    });
-            }
+        function closeEditGuideModal() {
+            const modal = document.getElementById('editGuideModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showDeleteGuideModal(guideId) {
+            document.getElementById('deleteGuideId').value = guideId;
+            const modal = document.getElementById('deleteGuideModal');
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteGuideModal() {
+            const modal = document.getElementById('deleteGuideModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
         }
 
         function testModal() {
@@ -1088,6 +1302,156 @@ $queryValues = [
         document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchGuides();
+            }
+        });
+
+        function handleEditGuide(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Saving...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convert checkbox to boolean
+            data.verified = formData.has('verified') ? 1 : 0;
+            
+            // Set default values for empty fields
+            data.rating = data.rating || 0;
+            data.review_count = data.review_count || 0;
+            data.experience_years = data.experience_years || 0;
+            data.group_size = data.group_size || 10;
+            data.total_tours = data.total_tours || 0;
+            
+            // Add action and guide ID for server-side handling
+            data.action = 'edit_guide';
+            data.guide_id = data.id;
+            
+            // Send data to server
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Show success animation
+                    showSuccessAnimation();
+                    
+                    // Reset form and close modal after delay
+                    setTimeout(() => {
+                        closeEditGuideModal();
+                        location.reload();
+                    }, 2000);
+                } else {
+                    // Show error animation
+                    showErrorAnimation(result.message);
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorAnimation('An error occurred while updating the tour guide.');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        function handleDeleteGuide(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Deleting...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add action for server-side handling
+            data.action = 'delete_guide';
+            data.guide_id = data.id;
+            
+            // Send data to server
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Show success animation
+                    showSuccessAnimation();
+                    
+                    // Reset form and close modal after delay
+                    setTimeout(() => {
+                        closeDeleteGuideModal();
+                        location.reload();
+                    }, 2000);
+                } else {
+                    // Show error animation
+                    showErrorAnimation(result.message);
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorAnimation('An error occurred while deleting the tour guide.');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Enhanced close modal when clicking outside for all modals
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addGuideModal');
+            const editModal = document.getElementById('editGuideModal');
+            const deleteModal = document.getElementById('deleteGuideModal');
+            
+            if (event.target === addModal) {
+                closeAddGuideModal();
+            } else if (event.target === editModal) {
+                closeEditGuideModal();
+            } else if (event.target === deleteModal) {
+                closeDeleteGuideModal();
+            }
+        }
+
+        // Close modal with Escape key for all modals
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const addModal = document.getElementById('addGuideModal');
+                const editModal = document.getElementById('editGuideModal');
+                const deleteModal = document.getElementById('deleteGuideModal');
+                
+                if (addModal && addModal.style.display === 'block') {
+                    closeAddGuideModal();
+                } else if (editModal && editModal.style.display === 'block') {
+                    closeEditGuideModal();
+                } else if (deleteModal && deleteModal.style.display === 'block') {
+                    closeDeleteGuideModal();
+                }
             }
         });
     </script>

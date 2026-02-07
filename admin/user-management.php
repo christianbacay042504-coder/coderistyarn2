@@ -572,44 +572,100 @@ $queryValues = [
         </main>
     </div>
 
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New User</h2>
+                <button class="modal-close" onclick="closeAddUserModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="addUserForm" action="" method="POST">
+                <input type="hidden" name="action" value="add_user">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="first_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="last_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
-        function searchUsers() {
-            const searchValue = document.getElementById('searchInput').value;
-            window.location.href = `?search=${encodeURIComponent(searchValue)}`;
-        }
+        // Initialize Admin Dashboard
+        let adminDashboard;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            adminDashboard = new AdminDashboard();
+        });
+    
+    function searchUsers() {
+        const searchValue = document.getElementById('searchInput').value;
+        window.location.href = `?search=${encodeURIComponent(searchValue)}`;
+    }
 
-        function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            window.location.href = '?';
-        }
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        window.location.href = '?';
+    }
 
-        function goToPage(page) {
-            const searchValue = document.getElementById('searchInput').value;
-            const url = searchValue ? `?page=${page}&search=${encodeURIComponent(searchValue)}` : `?page=${page}`;
-            window.location.href = url;
-        }
+    function goToPage(page) {
+        const searchValue = document.getElementById('searchInput').value;
+        const url = searchValue ? `?page=${page}&search=${encodeURIComponent(searchValue)}` : `?page=${page}`;
+        window.location.href = url;
+    }
 
-        function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.user-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll.checked;
-            });
-        }
+    function toggleSelectAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.user-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+    }
 
-        function viewUser(userId) {
-            // Implement view user modal
+    function viewUser(userId) {
+        if (adminDashboard) {
+            adminDashboard.viewUser(userId);
+        } else {
             console.log('View user:', userId);
         }
+    }
 
-        function editUser(userId) {
-            // Implement edit user modal
+    function editUser(userId) {
+        if (adminDashboard) {
+            adminDashboard.editUserModal(userId);
+        } else {
             console.log('Edit user:', userId);
         }
+    }
 
-        function deleteUser(userId) {
+    function deleteUser(userId) {
+        if (adminDashboard) {
+            adminDashboard.deleteUser(userId);
+        } else {
+            // Fallback for cases where adminDashboard is not initialized
             if (confirm('Are you sure you want to delete this user?')) {
                 fetch('', {
                     method: 'POST',
@@ -629,20 +685,68 @@ $queryValues = [
                     });
             }
         }
+    }
 
-        function showAddUserModal() {
-            // Implement add user modal
-            console.log('Show add user modal');
-        }
-
-        // Search on Enter key
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchUsers();
+    function showAddUserModal() {
+        if (adminDashboard) {
+            adminDashboard.showModal('addUserModal');
+        } else {
+            // Fallback modal display
+            const modal = document.getElementById('addUserModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                console.error('Modal not found!');
             }
-        });
-    </script>
-    <?php closeAdminConnection($conn); ?>
+        }
+    }
+
+    function closeAddUserModal() {
+        if (adminDashboard) {
+            adminDashboard.closeModal('addUserModal');
+        } else {
+            // Fallback modal close
+            const modal = document.getElementById('addUserModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                const form = document.getElementById('addUserForm');
+                if (form) {
+                    form.reset();
+                }
+            }
+        }
+    }
+
+    // Enhanced close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addUserModal');
+        if (event.target === modal) {
+            closeAddUserModal();
+        }
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('addUserModal');
+            if (modal && modal.style.display === 'block') {
+                closeAddUserModal();
+            }
+        }
+    });
+
+    // Search on Enter key
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            searchUsers();
+        }
+    });
+</script>
+<?php closeAdminConnection($conn); ?>
 </body>
 
 </html>

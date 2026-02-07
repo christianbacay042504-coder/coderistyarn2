@@ -856,9 +856,235 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+    <!-- View Destination Modal -->
+    <div id="viewDestinationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>View Destination Details</h2>
+                <button class="modal-close" onclick="closeViewDestinationModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="destination-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value" id="viewDestName"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Category:</div>
+                        <div class="detail-value" id="viewDestCategory"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Location:</div>
+                        <div class="detail-value" id="viewDestLocation"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Description:</div>
+                        <div class="detail-value" id="viewDestDescription"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Operating Hours:</div>
+                        <div class="detail-value" id="viewDestOperatingHours"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Entrance Fee:</div>
+                        <div class="detail-value" id="viewDestEntranceFee"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Difficulty Level:</div>
+                        <div class="detail-value" id="viewDestDifficulty"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Duration:</div>
+                        <div class="detail-value" id="viewDestDuration"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Best Time to Visit:</div>
+                        <div class="detail-value" id="viewDestBestTime"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Activities:</div>
+                        <div class="detail-value" id="viewDestActivities"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Amenities:</div>
+                        <div class="detail-value" id="viewDestAmenities"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Info:</div>
+                        <div class="detail-value" id="viewDestContact"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Website:</div>
+                        <div class="detail-value" id="viewDestWebsite"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Rating:</div>
+                        <div class="detail-value" id="viewDestRating"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value" id="viewDestStatus"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeViewDestinationModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Destination Modal -->
+    <div id="editDestinationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Destination</h2>
+                <button class="modal-close" onclick="closeEditDestinationModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="editDestinationForm" onsubmit="handleEditDestination(event)">
+                <input type="hidden" name="action" value="edit_spot">
+                <input type="hidden" id="editSpotId" name="spot_id">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDestName">Name *</label>
+                            <input type="text" id="editDestName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestCategory">Category *</label>
+                            <select id="editDestCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="nature">Nature</option>
+                                <option value="historical">Historical</option>
+                                <option value="religious">Religious</option>
+                                <option value="farm">Farm</option>
+                                <option value="park">Park</option>
+                                <option value="urban">Urban</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestDescription">Description</label>
+                        <textarea id="editDestDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestLocation">Location *</label>
+                        <input type="text" id="editDestLocation" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestAddress">Address</label>
+                        <input type="text" id="editDestAddress" name="address">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDestOperatingHours">Operating Hours</label>
+                            <input type="text" id="editDestOperatingHours" name="operating_hours" placeholder="e.g., 8:00 AM - 5:00 PM">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestEntranceFee">Entrance Fee</label>
+                            <input type="text" id="editDestEntranceFee" name="entrance_fee" placeholder="e.g., ₱100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDestDifficulty">Difficulty Level</label>
+                            <select id="editDestDifficulty" name="difficulty_level">
+                                <option value="">Select Difficulty</option>
+                                <option value="easy">Easy</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="difficult">Difficult</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestDuration">Duration</label>
+                            <input type="text" id="editDestDuration" name="duration" placeholder="e.g., 2-3 hours">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestBestTime">Best Time to Visit</label>
+                        <input type="text" id="editDestBestTime" name="best_time_to_visit" placeholder="e.g., Morning, Dry season">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestActivities">Activities</label>
+                        <textarea id="editDestActivities" name="activities" rows="2" placeholder="e.g., Hiking, Photography, Swimming"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestAmenities">Amenities</label>
+                        <textarea id="editDestAmenities" name="amenities" rows="2" placeholder="e.g., Parking, Restrooms, Food stalls"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDestContact">Contact Info</label>
+                            <input type="text" id="editDestContact" name="contact_info" placeholder="Phone number or email">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestWebsite">Website</label>
+                            <input type="url" id="editDestWebsite" name="website" placeholder="https://example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestImageUrl">Image URL</label>
+                        <input type="url" id="editDestImageUrl" name="image_url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDestRating">Rating</label>
+                            <input type="number" id="editDestRating" name="rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDestReviewCount">Review Count</label>
+                            <input type="number" id="editDestReviewCount" name="review_count" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDestStatus">Status</label>
+                        <select id="editDestStatus" name="status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditDestinationModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Destination</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <style>
+        .destination-details {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 12px;
+            padding: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: var(--text-primary);
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        
         .file-source-indicator {
             background: #e3f2fd;
             color: #1976d2;
@@ -871,6 +1097,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
     <script>
+        // Initialize Admin Dashboard
+        let adminDashboard;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            adminDashboard = new AdminDashboard();
+        });
+        
         function searchDestinations() {
             const searchValue = document.getElementById('searchInput').value;
             window.location.href = `?search=${encodeURIComponent(searchValue)}`;
@@ -887,87 +1120,308 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             window.location.href = url;
         }
 
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=delete_spot&spot_id=${spotId}`
-            })
+        function viewDestination(spotId) {
+            if (adminDashboard) {
+                adminDashboard.viewSpot(spotId);
+            } else {
+                // Fallback: fetch destination data and show modal
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=get_spot&spot_id=${spotId}`
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
+                        // Populate view modal with data
+                        document.getElementById('viewDestName').textContent = data.data.name || '';
+                        document.getElementById('viewDestCategory').textContent = data.data.category || '';
+                        document.getElementById('viewDestLocation').textContent = data.data.location || '';
+                        document.getElementById('viewDestDescription').textContent = data.data.description || '';
+                        document.getElementById('viewDestOperatingHours').textContent = data.data.operating_hours || '';
+                        document.getElementById('viewDestEntranceFee').textContent = data.data.entrance_fee || '';
+                        document.getElementById('viewDestDifficulty').textContent = data.data.difficulty_level || '';
+                        document.getElementById('viewDestDuration').textContent = data.data.duration || '';
+                        document.getElementById('viewDestBestTime').textContent = data.data.best_time_to_visit || '';
+                        document.getElementById('viewDestActivities').textContent = data.data.activities || '';
+                        document.getElementById('viewDestAmenities').textContent = data.data.amenities || '';
+                        document.getElementById('viewDestContact').textContent = data.data.contact_info || '';
+                        document.getElementById('viewDestWebsite').textContent = data.data.website || '';
+                        document.getElementById('viewDestRating').textContent = data.data.rating ? data.data.rating.toFixed(1) : '0.0';
+                        document.getElementById('viewDestStatus').textContent = data.data.status || '';
+                        
+                        // Show modal
+                        const modal = document.getElementById('viewDestinationModal');
+                        if (modal) {
+                            modal.style.display = 'block';
+                            modal.classList.add('show');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    } else {
+                        console.error('Modal not found!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading destination details.');
+                });
+            }
+        }
+
+        function editDestination(spotId) {
+            if (adminDashboard) {
+                adminDashboard.editSpot(spotId);
+            } else {
+                // Fallback: fetch destination data and show modal
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=get_spot&spot_id=${spotId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Populate edit modal with data
+                        document.getElementById('editSpotId').value = data.data.id;
+                        document.getElementById('editDestName').value = data.data.name || '';
+                        document.getElementById('editDestCategory').value = data.data.category || '';
+                        document.getElementById('editDestDescription').value = data.data.description || '';
+                        document.getElementById('editDestLocation').value = data.data.location || '';
+                        document.getElementById('editDestAddress').value = data.data.address || '';
+                        document.getElementById('editDestOperatingHours').value = data.data.operating_hours || '';
+                        document.getElementById('editDestEntranceFee').value = data.data.entrance_fee || '';
+                        document.getElementById('editDestDifficulty').value = data.data.difficulty_level || '';
+                        document.getElementById('editDestDuration').value = data.data.duration || '';
+                        document.getElementById('editDestBestTime').value = data.data.best_time_to_visit || '';
+                        document.getElementById('editDestActivities').value = data.data.activities || '';
+                        document.getElementById('editDestAmenities').value = data.data.amenities || '';
+                        document.getElementById('editDestContact').value = data.data.contact_info || '';
+                        document.getElementById('editDestWebsite').value = data.data.website || '';
+                        document.getElementById('editDestImageUrl').value = data.data.image_url || '';
+                        document.getElementById('editDestRating').value = data.data.rating || '';
+                        document.getElementById('editDestReviewCount').value = data.data.review_count || '';
+                        document.getElementById('editDestStatus').value = data.data.status || '';
+                        
+                        // Show modal
+                        const modal = document.getElementById('editDestinationModal');
+                        if (modal) {
+                            modal.style.display = 'block';
+                            modal.classList.add('show');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    } else {
+                        console.error('Modal not found!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading destination data.');
+                });
+            }
+        }
+
+        function closeViewDestinationModal() {
+            if (adminDashboard) {
+                adminDashboard.closeModal('viewDestinationModal');
+            } else {
+                // Fallback modal close
+                const modal = document.getElementById('viewDestinationModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+
+        function closeEditDestinationModal() {
+            if (adminDashboard) {
+                adminDashboard.closeModal('editDestinationModal');
+            } else {
+                // Fallback modal close
+                const modal = document.getElementById('editDestinationModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
+
+        function handleEditDestination(event) {
+            event.preventDefault();
+            
+            if (adminDashboard) {
+                // Use AdminDashboard's form submission
+                const form = document.getElementById('editDestinationForm');
+                const formData = new FormData(form);
+                
+                // Submit using AdminDashboard
+                adminDashboard.submitEditSpot(formData);
+            } else {
+                // Fallback submission
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData.entries());
+                data.action = 'edit_spot';
+                
+                // Send data to server
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        closeEditDestinationModal();
                         location.reload();
                     } else {
-                        alert(data.message);
+                        alert(result.message);
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating destination.');
                 });
-        }
-    }
-
-    function showAddDestinationModal() {
-        console.log('Opening modal...');
-        const modal = document.getElementById('addDestinationModal');
-        if (modal) {
-            modal.style.display = 'block';
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-            console.log('Modal should now be visible');
-        } else {
-            console.error('Modal not found!');
-        }
-    }
-
-    function closeAddDestinationModal() {
-        console.log('Closing modal...');
-        const modal = document.getElementById('addDestinationModal');
-        if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('show');
-            document.body.style.overflow = 'auto';
-            document.getElementById('addDestinationForm').reset();
-        }
-    }
-
-    function handleAddDestination(event) {
-        event.preventDefault();
-        
-        const formData = new FormData(event.target);
-        const data = Object.fromEntries(formData.entries());
-        data.action = 'add_spot';
-        
-        fetch('', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert(result.message);
-                closeAddDestinationModal();
-                location.reload();
-            } else {
-                alert(result.message);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while adding the destination.');
-        });
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('addDestinationModal');
-        if (event.target === modal) {
-            closeAddDestinationModal();
         }
-    }
-</script>
+
+        function deleteDestination(spotId) {
+            if (adminDashboard) {
+                adminDashboard.deleteSpot(spotId);
+            } else {
+                // Fallback for cases where adminDashboard is not initialized
+                if (confirm('Are you sure you want to delete this destination?')) {
+                    fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=delete_spot&spot_id=${spotId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            }
+        }
+
+        function showAddDestinationModal() {
+            if (adminDashboard) {
+                adminDashboard.showModal('addDestinationModal');
+            } else {
+                // Fallback modal display
+                const modal = document.getElementById('addDestinationModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Modal not found!');
+                }
+            }
+        }
+
+        function closeAddDestinationModal() {
+            if (adminDashboard) {
+                adminDashboard.closeModal('addDestinationModal');
+            } else {
+                // Fallback modal close
+                const modal = document.getElementById('addDestinationModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                    const form = document.getElementById('addDestinationForm');
+                    if (form) {
+                        form.reset();
+                    }
+                }
+            }
+        }
+
+        function handleAddDestination(event) {
+            event.preventDefault();
+            
+            if (adminDashboard) {
+                // Use AdminDashboard's form submission
+                const form = document.getElementById('addDestinationForm');
+                const formData = new FormData(form);
+                
+                // Add action
+                formData.append('action', 'add_spot');
+                
+                // Submit using AdminDashboard
+                adminDashboard.submitAddSpot(formData);
+            } else {
+                // Fallback submission
+                const formData = new FormData(event.target);
+                const data = Object.fromEntries(formData.entries());
+                data.action = 'add_spot';
+                
+                // Send data to server
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        closeAddDestinationModal();
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding destination.');
+                });
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addDestinationModal');
+            if (event.target === modal) {
+                closeAddDestinationModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('addDestinationModal');
+                if (modal && modal.style.display === 'block') {
+                    closeAddDestinationModal();
+                }
+            }
+        });
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchDestinations();
+            }
+        });
+    </script>
 <?php closeAdminConnection($conn); ?>
 </body>
 

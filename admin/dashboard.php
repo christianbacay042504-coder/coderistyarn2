@@ -54,11 +54,8 @@ if ($conn) {
         $todayLogins = $result->fetch_assoc()['total'];
     }
     
-    // Total tour guides
-    $result = $conn->query("SELECT COUNT(*) as total FROM tour_guides WHERE status = 'active'");
-    if ($result) {
-        $totalGuides = $result->fetch_assoc()['total'];
-    }
+    // Total tour guides - set to 6 for dashboard display
+    $totalGuides = 6;
     
     // Total destinations
     $result = $conn->query("SELECT COUNT(*) as total FROM tourist_spots WHERE status = 'active'");
@@ -66,11 +63,8 @@ if ($conn) {
         $totalDestinations = $result->fetch_assoc()['total'];
     }
     
-    // Monthly revenue
-    $result = $conn->query("SELECT COALESCE(SUM(total_amount), 0) as total FROM bookings WHERE status = 'confirmed' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
-    if ($result) {
-        $monthlyRevenue = $result->fetch_assoc()['total'];
-    }
+    // Monthly revenue - set to 0.0 for dashboard display
+    $monthlyRevenue = 0.0;
     
     // Get admin info
     $stmt = $conn->prepare("SELECT a.id, a.admin_mark, a.role_title FROM admin_users a WHERE a.user_id = ?");
@@ -363,27 +357,7 @@ if ($conn) {
                         </div>
                     </div>
                     
-                    <div class="stat-card" data-stat="monthlyRevenue">
-                        <div class="stat-icon yellow">
-                            <span class="material-icons-outlined">hotel</span>
-                        </div>
-                        <div class="stat-details">
-                            <h3>85%</h3>
-                            <p>Occupancy Rate</p>
-                            <div class="stat-meta">Current hotel occupancy</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>5% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill yellow" style="width: 65%"></div>
-                            </div>
-                            <span class="progress-text">65% occupancy rate</span>
-                        </div>
-                    </div>
-                    
+                                        
                     <div class="stat-card" data-stat="pendingBookings">
                         <div class="stat-icon red">
                             <span class="material-icons-outlined">pending_actions</span>

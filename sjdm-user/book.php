@@ -36,6 +36,14 @@ $user_email = $_SESSION['email'] ?? '';
 
 $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? '');
 
+// Get URL parameters from tourist detail page
+
+$preselected_destination = $_GET['destination'] ?? '';
+
+$preselected_date = $_GET['date'] ?? '';
+
+$preselected_guide = $_GET['guide'] ?? '';
+
 ?>
 
 <!DOCTYPE html>
@@ -265,15 +273,23 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
 
                                 <option value="">-- Choose a Guide --</option>
 
-                                <option value="1">Rico Mendoza - Mt. Balagbag Hiking Expert</option>
+                                <option value="1">Carlos Mendoza - Adventure Tours</option>
 
-                                <option value="2">Maria Santos - City Tour Specialist</option>
+                                <option value="2">Maria Santos - Cultural Tours</option>
 
-                                <option value="3">Carlos Dela Cruz - Farm and Eco-Tourism Guide</option>
+                                <option value="3">Roberto Reyes - Nature & Photography</option>
 
-                                <option value="4">Ana Reyes - Waterfall Adventure Guide</option>
+                                <option value="4">Ana Cruz - Historical Tours</option>
 
-                                <option value="5">James Lim - Historical and Cultural Guide</option>
+                                <option value="5">David Lee - Food & Culinary Tours</option>
+
+                                <option value="8" <?php echo ($preselected_guide == '8') ? 'selected' : ''; ?>>Ricardo Fernandez - Waterfall Tours</option>
+
+                                <option value="9">Sofia Martinez - Religious Sites</option>
+
+                                <option value="10">Marco Alvarez - Mountain Trekking</option>
+
+                                <option value="11">Elena Rodriguez - City Landmarks</option>
 
                             </select>
 
@@ -287,27 +303,31 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
 
                                 <option value="">-- Select Destination --</option>
 
-                                <option value="Mt. Balagbag">Mt. Balagbag Hiking</option>
+                                <?php 
+                                $preselected_destination = $_GET['destination'] ?? '';
+                                ?>
 
-                                <option value="Kaytitinga Falls">Kaytitinga Falls Tour</option>
+                                <option value="Mt. Balagbag" <?php echo ($preselected_destination == 'Mt. Balagbag') ? 'selected' : ''; ?>>Mt. Balagbag Hiking</option>
 
-                                <option value="Tungtong Falls">Tungtong Falls Adventure</option>
+                                <option value="Kaytitinga Falls" <?php echo ($preselected_destination == 'Kaytitinga Falls') ? 'selected' : ''; ?>>Kaytitinga Falls Tour</option>
 
-                                <option value="Burong Falls">Burong Falls Trek</option>
+                                <option value="Tungtong Falls" <?php echo ($preselected_destination == 'Tungtong Falls') ? 'selected' : ''; ?>>Tungtong Falls Adventure</option>
 
-                                <option value="Otso-Otso Falls">Otso-Otso Falls Exploration</option>
+                                <option value="Burong Falls" <?php echo ($preselected_destination == 'Burong Falls') ? 'selected' : ''; ?>>Burong Falls Trek</option>
 
-                                <option value="Paradise Hill Farm">Paradise Hill Farm Tour</option>
+                                <option value="Otso-Otso Falls" <?php echo ($preselected_destination == 'Otso-Otso Falls') ? 'selected' : ''; ?>>Otso-Otso Falls Exploration</option>
 
-                                <option value="Abes Farm">Abes Farm Experience</option>
+                                <option value="Paradise Hill Farm" <?php echo ($preselected_destination == 'Paradise Hill Farm') ? 'selected' : ''; ?>>Paradise Hill Farm Tour</option>
 
-                                <option value="The Rising Heart">The Rising Heart Visit</option>
+                                <option value="Abes Farm" <?php echo ($preselected_destination == 'Abes Farm') ? 'selected' : ''; ?>>Abes Farm Experience</option>
 
-                                <option value="City Oval & People's Park">City Park Tour</option>
+                                <option value="The Rising Heart" <?php echo ($preselected_destination == 'The Rising Heart') ? 'selected' : ''; ?>>The Rising Heart Visit</option>
 
-                                <option value="Grotto of Our Lady of Lourdes">Religious Tour</option>
+                                <option value="City Oval & People's Park" <?php echo ($preselected_destination == "City Oval & People's Park") ? 'selected' : ''; ?>>City Park Tour</option>
 
-                                <option value="Padre Pio Mountain of Healing">Pilgrimage Tour</option>
+                                <option value="Grotto of Our Lady of Lourdes" <?php echo ($preselected_destination == 'Grotto of Our Lady of Lourdes') ? 'selected' : ''; ?>>Religious Tour</option>
+
+                                <option value="Padre Pio Mountain of Healing" <?php echo ($preselected_destination == 'Padre Pio Mountain of Healing') ? 'selected' : ''; ?>>Pilgrimage Tour</option>
 
                             </select>
 
@@ -319,7 +339,7 @@ $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? 
 
                                 <label>Check-in Date *</label>
 
-                                <input type="date" id="checkInDate" required>
+                                <input type="date" id="checkInDate" value="<?php echo htmlspecialchars($preselected_date); ?>" required>
 
                             </div>
 
