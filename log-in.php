@@ -22,10 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Redirect if already logged in (but not if just logged out)
+// Redirect if already logged in
 if (isLoggedIn() && !isset($_SESSION['logout_message'])) {
     if (isAdmin()) {
         header('Location: admin/dashboard.php');
+    } elseif (isTourGuide()) {
+        header('Location: tour-guide/dashboard.php');
     } else {
         header('Location: sjdm-user/index.php');
     }

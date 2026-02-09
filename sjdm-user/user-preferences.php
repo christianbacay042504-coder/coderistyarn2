@@ -200,24 +200,24 @@ $categories = [
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5e9 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
 
         .preference-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
-            padding: 40px;
+            border-radius: 0;
+            box-shadow: none;
+            max-width: 100vw;
+            width: 100vw;
+            height: 100vh;
+            padding: 60px;
             text-align: center;
-            max-height: 90vh;
+            max-height: 100vh;
             overflow-y: auto;
+            border: none;
         }
 
         .preference-header {
@@ -225,45 +225,51 @@ $categories = [
         }
 
         .preference-header h1 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
+            color: #1f2937;
+            margin-bottom: 12px;
+            line-height: 1.2;
         }
 
         .preference-header p {
             font-size: 16px;
-            color: #666;
-            margin-bottom: 5px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 400;
         }
 
         .selection-count {
             font-size: 14px;
-            color: #667eea;
-            font-weight: 500;
-            margin-bottom: 20px;
+            color: #2c5f2d;
+            font-weight: 600;
+            margin-bottom: 32px;
+            padding: 8px 16px;
+            background: rgba(44, 95, 45, 0.08);
+            border-radius: 20px;
+            display: inline-block;
         }
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
             max-height: 500px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 8px;
         }
 
         .category-item {
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
-            padding: 24px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 28px 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: white;
             text-align: center;
             position: relative;
-            min-height: 180px;
+            min-height: 190px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -271,24 +277,24 @@ $categories = [
         }
 
         .category-item:hover {
-            border-color: #667eea;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            border-color: #2c5f2d;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(44, 95, 45, 0.15);
         }
 
         .category-item.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4220 100%);
+            border-color: #2c5f2d;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(44, 95, 45, 0.25);
         }
 
         .category-item .material-icons-outlined {
-            font-size: 40px;
-            margin-bottom: 12px;
+            font-size: 44px;
+            margin-bottom: 16px;
             display: block;
-            color: #667eea;
+            color: #2c5f2d;
         }
 
         .category-item.selected .material-icons-outlined {
@@ -298,14 +304,14 @@ $categories = [
         .category-name {
             font-size: 16px;
             font-weight: 600;
-            line-height: 1.2;
+            line-height: 1.3;
             margin-bottom: 8px;
         }
 
         .category-description {
             font-size: 12px;
-            color: #999;
-            line-height: 1.4;
+            color: #9ca3af;
+            line-height: 1.5;
             flex: 1;
         }
 
@@ -315,19 +321,20 @@ $categories = [
 
         .remove-icon {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: white;
-            color: #667eea;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c5f2d;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            font-weight: 600;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
@@ -336,28 +343,28 @@ $categories = [
         }
 
         .continue-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4220 100%);
             color: white;
             border: none;
-            border-radius: 16px;
-            padding: 18px 48px;
+            border-radius: 20px;
+            padding: 20px 48px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            max-width: 350px;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            max-width: 380px;
+            box-shadow: 0 8px 24px rgba(44, 95, 45, 0.25);
         }
 
         .continue-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #1e4220 0%, #0f2110 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(44, 95, 45, 0.35);
         }
 
         .continue-btn:disabled {
-            background: #ccc;
+            background: #d1d5db;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -372,15 +379,15 @@ $categories = [
         }
 
         .alert.error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
         }
 
         .alert.success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
+            background: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
         }
 
         .loading {
@@ -390,8 +397,8 @@ $categories = [
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #2c5f2d;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -410,17 +417,17 @@ $categories = [
         }
 
         .categories-grid::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f9fafb;
             border-radius: 10px;
         }
 
         .categories-grid::-webkit-scrollbar-thumb {
-            background: #888;
+            background: #d1d5db;
             border-radius: 10px;
         }
 
         .categories-grid::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: #9ca3af;
         }
 
         /* Responsive design */

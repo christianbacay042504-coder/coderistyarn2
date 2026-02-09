@@ -74,6 +74,131 @@ if ($conn) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
+
+         /* ===== USER PROFILE DROPDOWN ===== */
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid rgba(251, 255, 253, 1);
+            cursor: pointer;
+            color: #333;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.2s;
+            box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-trigger:hover {
+            background: #f0f0f0;
+        }
+
+        .profile-avatar,
+        .profile-avatar-large {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2c5f2d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar-large {
+            width: 56px;
+            height: 56px;
+            font-size: 20px;
+            margin: 0 auto 12px;
+        }
+
+        .profile-name {
+            display: none;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            width: 240px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .dropdown-header {
+            padding: 16px;
+            background: #f9f9f9;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-header h4 {
+            margin: 8px 0 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .dropdown-header p {
+            font-size: 13px;
+            color: #777;
+            margin: 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #444;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item .material-icons-outlined {
+            font-size: 20px;
+            color: #555;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-name {
+                display: inline-block;
+                font-size: 14px;
+            }
+
+            .dropdown-menu {
+                width: 280px;
+            }
+        }
         /* Modal Animation */
         @keyframes modalFadeIn {
             from {
@@ -1010,50 +1135,34 @@ if ($conn) {
                     <span class="material-icons-outlined">notifications_none</span>
                     <span class="notification-badge" style="display: none;">0</span>
                 </button>
-                
-                <!-- User Profile Dropdown -->
-                <div class="profile-dropdown">
-                    <button class="profile-button" id="userProfileButton">
-                        <div class="profile-avatar"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
+                 <!-- User Profile Dropdown -->
+                <div class="user-profile-dropdown">
+                    <button class="profile-trigger">
+                        <div class="profile-avatar">
+                            <?php echo substr(htmlspecialchars($currentUser['name'] ?? 'U'), 0, 1); ?>
+                        </div>
+                        <span class="profile-name"><?php echo htmlspecialchars(explode(' ', $currentUser['name'] ?? 'User')[0]); ?></span>
                         <span class="material-icons-outlined">expand_more</span>
                     </button>
-                    <div class="dropdown-menu" id="userProfileMenu">
-                        <div class="profile-info">
-                            <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? substr($currentUser['name'], 0, 1) : 'U'; ?></div>
-                            <div class="profile-details">
-                                <h3 class="user-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'User'; ?></h3>
-                                <p class="user-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'user@sjdmtours.com'; ?></p>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-header">
+                            <div class="profile-avatar-large">
+                                <?php echo substr(htmlspecialchars($currentUser['name'] ?? 'US'), 0, 2); ?>
                             </div>
+                            <h4><?php echo htmlspecialchars($currentUser['name'] ?? 'User'); ?></h4>
+                            <p><?php echo htmlspecialchars($currentUser['email'] ?? ''); ?></p>
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userAccountLink">
+                        <a href="profile.php" class="dropdown-item">
                             <span class="material-icons-outlined">account_circle</span>
-                            <span>My Account</span>
+                            <span>My Profile</span>
                         </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userBookingHistoryLink">
-                            <span class="material-icons-outlined">history</span>
-                            <span>Booking History</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userSavedToursLink">
-                            <span class="material-icons-outlined">favorite</span>
-                            <span>Saved Tours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userSettingsLink">
-                            <span class="material-icons-outlined">settings</span>
-                            <span>Settings</span>
-                        </a>
-                        <a href="javascript:void(0)" class="dropdown-item" id="userHelpLink">
-                            <span class="material-icons-outlined">help_outline</span>
-                            <span>Help & Support</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
                         <a href="logout.php" class="dropdown-item">
                             <span class="material-icons-outlined">logout</span>
-                            <span>Sign Out</span>
+                            <span>Log Out</span>
                         </a>
                     </div>
                 </div>
+              
             </div>
         </header>
 
@@ -1231,7 +1340,34 @@ if ($conn) {
                             
                             echo '<div class="travelry-card" data-category="' . $category . '" data-activity="' . $activityLevel . '" data-duration="' . $duration . '">';
                             echo '<div class="card-image">';
-                            echo '<img src="' . htmlspecialchars($spot['image_url']) . '" alt="' . htmlspecialchars($spot['name']) . '">';
+                            
+                            // Get individual image for each tourist spot
+                            $imageUrl = !empty($spot['image_url']) ? $spot['image_url'] : '';
+                            $imageAlt = htmlspecialchars($spot['name']);
+                            
+                            if (!empty($imageUrl)) {
+                                echo '<img src="' . htmlspecialchars($imageUrl) . '" alt="' . $imageAlt . '" 
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src=\'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDQwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjVGN0YiLz4KPHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSIxNzAiIHk9IjcwIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMjAiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2Zz4KPHN2Zz4K\'; this.alt=\'' . $imageAlt . ' - Image not available\';">';
+                            } else {
+                                // Fallback to unique placeholder based on category
+                                echo '<div class="card-image-placeholder" style="background: linear-gradient(135deg, ' . 
+                                     ($category === 'nature' ? '#22c55e, #16a34a' : 
+                                      ($category === 'farm' ? '#84cc16, #65a30d' : 
+                                      ($category === 'park' ? '#06b6d4, #0891b2' : 
+                                      ($category === 'religious' ? '#8b5cf6, #7c3aed' : 
+                                      ($category === 'urban' ? '#f59e0b, #d97706' : 
+                                      ($category === 'historical' ? '#6b7280, #4b5563' : '#4a7c4e, #2c5f2d')))))) . ');">';
+                                echo '<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.3;">';
+                                echo '<circle cx="30" cy="30" r="20" fill="white"/>';
+                                echo '<path d="M30 15L35 25L45 25L37 32L40 42L30 35L20 42L23 32L15 25L25 25L30 15Z" fill="rgba(255,255,255,0.5)"/>';
+                                echo '</svg>';
+                                echo '<div style="position: absolute; bottom: 10px; left: 10px; right: 10px; text-align: center;">';
+                                echo '<span class="material-icons-outlined" style="color: white; font-size: 24px;">' . $icon . '</span>';
+                                echo '</div>';
+                                echo '</div>';
+                            }
+                            
                             echo '<div class="card-badge">';
                             echo '<span class="material-icons-outlined">' . $icon . '</span>';
                             echo $badge;
@@ -1416,6 +1552,96 @@ if ($conn) {
     </div>
 
     <script>
+        
+  // ========== USER PROFILE DROPDOWN ==========
+        function initUserProfileDropdown() {
+            const profileDropdown = document.querySelector('.user-profile-dropdown');
+            const profileTrigger = document.querySelector('.profile-trigger');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            const logoutLink = document.querySelector('[href="../log-in/logout.php"]');
+
+            if (!profileDropdown || !profileTrigger || !dropdownMenu) {
+                console.log('Profile dropdown elements not found');
+                return;
+            }
+
+            // Toggle dropdown on click
+            profileTrigger.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!profileDropdown.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Handle logout with confirmation
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showLogoutConfirmation();
+                });
+            }
+        }
+
+        // Show logout confirmation modal
+        function showLogoutConfirmation() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content logout-modal">
+                    <div class="modal-header">
+                        <h2>Sign Out</h2>
+                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-icons-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="logout-message">
+                            <div class="logout-icon">
+                                <span class="material-icons-outlined">logout</span>
+                            </div>
+                            <h3>Confirm Sign Out</h3>
+                            <p>Are you sure you want to sign out of your account?</p>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn-cancel" onclick="document.querySelector('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                                Cancel
+                            </button>
+                            <button class="btn-confirm-logout" onclick="confirmLogout()">
+                                <span class="material-icons-outlined">logout</span>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        // Confirm and execute logout
+        function confirmLogout() {
+            // Remove modal
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+
+            // Redirect to logout script
+            window.location.href = '../log-in/logout.php';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            initUserProfileDropdown();
+        });
         // Tourist Spot Modal Functions
         function showTouristSpotModal(name, category, image, icon, type, temp, elevation, difficulty, duration, guides) {
             console.log('Modal function called with:', { name, category, type });

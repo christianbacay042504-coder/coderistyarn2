@@ -1,0 +1,40 @@
+-- Database Import Instructions --
+
+The tour guide user type has been added to your SJDM Tours database structure.
+
+## To complete the setup, you need to:
+
+1. **Import the updated database:**
+   ```bash
+   mysql -u root -p sjdm_tours < sjdm_tours.sql
+   ```
+
+2. **Verify the import was successful** by checking:
+   - Users table has 'tour_guide' in user_type enum
+   - Tour guide accounts exist (Juan Santos, Maria Reyes)
+   - Tour guide profiles table exists
+
+## Tour Guide Test Accounts:
+- **Email**: juan.santos@tourguide.com
+- **Password**: password123
+
+- **Email**: maria.reyes@tourguide.com  
+- **Password**: password123
+
+## Fixed Issues:
+✅ Added 'preferences_set' column to users table
+✅ Fixed foreign key constraints (tables created in correct order)
+✅ Added tour guide redirection logic in login system
+✅ Updated JavaScript to handle tour guide user type
+
+## After Import:
+1. Try logging in with the tour guide accounts
+2. You should be redirected to: tour-guide/dashboard.php
+3. The "Invalid email or password" error should be resolved
+
+If you're still getting login errors after importing the database, the issue might be:
+- Database wasn't imported correctly
+- MySQL connection issues
+- File permissions
+
+Run the import command first, then test the login.

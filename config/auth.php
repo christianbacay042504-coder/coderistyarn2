@@ -16,6 +16,11 @@ function isAdmin() {
     return isLoggedIn() && isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
 }
 
+// Check if user is tour guide
+function isTourGuide() {
+    return isLoggedIn() && isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'tour_guide';
+}
+
 // Get current user ID
 function getCurrentUserId() {
     return isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
@@ -54,7 +59,7 @@ function loginUser($email, $password) {
     }
     
     // Get user by email
-    $stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, user_type, status, preferences_set FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, first_name, last_name, email, password, user_type, status FROM users WHERE email = ?");
     if (!$stmt) {
         error_log("Prepare statement failed: " . $conn->error);
         closeDatabaseConnection($conn);
@@ -114,14 +119,10 @@ function loginUser($email, $password) {
     $_SESSION['email'] = $user['email'];
     $_SESSION['user_type'] = $user['user_type'];
     
-    // Check if user has set preferences
-    $preferencesSet = $user['preferences_set'] ?? 0;
-    
     return [
         'success' => true, 
         'message' => 'Login successful',
-        'user_type' => $user['user_type'],
-        'preferences_set' => $preferencesSet
+        'user_type' => $user['user_type']
     ];
 }
 
@@ -234,71 +235,77 @@ function requireAdmin() {
     }
 }
 
-// Save user preferences
-function saveUserPreferences($userId, $categories) {
+// Redirect if not tour guide
+function requireTourGuide() {
+    if (!isTourGuide()) {
+        header('Location: ../log-in.php');
+        exit();
+    }
+}
+
+// Register tour guide
+function registerTourGuide($firstName, $lastName, $email, $password, $licenseNumber, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio) {
     $conn = getDatabaseConnection();
     if (!$conn) {
         return ['success' => false, 'message' => 'Database connection failed'];
     }
     
     try {
-        // Start transaction
         $conn->begin_transaction();
         
-        // Clear existing preferences
-        $deleteStmt = $conn->prepare("DELETE FROM user_preferences WHERE user_id = ?");
-        $deleteStmt->bind_param("i", $userId);
-        $deleteStmt->execute();
-        $deleteStmt->close();
+        // Check if email already exists
+        $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $checkStmt->bind_param("s", $email);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
         
-        // Insert new preferences
-        $insertStmt = $conn->prepare("INSERT INTO user_preferences (user_id, category) VALUES (?, ?)");
-        foreach ($categories as $category) {
-            $insertStmt->bind_param("is", $userId, $category);
-            $insertStmt->execute();
+        if ($checkResult->num_rows > 0) {
+            $checkStmt->close();
+            $conn->rollback();
+            closeDatabaseConnection($conn);
+            return ['success' => false, 'message' => 'Email already exists'];
         }
-        $insertStmt->close();
+        $checkStmt->close();
         
-        // Mark preferences as set
-        $updateStmt = $conn->prepare("UPDATE users SET preferences_set = 1 WHERE id = ?");
-        $updateStmt->bind_param("i", $userId);
-        $updateStmt->execute();
-        $updateStmt->close();
+        // Hash password
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         
-        // Commit transaction
+        // Insert new user with tour_guide type
+        $userStmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, user_type) VALUES (?, ?, ?, ?, 'tour_guide')");
+        $userStmt->bind_param("ssss", $firstName, $lastName, $email, $hashedPassword);
+        
+        if (!$userStmt->execute()) {
+            $userStmt->close();
+            $conn->rollback();
+            closeDatabaseConnection($conn);
+            return ['success' => false, 'message' => 'Failed to create user account'];
+        }
+        
+        $userId = $userStmt->insert_id;
+        $userStmt->close();
+        
+        // Insert tour guide details
+        $guideStmt = $conn->prepare("INSERT INTO tour_guides (user_id, license_number, specialization, experience_years, languages, hourly_rate, contact_number, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $guideStmt->bind_param("issisids", $userId, $licenseNumber, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio);
+        
+        if (!$guideStmt->execute()) {
+            $guideStmt->close();
+            $conn->rollback();
+            closeDatabaseConnection($conn);
+            return ['success' => false, 'message' => 'Failed to create tour guide profile'];
+        }
+        
+        $guideStmt->close();
         $conn->commit();
         closeDatabaseConnection($conn);
         
-        return ['success' => true, 'message' => 'Preferences saved successfully'];
+        return ['success' => true, 'message' => 'Tour guide registration successful', 'user_id' => $userId];
         
     } catch (Exception $e) {
         $conn->rollback();
         closeDatabaseConnection($conn);
-        return ['success' => false, 'message' => 'Error saving preferences: ' . $e->getMessage()];
+        return ['success' => false, 'message' => 'Registration failed: ' . $e->getMessage()];
     }
-}
-
-// Get user preferences
-function getUserPreferences($userId) {
-    $conn = getDatabaseConnection();
-    if (!$conn) {
-        return [];
-    }
-    
-    $stmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $preferences = [];
-    while ($row = $result->fetch_assoc()) {
-        $preferences[] = $row['category'];
-    }
-    
-    $stmt->close();
-    closeDatabaseConnection($conn);
-    
-    return $preferences;
 }
 
 // Get available categories

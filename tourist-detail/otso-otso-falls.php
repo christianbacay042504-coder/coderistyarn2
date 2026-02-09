@@ -509,9 +509,9 @@
         .modal-content {
             background: white;
             border-radius: 16px;
-            max-width: 650px;
+            max-width: 580px;
             width: 100%;
-            max-height: 85vh;
+            max-height: 80vh;
             overflow: hidden;
             animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
@@ -1077,7 +1077,7 @@
             }
 
             .modal-content {
-                max-height: 98vh;
+                max-height: 93vh;
                 border-radius: 16px;
             }
 

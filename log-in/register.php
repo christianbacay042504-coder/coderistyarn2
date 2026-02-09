@@ -108,7 +108,7 @@ if (isLoggedIn()) {
         <div class="login-right-panel">
             <div class="login-wrapper">
                 <!-- Back to Home -->
-                <a href="log-in.php" class="back-home">
+                <a href="/coderistyarn2/log-in.php" class="back-home">
                     <span class="material-icons-outlined">arrow_back</span>
                     Back to Home
                 </a>
@@ -182,7 +182,7 @@ if (isLoggedIn()) {
                             </label>
                         </div>
                         
-                        <button type="submit" class="login-btn" id="registerBtn">
+                        <button href="/coderistyarn2/log-in.php" type="submit" class="login-btn" id="registerBtn">
                             <span>Create Account</span>
                             <span class="material-icons-outlined">person_add</span>
                         </button>

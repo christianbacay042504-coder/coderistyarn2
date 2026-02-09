@@ -813,24 +813,25 @@ CREATE TABLE `users` (
   `last_name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `user_type` enum('user','admin') DEFAULT 'user',
+  `user_type` enum('user','admin','tour_guide') DEFAULT 'user',
   `status` enum('active','inactive','suspended') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `last_login` timestamp NULL DEFAULT NULL
+  `last_login` timestamp NULL DEFAULT NULL,
+  `preferences_set` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`) VALUES
-(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-06 08:24:48', '2026-02-06 08:24:48'),
-(4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 08:00:05', '2026-02-06 08:23:56', '2026-02-06 08:23:56'),
-(5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$3Utff.JPzrx6MhyCiN5GUe305KNvbVmM5119XgUh.goaOVIY6p6JK', 'user', 'active', '2026-02-02 02:00:47', '2026-02-02 02:39:38', '2026-02-02 02:39:38'),
-(6, 'Admin', 'Dashboard', 'admin_dashboard@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL),
-(7, 'Admin', 'Users', 'admin_users@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL),
-(8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL);
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`, `preferences_set`) VALUES
+(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-06 08:24:48', '2026-02-06 08:24:48', 0),
+(4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 08:00:05', '2026-02-06 08:23:56', '2026-02-06 08:23:56', 1),
+(5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$3Utff.JPzrx6MhyCiN5GUe305KNvbVmM5119XgUh.goaOVIY6p6JK', 'user', 'active', '2026-02-02 02:00:47', '2026-02-02 02:39:38', '2026-02-02 02:39:38', 0),
+(6, 'Admin', 'Dashboard', 'admin_dashboard@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
+(7, 'Admin', 'Users', 'admin_users@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
+(8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -1111,6 +1112,86 @@ ALTER TABLE `travel_tips`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for tour guide user management
+--
+
+CREATE TABLE `tour_guide_profiles` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user_id` int(11) NOT NULL,
+    `license_number` varchar(50) DEFAULT NULL,
+    `specialization` text DEFAULT NULL,
+    `experience_years` int(11) DEFAULT 0,
+    `languages` text DEFAULT NULL,
+    `hourly_rate` decimal(10,2) DEFAULT 0.00,
+    `availability_status` enum('available','busy','offline') DEFAULT 'available',
+    `rating` decimal(3,2) DEFAULT 0.00,
+    `total_tours` int(11) DEFAULT 0,
+    `bio` text DEFAULT NULL,
+    `contact_number` varchar(20) DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `idx_tour_guide_profiles_user_id` (`user_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for tour guide availability
+--
+
+CREATE TABLE `tour_guide_availability` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `tour_guide_id` int(11) NOT NULL,
+    `available_date` date NOT NULL,
+    `start_time` time NOT NULL,
+    `end_time` time NOT NULL,
+    `status` enum('available','booked','unavailable') DEFAULT 'available',
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `idx_tour_guide_availability_guide_id` (`tour_guide_id`),
+    KEY `idx_tour_guide_availability_date` (`available_date`),
+    FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for tour guide reviews
+--
+
+CREATE TABLE `tour_guide_reviews` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `tour_guide_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    `booking_id` int(11) DEFAULT NULL,
+    `rating` int(11) NOT NULL CHECK (`rating` >= 1 AND `rating` <= 5),
+    `review` text DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+    PRIMARY KEY (`id`),
+    KEY `idx_tour_guide_reviews_guide_id` (`tour_guide_id`),
+    FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Sample tour guide user accounts
+--
+
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `preferences_set`) VALUES
+(11, 'Juan', 'Santos', 'juan.santos@tourguide.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-09 00:00:00', 0),
+(12, 'Maria', 'Reyes', 'maria.reyes@tourguide.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-09 00:00:00', 0);
+
+--
+-- Sample tour guide profiles
+--
+
+INSERT INTO `tour_guide_profiles` (`user_id`, `license_number`, `specialization`, `experience_years`, `languages`, `hourly_rate`, `contact_number`, `bio`) VALUES
+(11, 'TG-001-2026', 'Historical Tours, Nature Walks', 5, 'English, Filipino, Basic Japanese', 1500.00, '09123456789', 'Experienced tour guide specializing in rich history and natural beauty of San Jose del Monte.'),
+(12, 'TG-002-2026', 'Adventure Tours, Mountain Hiking', 3, 'English, Filipino', 1200.00, '09987654321', 'Adventure enthusiast with extensive knowledge of mountain trails and outdoor activities.');
+
+-- --------------------------------------------------------
 
 --
 -- Indexes for table `user_favorites`
