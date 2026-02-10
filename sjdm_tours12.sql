@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 06, 2026 at 01:06 PM
+-- Generation Time: Feb 10, 2026 at 07:46 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -66,7 +66,21 @@ INSERT INTO `admin_activity` (`id`, `admin_id`, `action`, `module`, `description
 (21, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:05:49'),
 (22, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:05:58'),
 (23, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:05:58'),
-(24, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:05:59');
+(24, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:05:59'),
+(25, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 21:28:28'),
+(26, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 21:36:11'),
+(27, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:39:58'),
+(28, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:48:46'),
+(29, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:49:17'),
+(30, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:50:01'),
+(31, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:50:07'),
+(32, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-08 22:51:02'),
+(33, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 07:49:39'),
+(34, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 07:52:10'),
+(35, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:10:02'),
+(36, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:12:19'),
+(37, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:21:11'),
+(38, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 12:47:41');
 
 -- --------------------------------------------------------
 
@@ -299,14 +313,14 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `guide_id`, `tour_name`, `destination`, `booking_date`, `check_in_date`, `check_out_date`, `number_of_people`, `contact_number`, `email`, `special_requests`, `total_amount`, `payment_method`, `status`, `booking_reference`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, 'Mount Balagbag Adventure Trek', NULL, '2026-02-15', NULL, NULL, 0, NULL, NULL, 'Please provide vegetarian lunch options', 1200.00, 'pay_later', 'confirmed', NULL, '2026-02-01 02:30:00', '2026-02-01 02:30:00'),
-(2, 5, 2, 'Cultural Heritage Tour', NULL, '2026-02-20', NULL, NULL, 0, NULL, NULL, 'Need wheelchair accessible transportation', 800.00, 'pay_later', 'confirmed', NULL, '2026-02-02 06:20:00', '2026-02-02 06:20:00'),
-(3, 4, 3, 'Nature Photography Workshop', NULL, '2026-02-18', NULL, NULL, 0, NULL, NULL, 'Bring extra camera batteries', 1500.00, 'pay_later', 'pending', NULL, '2026-02-03 01:15:00', '2026-02-03 01:15:00'),
-(4, 5, 4, 'Historical Walking Tour', NULL, '2026-02-25', NULL, NULL, 0, NULL, NULL, 'Include visit to local museums', 600.00, 'pay_later', 'confirmed', NULL, '2026-02-04 08:45:00', '2026-02-04 08:45:00'),
-(5, 4, 5, 'Culinary Food Tour', NULL, '2026-02-22', NULL, NULL, 0, NULL, NULL, 'Allergic to seafood', 1000.00, 'pay_later', 'confirmed', NULL, '2026-02-05 05:30:00', '2026-02-05 05:30:00'),
-(6, 1, 1, 'Sunset Mountain Hike', NULL, '2026-03-01', NULL, NULL, 0, NULL, NULL, 'Group of 4 people', 900.00, 'pay_later', 'pending', NULL, '2026-02-05 07:00:00', '2026-02-05 07:00:00'),
-(7, 5, 2, 'Religious Sites Tour', NULL, '2026-02-28', NULL, NULL, 0, NULL, NULL, 'Include transportation from hotel', 500.00, 'pay_later', 'confirmed', NULL, '2026-02-05 08:20:00', '2026-02-05 08:20:00'),
-(8, 4, 3, 'Bird Watching Expedition', NULL, '2026-03-05', NULL, NULL, 0, NULL, NULL, 'Need binoculars rental', 1800.00, 'pay_later', 'pending', NULL, '2026-02-05 09:10:00', '2026-02-05 09:10:00');
+(1, 4, NULL, 'Mount Balagbag Adventure Trek', NULL, '2026-02-15', NULL, NULL, 0, NULL, NULL, 'Please provide vegetarian lunch options', 1200.00, 'pay_later', 'confirmed', NULL, '2026-02-01 02:30:00', '2026-02-01 02:30:00'),
+(2, 5, NULL, 'Cultural Heritage Tour', NULL, '2026-02-20', NULL, NULL, 0, NULL, NULL, 'Need wheelchair accessible transportation', 800.00, 'pay_later', 'confirmed', NULL, '2026-02-02 06:20:00', '2026-02-02 06:20:00'),
+(3, 4, NULL, 'Nature Photography Workshop', NULL, '2026-02-18', NULL, NULL, 0, NULL, NULL, 'Bring extra camera batteries', 1500.00, 'pay_later', 'pending', NULL, '2026-02-03 01:15:00', '2026-02-03 01:15:00'),
+(4, 5, NULL, 'Historical Walking Tour', NULL, '2026-02-25', NULL, NULL, 0, NULL, NULL, 'Include visit to local museums', 600.00, 'pay_later', 'confirmed', NULL, '2026-02-04 08:45:00', '2026-02-04 08:45:00'),
+(5, 4, NULL, 'Culinary Food Tour', NULL, '2026-02-22', NULL, NULL, 0, NULL, NULL, 'Allergic to seafood', 1000.00, 'pay_later', 'confirmed', NULL, '2026-02-05 05:30:00', '2026-02-05 05:30:00'),
+(6, 1, NULL, 'Sunset Mountain Hike', NULL, '2026-03-01', NULL, NULL, 0, NULL, NULL, 'Group of 4 people', 900.00, 'pay_later', 'pending', NULL, '2026-02-05 07:00:00', '2026-02-05 07:00:00'),
+(7, 5, NULL, 'Religious Sites Tour', NULL, '2026-02-28', NULL, NULL, 0, NULL, NULL, 'Include transportation from hotel', 500.00, 'pay_later', 'confirmed', NULL, '2026-02-05 08:20:00', '2026-02-05 08:20:00'),
+(8, 4, NULL, 'Bird Watching Expedition', NULL, '2026-03-05', NULL, NULL, 0, NULL, NULL, 'Need binoculars rental', 1800.00, 'pay_later', 'pending', NULL, '2026-02-05 09:10:00', '2026-02-05 09:10:00');
 
 -- --------------------------------------------------------
 
@@ -353,6 +367,29 @@ INSERT INTO `destination_settings` (`id`, `setting_key`, `setting_value`, `updat
 (2, 'module_subtitle', 'Manage tourist destinations', '2026-02-06 08:07:12'),
 (3, 'default_destination_limit', '15', '2026-02-06 08:07:12'),
 (4, 'admin_mark_label', 'DS', '2026-02-06 08:07:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `guide_destinations`
+--
+
+CREATE TABLE `guide_destinations` (
+  `id` int(11) NOT NULL,
+  `guide_id` int(11) NOT NULL,
+  `destination_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `guide_destinations`
+--
+
+INSERT INTO `guide_destinations` (`id`, `guide_id`, `destination_id`, `created_at`) VALUES
+(14, 8, 13, '2026-02-07 00:00:00'),
+(15, 8, 15, '2026-02-07 00:00:00'),
+(16, 8, 17, '2026-02-07 00:00:00'),
+(17, 8, 22, '2026-02-07 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -515,7 +552,106 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (5, 5, '2026-02-05 08:45:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success'),
 (6, 1, '2026-02-04 00:00:00', '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15', 'success'),
 (7, 4, '2026-02-04 07:30:00', '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'failed'),
-(8, 5, '2026-02-03 04:00:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success');
+(8, 5, '2026-02-03 04:00:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success'),
+(9, 11, '2026-02-08 19:39:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(10, 11, '2026-02-08 19:39:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(11, 12, '2026-02-08 19:40:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(12, 11, '2026-02-08 19:40:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(13, 11, '2026-02-08 19:41:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(14, 11, '2026-02-08 19:43:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(15, 11, '2026-02-08 19:43:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(16, 11, '2026-02-08 19:57:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(17, 11, '2026-02-08 20:12:09', 'Unknown', 'Unknown', 'failed'),
+(18, 11, '2026-02-08 20:13:13', 'Unknown', 'Unknown', 'failed'),
+(19, 11, '2026-02-08 20:15:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(20, 11, '2026-02-08 20:17:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(21, 11, '2026-02-08 20:24:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(22, 11, '2026-02-08 20:24:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(23, 11, '2026-02-08 21:03:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(24, 11, '2026-02-08 21:20:58', 'Unknown', 'Unknown', 'success'),
+(25, 11, '2026-02-08 21:22:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(26, 11, '2026-02-08 21:23:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(27, 11, '2026-02-08 21:23:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(28, 13, '2026-02-08 21:25:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(29, 1, '2026-02-08 21:28:27', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(30, 4, '2026-02-08 21:35:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(31, 1, '2026-02-08 21:36:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(32, 13, '2026-02-08 21:43:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(33, 1, '2026-02-08 22:39:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(34, 13, '2026-02-08 22:42:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(35, 1, '2026-02-08 22:48:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(36, 13, '2026-02-08 22:49:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(37, 1, '2026-02-08 22:50:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(38, 13, '2026-02-08 22:50:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(39, 1, '2026-02-08 22:51:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(40, 13, '2026-02-08 22:51:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(41, 11, '2026-02-08 22:52:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(42, 11, '2026-02-08 22:53:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(43, 13, '2026-02-08 22:53:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(44, 13, '2026-02-09 01:16:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(45, 11, '2026-02-09 02:00:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(46, 11, '2026-02-09 02:03:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(47, 11, '2026-02-09 02:03:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(48, 11, '2026-02-09 02:04:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(49, 11, '2026-02-09 02:04:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(50, 11, '2026-02-09 02:04:30', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(51, 11, '2026-02-09 02:05:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(52, 11, '2026-02-09 02:05:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(53, 11, '2026-02-09 02:08:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(54, 11, '2026-02-09 02:09:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(55, 11, '2026-02-09 02:21:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(56, 11, '2026-02-09 02:22:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(57, 11, '2026-02-09 02:23:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(58, 11, '2026-02-09 02:23:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(59, 11, '2026-02-09 02:23:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(60, 11, '2026-02-09 02:29:53', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(61, 11, '2026-02-09 02:29:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(62, 11, '2026-02-09 02:31:08', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(63, 11, '2026-02-09 02:31:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(64, 11, '2026-02-09 02:31:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(65, 11, '2026-02-09 02:31:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(66, 11, '2026-02-09 02:32:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(67, 11, '2026-02-09 02:33:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(68, 11, '2026-02-09 02:33:53', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(69, 11, '2026-02-09 02:34:05', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(70, 11, '2026-02-09 02:35:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(71, 11, '2026-02-09 02:35:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(72, 11, '2026-02-09 02:37:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(73, 11, '2026-02-09 02:39:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(74, 11, '2026-02-09 02:41:51', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(75, 11, '2026-02-09 02:42:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(76, 11, '2026-02-09 02:43:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(77, 11, '2026-02-09 02:43:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(78, 11, '2026-02-09 02:44:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(79, 11, '2026-02-09 02:44:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(80, 11, '2026-02-09 02:44:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(81, 11, '2026-02-09 02:44:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(82, 11, '2026-02-09 02:46:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(83, 11, '2026-02-09 02:46:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(84, 11, '2026-02-09 02:47:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(85, 11, '2026-02-09 02:47:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(86, 11, '2026-02-09 02:48:05', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(87, 13, '2026-02-09 05:50:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(88, 13, '2026-02-10 06:07:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(89, 12, '2026-02-10 06:11:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(90, 12, '2026-02-10 06:15:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(91, 13, '2026-02-10 06:15:46', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(92, 14, '2026-02-10 06:19:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(93, 14, '2026-02-10 06:19:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(94, 15, '2026-02-10 06:22:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(95, 12, '2026-02-10 06:37:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(96, 12, '2026-02-10 06:38:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
+(97, 11, '2026-02-10 06:38:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(98, 11, '2026-02-10 07:39:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(99, 1, '2026-02-10 07:49:38', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(100, 13, '2026-02-10 08:13:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(101, 1, '2026-02-10 08:21:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(102, 1, '2026-02-10 12:47:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(103, 1, '2026-02-10 12:47:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(104, 13, '2026-02-10 13:12:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
+(105, 13, '2026-02-10 15:43:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(106, 13, '2026-02-10 18:37:29', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(107, 4, '2026-02-10 18:38:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success');
 
 -- --------------------------------------------------------
 
@@ -634,27 +770,16 @@ CREATE TABLE `tourist_spots` (
 --
 
 INSERT INTO `tourist_spots` (`id`, `name`, `description`, `category`, `location`, `address`, `operating_hours`, `entrance_fee`, `difficulty_level`, `duration`, `best_time_to_visit`, `activities`, `amenities`, `contact_info`, `website`, `image_url`, `latitude`, `longitude`, `rating`, `review_count`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Mount Balagbag', 'A popular hiking destination offering breathtaking views of the city and surrounding provinces. Perfect for adventure seekers and nature lovers.', 'nature', 'San Jose del Monte, Bulacan', NULL, NULL, '500-1000', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/mount-balagbag.jpg', NULL, NULL, 4.50, 0, 'active', '2026-01-15 02:00:00', '2026-01-15 02:00:00'),
-(2, 'Grotto of San Jose del Monte', 'A peaceful religious site perfect for prayer and reflection. Features beautiful architecture and serene surroundings.', 'religious', 'San Jose del Monte, Bulacan', NULL, NULL, 'Free', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/grotto.jpg', NULL, NULL, 4.80, 0, 'active', '2026-01-16 03:00:00', '2026-01-16 03:00:00'),
-(3, 'Tungkong Mangga', 'Historical landmark and local market area showcasing the rich culture and traditions of San Jose del Monte.', 'historical', 'San Jose del Monte, Bulacan', NULL, NULL, 'Free', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/tungkong-mangga.jpg', NULL, NULL, 4.20, 0, 'active', '2026-01-17 04:00:00', '2026-01-17 04:00:00'),
-(4, 'Lambingan Bridge', 'Scenic bridge perfect for photography and romantic walks. Offers beautiful sunset views.', 'urban', 'San Jose del Monte, Bulacan', NULL, NULL, 'Free', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/lambingan-bridge.jpg', NULL, NULL, 4.60, 0, 'active', '2026-01-18 05:00:00', '2026-01-18 05:00:00'),
-(5, 'San Jose del Monte City Hall', 'Modern government building showcasing impressive architecture and local governance. Open for public tours.', 'historical', 'San Jose del Monte, Bulacan', NULL, NULL, 'Free', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/city-hall.jpg', NULL, NULL, 4.30, 0, 'active', '2026-01-19 06:00:00', '2026-01-19 06:00:00'),
-(6, 'Kaypian Park', 'Family-friendly park with playgrounds, picnic areas, and recreational facilities. Perfect for weekend outings.', 'park', 'San Jose del Monte, Bulacan', NULL, NULL, '50-200', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/kaypian-park.jpg', NULL, NULL, 4.40, 0, 'active', '2026-01-20 07:00:00', '2026-01-20 07:00:00'),
-(7, 'Minuyan Reservoir', 'Beautiful reservoir offering fishing, boating, and nature activities. Great for outdoor enthusiasts.', 'nature', 'San Jose del Monte, Bulacan', NULL, NULL, '100-300', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/minuyan-reservoir.jpg', NULL, NULL, 4.70, 0, 'active', '2026-01-21 08:00:00', '2026-01-21 08:00:00'),
-(8, 'San Lorenzo Ruiz Parish', 'Beautiful Catholic church with rich history and stunning architecture. Regular masses and religious services.', 'religious', 'San Jose del Monte, Bulacan', NULL, NULL, 'Free', 'moderate', NULL, NULL, NULL, NULL, NULL, NULL, '/images/san-lorenzo-ruiz.jpg', NULL, NULL, 4.90, 0, 'active', '2026-01-22 09:00:00', '2026-01-22 09:00:00'),
-(9, 'wdwdwdwd', 'dwdwdwdw', '', 'dwdwdwdwd', 'dwwdwdwdw', 'dwdwdwdw', 'dwdwdwd', 'easy', 'dwdwdwd', 'dwdwdwdwd', 'dwdwdwdw', 'dwdwdwddwd', 'dwdwddwd', 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', NULL, NULL, 5.00, 100, 'active', '2026-02-06 08:49:15', '2026-02-06 09:33:53'),
-(11, 'dwdwd', 'wdwdwdwd', 'historical', 'wdwdwd', 'dwdwdwd', 'dwdwdwd', 'wdwdwdw', 'difficult', 'dwdwdwd', 'wdwdwdw', 'dwdwdwdwd', 'dwdwwdd', 'dwdwdwd', 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', NULL, NULL, 5.00, 5, 'active', '2026-02-06 09:34:40', '2026-02-06 09:34:40'),
-(12, 'Abes Farm', 'Abes Farm is a premier agri-tourism destination offering visitors an authentic \r\n                        Filipino farming experience. Established over two decades ago, this family-owned \r\n                        farm provides educational and recreational activities that showcase traditional \r\n                        agricultural practices in a modern, sustainable setting.', 'farm', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 5:00 PM', 'Free', 'easy', '', 'All year round', '', 'Shed', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(13, 'Burong Falls', 'Burong Falls is one of San Jose del Monte\'s most spectacular natural attractions, featuring \r\n                        impressive multi-tiered cascades surrounded by pristine rainforest. This destination is part \r\n                        of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \r\n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '6:00 AM - 6:00 PM', '₱350', 'difficult', '', 'Dry season', 'Hiking, Trekking', '', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(14, 'City Oval & People\'s Park', 'Spanning over 10 hectares in the heart of San Jose del Monte, the City Oval and People\'s Park \r\n                        complex serves as the city\'s premier sports, recreation, and community event facility. This \r\n                        multi-purpose complex combines world-class athletic facilities with beautiful green spaces.', 'park', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:00 AM - 10:00 PM', 'Free', 'moderate', '', 'All year round', '', 'Parking, Shed', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(15, 'Kaytitinga Falls', 'Kaytitinga Falls is one of the most picturesque waterfalls in San Jose del Monte, \r\n                        featuring three stunning tiers of cascading water surrounded by lush tropical forest. \r\n                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \r\n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 10:00 AM', '₱350', 'difficult', '', 'Morning', 'Hiking, Swimming', '', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(16, 'Mt. Balagbag', 'Mt. Balagbag, standing at 777 meters above sea level, is one of the most popular hiking \r\n                        destinations near Metro Manila. Known as the \"Mt. Pulag of Bulacan,\" it offers stunning \r\n                        360-degree panoramic views of Metro Manila, Laguna de Bay, and the surrounding mountain ranges.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '6:00 AM - 6:00 PM', '₱25', 'easy', '', 'Morning', 'Hiking, Camping', 'Shed', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(17, 'Otso-Otso Falls', 'Named after the Filipino word \"otso\" meaning eight, Otso-Otso Falls is a magnificent \r\n                        series of eight interconnected waterfalls located in the pristine wilderness of San Jose del Monte. \r\n                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \r\n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 4:00 PM', '₱350', 'easy', '', 'Dry season', 'Hiking, Swimming', '', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(18, 'Our Lady of Lourdes Grotto', 'The Our Lady of Lourdes Grotto is a renowned spiritual sanctuary in San Jose del Monte, \r\n                        established in 1958 as a replica of the famous Lourdes Grotto in France. This peaceful \r\n                        religious site attracts thousands of pilgrims and visitors seeking spiritual renewal, \r\n                        healing, and divine intervention.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:00 AM - 8:00 PM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Shed', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(19, 'Padre Pio Shrine', 'The Padre Pio Shrine in San Jose del Monte is a major Catholic pilgrimage site dedicated to \r\n                        Saint Padre Pio of Pietrelcina, known for his stigmata and miraculous healings. Established in 1998, \r\n                        this spiritual complex has become one of the most visited religious sites in Bulacan, attracting \r\n                        devotees seeking spiritual guidance, healing, and miracles.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 11:00 AM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Shed, Store', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(20, 'Paradise Hill Farm', 'Paradise Hill Farm is a 25-hectare integrated sustainable farm that combines modern agricultural \r\n                        practices with eco-tourism experiences. Established in 2010, this farm utilizes organic farming \r\n                        methods, renewable energy, and water conservation techniques to create a model for sustainable \r\n                        agriculture in San Jose del Monte.', 'farm', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 5:00 PM', '₱200', 'moderate', '', 'All year round', 'Photography', 'Shed, Restaurant', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(21, 'The Rising Heart Monument', 'Standing majestically at the entrance of San Jose del Monte City, The Rising Heart Monument \r\n                        is a 15-meter tall steel sculpture that has become the city\'s most recognizable landmark. \r\n                        Completed in 2018 to celebrate the city\'s conversion from municipality to component city, \r\n                        this monument symbolizes the city\'s rising prosperity, love for community, and resilient spirit.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:30 AM - 6:30 AM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Parking, Restroom, Shed', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50'),
-(22, 'Tungtong Falls', 'Tungtong Falls is a spectacular 25-meter waterfall located within a dramatic canyon formation \r\n                        in San Jose del Monte. Named after the local term \"tungtong\" meaning \"to climb or ascend,\" \r\n                        this waterfall features a unique rock amphitheater that creates perfect acoustics and \r\n                        breathtaking visual effects when sunlight hits the cascading water.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 5:00 PM', '₱1', 'difficult', '', 'All year round', 'Hiking, Swimming', 'Parking', '', '', '', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-06 09:40:50');
+(12, 'Abes Farm', 'Abes Farm is a premier agri-tourism destination offering visitors an authentic \n                        Filipino farming experience. Established over two decades ago, this family-owned \n                        farm provides educational and recreational activities that showcase traditional \n                        agricultural practices in a modern, sustainable setting.', 'farm', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 5:00 PM', 'Free', 'difficult', '', 'All year round', '', 'Shed', '', '', 'https://tse2.mm.bing.net/th/id/OIP.6PNZ3NMvsNBmKlxJeHTXEQHaDj?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-10 08:03:23'),
+(13, 'Burong Falls', 'Burong Falls is one of San Jose del Monte\'s most spectacular natural attractions, featuring \n                        impressive multi-tiered cascades surrounded by pristine rainforest. This destination is part \n                        of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '6:00 AM - 6:00 PM', '₱350', 'difficult', '', 'Dry season', 'Hiking, Trekking', '', '', '', 'https://tse3.mm.bing.net/th/id/OIP.cLp6dchz3-ZHjFh6duCy9wHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:37:25'),
+(14, 'City Oval & People\'s Park', 'Spanning over 10 hectares in the heart of San Jose del Monte, the City Oval and People\'s Park \n                        complex serves as the city\'s premier sports, recreation, and community event facility. This \n                        multi-purpose complex combines world-class athletic facilities with beautiful green spaces.', 'park', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:00 AM - 10:00 PM', 'Free', 'moderate', '', 'All year round', '', 'Parking, Shed', '', '', 'https://tse1.mm.bing.net/th/id/OIP.1dnzg82f-NJm7SRdZ6HNBAHaFJ?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:37:55'),
+(15, 'Kaytitinga Falls', 'Kaytitinga Falls is one of the most picturesque waterfalls in San Jose del Monte, \n                        featuring three stunning tiers of cascading water surrounded by lush tropical forest. \n                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 10:00 AM', '₱350', 'difficult', '', 'Morning', 'Hiking, Swimming', '', '', '', 'https://tse4.mm.bing.net/th/id/OIP.EWW5-Bjp7Hci8KrQ7pZbrQHaEo?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:38:16'),
+(16, 'Mt. Balagbag', 'Mt. Balagbag, standing at 777 meters above sea level, is one of the most popular hiking \n                        destinations near Metro Manila. Known as the \"Mt. Pulag of Bulacan,\" it offers stunning \n                        360-degree panoramic views of Metro Manila, Laguna de Bay, and the surrounding mountain ranges.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '6:00 AM - 6:00 PM', '₱25', 'easy', '', 'Morning', 'Hiking, Camping', 'Shed', '', '', 'https://tse3.mm.bing.net/th/id/OIP.S_I-lXG6p3QDfiO8yUoxTQHaFj?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:38:52'),
+(17, 'Otso-Otso Falls', 'Named after the Filipino word \"otso\" meaning eight, Otso-Otso Falls is a magnificent \n                        series of eight interconnected waterfalls located in the pristine wilderness of San Jose del Monte. \n                        This destination is part of a trio falls tour (Burong, Otso-Otso, and Kaytitinga Falls) with a mandatory tour guide \n                        fee of PHP 350 per group (max 5 pax), arranged through the tourism office.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 4:00 PM', '₱350', 'easy', '', 'Dry season', 'Hiking, Swimming', '', '', '', 'https://tse4.mm.bing.net/th/id/OIP.SsASPok_BbP2wo1flyJvzgHaDj?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:39:13'),
+(18, 'Our Lady of Lourdes Grotto', 'The Our Lady of Lourdes Grotto is a renowned spiritual sanctuary in San Jose del Monte, \n                        established in 1958 as a replica of the famous Lourdes Grotto in France. This peaceful \n                        religious site attracts thousands of pilgrims and visitors seeking spiritual renewal, \n                        healing, and divine intervention.', 'religious', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:00 AM - 8:00 PM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Shed', '', '', 'https://tse2.mm.bing.net/th/id/OIP.3k2Pj5tL7rhVT-sDN2XSzwHaEK?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 22:41:27'),
+(20, 'Paradise Hill Farm', 'Paradise Hill Farm is a 25-hectare integrated sustainable farm that combines modern agricultural \n                        practices with eco-tourism experiences. Established in 2010, this farm utilizes organic farming \n                        methods, renewable energy, and water conservation techniques to create a model for sustainable \n                        agriculture in San Jose del Monte.', 'farm', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 5:00 PM', '₱200', 'moderate', '', 'All year round', 'Photography', 'Shed, Restaurant', '', '', 'https://tse3.mm.bing.net/th/id/OIP.K8xFcpCM-Frmj4yyT7jkmQHaE8?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:40:02'),
+(21, 'The Rising Heart Monument', 'Standing majestically at the entrance of San Jose del Monte City, The Rising Heart Monument \n                        is a 15-meter tall steel sculpture that has become the city\'s most recognizable landmark. \n                        Completed in 2018 to celebrate the city\'s conversion from municipality to component city, \n                        this monument symbolizes the city\'s rising prosperity, love for community, and resilient spirit.', 'park', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:30 AM - 6:30 AM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Parking, Restroom, Shed', '', '', 'https://tse2.mm.bing.net/th/id/OIP.NoRJkeG3JRq1XuSygZRRNwHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 22:49:11'),
+(22, 'Tungtong Falls', 'Tungtong Falls is a spectacular 25-meter waterfall located within a dramatic canyon formation \n                        in San Jose del Monte. Named after the local term \"tungtong\" meaning \"to climb or ascend,\" \n                        this waterfall features a unique rock amphitheater that creates perfect acoustics and \n                        breathtaking visual effects when sunlight hits the cascading water.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 5:00 PM', '₱1', 'difficult', '', 'All year round', 'Hiking, Swimming', 'Parking', '', '', 'https://tse3.mm.bing.net/th/id/OIP.PGdvW97mFRf7-GQD84CukQHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:40:45');
 
 -- --------------------------------------------------------
 
@@ -664,6 +789,7 @@ INSERT INTO `tourist_spots` (`id`, `name`, `description`, `category`, `location`
 
 CREATE TABLE `tour_guides` (
   `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `name` varchar(100) NOT NULL,
   `specialty` varchar(200) DEFAULT NULL,
   `category` enum('mountain','city','farm','waterfall','historical','general') NOT NULL DEFAULT 'general',
@@ -693,58 +819,73 @@ CREATE TABLE `tour_guides` (
 -- Dumping data for table `tour_guides`
 --
 
-INSERT INTO `tour_guides` (`id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Carlos Mendoza', 'Adventure Tours', 'general', NULL, 'Experienced adventure guide with expertise in mountain trekking and outdoor activities. Certified first aid provider and wilderness survival trained.', NULL, 4.80, 0, NULL, NULL, NULL, NULL, '+639123456789', 'carlos.mendoza@sjdmtours.com', NULL, 5, NULL, 0, 0, '/images/guide-carlos.jpg', 'active', '2026-01-10 01:00:00', '2026-01-10 01:00:00'),
-(2, 'Maria Santos', 'Cultural Tours', 'general', NULL, 'Passionate about sharing the rich cultural heritage of San Jose del Monte. Fluent in English, Tagalog, and basic Japanese.', NULL, 4.90, 0, NULL, NULL, NULL, NULL, '+639987654321', 'maria.santos@sjdmtours.com', NULL, 3, NULL, 0, 0, '/images/guide-maria.jpg', 'active', '2026-01-11 02:00:00', '2026-01-11 02:00:00'),
-(3, 'Roberto Reyes', 'Nature & Photography', 'general', NULL, 'Professional photographer and nature guide. Specializes in wildlife photography and bird watching tours.', NULL, 4.70, 0, NULL, NULL, NULL, NULL, '+639567890123', 'roberto.reyes@sjdmtours.com', NULL, 7, NULL, 0, 0, '/images/guide-roberto.jpg', 'active', '2026-01-12 03:00:00', '2026-01-12 03:00:00'),
-(4, 'Ana Cruz', 'Historical Tours', 'general', NULL, 'History enthusiast with deep knowledge of San Jose del Monte\'s colonial past and historical landmarks.', NULL, 4.60, 0, NULL, NULL, NULL, NULL, '+6393456789012', 'ana.cruz@sjdmtours.com', NULL, 4, NULL, 0, 0, '/images/guide-ana.jpg', 'active', '2026-01-13 04:00:00', '2026-01-13 04:00:00'),
-(5, 'David Lee', 'Food & Culinary Tours', 'general', NULL, 'Food expert offering culinary tours showcasing local delicacies and traditional Bulacan cuisine.', NULL, 4.50, 0, NULL, NULL, NULL, NULL, '+639234567890', 'david.lee@sjdmtours.com', NULL, 2, NULL, 0, 0, '/images/guide-david.jpg', 'active', '2026-01-14 05:00:00', '2026-01-14 05:00:00'),
-(6, 'dwdwdwd', 'dadwadwadwa', '', 'dwdwdwdw', 'dwdwdwdwd', 'wdwdwdw', 5.00, 900, 'Budget', 0.00, 0.00, 'English', '656565656', 'wdwdwdwd@g', 'dwdwdwdwdwd', 7, '10', 1, 4, 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'active', '2026-02-06 08:07:55', '2026-02-06 08:07:55'),
-(7, 'cwwwd', 'dwdwdwd', '', 'dwdwdwdwd', 'dwdwdwdwd', 'wdwdwdwd', 1.60, 8, 'Budget', 0.00, 0.00, 'dwdwd', '4343434', 'wdwdwd@g', 'dwdwdwd', 8, '7', 1, 6, 'https://instasize.com/p/ec7df4bac8564acb65519c48bdd4308fa971f82e04c7a000c70e58df08b6f61f', 'active', '2026-02-06 08:23:15', '2026-02-06 08:23:15'),
-(8, 'Ricardo Fernandez', 'Waterfall Tours', 'waterfall', 'Specialized guide for waterfall destinations and nature treks', 'Expert in leading tours to Burong Falls, Kaytitinga Falls, Otso-Otso Falls, and Tungtong Falls. Certified in wilderness safety and rescue operations.', 'Waterfall trekking, Nature photography, Swimming safety', 4.70, 25, '800-1500', 800.00, 1500.00, 'English, Tagalog', '+639123456788', 'ricardo.fernandez@sjdmtours.com', 'Available daily 6AM-6PM', 6, '1-8', 1, 45, '/images/guide-ricardo.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
-(9, 'Sofia Martinez', 'Religious Sites', 'historical', 'Expert guide for religious and historical destinations', 'Deep knowledge of Catholic heritage sites and religious landmarks. Provides spiritual and historical context for pilgrimages and cultural tours.', 'Religious history, Cultural heritage, Pilgrimage guidance', 4.80, 30, '500-1200', 500.00, 1200.00, 'English, Tagalog, Spanish', '+639987654322', 'sofia.martinez@sjdmtours.com', 'Available Tue-Sun 5AM-8PM', 4, '1-12', 1, 38, '/images/guide-sofia.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
-(10, 'Marco Alvarez', 'Mountain Trekking', 'mountain', 'Professional mountain guide and outdoor enthusiast', 'Specializes in Mt. Balagbag and other mountain destinations. Expert in trail navigation, weather assessment, and mountain safety protocols.', 'Mountain trekking, Rock climbing, Outdoor survival', 4.60, 18, '600-1000', 600.00, 1000.00, 'English, Tagalog', '+639567890124', 'marco.alvarez@sjdmtours.com', 'Available daily 5AM-5PM', 5, '1-6', 1, 28, '/images/guide-marco.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
-(11, 'Elena Rodriguez', 'City Landmarks', 'city', 'Urban tourism specialist and cultural guide', 'Expert in city tours focusing on monuments, landmarks, and urban cultural sites. Provides comprehensive historical and architectural insights.', 'Urban exploration, Cultural tours, Photography guidance', 4.50, 22, '400-800', 400.00, 800.00, 'English, Tagalog', '+6393456789013', 'elena.rodriguez@sjdmtours.com', 'Available Mon-Sat 8AM-6PM', 3, '1-10', 1, 32, '/images/guide-elena.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00');
+INSERT INTO `tour_guides` (`id`, `user_id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`) VALUES
+(8, NULL, 'Ricardo Fernandez', 'Waterfall Tours', 'waterfall', 'Specialized guide for waterfall destinations and nature treks', 'Expert in leading tours to Burong Falls, Kaytitinga Falls, Otso-Otso Falls, and Tungtong Falls. Certified in wilderness safety and rescue operations.', 'Waterfall trekking, Nature photography, Swimming safety', 4.70, 25, '800-1500', 800.00, 1500.00, 'English, Tagalog', '+639123456788', 'ricardo.fernandez@sjdmtours.com', 'Available daily 6AM-6PM', 6, '1-8', 1, 45, '/images/guide-ricardo.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
+(12, 11, 'Juan Santos', 'General Tours', '', '', '0', '', 4.50, 0, '', NULL, NULL, '', '+63900000000', 'juan.santos@tourguide.com', '', 2, '10', 1, 0, '', 'active', '2026-02-08 21:18:47', '2026-02-08 21:41:45'),
+(13, 12, 'Maria Reyes', 'General Tours', 'general', NULL, '0', NULL, 4.50, 0, NULL, NULL, NULL, NULL, '+63900000000', 'maria.reyes@tourguide.com', NULL, 2, NULL, 0, 0, NULL, 'active', '2026-02-08 21:18:47', '2026-02-08 21:18:47');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `guide_destinations`
+-- Table structure for table `tour_guide_availability`
 --
 
-CREATE TABLE `guide_destinations` (
+CREATE TABLE `tour_guide_availability` (
   `id` int(11) NOT NULL,
-  `guide_id` int(11) NOT NULL,
-  `destination_id` int(11) NOT NULL,
+  `tour_guide_id` int(11) NOT NULL,
+  `available_date` date NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `status` enum('available','booked','unavailable') DEFAULT 'available',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `guide_destinations`
+-- Table structure for table `tour_guide_profiles`
 --
 
-INSERT INTO `guide_destinations` (`id`, `guide_id`, `destination_id`, `created_at`) VALUES
-(1, 1, 13, '2026-02-06 15:00:00'),
-(2, 1, 16, '2026-02-06 15:00:00'),
-(3, 1, 22, '2026-02-06 15:00:00'),
-(4, 2, 18, '2026-02-06 15:00:00'),
-(5, 2, 21, '2026-02-06 15:00:00'),
-(6, 3, 13, '2026-02-06 15:00:00'),
-(7, 3, 15, '2026-02-06 15:00:00'),
-(8, 3, 17, '2026-02-06 15:00:00'),
-(9, 4, 18, '2026-02-06 15:00:00'),
-(10, 4, 21, '2026-02-06 15:00:00'),
-(11, 5, 13, '2026-02-06 15:00:00'),
-(12, 5, 15, '2026-02-06 15:00:00'),
-(13, 5, 16, '2026-02-06 15:00:00'),
-(14, 8, 13, '2026-02-07 00:00:00'),
-(15, 8, 15, '2026-02-07 00:00:00'),
-(16, 8, 17, '2026-02-07 00:00:00'),
-(17, 8, 22, '2026-02-07 00:00:00'),
-(18, 9, 2, '2026-02-07 00:00:00'),
-(19, 9, 18, '2026-02-07 00:00:00'),
-(20, 10, 16, '2026-02-07 00:00:00'),
-(21, 11, 21, '2026-02-07 00:00:00');
+CREATE TABLE `tour_guide_profiles` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `license_number` varchar(50) DEFAULT NULL,
+  `specialization` text DEFAULT NULL,
+  `experience_years` int(11) DEFAULT 0,
+  `languages` text DEFAULT NULL,
+  `hourly_rate` decimal(10,2) DEFAULT 0.00,
+  `availability_status` enum('available','busy','offline') DEFAULT 'available',
+  `rating` decimal(3,2) DEFAULT 0.00,
+  `total_tours` int(11) DEFAULT 0,
+  `bio` text DEFAULT NULL,
+  `contact_number` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tour_guide_profiles`
+--
+
+INSERT INTO `tour_guide_profiles` (`id`, `user_id`, `license_number`, `specialization`, `experience_years`, `languages`, `hourly_rate`, `availability_status`, `rating`, `total_tours`, `bio`, `contact_number`, `created_at`, `updated_at`) VALUES
+(1, 11, 'TG-001-2026', 'Historical Tours, Nature Walks', 5, 'English, Filipino, Basic Japanese', 1500.00, 'available', 0.00, 0, 'Experienced tour guide specializing in rich history and natural beauty of San Jose del Monte.', '09123456789', '2026-02-08 19:38:48', '2026-02-08 20:24:20'),
+(2, 12, 'TG-002-2026', 'Adventure Tours, Mountain Hiking', 3, 'English, Filipino', 1200.00, 'available', 0.00, 0, 'Adventure enthusiast with extensive knowledge of mountain trails and outdoor activities.', '09987654321', '2026-02-08 19:38:48', '2026-02-08 19:38:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tour_guide_reviews`
+--
+
+CREATE TABLE `tour_guide_reviews` (
+  `id` int(11) NOT NULL,
+  `tour_guide_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `booking_id` int(11) DEFAULT NULL,
+  `rating` int(11) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `review` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -826,12 +967,21 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`, `preferences_set`) VALUES
-(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-06 08:24:48', '2026-02-06 08:24:48', 0),
-(4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 08:00:05', '2026-02-06 08:23:56', '2026-02-06 08:23:56', 1),
+(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-10 12:47:40', '2026-02-10 12:47:40', 0),
+(4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 08:00:05', '2026-02-10 18:38:24', '2026-02-10 18:38:24', 1),
 (5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$3Utff.JPzrx6MhyCiN5GUe305KNvbVmM5119XgUh.goaOVIY6p6JK', 'user', 'active', '2026-02-02 02:00:47', '2026-02-02 02:39:38', '2026-02-02 02:39:38', 0),
 (6, 'Admin', 'Dashboard', 'admin_dashboard@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
 (7, 'Admin', 'Users', 'admin_users@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
-(8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0);
+(8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
+(11, 'Juan', 'Santos', 'juan.santos@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 07:39:11', '2026-02-10 07:39:11', 0),
+(12, 'Maria', 'Reyes', 'maria.reyes@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 06:37:59', '2026-02-10 06:37:59', 0),
+(13, 'Amiel', 'Chiang', 'amielchiang@gmail.com', '$2y$10$dgdmgYtRSk2u4Srn2AwtXuDqxM4aW24bcvhEOzIrWLy8nQhXkKHAe', 'user', 'active', '2026-02-08 21:25:16', '2026-02-10 18:37:29', '2026-02-10 18:37:29', 0),
+(14, 'angel', 'jaime', 'angeljaime@gmail.com', '$2y$10$q5qrN1zxR.hbYLZSMGBjBug2MCDuH0z1gCeIkF9JynGVcwSzD3tPy', 'user', 'active', '2026-02-10 06:16:48', '2026-02-10 06:19:19', '2026-02-10 06:19:19', 0),
+(15, 'emy', 'yes', 'amyyes@gmail.com', '$2y$10$erUHNgHJIhgUKNfPYuzsUuXBla/bhbLtsiyxKISjaeXRCpBUHvMAO', 'user', 'active', '2026-02-10 06:21:24', '2026-02-10 06:22:55', '2026-02-10 06:22:55', 0),
+(16, 'marc', 'aguilar', 'marcaguilar@gmail.com', '$2y$10$MDx6ItGazK7WDwn11I/T8eVelSoC2bybWCW8JNQkqwJfglJYX0MIG', 'user', 'active', '2026-02-10 06:31:48', '2026-02-10 06:31:58', NULL, 1),
+(17, 'elvie', 'jovero', 'elviejoveroo@gmail.com', '$2y$10$/X2rO64286/198CpuLJGBOaaBTwbhq6LfnXfYARr.wp0u2XqT.l3G', 'user', 'active', '2026-02-10 06:36:37', '2026-02-10 06:36:42', NULL, 1),
+(18, 'user', 'example', 'suer@gmail.com', '$2y$10$7HUQgKFOF4paxvtDzGAJ.ez8LSHiFCSBW0.WS3CbOPKtl7ETN8P36', 'user', 'active', '2026-02-10 07:36:37', '2026-02-10 07:36:49', NULL, 1),
+(19, 'ian', 'jovero', 'iankageyama25@gmail.com', '$2y$10$L/Trri3uiDIKHKmmDClSBOSV.7wpxTdPpH5kdoMmTQv1vlecsOSU.', 'user', 'active', '2026-02-10 08:26:02', '2026-02-10 08:26:24', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -846,18 +996,6 @@ CREATE TABLE `user_favorites` (
   `item_type` enum('tourist_spot','tour_guide','hotel') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `user_favorites`
---
-
-INSERT INTO `user_favorites` (`id`, `user_id`, `item_id`, `item_type`, `created_at`) VALUES
-(1, 4, 1, 'tourist_spot', '2026-02-01 02:30:00'),
-(2, 4, 3, 'tourist_spot', '2026-02-01 02:35:00'),
-(3, 5, 2, 'tourist_spot', '2026-02-02 06:20:00'),
-(4, 5, 1, 'tour_guide', '2026-02-02 06:25:00'),
-(5, 1, 2, 'hotel', '2026-02-03 01:15:00'),
-(6, 1, 4, 'tourist_spot', '2026-02-03 01:20:00');
 
 -- --------------------------------------------------------
 
@@ -881,6 +1019,31 @@ INSERT INTO `user_management_settings` (`id`, `setting_key`, `setting_value`, `u
 (2, 'module_subtitle', 'Manage, monitor and authorize system users', '2026-02-06 08:07:12'),
 (3, 'default_user_limit', '15', '2026-02-06 08:07:12'),
 (4, 'admin_mark_label', 'A', '2026-02-06 08:07:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_preferences`
+--
+
+CREATE TABLE `user_preferences` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_preferences`
+--
+
+INSERT INTO `user_preferences` (`id`, `user_id`, `category`, `created_at`) VALUES
+(1, 16, 'nature', '2026-02-10 06:31:58'),
+(2, 17, 'nature', '2026-02-10 06:36:42'),
+(3, 18, 'nature', '2026-02-10 07:36:49'),
+(4, 18, 'religious', '2026-02-10 07:36:49'),
+(5, 19, 'nature', '2026-02-10 08:26:24'),
+(6, 19, 'religious', '2026-02-10 08:26:24');
 
 -- --------------------------------------------------------
 
@@ -1000,6 +1163,15 @@ ALTER TABLE `destination_settings`
   ADD UNIQUE KEY `idx_key` (`setting_key`);
 
 --
+-- Indexes for table `guide_destinations`
+--
+ALTER TABLE `guide_destinations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_guide_destination` (`guide_id`,`destination_id`),
+  ADD KEY `idx_guide_id` (`guide_id`),
+  ADD KEY `idx_destination_id` (`destination_id`);
+
+--
 -- Indexes for table `homepage_content`
 --
 ALTER TABLE `homepage_content`
@@ -1072,15 +1244,6 @@ ALTER TABLE `tourist_spots`
   ADD KEY `idx_rating` (`rating`);
 
 --
--- Indexes for table `guide_destinations`
---
-ALTER TABLE `guide_destinations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_guide_id` (`guide_id`),
-  ADD KEY `idx_destination_id` (`destination_id`),
-  ADD UNIQUE KEY `unique_guide_destination` (`guide_id`,`destination_id`);
-
---
 -- Indexes for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
@@ -1088,7 +1251,31 @@ ALTER TABLE `tour_guides`
   ADD KEY `idx_category` (`category`),
   ADD KEY `idx_status` (`status`),
   ADD KEY `idx_rating` (`rating`),
-  ADD KEY `idx_verified` (`verified`);
+  ADD KEY `idx_verified` (`verified`),
+  ADD KEY `fk_tour_guides_user_id` (`user_id`);
+
+--
+-- Indexes for table `tour_guide_availability`
+--
+ALTER TABLE `tour_guide_availability`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_tour_guide_availability_guide_id` (`tour_guide_id`),
+  ADD KEY `idx_tour_guide_availability_date` (`available_date`);
+
+--
+-- Indexes for table `tour_guide_profiles`
+--
+ALTER TABLE `tour_guide_profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_tour_guide_profiles_user_id` (`user_id`);
+
+--
+-- Indexes for table `tour_guide_reviews`
+--
+ALTER TABLE `tour_guide_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_tour_guide_reviews_guide_id` (`tour_guide_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `tour_guide_settings`
@@ -1113,86 +1300,6 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
--- --------------------------------------------------------
-
---
--- Table structure for tour guide user management
---
-
-CREATE TABLE `tour_guide_profiles` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `user_id` int(11) NOT NULL,
-    `license_number` varchar(50) DEFAULT NULL,
-    `specialization` text DEFAULT NULL,
-    `experience_years` int(11) DEFAULT 0,
-    `languages` text DEFAULT NULL,
-    `hourly_rate` decimal(10,2) DEFAULT 0.00,
-    `availability_status` enum('available','busy','offline') DEFAULT 'available',
-    `rating` decimal(3,2) DEFAULT 0.00,
-    `total_tours` int(11) DEFAULT 0,
-    `bio` text DEFAULT NULL,
-    `contact_number` varchar(20) DEFAULT NULL,
-    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-    `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-    PRIMARY KEY (`id`),
-    KEY `idx_tour_guide_profiles_user_id` (`user_id`),
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Table structure for tour guide availability
---
-
-CREATE TABLE `tour_guide_availability` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `tour_guide_id` int(11) NOT NULL,
-    `available_date` date NOT NULL,
-    `start_time` time NOT NULL,
-    `end_time` time NOT NULL,
-    `status` enum('available','booked','unavailable') DEFAULT 'available',
-    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-    PRIMARY KEY (`id`),
-    KEY `idx_tour_guide_availability_guide_id` (`tour_guide_id`),
-    KEY `idx_tour_guide_availability_date` (`available_date`),
-    FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Table structure for tour guide reviews
---
-
-CREATE TABLE `tour_guide_reviews` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `tour_guide_id` int(11) NOT NULL,
-    `user_id` int(11) NOT NULL,
-    `booking_id` int(11) DEFAULT NULL,
-    `rating` int(11) NOT NULL CHECK (`rating` >= 1 AND `rating` <= 5),
-    `review` text DEFAULT NULL,
-    `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-    PRIMARY KEY (`id`),
-    KEY `idx_tour_guide_reviews_guide_id` (`tour_guide_id`),
-    FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Sample tour guide user accounts
---
-
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `preferences_set`) VALUES
-(11, 'Juan', 'Santos', 'juan.santos@tourguide.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-09 00:00:00', 0),
-(12, 'Maria', 'Reyes', 'maria.reyes@tourguide.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-09 00:00:00', 0);
-
---
--- Sample tour guide profiles
---
-
-INSERT INTO `tour_guide_profiles` (`user_id`, `license_number`, `specialization`, `experience_years`, `languages`, `hourly_rate`, `contact_number`, `bio`) VALUES
-(11, 'TG-001-2026', 'Historical Tours, Nature Walks', 5, 'English, Filipino, Basic Japanese', 1500.00, '09123456789', 'Experienced tour guide specializing in rich history and natural beauty of San Jose del Monte.'),
-(12, 'TG-002-2026', 'Adventure Tours, Mountain Hiking', 3, 'English, Filipino', 1200.00, '09987654321', 'Adventure enthusiast with extensive knowledge of mountain trails and outdoor activities.');
-
--- --------------------------------------------------------
-
 --
 -- Indexes for table `user_favorites`
 --
@@ -1209,6 +1316,13 @@ ALTER TABLE `user_management_settings`
   ADD UNIQUE KEY `idx_key` (`setting_key`);
 
 --
+-- Indexes for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_category` (`user_id`,`category`);
+
+--
 -- Indexes for table `user_settings`
 --
 ALTER TABLE `user_settings`
@@ -1223,7 +1337,7 @@ ALTER TABLE `user_settings`
 -- AUTO_INCREMENT for table `admin_activity`
 --
 ALTER TABLE `admin_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `admin_dashboards`
@@ -1286,6 +1400,12 @@ ALTER TABLE `destination_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `guide_destinations`
+--
+ALTER TABLE `guide_destinations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
 -- AUTO_INCREMENT for table `homepage_content`
 --
 ALTER TABLE `homepage_content`
@@ -1313,7 +1433,7 @@ ALTER TABLE `local_culture`
 -- AUTO_INCREMENT for table `login_activity`
 --
 ALTER TABLE `login_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 
 --
 -- AUTO_INCREMENT for table `report_settings`
@@ -1340,16 +1460,28 @@ ALTER TABLE `tourist_spots`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT for table `guide_destinations`
---
-ALTER TABLE `guide_destinations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
 -- AUTO_INCREMENT for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `tour_guide_availability`
+--
+ALTER TABLE `tour_guide_availability`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tour_guide_profiles`
+--
+ALTER TABLE `tour_guide_profiles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `tour_guide_reviews`
+--
+ALTER TABLE `tour_guide_reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tour_guide_settings`
@@ -1367,7 +1499,7 @@ ALTER TABLE `travel_tips`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `user_favorites`
@@ -1380,6 +1512,12 @@ ALTER TABLE `user_favorites`
 --
 ALTER TABLE `user_management_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `user_settings`
@@ -1432,8 +1570,8 @@ ALTER TABLE `bookings`
 -- Constraints for table `guide_destinations`
 --
 ALTER TABLE `guide_destinations`
-  ADD CONSTRAINT `fk_guide_destinations_guide` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_guide_destinations_destination` FOREIGN KEY (`destination_id`) REFERENCES `tourist_spots` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_guide_destinations_destination` FOREIGN KEY (`destination_id`) REFERENCES `tourist_spots` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_guide_destinations_guide` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `login_activity`
@@ -1448,11 +1586,42 @@ ALTER TABLE `saved_tours`
   ADD CONSTRAINT `saved_tours_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `tour_guides`
+--
+ALTER TABLE `tour_guides`
+  ADD CONSTRAINT `fk_tour_guides_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `tour_guide_availability`
+--
+ALTER TABLE `tour_guide_availability`
+  ADD CONSTRAINT `tour_guide_availability_ibfk_1` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tour_guide_profiles`
+--
+ALTER TABLE `tour_guide_profiles`
+  ADD CONSTRAINT `tour_guide_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tour_guide_reviews`
+--
+ALTER TABLE `tour_guide_reviews`
+  ADD CONSTRAINT `tour_guide_reviews_ibfk_1` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tour_guide_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `user_favorites`
 --
 ALTER TABLE `user_favorites`
   ADD CONSTRAINT `fk_user_favorites_item` FOREIGN KEY (`item_id`) REFERENCES `tourist_spots` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_user_favorites_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_preferences`
+--
+ALTER TABLE `user_preferences`
+  ADD CONSTRAINT `user_preferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_settings`
