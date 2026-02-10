@@ -512,15 +512,24 @@ function submitBooking() {
         const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
         const bookingNumber = 'SJDM-' + Date.now().toString().slice(-8);
 
-        bookings.push({
+        const newBooking = {
             id: Date.now(),
             bookingNumber: bookingNumber,
             ...bookingData,
-            status: 'confirmed',
-            dateBooked: new Date().toISOString()
-        });
+            status: 'pending', // Pending confirmation from tour guide
+            dateBooked: new Date().toISOString(),
+            start_time: '09:00:00',
+            end_time: '17:00:00',
+            total_amount: 2500 + (100 * bookingData.guests) + 300 // guide fee + entrance + service
+        };
 
+        bookings.push(newBooking);
         localStorage.setItem('userBookings', JSON.stringify(bookings));
+
+        // Also save to tour guide bookings (separate storage for tour guide access)
+        const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
+        guideBookings.push(newBooking);
+        localStorage.setItem('tourGuideBookings', JSON.stringify(guideBookings));
 
         // Move to confirmation step
         nextStep();

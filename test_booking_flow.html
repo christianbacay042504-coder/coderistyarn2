@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Booking Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test Booking Flow</h1>
+    
+    <div class="test-section">
+        <h2>Step 1: Simulate Booking from Otso-Otso Falls</h2>
+        <button onclick="simulateBooking()">Create Test Booking</button>
+        <div id="bookingResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 2: Check localStorage Data</h2>
+        <button onclick="checkLocalStorage()">View localStorage Data</button>
+        <div id="storageResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 3: Test Tour Guide Actions</h2>
+        <button onclick="testConfirmAction()">Test Confirm Action</button>
+        <button onclick="testRejectAction()">Test Reject Action</button>
+        <div id="actionResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 4: Clear Test Data</h2>
+        <button onclick="clearTestData()">Clear All Test Data</button>
+        <div id="clearResult"></div>
+    </div>
+
+    <script>
+        function simulateBooking() {
+            const bookingData = {
+                id: Date.now(),
+                bookingNumber: 'SJDM-' + Date.now().toString().slice(-8),
+                guide_id: '1',
+                destination: 'Otso-Otso Falls',
+                date: '2026-02-15',
+                guests: '2',
+                full_name: 'John Doe',
+                email: 'john@example.com',
+                contact: '+63 912 345 6789',
+                address: 'Test Address',
+                nationality: 'Filipino',
+                emergency_name: 'Jane Doe',
+                emergency_contact: '+63 912 345 6788',
+                special_requests: 'Test special request',
+                payment_method: 'cash',
+                terms_agreed: true,
+                cancellation_acknowledged: true,
+                booking_date: new Date().toISOString(),
+                status: 'pending',
+                dateBooked: new Date().toISOString(),
+                start_time: '09:00:00',
+                end_time: '17:00:00',
+                total_amount: 2900
+            };
+
+            // Save to both storages
+            const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+            const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
+            
+            userBookings.push(bookingData);
+            guideBookings.push(bookingData);
+            
+            localStorage.setItem('userBookings', JSON.stringify(userBookings));
+            localStorage.setItem('tourGuideBookings', JSON.stringify(guideBookings));
+
+            document.getElementById('bookingResult').innerHTML = 
+                '<span class="success">✓ Test booking created successfully!</span><br>' +
+                'Booking ID: ' + bookingData.id + '<br>' +
+                'Booking Number: ' + bookingData.bookingNumber + '<br>' +
+                'Status: ' + bookingData.status;
+        }
+
+        function checkLocalStorage() {
+            const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+            const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
+            
+            let html = '<h3>User Bookings (' + userBookings.length + ')</h3>';
+            userBookings.forEach(booking => {
+                html += `<p>ID: ${booking.id}, Status: ${booking.status}, Destination: ${booking.destination}</p>`;
+            });
+            
+            html += '<h3>Tour Guide Bookings (' + guideBookings.length + ')</h3>';
+            guideBookings.forEach(booking => {
+                html += `<p>ID: ${booking.id}, Status: ${booking.status}, Destination: ${booking.destination}</p>`;
+            });
+            
+            document.getElementById('storageResult').innerHTML = html;
+        }
+
+        function testConfirmAction() {
+            const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
+            const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+            
+            if (guideBookings.length === 0) {
+                document.getElementById('actionResult').innerHTML = 
+                    '<span class="error">✗ No bookings found. Create a test booking first.</span>';
+                return;
+            }
+
+            const lastBooking = guideBookings[guideBookings.length - 1];
+            
+            // Update status to confirmed
+            const guideIndex = guideBookings.findIndex(b => b.id === lastBooking.id);
+            const userIndex = userBookings.findIndex(b => b.id === lastBooking.id);
+            
+            if (guideIndex !== -1) {
+                guideBookings[guideIndex].status = 'confirmed';
+                localStorage.setItem('tourGuideBookings', JSON.stringify(guideBookings));
+            }
+            
+            if (userIndex !== -1) {
+                userBookings[userIndex].status = 'confirmed';
+                localStorage.setItem('userBookings', JSON.stringify(userBookings));
+            }
+
+            document.getElementById('actionResult').innerHTML = 
+                '<span class="success">✓ Booking confirmed successfully!</span><br>' +
+                'Booking ID: ' + lastBooking.id + '<br>' +
+                'New Status: confirmed';
+        }
+
+        function testRejectAction() {
+            const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
+            const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
+            
+            if (guideBookings.length === 0) {
+                document.getElementById('actionResult').innerHTML = 
+                    '<span class="error">✗ No bookings found. Create a test booking first.</span>';
+                return;
+            }
+
+            const lastBooking = guideBookings[guideBookings.length - 1];
+            
+            // Update status to rejected
+            const guideIndex = guideBookings.findIndex(b => b.id === lastBooking.id);
+            const userIndex = userBookings.findIndex(b => b.id === lastBooking.id);
+            
+            if (guideIndex !== -1) {
+                guideBookings[guideIndex].status = 'rejected';
+                localStorage.setItem('tourGuideBookings', JSON.stringify(guideBookings));
+            }
+            
+            if (userIndex !== -1) {
+                userBookings[userIndex].status = 'rejected';
+                localStorage.setItem('userBookings', JSON.stringify(userBookings));
+            }
+
+            document.getElementById('actionResult').innerHTML = 
+                '<span class="success">✓ Booking rejected successfully!</span><br>' +
+                'Booking ID: ' + lastBooking.id + '<br>' +
+                'New Status: rejected';
+        }
+
+        function clearTestData() {
+            localStorage.removeItem('userBookings');
+            localStorage.removeItem('tourGuideBookings');
+            document.getElementById('clearResult').innerHTML = 
+                '<span class="success">✓ All test data cleared!</span>';
+            
+            // Clear other results
+            document.getElementById('bookingResult').innerHTML = '';
+            document.getElementById('storageResult').innerHTML = '';
+            document.getElementById('actionResult').innerHTML = '';
+        }
+
+        // Check current state on load
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

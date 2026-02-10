@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Redirect if already logged in
+// Redirect if already logged in (but not if just logged out)
 if (isLoggedIn() && !isset($_SESSION['logout_message'])) {
     if (isAdmin()) {
         header('Location: admin/dashboard.php');

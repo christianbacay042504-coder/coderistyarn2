@@ -158,11 +158,119 @@ function registerUser($firstName, $lastName, $email, $password) {
         $stmt->close();
         closeDatabaseConnection($conn);
         
+        // Auto-login the user after registration
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['first_name'] = $firstName;
+        $_SESSION['last_name'] = $lastName;
+        $_SESSION['email'] = $email;
+        $_SESSION['user_type'] = 'user';
+        
         return ['success' => true, 'message' => 'Registration successful', 'user_id' => $userId];
     } else {
         $stmt->close();
         closeDatabaseConnection($conn);
         return ['success' => false, 'message' => 'Registration failed'];
+    }
+}
+
+// Save user preferences
+function saveUserPreferences($userId, $preferredTourType, $difficultyLevel, $groupSizePreference, $emailNotifications, $newsletterSubscription) {
+    $conn = getDatabaseConnection();
+    if (!$conn) {
+        return ['success' => false, 'message' => 'Database connection failed'];
+    }
+    
+    try {
+        // Create user_preferences table if it doesn't exist
+        $createTableSQL = "
+            CREATE TABLE IF NOT EXISTS user_preferences (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                preferred_tour_type VARCHAR(50) DEFAULT NULL,
+                difficulty_level VARCHAR(20) DEFAULT NULL,
+                group_size_preference VARCHAR(20) DEFAULT NULL,
+                email_notifications TINYINT(1) DEFAULT 0,
+                newsletter_subscription TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_user_preference (user_id)
+            )
+        ";
+        
+        if (!$conn->query($createTableSQL)) {
+            error_log("Error creating user_preferences table: " . $conn->error);
+            closeDatabaseConnection($conn);
+            return ['success' => false, 'message' => 'Failed to create preferences table'];
+        }
+        
+        // Insert or update user preferences
+        $stmt = $conn->prepare("
+            INSERT INTO user_preferences 
+            (user_id, preferred_tour_type, difficulty_level, group_size_preference, email_notifications, newsletter_subscription) 
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+            preferred_tour_type = VALUES(preferred_tour_type),
+            difficulty_level = VALUES(difficulty_level),
+            group_size_preference = VALUES(group_size_preference),
+            email_notifications = VALUES(email_notifications),
+            newsletter_subscription = VALUES(newsletter_subscription),
+            updated_at = CURRENT_TIMESTAMP
+        ");
+        
+        $stmt->bind_param("isssii", $userId, $preferredTourType, $difficultyLevel, $groupSizePreference, $emailNotifications, $newsletterSubscription);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            closeDatabaseConnection($conn);
+            return ['success' => true, 'message' => 'User preferences saved successfully'];
+        } else {
+            $stmt->close();
+            closeDatabaseConnection($conn);
+            return ['success' => false, 'message' => 'Failed to save user preferences'];
+        }
+        
+    } catch (Exception $e) {
+        error_log("Error saving user preferences: " . $e->getMessage());
+        closeDatabaseConnection($conn);
+        return ['success' => false, 'message' => 'An error occurred while saving preferences'];
+    }
+}
+
+// Get user preferences
+function getUserPreferences($userId) {
+    $conn = getDatabaseConnection();
+    if (!$conn) {
+        return null;
+    }
+    
+    try {
+        $stmt = $conn->prepare("
+            SELECT preferred_tour_type, difficulty_level, group_size_preference, 
+                   email_notifications, newsletter_subscription 
+            FROM user_preferences 
+            WHERE user_id = ?
+        ");
+        
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $preferences = $result->fetch_assoc();
+            $stmt->close();
+            closeDatabaseConnection($conn);
+            return $preferences;
+        }
+        
+        $stmt->close();
+        closeDatabaseConnection($conn);
+        return null;
+        
+    } catch (Exception $e) {
+        error_log("Error getting user preferences: " . $e->getMessage());
+        closeDatabaseConnection($conn);
+        return null;
     }
 }
 

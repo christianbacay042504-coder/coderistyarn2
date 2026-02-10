@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $result = registerUser($firstName, $lastName, $email, $password);
+    
     echo json_encode($result);
     exit();
 }
@@ -37,7 +38,7 @@ if (isLoggedIn()) {
     if (isAdmin()) {
         header('Location: /coderistyarn2/admin/dashboard.php');
     } else {
-        header('Location: /coderistyarn2/sjdm-user/index.php');
+        header('Location: /coderistyarn2/index.php');
     }
     exit();
 }
@@ -175,12 +176,7 @@ if (isLoggedIn()) {
                             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="remember-me">
-                                <input type="checkbox" id="terms" required>
-                                <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
-                            </label>
-                        </div>
+                     
                         
                         <button href="/coderistyarn2/log-in.php" type="submit" class="login-btn" id="registerBtn">
                             <span>Create Account</span>
@@ -297,7 +293,6 @@ if (isLoggedIn()) {
                 const email = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
-                const terms = document.getElementById('terms').checked;
                 
                 // Validation
                 if (!firstName || !lastName || !email || !password || !confirmPassword) {
@@ -315,11 +310,6 @@ if (isLoggedIn()) {
                     return;
                 }
                 
-                if (!terms) {
-                    showAlert('Please agree to the terms and conditions', 'error');
-                    return;
-                }
-                
                 // Show loading state
                 const submitBtn = document.getElementById('registerBtn');
                 const originalText = submitBtn.innerHTML;
@@ -329,7 +319,7 @@ if (isLoggedIn()) {
                 `;
                 submitBtn.disabled = true;
                 
-                // Create FormData
+                // Create FormData with basic registration fields
                 const formData = new FormData(registerForm);
                 
                 // Send AJAX request
@@ -343,9 +333,9 @@ if (isLoggedIn()) {
                     submitBtn.disabled = false;
                     
                     if (data.success) {
-                        showAlert(data.message + ' Redirecting to login...', 'success');
+                        showAlert(data.message + ' Redirecting to preferences...', 'success');
                         setTimeout(() => {
-                            window.location.href = 'log-in.php';
+                            window.location.href = '../sjdm-user/user-preferences.php';
                         }, 1500);
                     } else {
                         showAlert(data.message, 'error');

@@ -347,6 +347,96 @@ if ($conn) {
             box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
         }
 
+        /* Full-width layout styles */
+        .main-content.full-width {
+            margin-left: 0;
+            max-width: 100%;
+        }
+
+        .main-content.full-width .main-header {
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gray-50);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-link .material-icons-outlined {
+            font-size: 18px;
+        }
+
+        .btn-signin {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-signin:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .main-content.full-width .content-area {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
         @media (max-width: 768px) {
             .spot-cards {
                 grid-template-columns: 1fr;
@@ -371,89 +461,97 @@ if ($conn) {
             .suggestion-category h4 {
                 font-size: 12px;
             }
+            
+            .main-content.full-width .main-header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .header-right {
+                justify-content: center;
+            }
+            
+            .header-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                padding: 6px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 12px;
+                gap: 4px;
+            }
+            
+            .nav-link .material-icons-outlined {
+                font-size: 16px;
+            }
+            
+            .main-content.full-width .content-area {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body class="travel-tips-page">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <h1>SJDM Tours</h1>
-            <p>Explore San Jose del Monte</p>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a class="nav-item" href="index.php">
-                <span class="material-icons-outlined">home</span>
-                <span>Home</span>
-            </a>
-            <a class="nav-item" href="user-guides.php">
-                <span class="material-icons-outlined">people</span>
-                <span>Tour Guides</span>
-            </a>
-            <a class="nav-item" href="book.php">
-                <span class="material-icons-outlined">event</span>
-                <span>Book Now</span>
-            </a>
-            <a class="nav-item" href="tourist-spots.php">
-                <span class="material-icons-outlined">place</span>
-                <span>Tourist Spots</span>
-            </a>
-            <a class="nav-item" href="local-culture.php">
-                <span class="material-icons-outlined">theater_comedy</span>
-                <span>Local Culture</span>
-            </a>
-            <a class="nav-item active" href="javascript:void(0)">
-                <span class="material-icons-outlined">tips_and_updates</span>
-                <span>Travel Tips</span>
-            </a>
-        </nav>
-    </aside>
-
     <!-- MAIN CONTENT -->
-    <main class="main-content">
+    <main class="main-content full-width">
         <header class="main-header">
-            <h1>Travel Tips</h1>
-            <div class="search-bar">
-                <span class="material-icons-outlined">search</span>
-                <input type="text" placeholder="Search travel tips, hotels, or restaurants...">
+            <div class="header-left">
+                <h1>Travel Tips</h1>
+                <div class="search-bar">
+                    <span class="material-icons-outlined">search</span>
+                    <input type="text" placeholder="Search travel tips...">
+                </div>
             </div>
-            <div class="header-actions">
-                <button class="icon-button">
-                    <span class="material-icons-outlined">notifications_none</span>
-                    <span class="notification-badge" style="display: none;">0</span>
-                </button>
-                <!-- User Profile Dropdown -->
-                <div class="user-profile-dropdown">
-                    <button class="profile-trigger">
-                        <div class="profile-avatar">
-                            <?php echo substr(htmlspecialchars($currentUser['name'] ?? 'U'), 0, 1); ?>
-                        </div>
-                        <span class="profile-name"><?php echo htmlspecialchars(explode(' ', $currentUser['name'] ?? 'User')[0]); ?></span>
-                        <span class="material-icons-outlined">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-header">
-                            <div class="profile-avatar-large">
-                                <?php echo substr(htmlspecialchars($currentUser['name'] ?? 'US'), 0, 2); ?>
-                            </div>
-                            <h4><?php echo htmlspecialchars($currentUser['name'] ?? 'User'); ?></h4>
-                            <p><?php echo htmlspecialchars($currentUser['email'] ?? ''); ?></p>
-                        </div>
-                        <a href="profile.php" class="dropdown-item">
-                            <span class="material-icons-outlined">account_circle</span>
-                            <span>My Profile</span>
-                        </a>
-                        <a href="logout.php" class="dropdown-item">
-                            <span class="material-icons-outlined">logout</span>
-                            <span>Log Out</span>
-                        </a>
-                    </div>
+            <div class="header-right">
+                <nav class="header-nav">
+                    <a href="../index.php" class="nav-link active">
+                        <span class="material-icons-outlined">home</span>
+                        <span>Home</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <nav class="header-nav">
+                    <a href="index.php" class="nav-link">
+                        <span class="material-icons-outlined">dashboard</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="user-guides.php" class="nav-link">
+                        <span class="material-icons-outlined">people</span>
+                        <span>Tour Guides</span>
+                    </a>
+                    <a href="book.php" class="nav-link">
+                        <span class="material-icons-outlined">event</span>
+                        <span>Book Now</span>
+                    </a>
+                    <a href="tourist-spots.php" class="nav-link">
+                        <span class="material-icons-outlined">place</span>
+                        <span>Tourist Spots</span>
+                    </a>
+                    <a href="local-culture.php" class="nav-link">
+                        <span class="material-icons-outlined">theater_comedy</span>
+                        <span>Local Culture</span>
+                    </a>
+                    <a href="javascript:void(0)" class="nav-link active">
+                        <span class="material-icons-outlined">tips_and_updates</span>
+                        <span>Travel Tips</span>
+                    </a>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
                 </div>
-               
-                </div>
-                
-               
+            </div>
         </header>
 
         <div class="content-area">
@@ -644,96 +742,11 @@ if ($conn) {
 
     <script src="script.js"></script>
     <script>
-        // ========== USER PROFILE DROPDOWN ==========
-        function initUserProfileDropdown() {
-            const profileDropdown = document.querySelector('.user-profile-dropdown');
-            const profileTrigger = document.querySelector('.profile-trigger');
-            const dropdownMenu = document.querySelector('.dropdown-menu');
-            const logoutLink = document.querySelector('[href="../log-in/logout.php"]');
-
-            if (!profileDropdown || !profileTrigger || !dropdownMenu) {
-                console.log('Profile dropdown elements not found');
-                return;
-            }
-
-            // Toggle dropdown on click
-            profileTrigger.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownMenu.classList.toggle('show');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!profileDropdown.contains(e.target)) {
-                    dropdownMenu.classList.remove('show');
-                }
-            });
-
-            // Handle logout with confirmation
-            if (logoutLink) {
-                logoutLink.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showLogoutConfirmation();
-                });
-            }
-        }
-
-        // Show logout confirmation modal
-        function showLogoutConfirmation() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content logout-modal">
-                    <div class="modal-header">
-                        <h2>Sign Out</h2>
-                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
-                            <span class="material-icons-outlined">close</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="logout-message">
-                            <div class="logout-icon">
-                                <span class="material-icons-outlined">logout</span>
-                            </div>
-                            <h3>Confirm Sign Out</h3>
-                            <p>Are you sure you want to sign out of your account?</p>
-                        </div>
-                        <div class="modal-actions">
-                            <button class="btn-cancel" onclick="document.querySelector('.modal-overlay').remove()">
-                                <span class="material-icons-outlined">close</span>
-                                Cancel
-                            </button>
-                            <button class="btn-confirm-logout" onclick="confirmLogout()">
-                                <span class="material-icons-outlined">logout</span>
-                                Sign Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            setTimeout(() => modal.classList.add('show'), 10);
-        }
-
-        // Confirm and execute logout
-        function confirmLogout() {
-            // Remove modal
-            const modal = document.querySelector('.modal-overlay');
-            if (modal) {
-                modal.remove();
-            }
-
-            // Redirect to logout script
-            window.location.href = '../log-in/logout.php';
-        }
-
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function () {
-            initUserProfileDropdown();
+            // Profile dropdown functionality removed
         });
-        // ========================================
+        
         // TRAVEL TIPS PAGE FUNCTIONALITY
         // ========================================
 
