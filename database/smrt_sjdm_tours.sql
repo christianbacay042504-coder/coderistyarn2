@@ -1,8 +1,8 @@
 -- SJDM Tours Database Schema
 -- Created: January 30, 2026
 
-CREATE DATABASE IF NOT EXISTS sjdm_tours;
-USE sjdm_tours;
+CREATE DATABASE IF NOT EXISTS smrt_sjdm_tours;
+USE smrt_sjdm_tours;
 
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
