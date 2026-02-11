@@ -92,42 +92,79 @@ function getBooking($conn, $bookingId)
 function getBookingsList($conn, $page = 1, $limit = 15, $search = '', $status = '')
 {
     $offset = ($page - 1) * $limit;
-    $search = $conn->real_escape_string($search);
-
-    // Get bookings with pagination
+    
+    // Get bookings with pagination using prepared statements
     $bookingsQuery = "SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email
                       FROM bookings b 
                       JOIN users u ON b.user_id = u.id 
                       WHERE 1=1";
-
+    
+    $params = [];
+    $types = '';
+    
     if ($search) {
-        $bookingsQuery .= " AND (b.tour_name LIKE '%$search%' OR u.first_name LIKE '%$search%' OR u.last_name LIKE '%$search%')";
+        $bookingsQuery .= " AND (b.tour_name LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?)";
+        $searchParam = "%{$search}%";
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $types .= 'sss';
     }
-
+    
     if ($status) {
-        $bookingsQuery .= " AND b.status = '$status'";
+        $bookingsQuery .= " AND b.status = ?";
+        $params[] = $status;
+        $types .= 's';
     }
-
-    $bookingsQuery .= " ORDER BY b.created_at DESC LIMIT $limit OFFSET $offset";
-    $bookingsResult = $conn->query($bookingsQuery);
-
-    // Get total count for pagination
+    
+    $bookingsQuery .= " ORDER BY b.created_at DESC LIMIT ? OFFSET ?";
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= 'ii';
+    
+    $stmt = $conn->prepare($bookingsQuery);
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+    $stmt->execute();
+    $bookingsResult = $stmt->get_result();
+    
+    // Get total count for pagination using prepared statements
     $countQuery = "SELECT COUNT(*) as total FROM bookings b JOIN users u ON b.user_id = u.id WHERE 1=1";
+    $countParams = [];
+    $countTypes = '';
+    
     if ($search) {
-        $countQuery .= " AND (b.tour_name LIKE '%$search%' OR u.first_name LIKE '%$search%' OR u.last_name LIKE '%$search%')";
+        $countQuery .= " AND (b.tour_name LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?)";
+        $countParams[] = $searchParam;
+        $countParams[] = $searchParam;
+        $countParams[] = $searchParam;
+        $countTypes .= 'sss';
     }
+    
     if ($status) {
-        $countQuery .= " AND b.status = '$status'";
+        $countQuery .= " AND b.status = ?";
+        $countParams[] = $status;
+        $countTypes .= 's';
     }
-    $countResult = $conn->query($countQuery);
+    
+    $countStmt = $conn->prepare($countQuery);
+    if (!empty($countParams)) {
+        $countStmt->bind_param($countTypes, ...$countParams);
+    }
+    $countStmt->execute();
+    $countResult = $countStmt->get_result();
     $totalCount = $countResult->fetch_assoc()['total'];
     $totalPages = ceil($totalCount / $limit);
-
+    
     $bookings = [];
     while ($row = $bookingsResult->fetch_assoc()) {
         $bookings[] = $row;
     }
-
+    
+    $stmt->close();
+    $countStmt->close();
+    
     return [
         'bookings' => $bookings,
         'pagination' => [

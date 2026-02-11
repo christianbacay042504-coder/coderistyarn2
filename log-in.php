@@ -605,7 +605,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        $verificationRequired = true;
+        // Check if verification is required (configurable based on user settings)
+        $verificationRequired = false;
+        
+        // Check if user has verification_required column and value
+        if (isset($user['verification_required']) && $user['verification_required'] === 1) {
+            $verificationRequired = true;
+        }
+        
+        // Check system-wide verification setting from environment or config
+        $systemVerificationRequired = readEnvValue('REQUIRE_EMAIL_VERIFICATION') === 'true';
+        if ($systemVerificationRequired) {
+            $verificationRequired = true;
+        }
+        
         if ($verificationRequired) {
             $verificationCode = sprintf('%06d', mt_rand(100000, 999999));
 
