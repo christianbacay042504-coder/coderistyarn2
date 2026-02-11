@@ -3,15 +3,14 @@
 require_once '../config/database.php';
 require_once '../config/auth.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../log-in/log-in.php');
-    exit();
-}
+// Check if user is logged in (optional - for personalized content)
+$isLoggedIn = isset($_SESSION['user_id']);
 
 // Get current user data and preferences
+$currentUser = ['name' => 'Guest', 'email' => ''];
+$userPreferences = [];
 $conn = getDatabaseConnection();
-if ($conn) {
+if ($conn && $isLoggedIn) {
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -22,65 +21,59 @@ if ($conn) {
             'name' => $user['first_name'] . ' ' . $user['last_name'],
             'email' => $user['email']
         ];
-    } else {
-        // Fallback in case user not found
-        $currentUser = ['name' => 'Guest', 'email' => ''];
-    }
-    
-    // Get user preferences
-    $userPreferences = [];
-    $prefStmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
-    $prefStmt->bind_param("i", $_SESSION['user_id']);
-    $prefStmt->execute();
-    $prefResult = $prefStmt->get_result();
-    while ($pref = $prefResult->fetch_assoc()) {
-        $userPreferences[] = $pref['category'];
-    }
-    $prefStmt->close();
-    
-    // Fetch featured tourist spots filtered by user preferences
-    $featuredSpots = [];
-    if (!empty($userPreferences)) {
-        $placeholders = str_repeat('?,', count($userPreferences));
-        $placeholders = rtrim($placeholders, ',');
         
-        $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots 
-                      WHERE status = 'active' AND category IN ($placeholders) 
-                      ORDER BY rating DESC, review_count DESC LIMIT 8";
-        $spotsStmt = $conn->prepare($spotsQuery);
-        
-        $types = str_repeat('s', count($userPreferences));
-        $spotsStmt->bind_param($types, ...$userPreferences);
-        $spotsStmt->execute();
-        $spotsResult = $spotsStmt->get_result();
-        
-        if ($spotsResult) {
-            while ($spot = $spotsResult->fetch_assoc()) {
-                $featuredSpots[] = $spot;
-            }
+        // Get user preferences
+        $prefStmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
+        $prefStmt->bind_param("i", $_SESSION['user_id']);
+        $prefStmt->execute();
+        $prefResult = $prefStmt->get_result();
+        while ($pref = $prefResult->fetch_assoc()) {
+            $userPreferences[] = $pref['category'];
         }
-        $spotsStmt->close();
-    } else {
-        $spotsQuery = "SELECT name, description, image_url, rating, review_count, category FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 4";
-        $spotsResult = $conn->query($spotsQuery);
-        if ($spotsResult) {
-            while ($spot = $spotsResult->fetch_assoc()) {
-                $featuredSpots[] = $spot;
-            }
-        }
+        $prefStmt->close();
+    }
+}
+
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($email) || empty($password)) {
+        echo json_encode(['success' => false, 'message' => 'Email and password are required']);
+        exit();
     }
     
-    // Fetch homepage content from database
-    $homepageContent = [];
-    $contentQuery = "SELECT content_type, content_key, content_value, display_order FROM homepage_content WHERE status = 'active' ORDER BY display_order";
-    $contentResult = $conn->query($contentQuery);
-    if ($contentResult) {
-        while ($content = $contentResult->fetch_assoc()) {
-            $homepageContent[$content['content_type']][$content['content_key']] = $content['content_value'];
+    // Check if verification is required for this login
+    $verificationRequired = false;
+    if ($conn) {
+        $checkStmt = $conn->prepare("SELECT verification_required FROM users WHERE email = ?");
+        $checkStmt->bind_param("s", $email);
+        $checkStmt->execute();
+        $result = $checkStmt->get_result();
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $verificationRequired = $user['verification_required'] == 1;
         }
+        $checkStmt->close();
     }
     
-    closeDatabaseConnection($conn);
+    if ($verificationRequired) {
+        // Generate and send verification code
+        $verificationCode = sprintf('%06d', mt_rand(100000, 999999));
+        $_SESSION['login_verification_code'] = $verificationCode;
+        $_SESSION['login_verification_email'] = $email;
+        $_SESSION['login_verification_expires'] = time() + 600; // 10 minutes
+        
+        echo json_encode(['success' => true, 'verification_required' => true, 'message' => 'Verification code sent to your email']);
+        exit();
+    }
+    
+    // Regular login attempt
+    $result = loginUser($email, $password);
+    
+    echo json_encode($result);
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -1190,6 +1183,10 @@ if ($conn) {
                         <span class="material-icons-outlined">event</span>
                         <span>Book Now</span>
                     </a>
+                    <a href="booking-history.php" class="nav-link">
+                        <span class="material-icons-outlined">history</span>
+                        <span>Booking History</span>
+                    </a>
                     <a href="tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
@@ -1204,7 +1201,7 @@ if ($conn) {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
+                    <button class="btn-signin" onclick="window.location.href='logout.php'">Sign in/register</button>
                 </div>
             </div>
         </header>

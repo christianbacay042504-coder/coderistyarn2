@@ -43,6 +43,131 @@ body {
     overflow-x: hidden;
 }
 
+.otp-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.otp-modal.show {
+    display: flex;
+}
+
+.otp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.otp-modal-card {
+    position: relative;
+    width: min(420px, calc(100% - 40px));
+    padding: 28px 28px 22px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(27, 28, 33, 0.98) 0%, rgba(20, 21, 26, 0.98) 100%);
+    color: #f3f4f6;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+.otp-modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.otp-modal-icon .material-icons-outlined {
+    font-size: 28px;
+    color: #e5e7eb;
+}
+
+.otp-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px;
+}
+
+.otp-modal-subtitle {
+    margin: 0 0 18px;
+    color: rgba(243, 244, 246, 0.7);
+    font-size: 14px;
+}
+
+.otp-input-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin: 0 auto 18px;
+}
+
+.otp-input {
+    width: 100%;
+    height: 52px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: #f9fafb;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    outline: none;
+}
+
+.otp-input:focus {
+    border-color: rgba(59, 130, 246, 0.9);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.otp-verify-btn {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+}
+
+.otp-verify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.otp-resend {
+    margin: 16px 0 0;
+    font-size: 13px;
+    color: rgba(243, 244, 246, 0.7);
+}
+
+.otp-resend-btn {
+    margin-left: 6px;
+    border: none;
+    background: transparent;
+    color: #93c5fd;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.otp-resend-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Main Container - Side by Side Layout */
 .login-container {
     display: flex;

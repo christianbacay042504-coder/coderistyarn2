@@ -1,3 +1,24 @@
+<?php
+require_once __DIR__ . '/../config/auth.php';
+
+// Function to handle booking button clicks
+function handleBookingClick($destination) {
+    if (!isLoggedIn()) {
+        // Redirect to login page if not logged in
+        header('Location: ../log-in.php');
+        exit();
+    }
+    // If logged in, redirect to booking page
+    header('Location: ../sjdm-user/book.php?destination=' . urlencode($destination));
+    exit();
+}
+
+// Handle booking requests
+if (isset($_GET['action']) && $_GET['action'] === 'book') {
+    $destination = $_GET['destination'] ?? 'Padre Pio';
+    handleBookingClick($destination);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

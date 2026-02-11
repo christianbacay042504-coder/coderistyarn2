@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 10, 2026 at 07:46 PM
+-- Generation Time: Feb 11, 2026 at 05:21 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -80,7 +80,32 @@ INSERT INTO `admin_activity` (`id`, `admin_id`, `action`, `module`, `description
 (35, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:10:02'),
 (36, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:12:19'),
 (37, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 08:21:11'),
-(38, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 12:47:41');
+(38, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 12:47:41'),
+(39, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 22:24:20'),
+(40, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 22:25:59'),
+(41, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 22:41:32'),
+(42, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-10 22:43:47'),
+(43, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 00:40:19'),
+(44, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 00:48:37'),
+(45, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 00:49:44'),
+(46, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 00:55:57'),
+(47, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:03:37'),
+(48, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:04:52'),
+(49, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:17:13'),
+(50, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:21:49'),
+(51, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:29:44'),
+(52, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:40:04'),
+(53, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:45:11'),
+(54, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:45:14'),
+(55, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 01:45:33'),
+(56, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 02:01:23'),
+(57, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 02:19:59'),
+(58, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 02:39:32'),
+(59, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 02:54:12'),
+(60, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 02:55:21'),
+(61, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 03:05:28'),
+(62, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 03:06:03'),
+(63, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-11 03:21:12');
 
 -- --------------------------------------------------------
 
@@ -313,14 +338,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `guide_id`, `tour_name`, `destination`, `booking_date`, `check_in_date`, `check_out_date`, `number_of_people`, `contact_number`, `email`, `special_requests`, `total_amount`, `payment_method`, `status`, `booking_reference`, `created_at`, `updated_at`) VALUES
-(1, 4, NULL, 'Mount Balagbag Adventure Trek', NULL, '2026-02-15', NULL, NULL, 0, NULL, NULL, 'Please provide vegetarian lunch options', 1200.00, 'pay_later', 'confirmed', NULL, '2026-02-01 02:30:00', '2026-02-01 02:30:00'),
-(2, 5, NULL, 'Cultural Heritage Tour', NULL, '2026-02-20', NULL, NULL, 0, NULL, NULL, 'Need wheelchair accessible transportation', 800.00, 'pay_later', 'confirmed', NULL, '2026-02-02 06:20:00', '2026-02-02 06:20:00'),
-(3, 4, NULL, 'Nature Photography Workshop', NULL, '2026-02-18', NULL, NULL, 0, NULL, NULL, 'Bring extra camera batteries', 1500.00, 'pay_later', 'pending', NULL, '2026-02-03 01:15:00', '2026-02-03 01:15:00'),
-(4, 5, NULL, 'Historical Walking Tour', NULL, '2026-02-25', NULL, NULL, 0, NULL, NULL, 'Include visit to local museums', 600.00, 'pay_later', 'confirmed', NULL, '2026-02-04 08:45:00', '2026-02-04 08:45:00'),
-(5, 4, NULL, 'Culinary Food Tour', NULL, '2026-02-22', NULL, NULL, 0, NULL, NULL, 'Allergic to seafood', 1000.00, 'pay_later', 'confirmed', NULL, '2026-02-05 05:30:00', '2026-02-05 05:30:00'),
-(6, 1, NULL, 'Sunset Mountain Hike', NULL, '2026-03-01', NULL, NULL, 0, NULL, NULL, 'Group of 4 people', 900.00, 'pay_later', 'pending', NULL, '2026-02-05 07:00:00', '2026-02-05 07:00:00'),
-(7, 5, NULL, 'Religious Sites Tour', NULL, '2026-02-28', NULL, NULL, 0, NULL, NULL, 'Include transportation from hotel', 500.00, 'pay_later', 'confirmed', NULL, '2026-02-05 08:20:00', '2026-02-05 08:20:00'),
-(8, 4, NULL, 'Bird Watching Expedition', NULL, '2026-03-05', NULL, NULL, 0, NULL, NULL, 'Need binoculars rental', 1800.00, 'pay_later', 'pending', NULL, '2026-02-05 09:10:00', '2026-02-05 09:10:00');
+(14, 13, NULL, 'Tungtong Falls', 'Tungtong Falls', '2026-02-14', NULL, NULL, 3, '09705667137', 'amielchiang@gmail.com', '', 3100.00, 'pay_later', 'confirmed', 'SJDM-70777531', '2026-02-11 02:38:51', '2026-02-11 03:00:40');
 
 -- --------------------------------------------------------
 
@@ -380,16 +398,6 @@ CREATE TABLE `guide_destinations` (
   `destination_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `guide_destinations`
---
-
-INSERT INTO `guide_destinations` (`id`, `guide_id`, `destination_id`, `created_at`) VALUES
-(14, 8, 13, '2026-02-07 00:00:00'),
-(15, 8, 15, '2026-02-07 00:00:00'),
-(16, 8, 17, '2026-02-07 00:00:00'),
-(17, 8, 22, '2026-02-07 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -651,7 +659,69 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (104, 13, '2026-02-10 13:12:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
 (105, 13, '2026-02-10 15:43:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (106, 13, '2026-02-10 18:37:29', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(107, 4, '2026-02-10 18:38:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success');
+(107, 4, '2026-02-10 18:38:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(108, 13, '2026-02-10 21:36:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(109, 1, '2026-02-10 22:24:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(110, 1, '2026-02-10 22:41:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(111, 13, '2026-02-10 22:56:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(112, 13, '2026-02-10 23:13:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(113, 13, '2026-02-10 23:14:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(114, 1, '2026-02-11 00:40:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(115, 1, '2026-02-11 00:49:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(116, 1, '2026-02-11 00:55:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(117, 13, '2026-02-11 01:03:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(118, 1, '2026-02-11 01:03:36', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(119, 1, '2026-02-11 01:04:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(120, 1, '2026-02-11 01:17:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(121, 1, '2026-02-11 01:21:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(122, 1, '2026-02-11 01:21:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(123, 1, '2026-02-11 01:29:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(124, 1, '2026-02-11 01:40:02', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(125, 1, '2026-02-11 01:45:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(126, 1, '2026-02-11 01:45:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(127, 13, '2026-02-11 01:45:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(128, 13, '2026-02-11 01:53:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(129, 13, '2026-02-11 01:55:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(130, 13, '2026-02-11 01:55:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(131, 13, '2026-02-11 01:55:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(132, 13, '2026-02-11 01:56:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(133, 1, '2026-02-11 02:01:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(134, 1, '2026-02-11 02:19:58', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(135, 13, '2026-02-11 02:30:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
+(136, 13, '2026-02-11 02:30:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(137, 1, '2026-02-11 02:39:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(138, 13, '2026-02-11 02:40:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(139, 1, '2026-02-11 02:54:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(140, 13, '2026-02-11 02:54:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(141, 1, '2026-02-11 02:55:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(142, 13, '2026-02-11 03:03:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(143, 1, '2026-02-11 03:05:27', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(144, 1, '2026-02-11 03:21:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
+(145, 13, '2026-02-11 03:21:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `otp_codes`
+--
+
+CREATE TABLE `otp_codes` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `otp_code` varchar(6) NOT NULL,
+  `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_used` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `used_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `otp_codes`
+--
+
+INSERT INTO `otp_codes` (`id`, `user_id`, `email`, `otp_code`, `expires_at`, `is_used`, `created_at`, `used_at`) VALUES
+(4, 13, 'amielchiang@gmail.com', '870094', '2026-02-10 19:00:55', 0, '2026-02-11 01:55:55', NULL);
 
 -- --------------------------------------------------------
 
@@ -812,17 +882,19 @@ CREATE TABLE `tour_guides` (
   `photo_url` varchar(500) DEFAULT NULL,
   `status` enum('active','inactive') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `resume` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `tour_guides`
 --
 
-INSERT INTO `tour_guides` (`id`, `user_id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`) VALUES
-(8, NULL, 'Ricardo Fernandez', 'Waterfall Tours', 'waterfall', 'Specialized guide for waterfall destinations and nature treks', 'Expert in leading tours to Burong Falls, Kaytitinga Falls, Otso-Otso Falls, and Tungtong Falls. Certified in wilderness safety and rescue operations.', 'Waterfall trekking, Nature photography, Swimming safety', 4.70, 25, '800-1500', 800.00, 1500.00, 'English, Tagalog', '+639123456788', 'ricardo.fernandez@sjdmtours.com', 'Available daily 6AM-6PM', 6, '1-8', 1, 45, '/images/guide-ricardo.jpg', 'active', '2026-02-07 00:00:00', '2026-02-07 00:00:00'),
-(12, 11, 'Juan Santos', 'General Tours', '', '', '0', '', 4.50, 0, '', NULL, NULL, '', '+63900000000', 'juan.santos@tourguide.com', '', 2, '10', 1, 0, '', 'active', '2026-02-08 21:18:47', '2026-02-08 21:41:45'),
-(13, 12, 'Maria Reyes', 'General Tours', 'general', NULL, '0', NULL, 4.50, 0, NULL, NULL, NULL, NULL, '+63900000000', 'maria.reyes@tourguide.com', NULL, 2, NULL, 0, 0, NULL, 'active', '2026-02-08 21:18:47', '2026-02-08 21:18:47');
+INSERT INTO `tour_guides` (`id`, `user_id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`, `resume`) VALUES
+(14, NULL, 'Ian Jaime', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09099366143', 'ianjaime@gmail.com', NULL, NULL, NULL, 0, 0, NULL, '', '2026-02-11 00:39:57', '2026-02-11 00:39:57', NULL),
+(15, NULL, 'jean marcc', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '092991156561', 'jeanmarcc@gmail.com', NULL, NULL, NULL, 0, 0, NULL, '', '2026-02-11 00:49:33', '2026-02-11 00:49:33', NULL),
+(16, NULL, 'amiel jake', 'waterfall', '', 'Professional tour guide specializing in Waterfall tours.', '', '', 0.00, 0, '', NULL, NULL, '', '6514623333', 'amieljake@gmail.com', '', 0, '10', 1, 0, '', '', '2026-02-11 00:55:44', '2026-02-11 01:28:13', NULL),
+(17, NULL, 'Jean Marc  Aguilar', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09705667137', 'jeanmarcaguilar829@gmail.com', NULL, NULL, NULL, 0, 0, NULL, '', '2026-02-11 01:29:34', '2026-02-11 01:29:34', 'C:\\xampp\\htdocs\\coderistyarn2\\log-in/../uploads/resumes/698bdb7ebb537_resume.pdf');
 
 -- --------------------------------------------------------
 
@@ -967,7 +1039,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`, `preferences_set`) VALUES
-(1, 'Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-10 12:47:40', '2026-02-10 12:47:40', 0),
+(1, 'Admin', 'SJDM', 'adminlgu@gmail.com\r\n', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-11 04:20:21', '2026-02-11 03:21:11', 0),
 (4, 'Ian', 'Jovero', 'christianbacay042504@gmail.com', '$2y$10$pgyID2NX3.S.7QRB1I4GaOWoKrhDwRvN2bwS8xEvNxjlCR8KlM7pO', 'user', 'active', '2026-01-31 08:00:05', '2026-02-10 18:38:24', '2026-02-10 18:38:24', 1),
 (5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$3Utff.JPzrx6MhyCiN5GUe305KNvbVmM5119XgUh.goaOVIY6p6JK', 'user', 'active', '2026-02-02 02:00:47', '2026-02-02 02:39:38', '2026-02-02 02:39:38', 0),
 (6, 'Admin', 'Dashboard', 'admin_dashboard@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
@@ -975,13 +1047,18 @@ INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user
 (8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
 (11, 'Juan', 'Santos', 'juan.santos@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 07:39:11', '2026-02-10 07:39:11', 0),
 (12, 'Maria', 'Reyes', 'maria.reyes@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 06:37:59', '2026-02-10 06:37:59', 0),
-(13, 'Amiel', 'Chiang', 'amielchiang@gmail.com', '$2y$10$dgdmgYtRSk2u4Srn2AwtXuDqxM4aW24bcvhEOzIrWLy8nQhXkKHAe', 'user', 'active', '2026-02-08 21:25:16', '2026-02-10 18:37:29', '2026-02-10 18:37:29', 0),
+(13, 'Amiel', 'Chiang', 'amielchiang@gmail.com', '$2y$10$dgdmgYtRSk2u4Srn2AwtXuDqxM4aW24bcvhEOzIrWLy8nQhXkKHAe', 'user', 'active', '2026-02-08 21:25:16', '2026-02-11 03:21:34', '2026-02-11 03:21:34', 0),
 (14, 'angel', 'jaime', 'angeljaime@gmail.com', '$2y$10$q5qrN1zxR.hbYLZSMGBjBug2MCDuH0z1gCeIkF9JynGVcwSzD3tPy', 'user', 'active', '2026-02-10 06:16:48', '2026-02-10 06:19:19', '2026-02-10 06:19:19', 0),
 (15, 'emy', 'yes', 'amyyes@gmail.com', '$2y$10$erUHNgHJIhgUKNfPYuzsUuXBla/bhbLtsiyxKISjaeXRCpBUHvMAO', 'user', 'active', '2026-02-10 06:21:24', '2026-02-10 06:22:55', '2026-02-10 06:22:55', 0),
 (16, 'marc', 'aguilar', 'marcaguilar@gmail.com', '$2y$10$MDx6ItGazK7WDwn11I/T8eVelSoC2bybWCW8JNQkqwJfglJYX0MIG', 'user', 'active', '2026-02-10 06:31:48', '2026-02-10 06:31:58', NULL, 1),
 (17, 'elvie', 'jovero', 'elviejoveroo@gmail.com', '$2y$10$/X2rO64286/198CpuLJGBOaaBTwbhq6LfnXfYARr.wp0u2XqT.l3G', 'user', 'active', '2026-02-10 06:36:37', '2026-02-10 06:36:42', NULL, 1),
 (18, 'user', 'example', 'suer@gmail.com', '$2y$10$7HUQgKFOF4paxvtDzGAJ.ez8LSHiFCSBW0.WS3CbOPKtl7ETN8P36', 'user', 'active', '2026-02-10 07:36:37', '2026-02-10 07:36:49', NULL, 1),
-(19, 'ian', 'jovero', 'iankageyama25@gmail.com', '$2y$10$L/Trri3uiDIKHKmmDClSBOSV.7wpxTdPpH5kdoMmTQv1vlecsOSU.', 'user', 'active', '2026-02-10 08:26:02', '2026-02-10 08:26:24', NULL, 1);
+(19, 'ian', 'jovero', 'iankageyama25@gmail.com', '$2y$10$L/Trri3uiDIKHKmmDClSBOSV.7wpxTdPpH5kdoMmTQv1vlecsOSU.', 'user', 'active', '2026-02-10 08:26:02', '2026-02-10 08:26:24', NULL, 1),
+(21, 'ian ', 'jovero', 'ianjovero28', '$2y$10$CBO/1ILZgtGvgU/79kfS6elv86a89Q8QKdPaaMU3Ruo4FimGf86uW', '', 'active', '2026-02-10 22:41:10', '2026-02-10 22:41:10', NULL, 0),
+(22, 'ian', 'perdon', 'ianperdon@gmail.com', '$2y$10$nvUi8Z.9g5YQkstENwEvj.p4JHPBaFf1U72EJPkWqQ//WVo6319.W', 'user', 'active', '2026-02-10 22:44:26', '2026-02-10 22:44:31', NULL, 1),
+(25, 'Ian', 'Jaime', 'ianjaime@gmail.com', '$2y$10$V0AWwP9vNsr.XnL1r/xrKuH9ZrLiNvIXCktdnM8lpsaHBX/UG9DBS', '', 'active', '2026-02-11 00:39:57', '2026-02-11 00:39:57', NULL, 0),
+(26, 'jean', 'marcc', 'jeanmarcc@gmail.com', '$2y$10$kPH/pqQkouADBYR1xR3HkOybWXbtt0CguGBTGlfzUIlJvkB5T9etC', '', 'active', '2026-02-11 00:49:33', '2026-02-11 00:49:33', NULL, 0),
+(27, 'amiel', 'jake', 'amieljake@gmail.com', '$2y$10$FgrZJU5WOFa0ViJhNOBZsOC7kT48bqgM6RxoNJoCL7.8GWG247Wl2', '', 'active', '2026-02-11 00:55:44', '2026-02-11 00:55:44', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -1043,7 +1120,9 @@ INSERT INTO `user_preferences` (`id`, `user_id`, `category`, `created_at`) VALUE
 (3, 18, 'nature', '2026-02-10 07:36:49'),
 (4, 18, 'religious', '2026-02-10 07:36:49'),
 (5, 19, 'nature', '2026-02-10 08:26:24'),
-(6, 19, 'religious', '2026-02-10 08:26:24');
+(6, 19, 'religious', '2026-02-10 08:26:24'),
+(9, 22, 'nature', '2026-02-10 22:44:31'),
+(10, 22, 'religious', '2026-02-10 22:44:31');
 
 -- --------------------------------------------------------
 
@@ -1212,6 +1291,15 @@ ALTER TABLE `login_activity`
   ADD KEY `idx_user_id` (`user_id`);
 
 --
+-- Indexes for table `otp_codes`
+--
+ALTER TABLE `otp_codes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_email` (`user_id`,`email`),
+  ADD KEY `idx_otp_code` (`otp_code`),
+  ADD KEY `idx_expires_at` (`expires_at`);
+
+--
 -- Indexes for table `report_settings`
 --
 ALTER TABLE `report_settings`
@@ -1337,7 +1425,7 @@ ALTER TABLE `user_settings`
 -- AUTO_INCREMENT for table `admin_activity`
 --
 ALTER TABLE `admin_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `admin_dashboards`
@@ -1385,7 +1473,7 @@ ALTER TABLE `analytics_settings`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `booking_settings`
@@ -1433,7 +1521,13 @@ ALTER TABLE `local_culture`
 -- AUTO_INCREMENT for table `login_activity`
 --
 ALTER TABLE `login_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+
+--
+-- AUTO_INCREMENT for table `otp_codes`
+--
+ALTER TABLE `otp_codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `report_settings`
@@ -1463,7 +1557,7 @@ ALTER TABLE `tourist_spots`
 -- AUTO_INCREMENT for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `tour_guide_availability`
@@ -1499,7 +1593,7 @@ ALTER TABLE `travel_tips`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `user_favorites`
@@ -1517,7 +1611,7 @@ ALTER TABLE `user_management_settings`
 -- AUTO_INCREMENT for table `user_preferences`
 --
 ALTER TABLE `user_preferences`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `user_settings`
@@ -1578,6 +1672,12 @@ ALTER TABLE `guide_destinations`
 --
 ALTER TABLE `login_activity`
   ADD CONSTRAINT `login_activity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `otp_codes`
+--
+ALTER TABLE `otp_codes`
+  ADD CONSTRAINT `otp_codes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `saved_tours`

@@ -1,21 +1,14 @@
 <?php
-// Include database connection and authentication
+// Include database connection
 require_once '../config/database.php';
-require_once '../config/auth.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../log-in/log-in.php');
-    exit();
-}
-
-// Get current user data
+// Get current user data (optional - for logged in users)
 $conn = getDatabaseConnection();
 $tourGuides = []; // Initialize tour guides array
 $currentUser = []; // Initialize current user array
 
-if ($conn) {
-    // Get current user information
+if ($conn && isset($_SESSION['user_id'])) {
+    // Get current user information only if logged in
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -28,8 +21,10 @@ if ($conn) {
         ];
     }
     $stmt->close();
-    
-    // Fetch tour guides from database
+}
+
+// Fetch tour guides from database
+if ($conn) {
     $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY name ASC");
     if ($guidesStmt) {
         $guidesStmt->execute();
@@ -238,7 +233,7 @@ if ($conn) {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                 </div>
             </div>
         </header>

@@ -497,6 +497,14 @@ $queryValues = [
                                                 title="View">
                                                 <span class="material-icons-outlined">visibility</span>
                                             </button>
+                                            <?php if ($booking['status'] === 'pending'): ?>
+                                                <button class="btn-icon" onclick="acceptBooking(<?php echo $booking['id']; ?>)" title="Accept">
+                                                    <span class="material-icons-outlined">check</span>
+                                                </button>
+                                                <button class="btn-icon" onclick="rejectBooking(<?php echo $booking['id']; ?>)" title="Reject">
+                                                    <span class="material-icons-outlined">close</span>
+                                                </button>
+                                            <?php endif; ?>
                                             <button class="btn-icon" onclick="editBooking(<?php echo $booking['id']; ?>)"
                                                 title="Edit">
                                                 <span class="material-icons-outlined">edit</span>
@@ -601,6 +609,45 @@ $queryValues = [
                         }
                     });
             }
+        }
+
+        function acceptBooking(bookingId) {
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=update_booking_status&booking_id=${bookingId}&status=confirmed`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking accepted');
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        }
+
+        function rejectBooking(bookingId) {
+            if (!confirm('Reject this booking?')) return;
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=update_booking_status&booking_id=${bookingId}&status=cancelled`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking rejected');
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
         }
 
         function deleteBooking(bookingId) {

@@ -1,3 +1,24 @@
+<?php
+require_once __DIR__ . '/../config/auth.php';
+
+// Function to handle booking button clicks
+function handleBookingClick($destination) {
+    if (!isLoggedIn()) {
+        // Redirect to login page if not logged in
+        header('Location: ../log-in.php');
+        exit();
+    }
+    // If logged in, redirect to booking page
+    header('Location: ../sjdm-user/book.php?destination=' . urlencode($destination));
+    exit();
+}
+
+// Handle booking requests
+if (isset($_GET['action']) && $_GET['action'] === 'book') {
+    $destination = $_GET['destination'] ?? 'Otso-Otso Falls';
+    handleBookingClick($destination);
+}
+?>
 <!DOCTYPE html>
 
 <html lang="en">
@@ -1703,7 +1724,7 @@
 
 
 
-                    <button class="booking-btn glow-effect" onclick="openBookingModal()">
+                    <button class="booking-btn glow-effect" onclick="checkAuth('Otso-Otso Falls')">
 
                         <span class="material-icons-outlined">event_available</span>
 
@@ -1735,11 +1756,11 @@
 
                 <div class="cta-buttons">
 
-                    <button class="btn-primary" onclick="openBookingModal()">
+                    <button class="btn-primary" onclick="checkAuth('Otso-Otso Falls')">
 
                         <span class="material-icons-outlined">event_available</span>
 
-                        Book Complete Tour
+                        Book Waterfall Tour
 
                     </button>
 
@@ -1785,63 +1806,17 @@
 
 
     <script>
-
-        // Modal JavaScript
-
-
-
-        function openBookingModal() {
-
-            document.getElementById('bookingModal').classList.add('show');
-
-            document.body.style.overflow = 'hidden';
-
+        // Function to check authentication before booking
+        function checkAuth(destination) {
+            <?php if (isLoggedIn()): ?>
+                // User is logged in, redirect to booking
+                window.location.href = '/coderistyarn2/sjdm-user/book.php?destination=' + encodeURIComponent(destination);
+            <?php else: ?>
+                // User not logged in, redirect to login
+                window.location.href = '../log-in.php';
+            <?php endif; ?>
         }
-
-
-
-        function closeBookingModal() {
-            document.getElementById('bookingModal').classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
-
-        function proceedToBooking() {
-            const bookingUrl = `/coderistyarn2/sjdm-user/book.php?destination=Otso-Otso Falls&guide=1`;
-            window.location.href = bookingUrl;
-        }
-
-
-
-        // Close modal when clicking outside
-
-        window.onclick = function(event) {
-
-            const modal = document.getElementById('bookingModal');
-
-            if (event.target === modal) {
-
-                closeBookingModal();
-
-            }
-
-        }
-
-
-
-        // Close modal with Escape key
-
-        document.addEventListener('keydown', function(event) {
-
-            if (event.key === 'Escape') {
-
-                closeBookingModal();
-
-            }
-
-        });
-
-
-
+        
         // Initialize Google Map
 
         function initMap() {

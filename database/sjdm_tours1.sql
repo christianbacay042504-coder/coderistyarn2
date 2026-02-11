@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert Default Admin User
--- Email: adminlgu@gmail.com
--- Password: admin123 (hashed with password_hash)
+-- Email: jeanmarcaguilar829@gmail.com
+-- Password: admin2024 (hashed with password_hash)
 INSERT INTO users (first_name, last_name, email, password, user_type, status) 
-VALUES ('Admin', 'SJDM', 'adminlgu@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
--- Note: The password hash above is for 'admin123'
+VALUES ('Admin', 'SJDM', 'jeanmarcaguilar829@gmail.com', '$2y$10$VzQT8RqQw8Pb95baXQ6aLeMh.nQImQT2vMmc/lwKa/Zj4zGhtk1Ru', 'admin', 'active');
+-- Note: The password hash above is for 'admin2024'
 
 -- Bookings Table (for future use)
 CREATE TABLE IF NOT EXISTS bookings (

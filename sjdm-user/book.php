@@ -27,7 +27,7 @@ $preselected_guide = $_GET['guide'] ?? '';
 try {
     $conn = getDatabaseConnection();
     if ($conn) {
-        $stmt = $conn->prepare("SELECT address, contact_number FROM users WHERE user_id = ?");
+        $stmt = $conn->prepare("SELECT address, contact_number FROM users WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $user_info = $stmt->get_result()->fetch_assoc();

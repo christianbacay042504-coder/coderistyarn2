@@ -6,6 +6,170 @@ document.addEventListener('DOMContentLoaded', function () {
     const socialButtons = document.querySelectorAll('.social-btn');
     const forgotPassword = document.querySelector('.forgot-password');
 
+    const verificationModal = document.getElementById('verificationModal');
+    const otpEmailEl = document.getElementById('otpEmail');
+    const otpInputsWrap = document.getElementById('otpInputs');
+    const otpVerifyBtn = document.getElementById('otpVerifyBtn');
+    const otpResendBtn = document.getElementById('otpResendBtn');
+
+    function isVerificationModalOpen() {
+        return !!verificationModal && verificationModal.classList.contains('show');
+    }
+
+    function getOtpInputs() {
+        if (!otpInputsWrap) return [];
+        return Array.from(otpInputsWrap.querySelectorAll('input.otp-input'));
+    }
+
+    function getOtpCode() {
+        return getOtpInputs().map(i => (i.value || '').trim()).join('');
+    }
+
+    function clearOtpInputs() {
+        getOtpInputs().forEach(i => { i.value = ''; });
+    }
+
+    function focusFirstOtp() {
+        const inputs = getOtpInputs();
+        if (inputs[0]) inputs[0].focus();
+    }
+
+    function openVerificationModal(email) {
+        if (!verificationModal) return;
+        if (otpEmailEl) otpEmailEl.textContent = email || '';
+        verificationModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        clearOtpInputs();
+        focusFirstOtp();
+    }
+
+    function closeVerificationModalInner() {
+        if (!verificationModal) return;
+        verificationModal.classList.remove('show');
+        document.body.style.overflow = '';
+        clearOtpInputs();
+    }
+
+    window.closeVerificationModal = function () {
+        closeVerificationModalInner();
+    }
+
+    function setOtpLoading(isLoading) {
+        if (otpVerifyBtn) otpVerifyBtn.disabled = isLoading;
+        if (otpResendBtn) otpResendBtn.disabled = isLoading;
+    }
+
+    async function postForm(dataObj) {
+        const params = new URLSearchParams();
+        Object.entries(dataObj).forEach(([k, v]) => params.append(k, v));
+
+        const res = await fetch('', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        });
+
+        if (!res.ok) {
+            throw new Error('HTTP error! status: ' + res.status);
+        }
+        return res.json();
+    }
+
+    window.submitVerificationCode = async function () {
+        const code = getOtpCode().replace(/\D/g, '');
+        if (code.length !== 6) {
+            showAlert('Please enter the 6-digit verification code', 'error');
+            return;
+        }
+
+        try {
+            setOtpLoading(true);
+            const data = await postForm({ action: 'verify_code', code });
+            if (data && data.success) {
+                showAlert(data.message || 'Verification successful', 'success');
+                closeVerificationModalInner();
+                setTimeout(() => {
+                    if (data.user_type === 'admin') {
+                        window.location.href = 'admin/dashboard.php';
+                    } else if (data.user_type === 'tour_guide') {
+                        window.location.href = 'tour-guide/dashboard.php';
+                    } else {
+                        window.location.href = 'sjdm-user/index.php';
+                    }
+                }, 700);
+            } else {
+                showAlert((data && data.message) ? data.message : 'Verification failed', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showAlert('An error occurred. Please try again.', 'error');
+        } finally {
+            setOtpLoading(false);
+        }
+    }
+
+    window.resendVerificationCode = async function () {
+        try {
+            setOtpLoading(true);
+            const data = await postForm({ action: 'resend_code' });
+            if (data && data.success) {
+                if (otpEmailEl && data.email) otpEmailEl.textContent = data.email;
+                showAlert(data.message || 'Verification code resent', 'success');
+                clearOtpInputs();
+                focusFirstOtp();
+            } else {
+                showAlert((data && data.message) ? data.message : 'Failed to resend code', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showAlert('An error occurred. Please try again.', 'error');
+        } finally {
+            setOtpLoading(false);
+        }
+    }
+
+    if (otpInputsWrap) {
+        const inputs = getOtpInputs();
+
+        inputs.forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                const val = (e.target.value || '').replace(/\D/g, '');
+                e.target.value = val.slice(0, 1);
+
+                if (e.target.value && inputs[idx + 1]) {
+                    inputs[idx + 1].focus();
+                }
+
+                if (getOtpCode().length === 6) {
+                    // don't auto-submit; just keep UX ready
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && inputs[idx - 1]) {
+                    inputs[idx - 1].focus();
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    window.submitVerificationCode();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = (text || '').replace(/\D/g, '').slice(0, 6).split('');
+                if (digits.length) {
+                    e.preventDefault();
+                    digits.forEach((d, i) => {
+                        if (inputs[i]) inputs[i].value = d;
+                    });
+                    const next = inputs[Math.min(digits.length, inputs.length) - 1];
+                    if (next) next.focus();
+                }
+            });
+        });
+    }
+
     // Toggle Password Visibility
     if (togglePassword) {
         togglePassword.addEventListener('click', function () {
@@ -69,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Create FormData
             const formData = new FormData(loginForm);
+            formData.append('action', 'login');
 
             // Send AJAX request to server
             fetch('', {
@@ -87,6 +252,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitBtn.disabled = false;
 
                     if (data.success) {
+                        if (data.verification_required) {
+                            showAlert(data.message || 'Verification code sent', 'success');
+                            openVerificationModal(data.email || email);
+                            return;
+                        }
+
                         showAlert(data.message, 'success');
 
                         // Store email if remember me is checked

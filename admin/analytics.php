@@ -79,7 +79,7 @@ function getBookingStats($conn)
     $stats['this_month'] = $result ? $result->fetch_assoc()['total'] : 0;
 
     // Total revenue
-    $result = $conn->query("SELECT SUM(total_amount) as total FROM bookings WHERE status = 'completed'");
+    $result = $conn->query("SELECT SUM(total_amount) as total FROM bookings WHERE status = 'confirmed'");
     $stats['total_revenue'] = $result ? ($result->fetch_assoc()['total'] ?? 0) : 0;
 
     return $stats;
@@ -147,7 +147,7 @@ $analytics = [];
 $monthlyRevenue = [];
 for ($i = 5; $i >= 0; $i--) {
     $month = date('Y-m', strtotime("-$i months"));
-    $result = $conn->query("SELECT SUM(total_amount) as revenue, COUNT(*) as bookings FROM bookings WHERE DATE_FORMAT(created_at, '%Y-%m') = '$month' AND status = 'completed'");
+    $result = $conn->query("SELECT SUM(total_amount) as revenue, COUNT(*) as bookings FROM bookings WHERE DATE_FORMAT(created_at, '%Y-%m') = '$month' AND status = 'confirmed'");
     $data = $result ? $result->fetch_assoc() : ['revenue' => 0, 'bookings' => 0];
     $monthlyRevenue[] = [
         'month' => date('M Y', strtotime($month)),
@@ -158,7 +158,7 @@ for ($i = 5; $i >= 0; $i--) {
 
 // Top destinations by bookings
 $topDestinations = [];
-$result = $conn->query("SELECT ts.name, COUNT(b.id) as booking_count FROM tourist_spots ts LEFT JOIN bookings b ON b.tour_name LIKE CONCAT('%', ts.name, '%') COLLATE utf8mb4_general_ci GROUP BY ts.id ORDER BY booking_count DESC LIMIT 10");
+$result = $conn->query("SELECT ts.name, COUNT(b.id) as booking_count FROM tourist_spots ts LEFT JOIN bookings b ON b.status = 'confirmed' AND b.tour_name LIKE CONCAT('%', ts.name, '%') COLLATE utf8mb4_general_ci GROUP BY ts.id ORDER BY booking_count DESC LIMIT 10");
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $topDestinations[] = $row;

@@ -217,49 +217,6 @@ class AdminDashboard {
             this.closeModal(modal);
         });
     }
-
-    populateModal(modalId, data) {
-        switch (modalId) {
-            case 'editUserModal':
-                document.getElementById('editUserId').value = data.id;
-                document.getElementById('editFirstName').value = data.first_name;
-                document.getElementById('editLastName').value = data.last_name;
-                document.getElementById('editEmail').value = data.email;
-                document.getElementById('editPhone').value = data.phone || '';
-                document.getElementById('editStatus').value = data.status;
-                break;
-            case 'editGuideModal':
-                document.getElementById('editGuideId').value = data.id;
-                document.getElementById('editGuideName').value = data.name;
-                document.getElementById('editGuideEmail').value = data.email;
-                document.getElementById('editGuideContact').value = data.contact_number || '';
-                document.getElementById('editGuideSpecialty').value = data.specialty;
-                document.getElementById('editGuideCategory').value = data.category;
-                document.getElementById('editGuideExperience').value = data.experience_years;
-                document.getElementById('editGuideRating').value = data.rating;
-                document.getElementById('editGuideReviews').value = data.review_count;
-                document.getElementById('editGuidePriceRange').value = data.price_range;
-                document.getElementById('editGuideGroupSize').value = data.group_size;
-                document.getElementById('editGuideTotalTours').value = data.total_tours;
-                document.getElementById('editGuideLanguages').value = data.languages;
-                document.getElementById('editGuideBio').value = data.bio || '';
-                document.getElementById('editGuideExpertise').value = data.areas_of_expertise || '';
-                document.getElementById('editGuidePhoto').value = data.photo_url || '';
-                document.getElementById('editGuideStatus').value = data.status || 'active';
-                document.getElementById('editGuideVerified').checked = data.verified ? true : false;
-                break;
-            case 'editSpotModal':
-                document.getElementById('editSpotId').value = data.id;
-                document.getElementById('editSpotName').value = data.name;
-                document.getElementById('editSpotLocation').value = data.location;
-                document.getElementById('editSpotCategory').value = data.category;
-                document.getElementById('editSpotRating').value = data.rating;
-                document.getElementById('editSpotDescription').value = data.description || '';
-                break;
-            case 'editHotelModal':
-                document.getElementById('editHotelId').value = data.id;
-                document.getElementById('editHotelName').value = data.name;
-                document.getElementById('editHotelLocation').value = data.location;
                 document.getElementById('editHotelRating').value = data.rating;
                 document.getElementById('editHotelPriceRange').value = data.price_range;
                 document.getElementById('editHotelDescription').value = data.description || '';

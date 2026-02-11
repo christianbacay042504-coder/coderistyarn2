@@ -1,3 +1,24 @@
+<?php
+require_once __DIR__ . '/../config/auth.php';
+
+// Function to handle booking button clicks
+function handleBookingClick($destination) {
+    if (!isLoggedIn()) {
+        // Redirect to login page if not logged in
+        header('Location: ../log-in.php');
+        exit();
+    }
+    // If logged in, redirect to booking page
+    header('Location: ../sjdm-user/book.php?destination=' . urlencode($destination));
+    exit();
+}
+
+// Handle booking requests
+if (isset($_GET['action']) && $_GET['action'] === 'book') {
+    $destination = $_GET['destination'] ?? 'Kaytitinga Falls';
+    handleBookingClick($destination);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -576,7 +597,7 @@
                         </p>
                     </div>
 
-                    <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
+                    <button class="btn-primary" onclick="checkAuth('Kaytitinga Falls')" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         Book a Guide
                     </button>
                 </div>
@@ -590,7 +611,7 @@
                     Our experienced nature guides will ensure a safe and memorable adventure.
                 </p>
                 <div class="cta-buttons">
-                    <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'">
+                    <button class="btn-primary" onclick="checkAuth('Kaytitinga Falls')">
                         Book Tour Now
                     </button>
                     <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
@@ -607,12 +628,23 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p class="footer-text">© 2024 San Jose del Monte Tourism Office. All rights reserved.</p>
+            <p class="footer-text"> 2024 San Jose del Monte Tourism Office. All rights reserved.</p>
             <p class="footer-text">Promoting sustainable tourism and community development.</p>
         </div>
     </footer>
 
     <script>
+        // Function to check authentication before booking
+        function checkAuth(destination) {
+            <?php if (isLoggedIn()): ?>
+                // User is logged in, redirect to booking
+                window.location.href = '/coderistyarn2/sjdm-user/book.php?destination=' + encodeURIComponent(destination);
+            <?php else: ?>
+                // User not logged in, redirect to login
+                window.location.href = '../log-in.php';
+            <?php endif; ?>
+        }
+        
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

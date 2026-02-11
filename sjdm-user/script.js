@@ -3,7 +3,7 @@
 // Global State
 let currentGuideId = null;
 let currentStep = 1;
-const totalSteps = 4;
+const totalSteps = 5;
 let bookingData = {};
 let currentFilter = 'all';
 let currentSort = 'rating';
@@ -247,6 +247,9 @@ function nextStep() {
         case 3:
             isValid = validateStep3();
             break;
+        case 4:
+            isValid = validateStep4();
+            break;
     }
 
     if (!isValid) return;
@@ -342,12 +345,17 @@ function validateStep1() {
     return true;
 }
 
-// Step 2 validation
+// Step 2 validation (Calendar Availability)
 function validateStep2() {
     const fullName = document.getElementById('fullName');
     const email = document.getElementById('email');
     const contactNumber = document.getElementById('contactNumber');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!fullName || !email || !contactNumber) {
+        showNotification('Personal info form is missing on this page', 'error');
+        return false;
+    }
 
     if (!fullName.value.trim()) {
         showNotification('Please enter your full name', 'error');
@@ -365,8 +373,14 @@ function validateStep2() {
     return true;
 }
 
-// Step 3 validation
+// Step 3 validation (Personal Info)
 function validateStep3() {
+    // No validation needed here
+    return true;
+}
+
+// Step 4 validation (Terms & Payment)
+function validateStep4() {
     const terms = document.getElementById('termsAgreement');
     const cancellation = document.getElementById('cancellationPolicy');
 
@@ -387,7 +401,16 @@ function selectPayment(method) {
     const options = document.querySelectorAll('.payment-option');
     options.forEach(opt => opt.classList.remove('active'));
 
-    const selected = document.querySelector(`[value="${method}"]`).closest('.payment-option');
+    const radio = document.querySelector(`input[name="paymentMethod"][value="${method}"]`);
+    if (!radio) {
+        return;
+    }
+    radio.checked = true;
+
+    const selected = radio.closest('.payment-option');
+    if (!selected) {
+        return;
+    }
     selected.classList.add('active');
 
     // Since we only have cash payment, no need to show/hide details
@@ -470,15 +493,22 @@ function updateConfirmationDetails() {
     document.getElementById('confirmationEntrance').textContent = '₱' + entranceTotal.toLocaleString() + '.00';
     document.getElementById('confirmationTotal').textContent = '₱' + total.toLocaleString() + '.00';
 
-    // Generate booking number
-    const bookingNumber = 'SJDM-' + Date.now().toString().slice(-8);
-    document.getElementById('confirmationBookingNumber').textContent = bookingNumber;
-    document.getElementById('detailBookingId').textContent = bookingNumber;
+    // Generate booking number (only if not already set by server response)
+    const bookingNumberEl = document.getElementById('confirmationBookingNumber');
+    const detailBookingIdEl = document.getElementById('detailBookingId');
+    const existingBookingNumber = bookingNumberEl ? bookingNumberEl.textContent.trim() : '';
+    if (!existingBookingNumber) {
+        const bookingNumber = 'SJDM-' + Date.now().toString().slice(-8);
+        if (bookingNumberEl) bookingNumberEl.textContent = bookingNumber;
+        if (detailBookingIdEl) detailBookingIdEl.textContent = bookingNumber;
+    } else {
+        if (detailBookingIdEl) detailBookingIdEl.textContent = existingBookingNumber;
+    }
 }
 
 // Submit booking
 function submitBooking() {
-    if (!validateStep3()) return;
+    if (!validateStep4()) return;
 
     // Show loading
     const submitBtn = document.querySelector('.btn-confirm');
@@ -506,41 +536,46 @@ function submitBooking() {
         booking_date: new Date().toISOString()
     };
 
-    // Send to server (simulate with setTimeout for demo)
-    setTimeout(() => {
-        // Store in localStorage for demo
-        const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-        const bookingNumber = 'SJDM-' + Date.now().toString().slice(-8);
+    // Send to server (DB) so it shows in admin/bookings.php
+    fetch('submit_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(bookingData).toString()
+    })
+        .then(async (res) => {
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error('Server returned an invalid response. Check submit_booking.php for PHP errors.');
+            }
+        })
+        .then(data => {
+            if (!data || !data.success) {
+                throw new Error((data && data.message) ? data.message : 'Booking submission failed');
+            }
 
-        const newBooking = {
-            id: Date.now(),
-            bookingNumber: bookingNumber,
-            ...bookingData,
-            status: 'pending', // Pending confirmation from tour guide
-            dateBooked: new Date().toISOString(),
-            start_time: '09:00:00',
-            end_time: '17:00:00',
-            total_amount: 2500 + (100 * bookingData.guests) + 300 // guide fee + entrance + service
-        };
+            // Set server booking reference to confirmation UI
+            const bookingNumberEl = document.getElementById('confirmationBookingNumber');
+            const detailBookingIdEl = document.getElementById('detailBookingId');
+            if (bookingNumberEl && data.booking_reference) bookingNumberEl.textContent = data.booking_reference;
+            if (detailBookingIdEl && data.booking_reference) detailBookingIdEl.textContent = data.booking_reference;
 
-        bookings.push(newBooking);
-        localStorage.setItem('userBookings', JSON.stringify(bookings));
+            // Move to confirmation step
+            nextStep();
 
-        // Also save to tour guide bookings (separate storage for tour guide access)
-        const guideBookings = JSON.parse(localStorage.getItem('tourGuideBookings')) || [];
-        guideBookings.push(newBooking);
-        localStorage.setItem('tourGuideBookings', JSON.stringify(guideBookings));
-
-        // Move to confirmation step
-        nextStep();
-
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-
-        // Show success notification
-        showNotification('Booking submitted successfully!', 'success');
-    }, 1500);
+            showNotification('Booking submitted successfully!', 'success');
+        })
+        .catch(err => {
+            console.error(err);
+            showNotification(err.message || 'Booking submission failed', 'error');
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
 }
 
 // File upload initialization

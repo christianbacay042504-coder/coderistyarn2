@@ -1,3 +1,24 @@
+<?php
+require_once __DIR__ . '/../config/auth.php';
+
+// Function to handle booking button clicks
+function handleBookingClick($destination) {
+    if (!isLoggedIn()) {
+        // Redirect to login page if not logged in
+        header('Location: ../log-in.php');
+        exit();
+    }
+    // If logged in, redirect to booking page
+    header('Location: ../sjdm-user/book.php?destination=' . urlencode($destination));
+    exit();
+}
+
+// Handle booking requests
+if (isset($_GET['action']) && $_GET['action'] === 'book') {
+    $destination = $_GET['destination'] ?? 'Abes Farm';
+    handleBookingClick($destination);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -518,8 +539,7 @@
                         </div>
                     </div>
 
-                    <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
-                        <span class="material-icons-outlined">calendar_today</span>
+                    <button class="btn-primary" onclick="checkAuth('Abes Farm')">
                         Book Farm Tour
                     </button>
                 </div>
@@ -533,7 +553,7 @@
                     and create lasting memories with your family and friends.
                 </p>
                 <div class="cta-buttons">
-                    <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#booking'">
+                    <button class="btn-primary" onclick="checkAuth('Abes Farm')">
                         Book Your Tour
                     </button>
                     <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
@@ -556,6 +576,17 @@
     </footer>
 
     <script>
+        // Function to check authentication before booking
+        function checkAuth(destination) {
+            <?php if (isLoggedIn()): ?>
+                // User is logged in, redirect to booking
+                window.location.href = '/coderistyarn2/sjdm-user/book.php?destination=' + encodeURIComponent(destination);
+            <?php else: ?>
+                // User not logged in, redirect to login
+                window.location.href = '../log-in.php';
+            <?php endif; ?>
+        }
+        
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

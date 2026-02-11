@@ -33,12 +33,13 @@
             <p class="hero-description">Where nature meets adventure. Experience breathtaking mountains, pristine waterfalls, and authentic Filipino culture just 30 minutes from Metro Manila.</p>
             <div class="hero-buttons">
                 <button class="btn-primary" onclick="window.location.href='sjdm-user/index.php'">
-                    Explore Now
+                    <span id="authButtonText">Explore Now</span>
                     <span class="material-icons-outlined">arrow_forward</span>
                 </button>
                 <button class="btn-secondary" onclick="document.getElementById('destinations').scrollIntoView({behavior:'smooth'})">
                     Learn More
                 </button>
+                
             </div>
         </div>
         <div class="scroll-indicator">
@@ -186,5 +187,6 @@
     </footer>
 
     <script src="script.js"></script>
+   
 </body>
 </html>

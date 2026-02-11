@@ -41,6 +41,11 @@ try {
 $currentWeekday = date('l');
 $currentDate = date('F Y');
 
+$currentUser = [
+    'name' => '',
+    'email' => ''
+];
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../log-in/log-in.php');
@@ -60,6 +65,67 @@ if ($conn) {
             'name' => $user['first_name'] . ' ' . $user['last_name'],
             'email' => $user['email']
         ];
+    }
+}
+
+// Handle cancel booking (DB)
+$cancelResponse = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel_booking') {
+    header('Content-Type: application/json');
+
+    $bookingId = intval($_POST['booking_id'] ?? 0);
+    if ($bookingId < 1) {
+        echo json_encode(['success' => false, 'message' => 'Invalid booking id']);
+        closeDatabaseConnection($conn);
+        exit;
+    }
+
+    try {
+        $updateStmt = $conn->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND user_id = ? AND status = 'pending'");
+        $updateStmt->bind_param('ii', $bookingId, $_SESSION['user_id']);
+        $updateStmt->execute();
+
+        if ($updateStmt->affected_rows > 0) {
+            echo json_encode(['success' => true, 'message' => 'Booking cancelled successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Unable to cancel booking']);
+        }
+        $updateStmt->close();
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Error cancelling booking']);
+    }
+
+    closeDatabaseConnection($conn);
+    exit;
+}
+
+// Fetch bookings for this user
+$userBookings = [];
+if ($conn) {
+    $bookingsSql = "SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, tg.name AS guide_name
+        FROM bookings b
+        LEFT JOIN tour_guides tg ON b.guide_id = tg.id
+        WHERE b.user_id = ?
+        ORDER BY b.created_at DESC";
+
+    $bookingsStmt = $conn->prepare($bookingsSql);
+    if (!$bookingsStmt) {
+        $bookingsSql = "SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, tg.name AS guide_name
+            FROM bookings b
+            LEFT JOIN tour_guides tg ON b.guide_id = tg.id
+            WHERE b.user_id = ?
+            ORDER BY b.id DESC";
+        $bookingsStmt = $conn->prepare($bookingsSql);
+    }
+
+    if ($bookingsStmt) {
+        $bookingsStmt->bind_param('i', $_SESSION['user_id']);
+        $bookingsStmt->execute();
+        $bookingsResult = $bookingsStmt->get_result();
+        while ($row = $bookingsResult->fetch_assoc()) {
+            $userBookings[] = $row;
+        }
+        $bookingsStmt->close();
     }
     closeDatabaseConnection($conn);
 }
@@ -190,16 +256,22 @@ if ($conn) {
         </div>
     </main>
 
-    <script src="script.js"></script>
     <script>
         let currentFilter = 'all';
+        const userBookings = <?php echo json_encode($userBookings); ?>;
+        const currentUserId = <?php echo (int)$_SESSION['user_id']; ?>;
+
+        function showNotification(message, type) {
+            console.log('Notification:', type, message);
+            if (type === 'error') {
+                alert(message);
+            }
+        }
         
         window.addEventListener('DOMContentLoaded', function() {
+            console.log('Booking History currentUserId:', currentUserId);
+            console.log('Booking History DB bookings:', userBookings);
             displayUserBookings();
-            // updateUserInterface is defined in script.js to handle UI updates
-            if (typeof updateUserInterface === 'function') {
-                updateUserInterface();
-            }
             initFilterTabs();
             initSearch();
         });
@@ -244,8 +316,6 @@ if ($conn) {
             const container = document.getElementById('bookingsList');
             if (!container) return;
             
-            const userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-            
             // Filter bookings based on current filter
             let filteredBookings = userBookings;
             if (currentFilter !== 'all') {
@@ -273,7 +343,7 @@ if ($conn) {
                 return;
             }
             
-            container.innerHTML = filteredBookings.reverse().map(booking => `
+            container.innerHTML = filteredBookings.map(booking => `
                 <div class="booking-card" data-status="${booking.status}">
                     <div class="booking-card-header">
                         <div class="booking-primary-info">
@@ -281,10 +351,10 @@ if ($conn) {
                                 <span class="material-icons-outlined">tour</span>
                             </div>
                             <div class="booking-title-section">
-                                <h3 class="booking-title">${booking.guideName}</h3>
+                                <h3 class="booking-title">${booking.guide_name || 'Tour Guide'}</h3>
                                 <p class="booking-destination">
                                     <span class="material-icons-outlined">place</span>
-                                    ${booking.destination}
+                                    ${booking.destination || booking.tour_name}
                                 </p>
                             </div>
                         </div>
@@ -302,18 +372,8 @@ if ($conn) {
                                 <span class="material-icons-outlined">event</span>
                             </div>
                             <div class="detail-content">
-                                <div class="detail-label">Check-in Date</div>
-                                <div class="detail-value">${formatDate(booking.checkIn)}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <div class="detail-icon">
-                                <span class="material-icons-outlined">event_available</span>
-                            </div>
-                            <div class="detail-content">
-                                <div class="detail-label">Check-out Date</div>
-                                <div class="detail-value">${formatDate(booking.checkOut)}</div>
+                                <div class="detail-label">Tour Date</div>
+                                <div class="detail-value">${formatDate(booking.booking_date)}</div>
                             </div>
                         </div>
                         
@@ -323,7 +383,7 @@ if ($conn) {
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">Number of Guests</div>
-                                <div class="detail-value">${booking.guests} Guest${booking.guests > 1 ? 's' : ''}</div>
+                                <div class="detail-value">${booking.number_of_people} Guest${booking.number_of_people > 1 ? 's' : ''}</div>
                             </div>
                         </div>
                         
@@ -333,7 +393,7 @@ if ($conn) {
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">Booking Reference</div>
-                                <div class="detail-value">${booking.bookingNumber}</div>
+                                <div class="detail-value">${booking.booking_reference || ('#' + booking.id)}</div>
                             </div>
                         </div>
                         
@@ -343,7 +403,7 @@ if ($conn) {
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">Total Amount</div>
-                                <div class="detail-value price">₱${booking.totalAmount ? booking.totalAmount.toLocaleString() : '2,600'}</div>
+                                <div class="detail-value price">₱${Number(booking.total_amount).toLocaleString()}</div>
                             </div>
                         </div>
                     </div>
@@ -352,11 +412,12 @@ if ($conn) {
                     
                     <div class="booking-actions-row">
                         ${booking.status === 'pending' ? `
-                            <button class="btn-action btn-cancel" onclick="cancelBooking('${booking.bookingNumber}')">
+                            <button class="btn-action btn-cancel" onclick="cancelBooking(${booking.id})">
                                 <span class="material-icons-outlined">cancel</span>
                                 <span>Cancel Booking</span>
                             </button>
                         ` : ''}
+                        
                         ${booking.status === 'completed' ? `
                             <button class="btn-action btn-review" onclick="window.location.href='index.php#guides'">
                                 <span class="material-icons-outlined">rate_review</span>
@@ -369,11 +430,11 @@ if ($conn) {
                                 <span>Modify Booking</span>
                             </button>
                         ` : ''}
-                        <button class="btn-action btn-view" onclick="viewBookingDetails('${booking.bookingNumber}')">
+                        <button class="btn-action btn-view" onclick="viewBookingDetails(${booking.id})">
                             <span class="material-icons-outlined">visibility</span>
                             <span>View Details</span>
                         </button>
-                        <button class="btn-action btn-download" onclick="downloadBooking('${booking.bookingNumber}')">
+                        <button class="btn-action btn-download" onclick="downloadBooking(${booking.id})">
                             <span class="material-icons-outlined">download</span>
                             <span>Download</span>
                         </button>
@@ -398,40 +459,50 @@ if ($conn) {
             return date.toLocaleDateString('en-US', options);
         }
 
-        function cancelBooking(bookingNumber) {
+        function cancelBooking(bookingId) {
             if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
-            
-            const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-            const index = bookings.findIndex(b => b.bookingNumber === bookingNumber);
-            
-            if (index > -1) {
-                bookings[index].status = 'cancelled';
-                localStorage.setItem('userBookings', JSON.stringify(bookings));
-                showNotification('Booking cancelled successfully', 'info');
-                displayUserBookings();
-            }
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `action=cancel_booking&booking_id=${bookingId}`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'info');
+                        const booking = userBookings.find(b => String(b.id) === String(bookingId));
+                        if (booking) booking.status = 'cancelled';
+                        displayUserBookings();
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(() => {
+                    showNotification('Unable to cancel booking', 'error');
+                });
         }
 
         function modifyBooking(bookingNumber) {
             showNotification('Modify booking feature coming soon!', 'info');
         }
 
-        function viewBookingDetails(bookingNumber) {
-            const bookings = JSON.parse(localStorage.getItem('userBookings')) || [];
-            const booking = bookings.find(b => b.bookingNumber === bookingNumber);
+        function viewBookingDetails(bookingId) {
+            const booking = userBookings.find(b => String(b.id) === String(bookingId));
             
             if (!booking) return;
             
             const content = `
                 <div class="booking-details-modal">
-                    <p><strong>Tour Guide:</strong> ${booking.guideName}</p>
-                    <p><strong>Destination:</strong> ${booking.destination}</p>
-                    <p><strong>Check-in:</strong> ${formatDate(booking.checkIn)}</p>
-                    <p><strong>Check-out:</strong> ${formatDate(booking.checkOut)}</p>
-                    <p><strong>Guests:</strong> ${booking.guests}</p>
-                    <p><strong>Ref #:</strong> ${booking.bookingNumber}</p>
+                    <p><strong>Tour Guide:</strong> ${booking.guide_name || 'Tour Guide'}</p>
+                    <p><strong>Destination:</strong> ${booking.destination || booking.tour_name}</p>
+                    <p><strong>Tour Date:</strong> ${formatDate(booking.booking_date)}</p>
+                    <p><strong>Guests:</strong> ${booking.number_of_people}</p>
+                    <p><strong>Ref #:</strong> ${booking.booking_reference || ('#' + booking.id)}</p>
                     <p><strong>Status:</strong> ${booking.status.toUpperCase()}</p>
-                    <p><strong>Total:</strong> ₱${booking.totalAmount ? booking.totalAmount.toLocaleString() : '2,600'}</p>
+                    <p><strong>Total:</strong> ₱${Number(booking.total_amount).toLocaleString()}</p>
                 </div>
             `;
             
@@ -443,7 +514,7 @@ if ($conn) {
             }
         }
 
-        function downloadBooking(bookingNumber) {
+        function downloadBooking(bookingId) {
             showNotification('Download feature coming soon!', 'info');
         }
     </script>

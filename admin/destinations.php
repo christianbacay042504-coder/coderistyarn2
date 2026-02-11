@@ -26,9 +26,9 @@ function closeAdminConnection($conn)
 function addTouristSpot($conn, $data)
 {
     try {
-        $stmt = $conn->prepare("INSERT INTO tourist_spots (name, description, category, location, address, operating_hours, entrance_fee, difficulty_level, duration, best_time_to_visit, activities, amenities, contact_info, website, image_url, rating, review_count, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
+        $stmt = $conn->prepare("INSERT INTO tourist_spots (name, description, category, location, address, operating_hours, entrance_fee, duration, best_time_to_visit, activities, amenities, contact_info, website, image_url, rating, review_count, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
         $stmt->bind_param(
-            "ssssssssssssssssi",
+            "sssssssssssssssi",
             $data['name'],
             $data['description'],
             $data['category'],
@@ -36,7 +36,6 @@ function addTouristSpot($conn, $data)
             $data['address'],
             $data['operating_hours'],
             $data['entrance_fee'],
-            $data['difficulty_level'],
             $data['duration'],
             $data['best_time_to_visit'],
             $data['activities'],
@@ -61,9 +60,9 @@ function addTouristSpot($conn, $data)
 function editTouristSpot($conn, $data)
 {
     try {
-        $stmt = $conn->prepare("UPDATE tourist_spots SET name = ?, description = ?, category = ?, location = ?, address = ?, operating_hours = ?, entrance_fee = ?, difficulty_level = ?, duration = ?, best_time_to_visit = ?, activities = ?, amenities = ?, contact_info = ?, website = ?, image_url = ?, rating = ?, review_count = ?, status = ? WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE tourist_spots SET name = ?, description = ?, category = ?, location = ?, address = ?, operating_hours = ?, entrance_fee = ?, duration = ?, best_time_to_visit = ?, activities = ?, amenities = ?, contact_info = ?, website = ?, image_url = ?, rating = ?, review_count = ?, status = ? WHERE id = ?");
         $stmt->bind_param(
-            "ssssssssssssssssisi",
+            "sssssssssssssssisi",
             $data['name'],
             $data['description'],
             $data['category'],
@@ -71,7 +70,6 @@ function editTouristSpot($conn, $data)
             $data['address'],
             $data['operating_hours'],
             $data['entrance_fee'],
-            $data['difficulty_level'],
             $data['duration'],
             $data['best_time_to_visit'],
             $data['activities'],
@@ -280,9 +278,6 @@ function extractTouristDataFromFile($filePath)
     // Extract location (default to San Jose del Monte)
     $data['location'] = 'San Jose del Monte, Bulacan';
     
-    // Extract difficulty level
-    $data['difficulty_level'] = extractDifficultyFromContent($content);
-    
     // Extract entrance fee
     $data['entrance_fee'] = extractEntranceFeeFromContent($content);
     
@@ -329,16 +324,6 @@ function categorizeFromFilename($filename)
     }
     
     return 'nature'; // default
-}
-
-function extractDifficultyFromContent($content)
-{
-    if (stripos($content, 'beginner') !== false || stripos($content, 'easy') !== false) {
-        return 'easy';
-    } elseif (stripos($content, 'challenging') !== false || stripos($content, 'difficult') !== false) {
-        return 'difficult';
-    }
-    return 'moderate'; // default
 }
 
 function extractEntranceFeeFromContent($content)
@@ -656,7 +641,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <th>Name</th>
                                 <th>Category</th>
                                 <th>Location</th>
-                                <th>Difficulty</th>
                                 <th>Rating</th>
                                 <th>Entrance Fee</th>
                                 <th>Status</th>
@@ -683,12 +667,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </td>
                                     <td><?php echo htmlspecialchars($spot['category']); ?></td>
                                     <td><?php echo htmlspecialchars($spot['location']); ?></td>
-                                    <td>
-                                        <span
-                                            class="difficulty-badge difficulty-<?php echo strtolower($spot['difficulty_level']); ?>">
-                                            <?php echo ucfirst($spot['difficulty_level']); ?>
-                                        </span>
-                                    </td>
                                     <td>
                                         <div class="rating">
                                             <?php echo number_format($spot['rating'], 1); ?> 
@@ -798,15 +776,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="destDifficulty">Difficulty Level</label>
-                            <select id="destDifficulty" name="difficulty_level">
-                                <option value="">Select Difficulty</option>
-                                <option value="easy">Easy</option>
-                                <option value="moderate">Moderate</option>
-                                <option value="difficult">Difficult</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="destDuration">Duration</label>
                             <input type="text" id="destDuration" name="duration" placeholder="e.g., 2-3 hours">
                         </div>
@@ -890,10 +859,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="detail-row">
                         <div class="detail-label">Entrance Fee:</div>
                         <div class="detail-value" id="viewDestEntranceFee"></div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Difficulty Level:</div>
-                        <div class="detail-value" id="viewDestDifficulty"></div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Duration:</div>
@@ -989,15 +954,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="editDestDifficulty">Difficulty Level</label>
-                            <select id="editDestDifficulty" name="difficulty_level">
-                                <option value="">Select Difficulty</option>
-                                <option value="easy">Easy</option>
-                                <option value="moderate">Moderate</option>
-                                <option value="difficult">Difficult</option>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label for="editDestDuration">Duration</label>
                             <input type="text" id="editDestDuration" name="duration" placeholder="e.g., 2-3 hours">
@@ -1142,7 +1098,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         document.getElementById('viewDestDescription').textContent = data.data.description || '';
                         document.getElementById('viewDestOperatingHours').textContent = data.data.operating_hours || '';
                         document.getElementById('viewDestEntranceFee').textContent = data.data.entrance_fee || '';
-                        document.getElementById('viewDestDifficulty').textContent = data.data.difficulty_level || '';
                         document.getElementById('viewDestDuration').textContent = data.data.duration || '';
                         document.getElementById('viewDestBestTime').textContent = data.data.best_time_to_visit || '';
                         document.getElementById('viewDestActivities').textContent = data.data.activities || '';
@@ -1194,7 +1149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         document.getElementById('editDestAddress').value = data.data.address || '';
                         document.getElementById('editDestOperatingHours').value = data.data.operating_hours || '';
                         document.getElementById('editDestEntranceFee').value = data.data.entrance_fee || '';
-                        document.getElementById('editDestDifficulty').value = data.data.difficulty_level || '';
                         document.getElementById('editDestDuration').value = data.data.duration || '';
                         document.getElementById('editDestBestTime').value = data.data.best_time_to_visit || '';
                         document.getElementById('editDestActivities').value = data.data.activities || '';

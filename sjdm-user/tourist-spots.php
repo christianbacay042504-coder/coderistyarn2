@@ -41,15 +41,13 @@ try {
 $currentWeekday = date('l'); // Full weekday name
 $currentDate = date('F Y'); // Month Year format
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../log-in/log-in.php');
-    exit();
-}
+// Check if user is logged in (optional)
+$isLoggedIn = isset($_SESSION['user_id']);
 
-// Get current user data
+// Get current user data (optional - for logged in users)
 $conn = getDatabaseConnection();
-if ($conn) {
+$currentUser = [];
+if ($conn && $isLoggedIn) {
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -1070,7 +1068,7 @@ if ($conn) {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                 </div>
             </div>
         </header>

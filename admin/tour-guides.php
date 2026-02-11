@@ -465,6 +465,10 @@ if ($result) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
+    // Debug logging
+    error_log("AJAX request received. Action: " . $action);
+    error_log("POST data: " . print_r($_POST, true));
+
     switch ($action) {
         case 'add_guide':
             $response = addTourGuide($conn, $_POST);
@@ -479,8 +483,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode($response);
             exit;
         case 'get_guide':
-            $response = getTourGuide($conn, $_POST['guide_id']);
+            $guideId = $_POST['guide_id'] ?? 0;
+            error_log("Getting guide with ID: " . $guideId);
+            $response = getTourGuide($conn, $guideId);
+            error_log("Response: " . print_r($response, true));
             echo json_encode($response);
+            exit;
+        default:
+            error_log("Unknown action: " . $action);
+            echo json_encode(['success' => false, 'message' => 'Unknown action: ' . $action]);
             exit;
     }
 }
@@ -570,11 +581,7 @@ $queryValues = [
                 </div>
                 
                 <div class="top-bar-actions">
-                    <button class="btn-primary" onclick="showAddGuideModal()">
-                        <span class="material-icons-outlined">add</span>
-                        Add Tour Guide
-                    </button>
-                    
+                                                        
                     <!-- Test Button -->
                     <button class="btn-secondary" onclick="testModal()">
                         Test Modal
@@ -991,6 +998,83 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- View Tour Guide Modal -->
+    <div id="viewGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tour Guide Application Details</h2>
+                <button class="modal-close" onclick="closeViewGuideModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-container">
+                    <div class="guide-details-container">
+                        <!-- Guide Photo and Basic Info -->
+                        <div class="guide-header-section">
+                            <div class="guide-photo-container">
+                                <div id="viewGuidePhoto" class="guide-photo-large">
+                                    <span class="material-icons-outlined">person</span>
+                                </div>
+                            </div>
+                            <div class="guide-basic-info">
+                                <h3 id="viewGuideName"></h3>
+                                <p id="viewGuideEmail" class="guide-email"></p>
+                                <div class="guide-badges">
+                                    <span id="viewGuideStatus" class="status-badge"></span>
+                                </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="info-section">
+                            <h4><span class="material-icons-outlined">contact_phone</span> Contact Information</h4>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Phone Number:</label>
+                                    <span id="viewGuidePhone"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Email:</label>
+                                    <span id="viewGuideEmailDetail"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div class="info-section">
+                            <h4><span class="material-icons-outlined">work</span> Professional Information</h4>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Specialization:</label>
+                                    <span id="viewGuideSpecialty"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Information -->
+                        <div class="info-section">
+                            <h4><span class="material-icons-outlined">description</span> Application Details</h4>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Application Date:</label>
+                                    <span id="viewGuideCreatedDate"></span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Resume/CV:</label>
+                                    <span id="viewGuideResume"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeViewGuideModal()">Close</button>
+                <button type="button" class="btn-primary" onclick="editFromView()">Edit Guide</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Tour Guide Modal -->
     <div id="deleteGuideModal" class="modal">
         <div class="modal-content">
@@ -1033,8 +1117,155 @@ $queryValues = [
         }
 
         function viewGuide(guideId) {
-            // Implement view guide modal
-            console.log('View guide:', guideId);
+            console.log('Viewing guide with ID:', guideId);
+            
+            // Fetch guide data and populate view modal
+            fetch('tour-guides.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_guide&guide_id=${guideId}`
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    populateViewModal(data.data);
+                    const modal = document.getElementById('viewGuideModal');
+                    modal.style.display = 'block';
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Server error:', data.message);
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Error fetching guide data: ' + error.message);
+            });
+        }
+
+        function populateViewModal(guide) {
+            // Basic Info
+            const nameElement = document.getElementById('viewGuideName');
+            if (nameElement) {
+                nameElement.textContent = guide.name || 'N/A';
+            }
+            
+            const emailElement = document.getElementById('viewGuideEmail');
+            if (emailElement) {
+                emailElement.textContent = guide.email || 'N/A';
+            }
+            
+            const emailDetailElement = document.getElementById('viewGuideEmailDetail');
+            if (emailDetailElement) {
+                emailDetailElement.textContent = guide.email || 'N/A';
+            }
+            
+            // Status Badges
+            const statusElement = document.getElementById('viewGuideStatus');
+            if (statusElement) {
+                statusElement.textContent = guide.status ? ucfirst(guide.status) : 'Unknown';
+                statusElement.className = `status-badge status-${guide.status || 'unknown'}`;
+            }
+            
+            const verifiedElement = document.getElementById('viewGuideVerified');
+            if (verifiedElement) {
+                verifiedElement.textContent = guide.verified == 1 ? 'Verified' : 'Unverified';
+                verifiedElement.className = `status-badge ${guide.verified == 1 ? 'verified-badge' : 'unverified-badge'}`;
+            }
+            
+            // Contact Information
+            const phoneElement = document.getElementById('viewGuidePhone');
+            if (phoneElement) {
+                phoneElement.textContent = guide.contact_number || 'N/A';
+            }
+            
+            // Professional Information
+            const specialtyElement = document.getElementById('viewGuideSpecialty');
+            if (specialtyElement) {
+                specialtyElement.textContent = guide.specialty || 'N/A';
+            }
+            
+            // Description
+            const descriptionElement = document.getElementById('viewGuideDescription');
+            if (descriptionElement) {
+                descriptionElement.textContent = guide.description || 'No description available';
+            }
+            
+            // Application Info
+            const createdDateElement = document.getElementById('viewGuideCreatedDate');
+            if (createdDateElement) {
+                createdDateElement.textContent = guide.created_at ? formatDate(guide.created_at) : 'N/A';
+            }
+            
+            const resumeElement = document.getElementById('viewGuideResume');
+            if (resumeElement) {
+                if (guide.resume) {
+                    // Check if it's a Google Drive link
+                    if (guide.resume.includes('drive.google.com')) {
+                        resumeElement.innerHTML = `<a href="${guide.resume}" target="_blank" class="resume-link">View Resume/CV</a>`;
+                    } else {
+                        resumeElement.innerHTML = `<a href="${guide.resume}" target="_blank" class="resume-link">View Resume/CV</a>`;
+                    }
+                } else {
+                    resumeElement.textContent = 'No resume uploaded';
+                }
+            }
+            
+            // Guide Photo
+            const photoElement = document.getElementById('viewGuidePhoto');
+            if (photoElement) {
+                if (guide.photo_url) {
+                    photoElement.innerHTML = `<img src="${guide.photo_url}" alt="${guide.name}" class="guide-photo-img">`;
+                } else {
+                    photoElement.innerHTML = '<span class="material-icons-outlined">person</span>';
+                }
+            }
+            
+            // Store guide ID for potential edit action
+            const modal = document.getElementById('viewGuideModal');
+            if (modal) {
+                modal.dataset.guideId = guide.id;
+            }
+        }
+
+        function closeViewGuideModal() {
+            const modal = document.getElementById('viewGuideModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function editFromView() {
+            const modal = document.getElementById('viewGuideModal');
+            const guideId = modal.dataset.guideId;
+            
+            if (guideId) {
+                closeViewGuideModal();
+                showEditGuideModal(guideId);
+            }
+        }
+
+        function ucfirst(str) {
+            return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
         function showEditGuideModal(guideId) {

@@ -1,17 +1,11 @@
 <?php
-// Include database connection and authentication
+// Include database connection
 require_once '../config/database.php';
-require_once '../config/auth.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header('Location: ../log-in/log-in.php');
-    exit();
-}
-
-// Get current user data
+// Get current user data (optional - for logged in users)
+$currentUser = [];
 $conn = getDatabaseConnection();
-if ($conn) {
+if ($conn && isset($_SESSION['user_id'])) {
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
@@ -549,7 +543,7 @@ if ($conn) {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                 </div>
             </div>
         </header>
