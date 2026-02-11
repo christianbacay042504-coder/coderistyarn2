@@ -99,7 +99,7 @@ try {
         }
 
         $stmt->bind_param(
-            'iisssisssds',
+            'iisssissss',
             $userId,
             $guideId,
             $tourName,
