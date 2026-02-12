@@ -2903,6 +2903,11 @@ try {
             // Payment Summary (already updated by updatePriceCalculation)
             updatePriceCalculation();
         }
+
+        // Initialize profile dropdown when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initUserProfileDropdown();
+        });
     </script>
 </body>
 </html>

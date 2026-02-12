@@ -1515,9 +1515,7 @@ if ($conn) {
         // Initialize on page load
 
         document.addEventListener('DOMContentLoaded', function () {
-
-            // Profile dropdown functionality removed
-
+            initUserProfileDropdown();
         });
 
         

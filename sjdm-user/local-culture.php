@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Include database connection
 require_once '../config/database.php';
 
@@ -114,6 +115,131 @@ if ($conn && isset($_SESSION['user_id'])) {
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
+        /* ===== USER PROFILE DROPDOWN ===== */
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid rgba(251, 255, 253, 1);
+            cursor: pointer;
+            color: #333;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.2s;
+            box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-trigger:hover {
+            background: #f0f0f0;
+        }
+
+        .profile-avatar,
+        .profile-avatar-large {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2c5f2d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar-large {
+            width: 56px;
+            height: 56px;
+            font-size: 20px;
+            margin: 0 auto 12px;
+        }
+
+        .profile-name {
+            display: none;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            width: 240px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .dropdown-header {
+            padding: 16px;
+            background: #f9f9f9;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-header h4 {
+            margin: 8px 0 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .dropdown-header p {
+            font-size: 13px;
+            color: #777;
+            margin: 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #444;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item .material-icons-outlined {
+            font-size: 20px;
+            color: #555;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-name {
+                display: inline-block;
+                font-size: 14px;
+            }
+
+            .dropdown-menu {
+                width: 280px;
+            }
+        }
+
         .main-content.full-width .content-area {
             padding: 40px;
             max-width: 1400px;
@@ -208,7 +334,42 @@ if ($conn && isset($_SESSION['user_id'])) {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
+                    <?php if (isset($currentUser) && !empty($currentUser)): ?>
+                        <!-- Profile Dropdown for Logged In Users -->
+                        <div class="user-profile-dropdown">
+                            <button class="profile-trigger">
+                                <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                                <span class="profile-name"><?php echo htmlspecialchars($currentUser['name']); ?></span>
+                                <span class="material-icons-outlined">arrow_drop_down</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-header">
+                                    <div class="profile-avatar-large"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                                    <h4><?php echo htmlspecialchars($currentUser['name']); ?></h4>
+                                    <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
+                                </div>
+                                <a href="profile.php" class="dropdown-item">
+                                    <span class="material-icons-outlined">person</span>
+                                    My Profile
+                                </a>
+                                <a href="bookings.php" class="dropdown-item">
+                                    <span class="material-icons-outlined">event</span>
+                                    My Bookings
+                                </a>
+                                <a href="settings.php" class="dropdown-item">
+                                    <span class="material-icons-outlined">settings</span>
+                                    Settings
+                                </a>
+                                <a href="../log-in/logout.php" class="dropdown-item">
+                                    <span class="material-icons-outlined">logout</span>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <!-- Sign In Button for Guests -->
+                        <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
+                    <?php endif; ?>
                 </div>
             </div>
         </header>
@@ -257,20 +418,58 @@ if ($conn && isset($_SESSION['user_id'])) {
                 }
                 ?>
             </div>
-        </div>
-    </main>
+        </main>
 
-    <script src="script.js"></script>
-    <script>
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            // Profile dropdown functionality removed
-        });
-        // Pass current user data to JavaScript
-        <?php if (isset($currentUser)): ?>
-        const currentUser = <?php echo json_encode($currentUser); ?>;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        <?php endif; ?>
-    </script>
-</body>
+        <script src="script.js"></script>
+        <script>
+            // ========== USER PROFILE DROPDOWN ==========
+            function initUserProfileDropdown() {
+                const profileDropdown = document.querySelector('.user-profile-dropdown');
+                const profileTrigger = document.querySelector('.profile-trigger');
+                const dropdownMenu = document.querySelector('.dropdown-menu');
+                const logoutLink = document.querySelector('[href="../log-in/logout.php"]');
+
+                if (!profileDropdown || !profileTrigger || !dropdownMenu) {
+                    console.log('Profile dropdown elements not found');
+                    return;
+                }
+
+                // Toggle dropdown on click
+                profileTrigger.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!profileDropdown.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+
+                // Handle logout with confirmation
+                if (logoutLink) {
+                    logoutLink.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to logout?')) {
+                            window.location.href = '../log-in/logout.php';
+                        }
+                    });
+                }
+            }
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function () {
+                initUserProfileDropdown();
+            });
+            
+            // Pass current user data to JavaScript
+            <?php if (isset($currentUser)): ?>
+            const currentUser = <?php echo json_encode($currentUser); ?>;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            <?php endif; ?>
+        </script>
+    </body>
 </html>

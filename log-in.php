@@ -17,7 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             // Attempt login
             $result = loginUser($email, $password);
-            echo json_encode($result);
+            
+            if ($result['success']) {
+                // Show modal for demonstration (without actual OTP verification)
+                echo json_encode([
+                    'success' => true,
+                    'verification_required' => true,
+                    'message' => 'Please check your email for verification code',
+                    'email' => $email,
+                    'debug_code' => '123456' // Static demo code
+                ]);
+            } else {
+                echo json_encode($result);
+            }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
         }
@@ -204,6 +216,55 @@ if (isset($_SESSION['logout_message'])) {
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div id="verificationModal" class="verification-modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeVerificationModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <span class="material-icons-outlined">security</span>
+                </div>
+                <h2>Verify Your Identity</h2>
+                <p>We've sent a 6-digit verification code to your email address</p>
+            </div>
+            
+            <div class="modal-body">
+                <div class="email-display">
+                    <span class="material-icons-outlined">email</span>
+                    <span id="otpEmail"></span>
+                </div>
+                
+                <div id="otpInputs" class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" id="otpVerifyBtn" class="btn btn-primary" onclick="submitVerificationCode()">
+                        <span class="material-icons-outlined">check_circle</span>
+                        Verify Code
+                    </button>
+                </div>
+                
+                <div class="modal-footer">
+                    <p>Didn't receive the code?</p>
+                    <button type="button" id="otpResendBtn" class="btn-link" onclick="resendVerificationCode()">
+                        <span class="material-icons-outlined">refresh</span>
+                        Resend Code
+                    </button>
+                </div>
+            </div>
+            
+            <button type="button" class="modal-close" onclick="closeVerificationModal()">
+                <span class="material-icons-outlined">close</span>
+            </button>
         </div>
     </div>
 
