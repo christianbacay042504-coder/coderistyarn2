@@ -242,6 +242,24 @@ function editTourGuide($conn, $data)
     }
 }
 
+function updateGuideVerification($conn, $guideId, $verified)
+{
+    try {
+        $stmt = $conn->prepare("UPDATE tour_guides SET verified = ? WHERE id = ?");
+        $stmt->bind_param("ii", $verified, $guideId);
+        $result = $stmt->execute();
+        
+        if ($result) {
+            $action = $verified ? 'verified' : 'unverified';
+            return ['success' => true, 'message' => "Tour guide $action successfully"];
+        } else {
+            return ['success' => false, 'message' => 'Failed to update verification status: ' . $stmt->error];
+        }
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
 function deleteTourGuide($conn, $guideId)
 {
     try {
@@ -478,6 +496,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $response = editTourGuide($conn, $_POST);
             echo json_encode($response);
             exit;
+        case 'verify_guide':
+        case 'unverify_guide':
+            $guideId = $_POST['guide_id'] ?? 0;
+            $newStatus = ($action === 'verify_guide') ? 1 : 0;
+            $response = updateGuideVerification($conn, $guideId, $newStatus);
+            echo json_encode($response);
+            exit;
         case 'delete_guide':
             $response = deleteTourGuide($conn, $_POST['guide_id']);
             echo json_encode($response);
@@ -542,9 +567,10 @@ $queryValues = [
             
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
-                    // Skip hotels and settings menu items
-                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false ||
-                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false) {
+                    // Skip hotels, settings, and reports menu items
+                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false || 
+                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false ||
+                        stripos($item['menu_name'], 'reports') !== false || stripos($item['menu_url'], 'reports') !== false) {
                         continue;
                     }
                     
@@ -717,9 +743,9 @@ $queryValues = [
                                                 title="View">
                                                 <span class="material-icons-outlined">visibility</span>
                                             </button>
-                                            <button class="btn-icon" onclick="showEditGuideModal(<?php echo $guide['id']; ?>)"
-                                                title="Edit">
-                                                <span class="material-icons-outlined">edit</span>
+                                            <button class="btn-icon" onclick="toggleVerification(<?php echo $guide['id']; ?>, <?php echo $guide['verified']; ?>)"
+                                                title="<?php echo $guide['verified'] ? 'Unverify Guide' : 'Verify Guide'; ?>">
+                                                <span class="material-icons-outlined"><?php echo $guide['verified'] ? 'verified_user' : 'person_add'; ?></span>
                                             </button>
                                             <button class="btn-icon" onclick="showDeleteGuideModal(<?php echo $guide['id']; ?>)"
                                                 title="Delete">
@@ -876,128 +902,6 @@ $queryValues = [
         </div>
     </div>
 
-    <!-- Edit Tour Guide Modal -->
-    <div id="editGuideModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Edit Tour Guide</h2>
-                <button class="modal-close" onclick="closeEditGuideModal()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <form id="editGuideForm" onsubmit="handleEditGuide(event)">
-                <div class="modal-body">
-                    <input type="hidden" id="editGuideId" name="id">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuideName">Name *</label>
-                            <input type="text" id="editGuideName" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuideEmail">Email *</label>
-                            <input type="email" id="editGuideEmail" name="email" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuideSpecialty">Specialty *</label>
-                            <input type="text" id="editGuideSpecialty" name="specialty" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuideCategory">Category *</label>
-                            <select id="editGuideCategory" name="category" required>
-                                <option value="">Select Category</option>
-                                <option value="Adventure">Adventure</option>
-                                <option value="Cultural">Cultural</option>
-                                <option value="Nature">Nature</option>
-                                <option value="Historical">Historical</option>
-                                <option value="Food & Cuisine">Food & Cuisine</option>
-                                <option value="Photography">Photography</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="editGuideDescription">Description</label>
-                        <textarea id="editGuideDescription" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editGuideBio">Bio</label>
-                        <textarea id="editGuideBio" name="bio" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editGuideAreasOfExpertise">Areas of Expertise</label>
-                        <input type="text" id="editGuideAreasOfExpertise" name="areas_of_expertise" placeholder="e.g., Mountain trekking, Local history, Photography">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuideContactNumber">Contact Number *</label>
-                            <input type="tel" id="editGuideContactNumber" name="contact_number" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuideLanguages">Languages</label>
-                            <input type="text" id="editGuideLanguages" name="languages" placeholder="e.g., English, Tagalog, Japanese">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuideExperience">Experience (Years)</label>
-                            <input type="number" id="editGuideExperience" name="experience_years" min="0" max="50">
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuideGroupSize">Max Group Size</label>
-                            <input type="number" id="editGuideGroupSize" name="group_size" min="1" max="100">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuidePriceRange">Price Range</label>
-                            <select id="editGuidePriceRange" name="price_range">
-                                <option value="">Select Range</option>
-                                <option value="Budget">Budget (₱500-1000)</option>
-                                <option value="Mid-range">Mid-range (₱1000-3000)</option>
-                                <option value="Premium">Premium (₱3000-5000)</option>
-                                <option value="Luxury">Luxury (₱5000+)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuidePhotoUrl">Photo URL</label>
-                            <input type="url" id="editGuidePhotoUrl" name="photo_url" placeholder="https://example.com/photo.jpg">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editGuideRating">Rating</label>
-                            <input type="number" id="editGuideRating" name="rating" min="0" max="5" step="0.1" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="editGuideReviewCount">Review Count</label>
-                            <input type="number" id="editGuideReviewCount" name="review_count" min="0" value="0">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="editGuideSchedules">Schedules</label>
-                        <textarea id="editGuideSchedules" name="schedules" rows="2" placeholder="e.g., Monday-Friday: 9AM-5PM, Weekends: 8AM-6PM"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editGuideTotalTours">Total Tours Completed</label>
-                        <input type="number" id="editGuideTotalTours" name="total_tours" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="editGuideVerified" name="verified">
-                            <span class="checkmark"></span>
-                            Verified Guide
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeEditGuideModal()">Cancel</button>
-                    <button type="submit" class="btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- View Tour Guide Modal -->
     <div id="viewGuideModal" class="modal">
         <div class="modal-content">
@@ -1070,7 +974,6 @@ $queryValues = [
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="closeViewGuideModal()">Close</button>
-                <button type="button" class="btn-primary" onclick="editFromView()">Edit Guide</button>
             </div>
         </div>
     </div>
@@ -1243,16 +1146,6 @@ $queryValues = [
             document.body.style.overflow = 'auto';
         }
 
-        function editFromView() {
-            const modal = document.getElementById('viewGuideModal');
-            const guideId = modal.dataset.guideId;
-            
-            if (guideId) {
-                closeViewGuideModal();
-                showEditGuideModal(guideId);
-            }
-        }
-
         function ucfirst(str) {
             return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
         }
@@ -1266,62 +1159,6 @@ $queryValues = [
                 hour: '2-digit',
                 minute: '2-digit'
             });
-        }
-
-        function showEditGuideModal(guideId) {
-            // Fetch guide data and populate edit modal
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=get_guide&guide_id=${guideId}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    populateEditModal(data.data);
-                    const modal = document.getElementById('editGuideModal');
-                    modal.style.display = 'block';
-                    modal.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error fetching guide data');
-            });
-        }
-
-        function populateEditModal(guide) {
-            document.getElementById('editGuideId').value = guide.id;
-            document.getElementById('editGuideName').value = guide.name;
-            document.getElementById('editGuideEmail').value = guide.email;
-            document.getElementById('editGuideSpecialty').value = guide.specialty;
-            document.getElementById('editGuideCategory').value = guide.category || '';
-            document.getElementById('editGuideDescription').value = guide.description || '';
-            document.getElementById('editGuideBio').value = guide.bio || '';
-            document.getElementById('editGuideAreasOfExpertise').value = guide.areas_of_expertise || '';
-            document.getElementById('editGuideContactNumber').value = guide.contact_number;
-            document.getElementById('editGuideLanguages').value = guide.languages || '';
-            document.getElementById('editGuideExperience').value = guide.experience_years || 0;
-            document.getElementById('editGuideGroupSize').value = guide.group_size || 10;
-            document.getElementById('editGuidePriceRange').value = guide.price_range || '';
-            document.getElementById('editGuidePhotoUrl').value = guide.photo_url || '';
-            document.getElementById('editGuideRating').value = guide.rating || 0;
-            document.getElementById('editGuideReviewCount').value = guide.review_count || 0;
-            document.getElementById('editGuideSchedules').value = guide.schedules || '';
-            document.getElementById('editGuideTotalTours').value = guide.total_tours || 0;
-            document.getElementById('editGuideVerified').checked = guide.verified == 1;
-        }
-
-        function closeEditGuideModal() {
-            const modal = document.getElementById('editGuideModal');
-            modal.style.display = 'none';
-            modal.classList.remove('show');
-            document.body.style.overflow = 'auto';
         }
 
         function showDeleteGuideModal(guideId) {
@@ -1383,20 +1220,34 @@ $queryValues = [
             }
         }
 
-        // Enhanced close modal when clicking outside
+        // Enhanced close modal when clicking outside for all modals
         window.onclick = function(event) {
-            const modal = document.getElementById('addGuideModal');
-            if (event.target === modal) {
+            const addModal = document.getElementById('addGuideModal');
+            const viewModal = document.getElementById('viewGuideModal');
+            const deleteModal = document.getElementById('deleteGuideModal');
+            
+            if (event.target === addModal) {
                 closeAddGuideModal();
+            } else if (event.target === viewModal) {
+                closeViewGuideModal();
+            } else if (event.target === deleteModal) {
+                closeDeleteGuideModal();
             }
         }
 
-        // Close modal with Escape key
+        // Close modal with Escape key for all modals
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                const modal = document.getElementById('addGuideModal');
-                if (modal && modal.style.display === 'block') {
+                const addModal = document.getElementById('addGuideModal');
+                const viewModal = document.getElementById('viewGuideModal');
+                const deleteModal = document.getElementById('deleteGuideModal');
+                
+                if (addModal && addModal.style.display === 'block') {
                     closeAddGuideModal();
+                } else if (viewModal && viewModal.style.display === 'block') {
+                    closeViewGuideModal();
+                } else if (deleteModal && deleteModal.style.display === 'block') {
+                    closeDeleteGuideModal();
                 }
             }
         });
@@ -1536,67 +1387,54 @@ $queryValues = [
             }
         });
 
-        function handleEditGuide(event) {
-            event.preventDefault();
+        function toggleVerification(guideId, currentStatus) {
+            const action = currentStatus ? 'unverify_guide' : 'verify_guide';
+            const confirmText = currentStatus ? 
+                'Are you sure you want to unverify this guide? They will no longer appear in the user booking portal.' : 
+                'Are you sure you want to verify this guide? They will appear in the user booking portal.';
+            
+            if (!confirm(confirmText)) {
+                return;
+            }
             
             // Show loading state
-            const submitBtn = event.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Saving...';
-            submitBtn.disabled = true;
+            event.target.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span>';
+            event.target.disabled = true;
             
-            const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Convert checkbox to boolean
-            data.verified = formData.has('verified') ? 1 : 0;
-            
-            // Set default values for empty fields
-            data.rating = data.rating || 0;
-            data.review_count = data.review_count || 0;
-            data.experience_years = data.experience_years || 0;
-            data.group_size = data.group_size || 10;
-            data.total_tours = data.total_tours || 0;
-            
-            // Add action and guide ID for server-side handling
-            data.action = 'edit_guide';
-            data.guide_id = data.id;
-            
-            // Send data to server
+            // Send verification request
             fetch('', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: new URLSearchParams(data)
+                body: `action=${action}&guide_id=${guideId}`
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // Show success animation
+                    // Show success message
                     showSuccessAnimation();
                     
-                    // Reset form and close modal after delay
+                    // Reload page to show updated status
                     setTimeout(() => {
-                        closeEditGuideModal();
                         location.reload();
-                    }, 2000);
+                    }, 1500);
                 } else {
-                    // Show error animation
+                    // Show error message
                     showErrorAnimation(result.message);
                     
                     // Reset button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
+                    event.target.innerHTML = `<span class="material-icons-outlined">${currentStatus ? 'verified_user' : 'person_add'}</span>`;
+                    event.target.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showErrorAnimation('An error occurred while updating the tour guide.');
+                showErrorAnimation('An error occurred while updating verification status.');
                 
                 // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                event.target.innerHTML = `<span class="material-icons-outlined">${currentStatus ? 'verified_user' : 'person_add'}</span>`;
+                event.target.disabled = false;
             });
         }
 
@@ -1654,38 +1492,7 @@ $queryValues = [
             });
         }
 
-        // Enhanced close modal when clicking outside for all modals
-        window.onclick = function(event) {
-            const addModal = document.getElementById('addGuideModal');
-            const editModal = document.getElementById('editGuideModal');
-            const deleteModal = document.getElementById('deleteGuideModal');
-            
-            if (event.target === addModal) {
-                closeAddGuideModal();
-            } else if (event.target === editModal) {
-                closeEditGuideModal();
-            } else if (event.target === deleteModal) {
-                closeDeleteGuideModal();
-            }
-        }
-
-        // Close modal with Escape key for all modals
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const addModal = document.getElementById('addGuideModal');
-                const editModal = document.getElementById('editGuideModal');
-                const deleteModal = document.getElementById('deleteGuideModal');
-                
-                if (addModal && addModal.style.display === 'block') {
-                    closeAddGuideModal();
-                } else if (editModal && editModal.style.display === 'block') {
-                    closeEditGuideModal();
-                } else if (deleteModal && deleteModal.style.display === 'block') {
-                    closeDeleteGuideModal();
-                }
-            }
-        });
-    </script>
+        </script>
 </body>
 
 </html>

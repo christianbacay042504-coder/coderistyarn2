@@ -501,9 +501,10 @@ closeAdminConnection($conn);
 
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
-                    // Skip hotels and settings menu items
+                    // Skip hotels, settings, and reports menu items
                     if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false ||
-                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false) {
+                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false ||
+                        stripos($item['menu_name'], 'reports') !== false || stripos($item['menu_url'], 'reports') !== false) {
                         continue;
                     }
                     

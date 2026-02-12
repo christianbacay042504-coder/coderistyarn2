@@ -34,6 +34,18 @@ if ($conn && $isLoggedIn) {
     }
 }
 
+// Fetch featured destinations from admin database
+$featuredSpots = [];
+if ($conn) {
+    $query = "SELECT * FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 6";
+    $result = $conn->query($query);
+    if ($result && $result->num_rows > 0) {
+        while ($spot = $result->fetch_assoc()) {
+            $featuredSpots[] = $spot;
+        }
+    }
+}
+
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
@@ -91,6 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             --primary-light: #e8f5e9;
             --primary-dark: #1e4220;
             --secondary: #97bc62;
+            --accent: #ff6b6b;
+            --accent-light: #ffe0e0;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -108,11 +122,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             --radius-sm: 0.375rem;
             --radius-md: 0.5rem;
             --radius-lg: 0.75rem;
             --radius-xl: 1rem;
-            --transition: all 0.2s ease-in-out;
+            --radius-2xl: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -707,56 +723,111 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .hero {
-            background: linear-gradient(135deg,
-                    rgba(44, 95, 45, 0.95) 0%,
-                    rgba(34, 75, 35, 0.9) 25%,
-                    rgba(24, 55, 25, 0.85) 50%,
-                    rgba(14, 35, 15, 0.8) 100%),
+            background: 
+                linear-gradient(135deg,
+                    rgba(44, 95, 45, 0.9) 0%,
+                    rgba(34, 75, 35, 0.85) 25%,
+                    rgba(24, 55, 25, 0.8) 50%,
+                    rgba(14, 35, 15, 0.75) 100%),
+                radial-gradient(circle at 20% 80%, rgba(151, 188, 98, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.2) 0%, transparent 50%),
                 url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop') center/cover;
-            background-blend-mode: overlay;
+            background-blend-mode: overlay, normal, normal, overlay;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            padding: 120px 40px 80px;
+            padding: 140px 40px 100px;
             text-align: center;
             color: white;
             position: relative;
             overflow: hidden;
-            border-radius: 0 0 30px 30px;
-            margin-bottom: 60px;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 80px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--accent) 0%, 
+                var(--secondary) 25%, 
+                var(--primary) 50%, 
+                var(--secondary) 75%, 
+                var(--accent) 100%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; transform: translateX(-10px); }
+            50% { opacity: 1; transform: translateX(10px); }
         }
 
         .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 24px;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 32px;
+            text-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
             letter-spacing: -2px;
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #f0f9ff 30%, 
+                #e0f2fe 60%, 
+                #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: fadeInUp 1s ease-out;
+            animation: fadeInUp 1s ease-out, glow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
         }
 
         .hero p {
-            font-size: 1.4rem;
-            margin-bottom: 40px;
-            max-width: 600px;
+            font-size: 1.5rem;
+            margin-bottom: 48px;
+            max-width: 700px;
             margin-left: auto;
             margin-right: auto;
-            line-height: 1.6;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            line-height: 1.7;
+            text-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
             opacity: 0.95;
             animation: fadeInUp 1s ease-out 0.2s both;
+            position: relative;
+            z-index: 2;
+            font-weight: 400;
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -766,33 +837,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn-hero {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 18px 36px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            gap: 16px;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.95) 0%, 
+                rgba(248, 250, 252, 0.9) 50%, 
+                rgba(240, 249, 255, 0.85) 100%);
             color: var(--primary);
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 60px;
+            font-size: 1.2rem;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             position: relative;
             overflow: hidden;
             animation: fadeInUp 1s ease-out 0.4s both;
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .btn-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-hero:hover::before {
+            left: 100%;
         }
 
         .btn-hero:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 0 2px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 1) 0%, 
+                rgba(240, 249, 255, 0.95) 50%, 
+                rgba(224, 242, 254, 0.9) 100%);
         }
 
         .btn-hero:active {
-            transform: translateY(-1px) scale(1.02);
+            transform: translateY(-2px) scale(1.02);
         }
 
         .content-area {
@@ -837,92 +940,179 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .destination-card {
             background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.1),
-                0 1px 8px rgba(0, 0, 0, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                0 10px 40px rgba(0, 0, 0, 0.08),
+                0 2px 10px rgba(0, 0, 0, 0.04);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            border: 1px solid rgba(44, 95, 45, 0.08);
+            border: 1px solid rgba(44, 95, 45, 0.06);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .destination-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 50%, var(--primary) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .destination-card:hover::before {
+            opacity: 1;
         }
 
         .destination-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-12px) rotateX(2deg) rotateY(-2deg);
             box-shadow:
-                0 20px 60px rgba(44, 95, 45, 0.15),
-                0 10px 20px rgba(0, 0, 0, 0.1);
-            border-color: rgba(44, 95, 45, 0.2);
+                0 25px 80px rgba(44, 95, 45, 0.15),
+                0 15px 30px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(44, 95, 45, 0.1);
+            border-color: rgba(44, 95, 45, 0.15);
         }
 
         .destination-img {
             width: 100%;
-            height: 240px;
+            height: 280px;
             overflow: hidden;
             position: relative;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+        }
+
+        .destination-img::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                transparent 70%, 
+                rgba(0, 0, 0, 0.1) 100%);
+            pointer-events: none;
         }
 
         .destination-img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: brightness(0.95);
         }
 
         .destination-card:hover .destination-img img {
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(1deg);
+            filter: brightness(1.05);
         }
 
         .destination-content {
-            padding: 28px;
+            padding: 32px;
             position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+        }
+
+        .destination-content::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(44, 95, 45, 0.3);
+        }
+
+        .destination-card:hover .destination-content::before {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.1);
         }
 
         .destination-content h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.6rem;
+            font-weight: 800;
             color: var(--text-primary);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             letter-spacing: -0.5px;
             line-height: 1.3;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+        }
+
+        .destination-card:hover .destination-content h3 {
+            transform: translateX(4px);
         }
 
         .destination-content p {
             color: var(--text-secondary);
             font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 16px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            font-weight: 400;
         }
 
         .destination-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-top: 16px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(44, 95, 45, 0.08);
         }
 
         .destination-meta .rating {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             color: var(--warning);
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .destination-meta .rating:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
         }
 
         .destination-meta .rating .material-icons-outlined {
-            font-size: 16px;
+            font-size: 18px;
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3));
         }
 
         .destination-meta .category {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 4px 12px;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            font-weight: 500;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
             text-transform: capitalize;
+            border: 1px solid rgba(44, 95, 45, 0.2);
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .destination-meta .category:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
         }
 
         .stats-grid {
@@ -935,37 +1125,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .stat-card {
             background: linear-gradient(135deg, var(--primary) 0%, #4a7c4e 100%);
             color: white;
-            padding: 40px 32px;
-            border-radius: 20px;
+            padding: 48px 40px;
+            border-radius: 24px;
             text-align: center;
             box-shadow:
-                0 10px 30px rgba(44, 95, 45, 0.2),
-                0 5px 15px rgba(44, 95, 45, 0.1);
-            transition: all 0.3s ease;
+                0 20px 60px rgba(44, 95, 45, 0.25),
+                0 8px 25px rgba(44, 95, 45, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .stat-card:hover::after {
+            animation: shine 0.6s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: rotate(45deg) translateX(100%); opacity: 0; }
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
             box-shadow:
-                0 15px 40px rgba(44, 95, 45, 0.3),
-                0 8px 20px rgba(44, 95, 45, 0.2);
+                0 30px 80px rgba(44, 95, 45, 0.35),
+                0 15px 40px rgba(44, 95, 45, 0.2),
+                0 0 0 2px rgba(255, 255, 255, 0.1);
         }
 
         .stat-card h3 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 2;
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.8); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
 
         .stat-card p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             opacity: 0.95;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card .stat-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 3rem;
+            opacity: 0.2;
+            transform: rotate(-15deg);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            opacity: 0.3;
+            transform: rotate(0deg) scale(1.1);
         }
 
         /* Full-width layout styles */
@@ -1050,6 +1318,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #1d4ed8;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* ===== USER PROFILE DROPDOWN ===== */
+        .user-profile-dropdown {
+            position: relative;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid rgba(251, 255, 253, 1);
+            cursor: pointer;
+            color: #333;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.2s;
+            box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-trigger:hover {
+            background: #f0f0f0;
+        }
+
+        .profile-avatar,
+        .profile-avatar-large {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2c5f2d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar-large {
+            width: 56px;
+            height: 56px;
+            font-size: 20px;
+            margin: 0 auto 12px;
+        }
+
+        .profile-name {
+            display: none;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            width: 240px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+
+        .dropdown-header {
+            padding: 16px;
+            background: #f9f9f9;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-header h4 {
+            margin: 8px 0 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .dropdown-header p {
+            font-size: 13px;
+            color: #777;
+            margin: 0;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #444;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item .material-icons-outlined {
+            font-size: 20px;
+            color: #555;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eee;
+            margin: 4px 0;
         }
 
         .main-content.full-width .content-area {
@@ -1148,6 +1535,320 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 padding: 20px;
             }
         }
+
+        /* ===== BOOKING HISTORY MODAL STYLES ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .booking-modal .modal-header {
+            background: linear-gradient(135deg, #2c5f2d 0%, #1a3d1a 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-icon {
+            font-size: 28px;
+        }
+
+        .modal-title h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 32px;
+            max-height: calc(90vh - 120px);
+            overflow-y: auto;
+        }
+
+        .booking-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #2c5f2d;
+            background: #f8f9f8;
+        }
+
+        .filter-btn.active {
+            background: #2c5f2d;
+            color: white;
+            border-color: #2c5f2d;
+        }
+
+        .bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .booking-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .booking-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .booking-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .booking-info p {
+            margin: 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-badge.status-confirmed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-badge.status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-badge.status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-row .material-icons-outlined {
+            font-size: 16px;
+            color: #2c5f2d;
+        }
+
+        .booking-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-view {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-view:hover {
+            background: #1a3d1a;
+        }
+
+        .empty-bookings {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 16px;
+        }
+
+        .empty-bookings h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .empty-bookings p {
+            margin: 0 0 24px 0;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1a3d1a;
+        }
+
+        /* Responsive styles for modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+
+            .modal-header {
+                padding: 20px 24px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .booking-filters {
+                justify-content: center;
+            }
+
+            .booking-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .booking-details {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-actions {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1160,14 +1861,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span class="material-icons-outlined">search</span>
                     <input type="text" placeholder="Search destinations or guides...">
                 </div>
-            </div>
-            <div class="header-right">
-                <nav class="header-nav">
-                    <a href="../index.php" class="nav-link active">
-                        <span class="material-icons-outlined">home</span>
-                        <span>Home</span>
-                    </a>
-                </nav>
             </div>
             <div class="header-right">
                 <nav class="header-nav">
@@ -1201,7 +1894,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='logout.php'">Sign in/register</button>
+                    <div class="user-profile-dropdown">
+                        <button class="profile-trigger">
+                            <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                            <span class="profile-name"><?php echo htmlspecialchars($currentUser['name']); ?></span>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-header">
+                                <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                                <div class="profile-details">
+                                    <h4><?php echo htmlspecialchars($currentUser['name']); ?></h4>
+                                    <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="index.php" class="dropdown-item">
+                                <span class="material-icons-outlined">dashboard</span>
+                                <span>Dashboard</span>
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
+                                <span class="material-icons-outlined">history</span>
+                                <span>Booking History</span>
+                            </a>
+                            <a href="saved-tours.php" class="dropdown-item">
+                                <span class="material-icons-outlined">favorite</span>
+                                <span>Saved Tours</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="logout.php" class="dropdown-item">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -1301,20 +2027,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if (!empty($homepageContent['stat_title'])): ?>
                     <?php foreach ($homepageContent['stat_title'] as $key => $title): ?>
                         <div class="stat-card">
+                            <span class="stat-icon material-icons-outlined">
+                                <?php 
+                                $iconMap = [
+                                    'natural_attractions' => 'forest',
+                                    'distance' => 'location_on', 
+                                    'climate' => 'wb_sunny',
+                                    'tourism' => 'tour',
+                                    'default' => 'star'
+                                ];
+                                echo $iconMap[$key] ?? 'star';
+                                ?>
+                            </span>
                             <h3><?php echo htmlspecialchars($homepageContent['stat_value'][$key] ?? '0'); ?></h3>
                             <p><?php echo htmlspecialchars($title); ?></p>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="stat-card">
+                        <span class="stat-icon material-icons-outlined">forest</span>
                         <h3>10+</h3>
                         <p>Natural Attractions</p>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-icon material-icons-outlined">location_on</span>
                         <h3>30 min</h3>
                         <p>From Metro Manila</p>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-icon material-icons-outlined">wb_sunny</span>
                         <h3>Year-round</h3>
                         <p>Perfect Climate</p>
                     </div>
@@ -1323,10 +2064,287 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </main>
 
+    <!-- Booking History Modal -->
+    <div class="modal-overlay" id="bookingHistoryModal">
+        <div class="modal-content booking-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="material-icons-outlined modal-icon">history</span>
+                    <h2>Booking History</h2>
+                </div>
+                <button class="close-modal" onclick="closeModal('bookingHistoryModal')">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="booking-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="confirmed">Confirmed</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn" data-filter="cancelled">Cancelled</button>
+                </div>
+                <div id="modalBookingsList" class="bookings-list">
+                    <!-- Bookings will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ========== USER PROFILE DROPDOWN ==========
+        function initUserProfileDropdown() {
+            const profileDropdown = document.querySelector('.user-profile-dropdown');
+            const profileTrigger = document.querySelector('.profile-trigger');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            const logoutLink = document.querySelector('[href="logout.php"]');
+
+            if (!profileDropdown || !profileTrigger || !dropdownMenu) {
+                console.log('Profile dropdown elements not found');
+                return;
+            }
+
+            // Toggle dropdown on click
+            profileTrigger.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!profileDropdown.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Handle logout with confirmation
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showLogoutConfirmation();
+                });
+            }
+        }
+
+        // Show logout confirmation modal
+        function showLogoutConfirmation() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content logout-modal">
+                    <div class="modal-header">
+                        <h2>Sign Out</h2>
+                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-icons-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="logout-message">
+                            <div class="logout-icon">
+                                <span class="material-icons-outlined">logout</span>
+                            </div>
+                            <h3>Confirm Sign Out</h3>
+                            <p>Are you sure you want to sign out of your account?</p>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn-cancel" onclick="document.querySelector('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                                Cancel
+                            </button>
+                            <button class="btn-confirm-logout" onclick="confirmLogout()">
+                                <span class="material-icons-outlined">logout</span>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        // Confirm and execute logout
+        function confirmLogout() {
+            // Remove modal
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+
+            // Redirect to logout script
+            window.location.href = 'logout.php';
+        }
+
+        // ========== BOOKING HISTORY MODAL ==========
+        let currentBookingFilter = 'all';
+        let userBookings = [];
+
+        // Open booking history modal
+        function openBookingHistoryModal() {
+            const modal = document.getElementById('bookingHistoryModal');
+            if (modal) {
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                loadBookingHistory();
+                initBookingFilters();
+            }
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Load booking history
+        function loadBookingHistory() {
+            // Fetch bookings from server
+            fetch('booking-history.php')
+                .then(response => response.text())
+                .then(html => {
+                    // Extract booking data from the page
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    // Look for userBookings variable in the script
+                    const scripts = tempDiv.querySelectorAll('script');
+                    for (let script of scripts) {
+                        if (script.textContent.includes('userBookings =')) {
+                            const match = script.textContent.match(/userBookings = (\[.*?\]);/);
+                            if (match) {
+                                try {
+                                    userBookings = JSON.parse(match[1]);
+                                } catch (e) {
+                                    console.error('Error parsing bookings:', e);
+                                    userBookings = [];
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    
+                    displayModalBookings();
+                })
+                .catch(error => {
+                    console.error('Error loading bookings:', error);
+                    userBookings = [];
+                    displayModalBookings();
+                });
+        }
+
+        // Display bookings in modal
+        function displayModalBookings() {
+            const container = document.getElementById('modalBookingsList');
+            if (!container) return;
+            
+            // Filter bookings
+            let filteredBookings = userBookings;
+            if (currentBookingFilter !== 'all') {
+                filteredBookings = userBookings.filter(b => b.status === currentBookingFilter);
+            }
+            
+            if (filteredBookings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-bookings">
+                        <div class="empty-icon">
+                            <span class="material-icons-outlined">event_busy</span>
+                        </div>
+                        <h3>No ${currentBookingFilter !== 'all' ? currentBookingFilter : ''} bookings found</h3>
+                        <p>${currentBookingFilter === 'all' 
+                            ? 'Start your adventure by booking your first tour with our experienced guides.' 
+                            : `You don't have any ${currentBookingFilter} bookings at the moment.`}</p>
+                        <button class="btn-primary" onclick="closeModal('bookingHistoryModal'); window.location.href='book.php'">
+                            <span class="material-icons-outlined">explore</span>
+                            Book Now
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredBookings.map(booking => `
+                <div class="booking-item" data-status="${booking.status}">
+                    <div class="booking-header">
+                        <div class="booking-info">
+                            <h4>${booking.guide_name || 'Tour Guide'}</h4>
+                            <p><span class="material-icons-outlined">place</span> ${booking.destination || booking.tour_name}</p>
+                        </div>
+                        <span class="status-badge status-${booking.status}">
+                            ${getBookingStatusIcon(booking.status)}
+                            ${booking.status.toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="booking-details">
+                        <div class="detail-row">
+                            <span class="material-icons-outlined">event</span>
+                            <span>${formatBookingDate(booking.booking_date)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="material-icons-outlined">people</span>
+                            <span>${booking.number_of_people} Guest${booking.number_of_people > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="material-icons-outlined">payments</span>
+                            <span>₱${Number(booking.total_amount).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="booking-actions">
+                        <button class="btn-view" onclick="viewBookingDetails(${booking.id})">
+                            <span class="material-icons-outlined">visibility</span>
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize booking filters
+        function initBookingFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentBookingFilter = this.dataset.filter;
+                    displayModalBookings();
+                });
+            });
+        }
+
+        // Get booking status icon
+        function getBookingStatusIcon(status) {
+            const icons = {
+                'pending': '<span class="material-icons-outlined">schedule</span>',
+                'confirmed': '<span class="material-icons-outlined">check_circle</span>',
+                'completed': '<span class="material-icons-outlined">verified</span>',
+                'cancelled': '<span class="material-icons-outlined">cancel</span>'
+            };
+            return icons[status] || '<span class="material-icons-outlined">info</span>';
+        }
+
+        // Format booking date
+        function formatBookingDate(dateString) {
+            const date = new Date(dateString);
+            const options = { month: 'short', day: 'numeric', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // View booking details (placeholder)
+        function viewBookingDetails(bookingId) {
+            const booking = userBookings.find(b => String(b.id) === String(bookingId));
+            if (booking) {
+                alert(`Booking Details:\n\nGuide: ${booking.guide_name || 'Tour Guide'}\nDestination: ${booking.destination || booking.tour_name}\nDate: ${formatBookingDate(booking.booking_date)}\nGuests: ${booking.number_of_people}\nTotal: ₱${Number(booking.total_amount).toLocaleString()}\nStatus: ${booking.status.toUpperCase()}`);
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function () {
-            // Profile dropdown functionality removed
+            initUserProfileDropdown();
         });
     </script>
 </body>

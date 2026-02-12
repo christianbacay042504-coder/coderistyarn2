@@ -156,15 +156,6 @@ for ($i = 5; $i >= 0; $i--) {
     ];
 }
 
-// Top destinations by bookings
-$topDestinations = [];
-$result = $conn->query("SELECT ts.name, COUNT(b.id) as booking_count FROM tourist_spots ts LEFT JOIN bookings b ON b.status = 'confirmed' AND b.tour_name LIKE CONCAT('%', ts.name, '%') COLLATE utf8mb4_general_ci GROUP BY ts.id ORDER BY booking_count DESC LIMIT 10");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $topDestinations[] = $row;
-    }
-}
-
 // User registration trends
 $userTrends = [];
 for ($i = 11; $i >= 0; $i--) {
@@ -175,15 +166,6 @@ for ($i = 11; $i >= 0; $i--) {
         'month' => date('M Y', strtotime($month)),
         'users' => $data['users'] ?? 0
     ];
-}
-
-// Popular tour categories
-$popularCategories = [];
-$result = $conn->query("SELECT category, COUNT(*) as count FROM tourist_spots WHERE status = 'active' GROUP BY category ORDER BY count DESC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $popularCategories[] = $row;
-    }
 }
 
 // Map query keys to values for menu badges
@@ -299,8 +281,10 @@ $queryValues = [
 
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
-                    // Skip hotels and settings menu items
-                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false || stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false) {
+                    // Skip hotels, settings, and reports menu items
+                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false || 
+                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false ||
+                        stripos($item['menu_name'], 'reports') !== false || stripos($item['menu_url'], 'reports') !== false) {
                         continue;
                     }
                     
@@ -337,10 +321,6 @@ $queryValues = [
                 </div>
 
                 <div class="top-bar-actions">
-                    <button class="btn-secondary" onclick="exportAnalytics()">
-                        <span class="material-icons-outlined">download</span>
-                        Export Report
-                    </button>
                     
                     <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
@@ -445,42 +425,6 @@ $queryValues = [
                             <canvas id="userTrendChart"></canvas>
                         </div>
                     </div>
-
-                    <!-- Popular Categories -->
-                    <div class="chart-container">
-                        <h3>Popular Categories</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="categoriesChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top Destinations Table -->
-                <div class="chart-container">
-                    <h3>Top Destinations by Bookings</h3>
-                    <table class="analytics-table">
-                        <thead>
-                            <tr>
-                                <th>Destination</th>
-                                <th>Bookings</th>
-                                <th>Trend</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($topDestinations as $destination): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($destination['name']); ?></td>
-                                    <td><?php echo $destination['booking_count']; ?></td>
-                                    <td>
-                                        <span class="trend-up">
-                                            <span class="material-icons-outlined">trending_up</span>
-                                            +<?php echo rand(5, 25); ?>%
-                                        </span>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </main>
@@ -563,25 +507,6 @@ $queryValues = [
             options: {
                 responsive: true,
                 maintainAspectRatio: false
-            }
-        });
-
-        // Popular Categories
-        const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
-        const categoriesChart = new Chart(categoriesCtx, {
-            type: 'horizontalBar',
-            data: {
-                labels: <?php echo json_encode(array_column($popularCategories, 'category')); ?>,
-                datasets: [{
-                    label: 'Destinations',
-                    data: <?php echo json_encode(array_column($popularCategories, 'count')); ?>,
-                    backgroundColor: '#f97316'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y'
             }
         });
 

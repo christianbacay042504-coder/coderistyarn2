@@ -518,9 +518,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
-                    // Skip hotels and settings menu items
-                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false ||
-                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false) {
+                    // Skip hotels, settings, and reports menu items
+                    if (stripos($item['menu_name'], 'hotels') !== false || stripos($item['menu_url'], 'hotels') !== false || 
+                        stripos($item['menu_name'], 'settings') !== false || stripos($item['menu_url'], 'settings') !== false ||
+                        stripos($item['menu_name'], 'reports') !== false || stripos($item['menu_url'], 'reports') !== false) {
                         continue;
                     }
                     
@@ -1104,7 +1105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         document.getElementById('viewDestAmenities').textContent = data.data.amenities || '';
                         document.getElementById('viewDestContact').textContent = data.data.contact_info || '';
                         document.getElementById('viewDestWebsite').textContent = data.data.website || '';
-                        document.getElementById('viewDestRating').textContent = data.data.rating ? data.data.rating.toFixed(1) : '0.0';
+                        document.getElementById('viewDestRating').textContent = data.data.rating ? parseFloat(data.data.rating).toFixed(1) : '0.0';
                         document.getElementById('viewDestStatus').textContent = data.data.status || '';
                         
                         // Show modal
@@ -1113,9 +1114,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             modal.style.display = 'block';
                             modal.classList.add('show');
                             document.body.style.overflow = 'hidden';
+                        } else {
+                            console.error('Modal not found!');
+                            alert('Error: View modal not found.');
                         }
                     } else {
-                        console.error('Modal not found!');
+                        console.error('Server error:', data.message);
+                        alert('Error loading destination details: ' + data.message);
                     }
                 })
                 .catch(error => {
@@ -1166,9 +1171,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             modal.style.display = 'block';
                             modal.classList.add('show');
                             document.body.style.overflow = 'hidden';
+                        } else {
+                            console.error('Edit modal not found!');
+                            alert('Error: Edit modal not found.');
                         }
                     } else {
-                        console.error('Modal not found!');
+                        console.error('Server error:', data.message);
+                        alert('Error loading destination data: ' + data.message);
                     }
                 })
                 .catch(error => {

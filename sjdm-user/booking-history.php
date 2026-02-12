@@ -139,6 +139,185 @@ if ($conn) {
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Modal Styles -->
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.25),
+                0 16px 32px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 32px 24px 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .close-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .close-modal .material-icons-outlined {
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 32px;
+            max-height: calc(90vh - 120px);
+            overflow-y: auto;
+        }
+
+        .booking-details-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .booking-detail-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .booking-detail-row div {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-item .material-icons-outlined {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .detail-item strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.status-pending {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
+        }
+
+        .status-badge.status-confirmed {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .status-badge.status-completed {
+            background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .status-badge.status-cancelled {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .modal-header {
+                padding: 20px 24px 20px 24px;
+            }
+            
+            .modal-body {
+                padding: 24px;
+            }
+            
+            .booking-details-content {
+                gap: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- SIDEBAR -->
@@ -256,11 +435,13 @@ if ($conn) {
         </div>
     </main>
 
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+
     <script>
         let currentFilter = 'all';
         const userBookings = <?php echo json_encode($userBookings); ?>;
         const currentUserId = <?php echo (int)$_SESSION['user_id']; ?>;
-
         function showNotification(message, type) {
             console.log('Notification:', type, message);
             if (type === 'error') {
@@ -516,6 +697,104 @@ if ($conn) {
 
         function downloadBooking(bookingId) {
             showNotification('Download feature coming soon!', 'info');
+        }
+
+        // Modal creation function
+        function createModal(modalId, title, content, modalClass = '') {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content ${modalClass}">
+                    <div class="modal-header">
+                        <h2>${title}</h2>
+                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-icons-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Listen for modal requests from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'showBookingModal') {
+                createModal('bookingDetailsModal', 'Booking Details', event.data.content, 'booking-details-modal');
+            }
+        });
+
+        // Check if there's a modal request in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const showBookingId = urlParams.get('show');
+        const bookingId = urlParams.get('booking');
+        
+        if (showBookingId && bookingId) {
+            const booking = userBookings.find(b => String(b.id) === bookingId);
+            if (booking) {
+                const content = `
+                    <div class="booking-details-content">
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">tour</span>
+                                <strong>Tour Guide:</strong> ${booking.guide_name || 'Tour Guide'}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">place</span>
+                                <strong>Destination:</strong> ${booking.destination || booking.tour_name}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">event</span>
+                                <strong>Tour Date:</strong> ${formatDate(booking.booking_date)}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">people</span>
+                                <strong>Guests:</strong> ${booking.number_of_people}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">confirmation_number</span>
+                                <strong>Reference:</strong> ${booking.booking_reference || ('#' + booking.id)}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">payments</span>
+                                <strong>Total Amount:</strong> ₱${Number(booking.total_amount).toLocaleString()}
+                            </div>
+                        </div>
+                        <div class="booking-detail-row">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">info</span>
+                                <strong>Status:</strong> 
+                                <span class="status-badge status-${booking.status.toLowerCase()}">
+                                    ${getStatusIcon(booking.status)}
+                                    <span>${booking.status.toUpperCase()}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                createModal('bookingDetailsModal', 'Booking Details', content, 'booking-details-modal');
+            }
         }
     </script>
 </body>

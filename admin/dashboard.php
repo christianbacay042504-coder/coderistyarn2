@@ -138,10 +138,6 @@ if ($conn) {
                     <span class="material-icons-outlined">analytics</span>
                     <span>Analytics</span>
                 </a>
-                <a href="reports.php" class="nav-item">
-                    <span class="material-icons-outlined">description</span>
-                    <span>Reports</span>
-                </a>
             </nav>
             
             <div class="sidebar-footer">

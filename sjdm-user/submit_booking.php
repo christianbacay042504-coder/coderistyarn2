@@ -19,13 +19,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = intval($_SESSION['user_id']);
 
-$guideId = isset($_POST['guide_id']) && $_POST['guide_id'] !== '' ? intval($_POST['guide_id']) : null;
 $destination = trim($_POST['destination'] ?? '');
 $tourDate = trim($_POST['date'] ?? '');
 $guests = intval($_POST['guests'] ?? 0);
-$contact = trim($_POST['contact'] ?? '');
-$email = trim($_POST['email'] ?? '');
-$specialRequests = trim($_POST['special_requests'] ?? '');
 
 if ($destination === '' || $tourDate === '' || $guests < 1) {
     http_response_code(400);
@@ -48,71 +44,23 @@ if (!$conn) {
     exit;
 }
 
-// Validate guide_id (avoid FK constraint failures)
-if ($guideId !== null) {
-    try {
-        $stmt = $conn->prepare('SELECT id FROM tour_guides WHERE id = ? LIMIT 1');
-        if ($stmt) {
-            $stmt->bind_param('i', $guideId);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if (!$res || $res->num_rows === 0) {
-                $guideId = null;
-            }
-            $stmt->close();
-        } else {
-            $guideId = null;
-        }
-    } catch (Exception $e) {
-        $guideId = null;
-    }
-}
-
 try {
-    if ($guideId === null) {
-        $sql = "INSERT INTO bookings (user_id, tour_name, destination, booking_date, number_of_people, contact_number, email, special_requests, total_amount, payment_method, status, booking_reference, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pay_later', 'pending', ?, NOW())";
+    // Simple INSERT statement matching the actual database structure
+    $sql = "INSERT INTO bookings (user_id, tour_name, booking_date, number_of_people, total_amount, status) VALUES (?, ?, ?, ?, ?, 'pending')";
 
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception('Prepare failed: ' . $conn->error);
-        }
-
-        $stmt->bind_param(
-            'isssisssds',
-            $userId,
-            $tourName,
-            $destination,
-            $tourDate,
-            $guests,
-            $contact,
-            $email,
-            $specialRequests,
-            $totalAmount,
-            $bookingReference
-        );
-    } else {
-        $sql = "INSERT INTO bookings (user_id, guide_id, tour_name, destination, booking_date, number_of_people, contact_number, email, special_requests, total_amount, payment_method, status, booking_reference, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pay_later', 'pending', ?, NOW())";
-
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception('Prepare failed: ' . $conn->error);
-        }
-
-        $stmt->bind_param(
-            'iisssissss',
-            $userId,
-            $guideId,
-            $tourName,
-            $destination,
-            $tourDate,
-            $guests,
-            $contact,
-            $email,
-            $specialRequests,
-            $totalAmount,
-            $bookingReference
-        );
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        throw new Exception('Prepare failed: ' . $conn->error);
     }
+
+    $stmt->bind_param(
+        'isidi',
+        $userId,
+        $tourName,
+        $tourDate,
+        $guests,
+        $totalAmount
+    );
 
     if (!$stmt->execute()) {
         throw new Exception('Execute failed: ' . $stmt->error);

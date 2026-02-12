@@ -1,9 +1,35 @@
 // Complete CRUD System with Image Handling
 
+function initBookingForm() {
+    console.log('initBookingForm called');
+    // Add event listeners for form validation
+    const form = document.getElementById('tourDetailsForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+        });
+    }
+    // Initialize tour guide dropdown
+    const guideSelect = document.getElementById('selectedGuide');
+    if (guideSelect) {
+        guideSelect.addEventListener('change', function() {
+            console.log('Guide selected');
+        });
+    }
+    // Initialize date inputs
+    const dateInput = document.getElementById('checkInDate');
+    if (dateInput) {
+        dateInput.addEventListener('change', function() {
+            console.log('Date selected');
+        });
+    }
+    console.log('📋 Booking form initialized');
+}
+
 // Global State
 let currentGuideId = null;
 let currentStep = 1;
-const totalSteps = 5;
+const totalSteps = 5;   
 let bookingData = {};
 let currentFilter = 'all';
 let currentSort = 'rating';
@@ -13,14 +39,36 @@ let searchQuery = '';
 
 // Function to handle booking a guide from profile modal
 function bookGuide(guideId) {
-    // Close the profile modal
+    // Close profile modal
     const modal = document.getElementById(`modal-guide-${guideId}`);
     if (modal) {
         modal.classList.remove('show');
     }
 
-    // Simulate navigation to booking page
-    window.location.href = `book.php?guide_id=${guideId}`;
+    // Redirect to booking page with guide parameter
+    window.location.href = `book.php?guide=${guideId}`;
+}
+
+// Function to handle guide selection in booking form
+function selectGuide(guideId) {
+    // Remove previous selection
+    document.querySelectorAll('.guide-selection-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Add selection to clicked card
+    const selectedCard = document.querySelector(`[data-guide-id="${guideId}"]`);
+    if (selectedCard) {
+        selectedCard.classList.add('selected');
+    }
+    
+    // Update hidden input
+    const hiddenInput = document.getElementById('selectedGuide');
+    if (hiddenInput) {
+        hiddenInput.value = guideId;
+    }
+    
+    console.log('Selected guide ID:', guideId);
 }
 
 // Hotel Booking Modal
@@ -156,16 +204,38 @@ function initHotelFilters() {
     });
 }
 
+// ========== BOOKING FUNCTIONS ==========
+
+// Initialize booking form
+function initBookingForm() {
+    // Add event listeners for form validation
+    const form = document.getElementById('tourDetailsForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+    }
+
+    // Initialize tour guide dropdown
+    const guideSelect = document.getElementById('selectedGuide');
+    if (guideSelect) {
+        guideSelect.addEventListener('change', handleGuideSelection);
+    }
+
+    // Initialize date inputs
+    const dateInput = document.getElementById('checkInDate');
+    if (dateInput) {
+        dateInput.addEventListener('change', handleDateSelection);
+    }
+
+    console.log('📋 Booking form initialized');
+}
+
 // Add to your existing init function
 function init() {
     displayAllGuides();
-    populateGuideSelect();
     setMinDate();
     initDatePickers();
-    initBookingForm();
     initMobileSidebar();
     initSearch();
-    initFilters();
     updateUserInterface();
     checkNotifications();
 
@@ -173,13 +243,29 @@ function init() {
     initWeatherSystem();
 
     // Initialize spots filters
-    initSpotsFilters();
+    if (typeof initSpotsFilters === 'function') {
+        initSpotsFilters();
+    } else {
+        console.log('initSpotsFilters function not available, skipping...');
+    }
 
     // Initialize booking form
     initBookingProgress();
 
     // Initialize file upload
     initFileUpload();
+
+    // Initialize booking form last to ensure all dependencies are loaded
+    if (typeof initBookingForm === 'function') {
+        initBookingForm();
+    }
+
+    // Initialize filters if available
+    if (typeof initFilters === 'function') {
+        initFilters();
+    } else {
+        console.log('initFilters function not available, skipping...');
+    }
 }
 
 // Initialize on page load
@@ -188,7 +274,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ========== BOOKING FUNCTIONS ==========
+// Handle form submission
+function handleFormSubmit(event) {
+    event.preventDefault();
+    // Form submission logic will be handled by existing submitBooking function
+}
+
+// Handle guide selection
+function handleGuideSelection() {
+    const guideSelect = document.getElementById('selectedGuide');
+    const selectedOption = guideSelect.options[guideSelect.selectedIndex];
+    
+    if (selectedOption && selectedOption.value) {
+        console.log('👤 Selected guide:', selectedOption.text);
+    }
+}
+
+// Handle date selection
+function handleDateSelection() {
+    const dateInput = document.getElementById('checkInDate');
+    if (dateInput && dateInput.value) {
+        console.log('📅 Selected date:', dateInput.value);
+    }
+}
 
 // Initialize booking progress
 function initBookingProgress() {
@@ -1290,213 +1398,30 @@ function showPage(pageId) {
         displayAllGuides();
     } else if (pageId === 'spots') {
         setTimeout(() => {
-            initSpotsFilters();
+            if (typeof initSpotsFilters === 'function') {
+                initSpotsFilters();
+            }
         }, 100);
     }
 
     // Update weather when switching to relevant pages
-    if (pageId === 'spots' || pageId === 'booking') {
-        setTimeout(updateWeatherUI, 300);
-    }
 }
 
 // Guide Profile
 function viewProfile(id) {
     currentGuideId = id;
-    const guide = guides.find(g => g.id === id);
-    if (!guide) return;
-
-    const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-    const guideReviews = reviews.filter(r => r.guideId === id).slice(-5).reverse();
-
-    document.getElementById('profileContent').innerHTML = `
-        <div class="profile-header">
-            <div class="profile-photo-container">
-                <div class="profile-photo">
-                    <img src="${guide.photo}" alt="${guide.name}">
-                </div>
-                <button class="favorite-btn-large ${isFavorite(guide.id) ? 'active' : ''}" onclick="toggleFavorite(${guide.id})">
-                    <span class="material-icons-outlined">${isFavorite(guide.id) ? 'favorite' : 'favorite_border'}</span>
-                </button>
-            </div>
-            <div class="profile-details">
-                <div class="profile-name-section">
-                    <h2>${guide.name}</h2>
-                    ${guide.verified ? '<span class="verified-badge-inline"><span class="material-icons-outlined">verified</span> Verified</span>' : ''}
-                </div>
-                <span class="profile-specialty">${guide.specialty}</span>
-                <div class="profile-rating">
-                    <span class="material-icons-outlined">star</span>
-                    <span class="rating-number">${guide.rating.toFixed(1)}</span>
-                    <span class="rating-reviews">(${guide.reviewCount} reviews)</span>
-                    <span class="total-tours">${guide.totalTours} tours completed</span>
-                </div>
-                <p style="color: var(--text-secondary); line-height: 1.8; margin-top: 15px;">${guide.bio}</p>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h3>Service Information</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="material-icons-outlined">payments</span>
-                    <div>
-                        <strong>Price Range</strong>
-                        <p>${guide.priceRange}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">place</span>
-                    <div>
-                        <strong>Service Areas</strong>
-                        <p>${guide.areas}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">language</span>
-                    <div>
-                        <strong>Languages</strong>
-                        <p>${guide.languages}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">groups</span>
-                    <div>
-                        <strong>Group Size</strong>
-                        <p>${guide.groupSize}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h3>Availability & Contact</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="material-icons-outlined">schedule</span>
-                    <div>
-                        <strong>Schedule</strong>
-                        <p>${guide.schedules}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">phone</span>
-                    <div>
-                        <strong>Contact Number</strong>
-                        <p>${guide.contact}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">email</span>
-                    <div>
-                        <strong>Email</strong>
-                        <p>${guide.email}</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="material-icons-outlined">work</span>
-                    <div>
-                        <strong>Experience</strong>
-                        <p>${guide.experience} in tourism</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <h3>Recent Reviews</h3>
-            <div class="reviews-container">
-                ${guideReviews.length > 0 ? guideReviews.map(review => `
-                    <div class="review-card">
-                        <div class="review-header">
-                            <div class="reviewer-info">
-                                <div class="reviewer-avatar">${review.userName.charAt(0)}</div>
-                                <div>
-                                    <strong>${review.userName}</strong>
-                                    <div class="review-date">${formatDate(review.date)}</div>
-                                </div>
-                            </div>
-                            <div class="review-rating">
-                                ${Array(review.rating).fill('<span class="material-icons-outlined">star</span>').join('')}
-                            </div>
-                        </div>
-                        <p class="review-text">${review.comment}</p>
-                    </div>
-                `).join('') : '<p class="no-reviews">No reviews yet. Be the first to review!</p>'}
-            </div>
-        </div>
-
-        <div style="margin-top: 30px; display: flex; gap: 12px;">
-            <button class="btn-book" onclick="bookThisGuide(${guide.id})">
-                <span class="material-icons-outlined">event</span>
-                Book ${guide.name} Now
-            </button>
-            <button class="btn-contact" onclick="contactGuide(${guide.id})">
-                <span class="material-icons-outlined">chat</span>
-                Contact Guide
-            </button>
-        </div>
-    `;
-
-    showPage('profile');
+    // Since we don't have a global guides array, redirect to user-guides.php
+    window.location.href = 'user-guides.php';
 }
 
 function contactGuide(guideId) {
-    const guide = guides.find(g => g.id === guideId);
-    if (!guide) return;
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.innerHTML = `
-        <div class="modal-content contact-modal">
-            <div class="modal-header">
-                <h2>Contact ${guide.name}</h2>
-                <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <span class="material-icons-outlined">phone</span>
-                        <div>
-                            <strong>Phone</strong>
-                            <p>${guide.contact}</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <span class="material-icons-outlined">email</span>
-                        <div>
-                            <strong>Email</strong>
-                            <p>${guide.email}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="quick-message">
-                    <h3>Send Quick Message</h3>
-                    <textarea id="quickMessage" rows="4" placeholder="Type your message here..."></textarea>
-                    <button class="btn-submit" onclick="sendMessage(${guideId})">
-                        <span class="material-icons-outlined">send</span>
-                        Send Message
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-    setTimeout(() => modal.classList.add('show'), 10);
+    // Since we don't have a global guides array, show a simple message
+    showNotification('Contact feature available on guide details page', 'info');
+    window.location.href = 'user-guides.php';
 }
 
 function sendMessage(guideId) {
-    const message = document.getElementById('quickMessage').value;
-    if (!message.trim()) {
-        showNotification('Please enter a message', 'error');
-        return;
-    }
-
     showNotification('Message sent successfully!', 'success');
-    document.querySelector('.modal-overlay').remove();
 }
 
 function bookThisGuide(id) {
@@ -1504,504 +1429,30 @@ function bookThisGuide(id) {
     if (guideSelect) {
         guideSelect.value = id;
     }
-    showPage('booking');
-}
-
-function populateGuideSelect() {
-    const select = document.getElementById('selectedGuide');
-    if (select) {
-        select.innerHTML = '<option value="">-- Choose a Guide --</option>' +
-            guides.map(g => `<option value="${g.id}">${g.name} - ${g.specialty}</option>`).join('');
-    }
-}
-
-// Initialize booking form
-function initBookingForm() {
-    // Initialize currentStep based on active step
-    const activeStep = document.querySelector('.booking-step.active');
-    if (activeStep) {
-        currentStep = parseInt(activeStep.id.replace('step-', ''));
-    } else {
-        currentStep = 1;
-    }
-
-    document.querySelectorAll('.progress-step').forEach(step => {
-        step.addEventListener('click', function () {
-            const stepNumber = parseInt(this.getAttribute('data-step'));
-            if (stepNumber < currentStep) {
-                currentStep = stepNumber;
-                updateProgress(currentStep);
-            }
-        });
-    });
-
-    const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
-    if (paymentRadios.length) {
-        paymentRadios.forEach(radio => {
-            radio.addEventListener('change', function () {
-                const creditCardForm = document.getElementById('creditCardForm');
-                if (creditCardForm) {
-                    creditCardForm.style.display = this.value === 'credit_card' ? 'block' : 'none';
-                }
-            });
-        });
-        const creditCardForm = document.getElementById('creditCardForm');
-        if (creditCardForm) creditCardForm.style.display = 'none';
-    }
-    updateProgress(currentStep);
-}
-
-function filterSpots() {
-    const category = document.getElementById('categoryFilter').value;
-    const activity = document.getElementById('activityFilter').value;
-    const duration = document.getElementById('durationFilter').value;
-
-    const cards = document.querySelectorAll('.travelry-card');
-
-    cards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        const cardActivity = card.getAttribute('data-activity');
-        const cardDuration = card.getAttribute('data-duration');
-
-        let show = true;
-
-        // Filter by category
-        if (category !== 'all' && category !== cardCategory) {
-            show = false;
-        }
-
-        // Filter by activity level
-        if (activity !== 'all' && activity !== cardActivity) {
-            show = false;
-        }
-
-        // Filter by duration
-        if (duration !== 'all') {
-            if (duration === '1-2' && !cardDuration.includes('1-2')) {
-                show = false;
-            } else if (duration === '2-4') {
-                if (!cardDuration.includes('2-3') && !cardDuration.includes('3-4') && !cardDuration.includes('2-4') && !cardDuration.includes('3-5')) {
-                    show = false;
-                }
-            } else if (duration === '4+') {
-                if (!cardDuration.includes('4-5') && !cardDuration.includes('5-7') && !cardDuration.includes('4-6')) {
-                    show = false;
-                }
-            }
-        }
-
-        card.style.display = show ? 'block' : 'none';
-    });
-
-    // Check if any cards are visible
-    const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
-    const noResults = document.querySelector('.no-results-spots');
-
-    if (visibleCards.length === 0) {
-        if (!noResults) {
-            const spotsGrid = document.getElementById('spotsGrid');
-            const message = document.createElement('div');
-            message.className = 'no-results-spots';
-            message.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-icons-outlined">search_off</span>
-                    <h3>No destinations found</h3>
-                    <p>Try adjusting your filters to find the perfect tour</p>
-                    <button class="btn-hero" onclick="resetSpotFilters()">Reset Filters</button>
-                </div>
-            `;
-            spotsGrid.appendChild(message);
-        }
-    } else if (noResults) {
-        noResults.remove();
-    }
-}
-
-function resetSpotFilters() {
-    document.getElementById('categoryFilter').value = 'all';
-    document.getElementById('activityFilter').value = 'all';
-    document.getElementById('durationFilter').value = 'all';
-    filterSpots();
-}
-
-// Initialize spots page filters
-function initSpotsFilters() {
-    const filters = ['categoryFilter', 'activityFilter', 'durationFilter'];
-    filters.forEach(filterId => {
-        const filter = document.getElementById(filterId);
-        if (filter) {
-            filter.addEventListener('change', filterSpots);
-        }
-    });
-}
-
-// ========== WEATHER FUNCTIONS ==========
-
-// WEATHER FUNCTIONS
-async function fetchWeatherData() {
-    const url = "https://api.openweathermap.org/data/2.5/weather?q=San%20Jose%20Del%20Monte&appid=6c21a0d2aaf514cb8d21d56814312b19&units=metric";
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("Weather fetch failed:", error);
-        return null;
-    }
-}
-
-function degToCompass(degrees) {
-    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-    const index = Math.round(degrees / 22.5) % 16;
-    return directions[index];
-}
-
-function getRainChance(conditions, humidity) {
-    if (conditions.toLowerCase().includes('rain')) return 80;
-    if (conditions.toLowerCase().includes('drizzle')) return 40;
-    if (humidity > 80) return 30;
-    if (humidity > 60) return 10;
-    return 5;
-}
-
-function generateAITips(weatherData, rainChance) {
-    const tips = [];
-    const tempC = weatherData.main.temp;
-    const conditions = weatherData.weather[0].description.toLowerCase();
-    const humidity = weatherData.main.humidity;
-    const windSpeed = weatherData.wind.speed;
-
-    // Clothing advice
-    if (tempC > 30) tips.push("Wear light, breathable clothing. Sunscreen is essential.");
-    else if (tempC > 25) tips.push("Light clothing recommended. Hat for sun protection.");
-    else if (tempC < 20) tips.push("Bring a light jacket or sweater.");
-
-    // Rain advice
-    if (rainChance > 50) tips.push("High chance of rain - bring an umbrella or raincoat.");
-    else if (rainChance > 30) tips.push("Possible showers - consider carrying an umbrella.");
-
-    // Hiking advice
-    if (conditions.includes('rain') || rainChance > 60) {
-        tips.push("⚠️ Not ideal for Mt. Balagbag hiking - trails may be slippery.");
-    } else if (conditions.includes('clear') || conditions.includes('sun')) {
-        tips.push("✓ Perfect weather for Mt. Balagbag hiking! Start early.");
-    }
-
-    // Waterfall advice
-    if (rainChance > 40) {
-        tips.push("⚠️ Use caution at Kaytitinga Falls - water flow may be stronger.");
-    }
-
-    // Wind warnings
-    if (windSpeed > 20) {
-        tips.push("💨 Strong winds - be careful on mountain viewpoints.");
-    }
-
-    // Humidity
-    if (humidity > 80) {
-        tips.push("💧 High humidity - stay hydrated during activities.");
-    }
-
-    // Thunderstorm alert
-    if (weatherData.weather[0].main === "Thunderstorm") {
-        tips.push("⚡ THUNDERSTORM ALERT: Avoid mountain hiking and open areas.");
-    }
-
-    return tips;
-}
-
-async function updateWeatherUI() {
-    const weatherData = await fetchWeatherData();
-    if (!weatherData) {
-        console.log("Weather data unavailable");
-        return;
-    }
-
-    // Update main header weather
-    updateMainHeaderWeather(weatherData);
-
-    // Update spots page weather
-    updateSpotsPageWeather(weatherData);
-
-    // Update booking page with weather info
-    updateBookingWeatherInfo(weatherData);
-}
-
-function updateMainHeaderWeather(data) {
-    const headerActions = document.querySelector('.header-actions');
-    if (!headerActions) return;
-
-    // Remove existing weather widget if present
-    const existingWidget = document.querySelector('.weather-widget');
-    if (existingWidget) existingWidget.remove();
-
-    const tempC = data.main.temp.toFixed(1);
-    const conditions = data.weather[0].main;
-    const icon = getWeatherIcon(conditions);
-
-    const weatherWidget = document.createElement('div');
-    weatherWidget.className = 'weather-widget';
-    weatherWidget.innerHTML = `
-        <div class="weather-icon">${icon}</div>
-        <div class="weather-info">
-            <div class="weather-temp">${tempC}°C</div>
-            <div class="weather-desc">${conditions}</div>
-        </div>
-    `;
-
-    // Insert before profile dropdown
-    const profileDropdown = headerActions.querySelector('.profile-dropdown');
-    if (profileDropdown) {
-        headerActions.insertBefore(weatherWidget, profileDropdown);
-    } else {
-        headerActions.appendChild(weatherWidget);
-    }
-}
-
-function updateSpotsPageWeather(data) {
-    const spotsPage = document.getElementById('spots');
-    if (!spotsPage || !spotsPage.classList.contains('active')) return;
-
-    const calendarHeader = spotsPage.querySelector('.calendar-header .weather-info');
-    if (!calendarHeader) return;
-
-    const tempC = data.main.temp.toFixed(1);
-    const conditions = data.weather[0].description;
-    const humidity = data.main.humidity;
-    const windSpeed = data.wind.speed;
-    const windDir = degToCompass(data.wind.deg);
-    const rainChance = getRainChance(conditions, humidity);
-
-    calendarHeader.innerHTML = `
-        <span class="material-icons-outlined">${getWeatherIcon(data.weather[0].main)}</span>
-        <span class="temperature">${tempC}°C</span>
-        <div class="weather-details">
-            <span class="weather-label">${conditions}</span>
-            <div class="weather-stats">
-                <span>💧 ${humidity}%</span>
-                <span>💨 ${windSpeed}m/s ${windDir}</span>
-                <span>🌧️ ${rainChance}%</span>
-            </div>
-        </div>
-    `;
-}
-
-function updateBookingWeatherInfo(data) {
-    const bookingPage = document.getElementById('booking');
-    if (!bookingPage || !bookingPage.classList.contains('active')) return;
-
-    // Add weather info to booking form
-    const tourDetails = document.getElementById('step-1');
-    if (tourDetails && tourDetails.classList.contains('active')) {
-        const formContainer = tourDetails.querySelector('.form-container');
-        if (formContainer && !formContainer.querySelector('.weather-alert')) {
-            const weatherAlert = createWeatherAlert(data);
-            formContainer.insertBefore(weatherAlert, formContainer.querySelector('.form-group'));
-        }
-    }
-}
-
-function createWeatherAlert(data) {
-    const tempC = data.main.temp.toFixed(1);
-    const conditions = data.weather[0].description;
-    const humidity = data.main.humidity;
-    const rainChance = getRainChance(conditions, humidity);
-    const tips = generateAITips(data, rainChance);
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'weather-alert';
-    alertDiv.innerHTML = `
-        <div class="weather-alert-header">
-            <span class="material-icons-outlined">info</span>
-            <h4>Today's Weather: ${tempC}°C, ${conditions}</h4>
-        </div>
-        <div class="weather-alert-body">
-            <p><strong>Tour Conditions:</strong> ${getTourConditions(conditions, rainChance)}</p>
-            ${tips.length > 0 ? `
-                <div class="weather-tips">
-                    <strong>Recommendations:</strong>
-                    <ul>
-                        ${tips.map(tip => `<li>${tip}</li>`).join('')}
-                    </ul>
-                </div>
-            ` : ''}
-        </div>
-    `;
-
-    return alertDiv;
-}
-
-function getTourConditions(conditions, rainChance) {
-    if (rainChance > 60) return "Poor - Consider rescheduling outdoor tours";
-    if (rainChance > 30) return "Fair - Bring rain gear for outdoor activities";
-    if (conditions.includes('clear') || conditions.includes('sun')) return "Excellent - Perfect for all tours";
-    if (conditions.includes('cloud')) return "Good - Comfortable for most activities";
-    return "Moderate - Check specific tour requirements";
-}
-
-function getWeatherIcon(condition) {
-    const icons = {
-        'Clear': 'wb_sunny',
-        'Clouds': 'cloud',
-        'Rain': 'umbrella',
-        'Drizzle': 'grain',
-        'Thunderstorm': 'flash_on',
-        'Snow': 'ac_unit',
-        'Mist': 'blur_on',
-        'Fog': 'blur_on'
-    };
-    return icons[condition] || 'wb_sunny';
-}
-
-// Add CSS for weather components
-function addWeatherStyles() {
-    if (!document.querySelector('#weather-styles')) {
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'weather-styles';
-        styleSheet.textContent = `
-            /* Weather Widget */
-            .weather-widget {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 12px;
-                background: var(--bg-light);
-                border-radius: 20px;
-                border: 1px solid var(--border);
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-
-            .weather-widget:hover {
-                background: var(--gray-100);
-            }
-
-            .weather-icon {
-                font-size: 20px;
-                color: var(--primary);
-            }
-
-            .weather-info {
-                display: flex;
-                flex-direction: column;
-            }
-
-            .weather-temp {
-                font-weight: 600;
-                font-size: 14px;
-                color: var(--text-primary);
-            }
-
-            .weather-desc {
-                font-size: 11px;
-                color: var(--text-secondary);
-                text-transform: capitalize;
-            }
-
-            /* Weather Details in Calendar */
-            .weather-details {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .weather-stats {
-                display: flex;
-                gap: 8px;
-                font-size: 12px;
-                color: var(--text-secondary);
-            }
-
-            /* Weather Alert */
-            .weather-alert {
-                background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                border-left: 4px solid var(--info);
-                padding: 16px;
-                border-radius: var(--radius-md);
-                margin-bottom: 24px;
-            }
-
-            .weather-alert-header {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 12px;
-            }
-
-            .weather-alert-header h4 {
-                margin: 0;
-                color: var(--text-primary);
-                font-size: 15px;
-            }
-
-            .weather-alert-body {
-                color: var(--text-secondary);
-                font-size: 14px;
-            }
-
-            .weather-tips {
-                margin-top: 12px;
-                padding-top: 12px;
-                border-top: 1px solid rgba(0,0,0,0.1);
-            }
-
-            .weather-tips ul {
-                margin: 8px 0 0 0;
-                padding-left: 20px;
-            }
-
-            .weather-tips li {
-                margin-bottom: 4px;
-                font-size: 13px;
-            }
-
-            /* Responsive */
-            @media (max-width: 768px) {
-                .weather-widget {
-                    padding: 6px 10px;
-                }
-                
-                .weather-temp {
-                    font-size: 13px;
-                }
-                
-                .weather-desc {
-                    font-size: 10px;
-                }
-                
-                .weather-stats {
-                    flex-direction: column;
-                    gap: 2px;
-                }
-            }
-        `;
-        document.head.appendChild(styleSheet);
-    }
 }
 
 // Initialize weather system
 function initWeatherSystem() {
-    addWeatherStyles();
-
     // Load weather on initial page load
-    setTimeout(() => {
-        updateWeatherUI();
-    }, 1000);
+    if (typeof updateWeatherUI === 'function') {
+        setTimeout(() => {
+            updateWeatherUI();
+        }, 1000);
 
-    // Refresh weather every 15 minutes
-    setInterval(updateWeatherUI, 15 * 60 * 1000);
+        // Refresh weather every 15 minutes
+        setInterval(updateWeatherUI, 15 * 60 * 1000);
 
-    // Update weather when switching to spots page
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function () {
-            setTimeout(() => {
-                if (document.getElementById('spots')?.classList.contains('active')) {
-                    updateWeatherUI();
-                }
-            }, 300);
+        // Update weather when switching to spots page
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function () {
+                setTimeout(() => {
+                    if (document.getElementById('spots')?.classList.contains('active')) {
+                        updateWeatherUI();
+                    }
+                }, 300);
+            });
         });
-    });
+    }
 }
 
 // Initialize on page load

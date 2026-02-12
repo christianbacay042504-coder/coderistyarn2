@@ -1,4 +1,5 @@
 // Login Page Functionality with Database Integration
+
 document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('togglePassword');
@@ -17,8 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function getOtpInputs() {
-        if (!otpInputsWrap) return [];
-        return Array.from(otpInputsWrap.querySelectorAll('input.otp-input'));
+        // Get all OTP inputs from the modal
+        const inputs = document.querySelectorAll('.otp-input');
+        return Array.from(inputs);
     }
 
     function getOtpCode() {
@@ -35,19 +37,50 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function openVerificationModal(email) {
-        if (!verificationModal) return;
+        console.log('Opening verification modal for:', email);
+        
+        const modal = document.getElementById('verificationModal');
+        if (!modal) {
+            console.error('Verification modal not found!');
+            showAlert('Modal error. Please refresh the page.', 'error');
+            return;
+        }
+        
+        // Set email
+        const otpEmailEl = document.getElementById('otpEmail');
         if (otpEmailEl) otpEmailEl.textContent = email || '';
-        verificationModal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        
+        // Clear and focus
         clearOtpInputs();
         focusFirstOtp();
+        
+        // Show modal - try multiple approaches
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.zIndex = '999999';
+        
+        // Also try adding show class
+        modal.classList.add('show');
+        
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Modal display set to:', modal.style.display);
+        console.log('Modal classes:', modal.className);
+        
+        // Force a reflow to ensure styles are applied
+        modal.offsetHeight;
+        
+        console.log('Modal should now be visible');
     }
 
     function closeVerificationModalInner() {
-        if (!verificationModal) return;
-        verificationModal.classList.remove('show');
-        document.body.style.overflow = '';
-        clearOtpInputs();
+        const modal = document.getElementById('verificationModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            clearOtpInputs();
+        }
     }
 
     window.closeVerificationModal = function () {
@@ -128,9 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (otpInputsWrap) {
-        const inputs = getOtpInputs();
-
+    const inputs = getOtpInputs();
+    if (inputs.length > 0) {
         inputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
                 const val = (e.target.value || '').replace(/\D/g, '');
@@ -235,65 +267,76 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData(loginForm);
             formData.append('action', 'login');
 
-            // Send AJAX request to server
             fetch('', {
                 method: 'POST',
                 body: formData
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('HTTP error! status: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Reset button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
 
-                    if (data.success) {
-                        if (data.verification_required) {
-                            showAlert(data.message || 'Verification code sent', 'success');
-                            openVerificationModal(data.email || email);
-                            return;
-                        }
+                console.log('Login response:', data);
 
-                        showAlert(data.message, 'success');
-
-                        // Store email if remember me is checked
-                        if (remember) {
-                            localStorage.setItem('rememberMe', 'true');
-                            localStorage.setItem('userEmail', email);
-                        }
-
-                        // Redirect based on user type
+                if (data.success) {
+                    if (data.verification_required) {
+                        console.log('Verification required, showing modal...');
+                        // Show verification code in alert for testing
+                        const message = data.debug_code ? 
+                            `Verification code: ${data.debug_code}` : 
+                            (data.message || 'Verification code sent');
+                        showAlert(message, 'success');
+                        
+                        // Force modal to show
                         setTimeout(() => {
-                            if (data.user_type === 'admin') {
-                                window.location.href = 'admin/dashboard.php';
-                            } else if (data.user_type === 'tour_guide') {
-                                window.location.href = 'tour-guide/dashboard.php';
-                            } else {
-                                window.location.href = 'sjdm-user/index.php';
-                            }
-                        }, 1000);
-                    } else {
-                        showAlert(data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    let errorMessage = 'An error occurred. Please try again.';
-
-                    if (error.message.includes('Failed to fetch')) {
-                        errorMessage = 'Network error. Please check your connection.';
-                    } else if (error.message.includes('JSON')) {
-                        errorMessage = 'Server response error. Please try again.';
+                            console.log('Calling openVerificationModal...');
+                            openVerificationModal(data.email || email);
+                        }, 100);
+                        return;
                     }
 
-                    showAlert(errorMessage, 'error');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                });
+                    showAlert(data.message, 'success');
+
+                    // Store email if remember me is checked
+                    if (remember) {
+                        localStorage.setItem('rememberMe', 'true');
+                        localStorage.setItem('userEmail', email);
+                    }
+
+                    // Redirect based on user type
+                    setTimeout(() => {
+                        if (data.user_type === 'admin') {
+                            window.location.href = 'admin/dashboard.php';
+                        } else if (data.user_type === 'tour_guide') {
+                            window.location.href = 'tour-guide/dashboard.php';
+                        } else {
+                            window.location.href = 'sjdm-user/index.php';
+                        }
+                    }, 1000);
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                let errorMessage = 'An error occurred. Please try again.';
+
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network error. Please check your connection.';
+                } else if (error.message.includes('JSON')) {
+                    errorMessage = 'Server response error. Please try again.';
+                }
+
+                showAlert(errorMessage, 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
         });
     }
 
@@ -741,4 +784,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     `;
     document.head.appendChild(style);
-});
+}); // End of DOMContentLoaded
+
+// End of script

@@ -217,12 +217,6 @@ class AdminDashboard {
             this.closeModal(modal);
         });
     }
-                document.getElementById('editHotelRating').value = data.rating;
-                document.getElementById('editHotelPriceRange').value = data.price_range;
-                document.getElementById('editHotelDescription').value = data.description || '';
-                break;
-        }
-    }
 
     setupForms() {
         // Add User Form

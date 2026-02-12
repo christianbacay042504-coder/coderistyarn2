@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test OTP Modal</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        .verification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .verification-modal.show {
+            display: flex !important;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            text-align: center;
+            padding: 32px 32px 24px 32px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-icon .material-icons-outlined {
+            font-size: 32px;
+            color: white;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 8px 0;
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .modal-body {
+            padding: 0 32px 32px 32px;
+        }
+
+        .email-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .otp-input {
+            width: 48px;
+            height: 56px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+
+        .modal-actions {
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-footer {
+            text-align: center;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #f3f4f6;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6b7280;
+        }
+
+        .test-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000000;
+        }
+    </style>
+</head>
+<body>
+    <button class="test-button" onclick="showModal()">Show OTP Modal</button>
+    
+    <h1 style="text-align: center; margin-top: 50px;">OTP Modal Test</h1>
+    <p style="text-align: center;">Click the button above to test the modal</p>
+
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="verification-modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeVerificationModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <span class="material-icons-outlined">security</span>
+                </div>
+                <h2>Verify Your Identity</h2>
+                <p>We've sent a 6-digit verification code to your email address</p>
+            </div>
+            
+            <div class="modal-body">
+                <div class="email-display">
+                    <span class="material-icons-outlined">email</span>
+                    <span id="otpEmail">christianbacay042504@gmail.com</span>
+                </div>
+                
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-primary" onclick="submitVerificationCode()">
+                        <span class="material-icons-outlined">check_circle</span>
+                        Verify Code
+                    </button>
+                </div>
+                
+                <div class="modal-footer">
+                    <p>Didn't receive the code?</p>
+                    <button type="button" class="btn-link" onclick="resendVerificationCode()">
+                        <span class="material-icons-outlined">refresh</span>
+                        Resend Code
+                    </button>
+                </div>
+            </div>
+            
+            <button type="button" class="modal-close" onclick="closeVerificationModal()">
+                <span class="material-icons-outlined">close</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            const modal = document.getElementById('verificationModal');
+            modal.style.display = 'flex';
+            console.log('Modal shown');
+        }
+
+        function closeVerificationModal() {
+            const modal = document.getElementById('verificationModal');
+            modal.style.display = 'none';
+            console.log('Modal closed');
+        }
+
+        function submitVerificationCode() {
+            alert('Code submitted!');
+        }
+
+        function resendVerificationCode() {
+            alert('Code resent!');
+        }
+    </script>
+</body>
+</html>

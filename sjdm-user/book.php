@@ -18,6 +18,17 @@ require_once '../config/database.php';
 $user_id = $_SESSION['user_id'];
 $user_email = $_SESSION['email'] ?? '';
 $user_name = ($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? '');
+
+// Initialize current user array for profile dropdown
+$currentUser = [
+    'name' => $user_name,
+    'email' => $user_email
+];
+
+// Initialize user contact and address variables (these columns don't exist in users table)
+$user_address = '';
+$user_contact = '';
+
 // Get URL parameters from tourist detail page
 $preselected_destination = $_GET['destination'] ?? '';
 $preselected_date = $_GET['date'] ?? '';
@@ -26,24 +37,31 @@ $preselected_guide = $_GET['guide'] ?? '';
 // Get user address from database if available
 try {
     $conn = getDatabaseConnection();
+    $tourGuides = []; // Initialize tour guides array
+    
     if ($conn) {
-        $stmt = $conn->prepare("SELECT address, contact_number FROM users WHERE id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $user_info = $stmt->get_result()->fetch_assoc();
-        $user_address = $user_info['address'] ?? '';
-        $user_contact = $user_info['contact_number'] ?? '';
-        $stmt->close();
+        // Fetch tour guides from database (removed user address query as columns don't exist)
+        $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY name ASC");
+        if ($guidesStmt) {
+            $guidesStmt->execute();
+            $guidesResult = $guidesStmt->get_result();
+            if ($guidesResult->num_rows > 0) {
+                while ($guide = $guidesResult->fetch_assoc()) {
+                    $tourGuides[] = $guide;
+                }
+            }
+            $guidesStmt->close();
+        }
+        
         closeDatabaseConnection($conn);
-    } else {
-        $user_address = '';
-        $user_contact = '';
     }
 } catch (Exception $e) {
     // Silently fail - user can fill in manually
     $user_address = '';
     $user_contact = '';
+    $tourGuides = [];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -61,6 +79,8 @@ try {
             --primary-light: #e8f5e9;
             --primary-dark: #1e4220;
             --secondary: #97bc62;
+            --accent: #ff6b6b;
+            --accent-light: #ffe0e0;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -78,11 +98,13 @@ try {
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             --radius-sm: 0.375rem;
             --radius-md: 0.5rem;
             --radius-lg: 0.75rem;
             --radius-xl: 1rem;
-            --transition: all 0.2s ease-in-out;
+            --radius-2xl: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -93,7 +115,7 @@ try {
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #ffffff;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             color: var(--text-primary);
             line-height: 1.6;
             margin: 0;
@@ -101,6 +123,119 @@ try {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: 
+                linear-gradient(135deg,
+                    rgba(44, 95, 45, 0.95) 0%,
+                    rgba(34, 75, 35, 0.9) 25%,
+                    rgba(24, 55, 25, 0.85) 50%,
+                    rgba(14, 35, 15, 0.8) 100%),
+                radial-gradient(circle at 20% 80%, rgba(151, 188, 98, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 107, 107, 0.2) 0%, transparent 50%),
+                url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2070&auto=format&fit=crop') center/cover;
+            background-blend-mode: overlay, normal, normal, overlay;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 120px 40px 80px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 40px 40px;
+            margin-bottom: 60px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--accent) 0%, 
+                var(--secondary) 25%, 
+                var(--primary) 50%, 
+                var(--secondary) 75%, 
+                var(--accent) 100%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; transform: translateX(-10px); }
+            50% { opacity: 1; transform: translateX(10px); }
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 24px;
+            text-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #f0f9ff 30%, 
+                #e0f2fe 60%, 
+                #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out, glow 3s ease-in-out infinite alternate;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
+        }
+
+        .hero-section p {
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+            text-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0.95;
+            animation: fadeInUp 1s ease-out 0.2s both;
+            position: relative;
+            z-index: 2;
+            font-weight: 400;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Mobile Menu Toggle */
@@ -1028,6 +1163,291 @@ try {
             margin: 0 auto;
         }
 
+        /* Guide Links Styling */
+        .guide-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .view-guides-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(44, 95, 45, 0.2);
+        }
+
+        .view-guides-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.2);
+        }
+
+        .guide-details-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .guide-details-btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+        }
+
+        .selected-date-display .material-icons-outlined {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        #selectedDateText {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Calendar Availability Styles */
+        .date-input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .selected-date-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            flex: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .selected-date-display:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .availability-status {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .availability-status.available {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .availability-status.limited {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .availability-status.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .availability-status.checking {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+
+        /* Calendar Modal Styles */
+        .calendar-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .calendar-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .calendar-modal.show .calendar-content {
+            transform: scale(1);
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .calendar-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .calendar-close:hover {
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+
+        .calendar-body {
+            padding: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            padding: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-light);
+            transform: scale(1.05);
+        }
+
+        .calendar-day.available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .calendar-day.limited {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .calendar-day.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+            cursor: not-allowed;
+        }
+
+        .calendar-day.selected {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+        }
+
+        .calendar-day.past {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color.available {
+            background: #d4edda;
+        }
+
+        .legend-color.limited {
+            background: #fff3cd;
+        }
+
+        .legend-color.unavailable {
+            background: #f8d7da;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .mobile-menu-toggle {
@@ -1133,14 +1553,6 @@ try {
             </div>
             <div class="header-right">
                 <nav class="header-nav">
-                    <a href="../index.php" class="nav-link active">
-                        <span class="material-icons-outlined">home</span>
-                        <span>Home</span>
-                    </a>
-                </nav>
-            </div>
-            <div class="header-right">
-                <nav class="header-nav">
                     <a href="index.php" class="nav-link">
                         <span class="material-icons-outlined">dashboard</span>
                         <span>Dashboard</span>
@@ -1157,6 +1569,10 @@ try {
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
                     </a>
+                    <a href="booking-history.php" class="nav-link">
+                        <span class="material-icons-outlined">history</span>
+                        <span>Booking History</span>
+                    </a>
                     <a href="local-culture.php" class="nav-link">
                         <span class="material-icons-outlined">theater_comedy</span>
                         <span>Local Culture</span>
@@ -1166,33 +1582,70 @@ try {
                         <span>Travel Tips</span>
                     </a>
                 </nav>
-                <div class="header-actions">
-                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
+                                            <div class="header-actions">
+                    <div class="user-profile-dropdown">
+                        <button class="profile-trigger">
+                            <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                            <span class="profile-name"><?php echo htmlspecialchars($currentUser['name']); ?></span>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-header">
+                                <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
+                                <div class="profile-details">
+                                    <h4><?php echo htmlspecialchars($currentUser['name']); ?></h4>
+                                    <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="index.php" class="dropdown-item">
+                                <span class="material-icons-outlined">dashboard</span>
+                                <span>Dashboard</span>
+                            </a>
+                            <a href="booking-history.php" class="dropdown-item">
+                                <span class="material-icons-outlined">history</span>
+                                <span>Booking History</span>
+                            </a>
+                            <a href="saved-tours.php" class="dropdown-item">
+                                <span class="material-icons-outlined">favorite</span>
+                                <span>Saved Tours</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="logout.php" class="dropdown-item">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
 
-        <div class="content-area">
-            <h2 class="section-title">Book Your SJDM Tour</h2>
-            
-            <div class="booking-progress">
-                <div class="progress-step active" data-step="1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Tour Details</div>
+            <div class="content-area">
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <h1>Book Your SJDM Tour</h1>
+                    <p>Plan your perfect adventure in San Jose del Monte with our expert guides</p>
                 </div>
-                <div class="progress-step" data-step="2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Personal Info</div>
+                
+                <!-- Enhanced Booking Progress -->
+                <div class="booking-progress">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Tour Details</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Personal Info</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Review & Pay</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Confirmation</div>
+                    </div>
                 </div>
-                <div class="progress-step" data-step="3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">Review & Pay</div>
-                </div>
-                <div class="progress-step" data-step="4">
-                    <div class="step-number">4</div>
-                    <div class="step-label">Confirmation</div>
-                </div>
-            </div>
 
             <div id="step-1" class="booking-step active">
                 <div class="form-container">
@@ -1202,16 +1655,33 @@ try {
                             <label>Select Tour Guide *</label>
                             <select id="selectedGuide" required>
                                 <option value="">-- Choose a Guide --</option>
-                                <option value="1" <?php echo ($preselected_guide == '1') ? 'selected' : ''; ?>>Carlos Mendoza - Adventure Tours</option>
-                                <option value="2" <?php echo ($preselected_guide == '2') ? 'selected' : ''; ?>>Maria Santos - Cultural Tours</option>
-                                <option value="3" <?php echo ($preselected_guide == '3') ? 'selected' : ''; ?>>Roberto Reyes - Nature & Photography</option>
-                                <option value="4" <?php echo ($preselected_guide == '4') ? 'selected' : ''; ?>>Ana Cruz - Historical Tours</option>
-                                <option value="5" <?php echo ($preselected_guide == '5') ? 'selected' : ''; ?>>David Lee - Food & Culinary Tours</option>
-                                <option value="8" <?php echo ($preselected_guide == '8') ? 'selected' : ''; ?>>Ricardo Fernandez - Waterfall Tours</option>
-                                <option value="9" <?php echo ($preselected_guide == '9') ? 'selected' : ''; ?>>Sofia Martinez - Religious Sites</option>
-                                <option value="10" <?php echo ($preselected_guide == '10') ? 'selected' : ''; ?>>Marco Alvarez - Mountain Trekking</option>
-                                <option value="11" <?php echo ($preselected_guide == '11') ? 'selected' : ''; ?>>Elena Rodriguez - City Landmarks</option>
+                                <?php
+                                if (!empty($tourGuides)) {
+                                    echo "<!-- DEBUG: Found " . count($tourGuides) . " guides -->";
+                                    foreach ($tourGuides as $guide) {
+                                        $guideId = $guide['id'];
+                                        $guideName = htmlspecialchars($guide['name']);
+                                        $guideSpecialty = htmlspecialchars($guide['specialty'] ?? 'General Tours');
+                                        $selected = ($preselected_guide == $guideId) ? 'selected' : '';
+                                        echo "<option value=\"{$guideId}\" {$selected}>{$guideName} - {$guideSpecialty}</option>";
+                                    }
+                                } else {
+                                    echo "<option value='' disabled>No guides available</option>";
+                                }
+                                ?>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="guide-links">
+                                <a href="user-guides.php" class="view-guides-link" target="_blank">
+                                    <span class="material-icons-outlined">people</span>
+                                    View All Guides & Profiles
+                                </a>
+                                <button type="button" class="guide-details-btn" onclick="showSelectedGuideDetails()" id="guideDetailsBtn" style="display: none;">
+                                    <span class="material-icons-outlined">info</span>
+                                    View Selected Guide Details
+                                </button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Preferred Destination *</label>
@@ -1236,7 +1706,18 @@ try {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Check-in Date *</label>
-                                <input type="date" id="checkInDate" value="<?php echo htmlspecialchars($preselected_date); ?>" required>
+                                <div class="date-input-container">
+                                    <div class="selected-date-display" id="selectedDateDisplay">
+                                        <span class="material-icons-outlined">event</span>
+                                        <span id="selectedDateText">Click to select date</span>
+                                    </div>
+                                    <button type="button" class="calendar-toggle-btn" onclick="showCalendarAvailability()">
+                                        <span class="material-icons-outlined">calendar_month</span>
+                                        Select Date
+                                    </button>
+                                </div>
+                                <div id="availabilityStatus" class="availability-status"></div>
+                                <input type="hidden" id="checkInDate" name="checkInDate" value="">
                             </div>
                             <div class="form-group">
                                 <label>Number of Guests *</label>
@@ -1633,6 +2114,37 @@ try {
         </div>
     </main>
 
+    <!-- Calendar Availability Modal -->
+    <div id="calendarModal" class="calendar-modal">
+        <div class="calendar-content">
+            <div class="calendar-header">
+                <h3>Check Tour Availability</h3>
+                <button class="calendar-close" onclick="closeCalendarModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="calendar-body">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated here -->
+                </div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-color available"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color limited"></div>
+                        <span>Limited Slots</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unavailable"></div>
+                        <span>Unavailable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
         // ========== USER PROFILE DROPDOWN ==========
@@ -1720,10 +2232,677 @@ try {
             window.location.href = '../log-in/logout.php';
         }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            initUserProfileDropdown();
-        });
+        // ========== GUIDE SELECTION FUNCTIONALITY ==========
+        // Store guide data from PHP
+        const tourGuides = <?php echo json_encode($tourGuides); ?>;
+        
+        function initGuideSelection() {
+            const guideSelect = document.getElementById('selectedGuide');
+            const guideDetailsBtn = document.getElementById('guideDetailsBtn');
+            
+            if (!guideSelect) return;
+            
+            // Show/hide guide details button based on selection
+            guideSelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                if (selectedValue && guideDetailsBtn) {
+                    guideDetailsBtn.style.display = 'inline-flex';
+                } else if (guideDetailsBtn) {
+                    guideDetailsBtn.style.display = 'none';
+                }
+                
+                // Update guide name in review section
+                updateGuideReview();
+            });
+            
+            // Initialize guide details button visibility
+            if (guideSelect.value && guideDetailsBtn) {
+                guideDetailsBtn.style.display = 'inline-flex';
+            }
+        }
+        
+        function showSelectedGuideDetails() {
+            const guideSelect = document.getElementById('selectedGuide');
+            const selectedGuideId = guideSelect.value;
+            
+            if (!selectedGuideId) {
+                alert('Please select a guide first');
+                return;
+            }
+            
+            // Find guide data
+            const selectedGuide = tourGuides.find(guide => guide.id == selectedGuideId);
+            
+            if (!selectedGuide) {
+                alert('Guide information not found');
+                return;
+            }
+            
+            // Create modal with guide details
+            showGuideModal(selectedGuide);
+        }
+        
+        function showGuideModal(guide) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content guide-profile-modal">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <span class="material-icons-outlined modal-icon">person</span>
+                            <h2>Guide Profile</h2>
+                        </div>
+                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-icons-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="guide-profile-content">
+                            <div class="guide-profile-header">
+                                <div class="guide-profile-info">
+                                    <div class="guide-name-section">
+                                        <h3>${guide.name}</h3>
+                                        ${guide.verified == '1' ? `
+                                        <div class="verified-ribbon">
+                                            <span class="material-icons-outlined">verified_user</span>
+                                            <span>Trusted Professional</span>
+                                        </div>` : ''}
+                                    </div>
+                                    <p class="guide-specialty">${guide.specialty || 'General Tours'}</p>
+                                    <div class="guide-category-badge">
+                                        <span class="material-icons-outlined">category</span>
+                                        ${guide.category || 'general'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guide-description-section">
+                                <h4><span class="material-icons-outlined">info</span> About</h4>
+                                <p>${guide.description || 'Experienced tour guide ready to show you the best of San Jose del Monte.'}</p>
+                            </div>
+
+                            <div class="guide-details-grid">
+                                <div class="detail-item">
+                                    <span class="material-icons-outlined">schedule</span>
+                                    <div>
+                                        <strong>Experience</strong>
+                                        <p>${guide.experience || '5+ years'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons-outlined">translate</span>
+                                    <div>
+                                        <strong>Languages</strong>
+                                        <p>${guide.languages || 'English, Tagalog'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons-outlined">groups</span>
+                                    <div>
+                                        <strong>Max Group Size</strong>
+                                        <p>Up to ${guide.max_group_size || '10'} guests</p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons-outlined">wc</span>
+                                    <div>
+                                        <strong>Gender</strong>
+                                        <p>${guide.gender || 'Not specified'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guide-booking-section">
+                                <h4><span class="material-icons-outlined">calendar_today</span> Booking Information</h4>
+                                <p>This guide is available for your selected tour. Click "Close" to return to booking.</p>
+                                <div class="booking-actions">
+                                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+        
+        function updateGuideReview() {
+            const guideSelect = document.getElementById('selectedGuide');
+            const reviewGuideName = document.getElementById('reviewGuideName');
+            
+            if (!guideSelect || !reviewGuideName) return;
+            
+            const selectedOption = guideSelect.options[guideSelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                reviewGuideName.textContent = selectedOption.text;
+            } else {
+                reviewGuideName.textContent = '-';
+            }
+        }
+
+        // ========== CALENDAR AVAILABILITY FUNCTIONALITY ==========
+        let selectedDate = null;
+        let dateAvailability = {};
+
+        function showCalendarAvailability() {
+            const modal = document.getElementById('calendarModal');
+            if (!modal) return;
+            
+            // Generate calendar
+            generateCalendar();
+            
+            // Show modal
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCalendarModal() {
+            const modal = document.getElementById('calendarModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function generateCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            if (!calendarGrid) return;
+            
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            // Clear existing calendar
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                const currentDate = new Date(currentYear, currentMonth, day);
+                const dateString = formatDateForComparison(currentDate);
+                
+                // Mark past dates
+                if (currentDate < today.setHours(0, 0, 0, 0)) {
+                    dayElement.classList.add('past');
+                } else {
+                    // Generate availability status
+                    const availability = generateAvailabilityForDate(currentDate);
+                    dayElement.classList.add(availability.status);
+                    
+                    // Add click handler for available/limited dates
+                    if (availability.status !== 'unavailable') {
+                        dayElement.addEventListener('click', function() {
+                            selectDate(currentDate, dayElement);
+                        });
+                    }
+                    
+                    // Store availability data
+                    dateAvailability[dateString] = availability;
+                }
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function generateAvailabilityForDate(date) {
+            // Simulate availability logic (in real app, this would check database)
+            const dayOfWeek = date.getDay();
+            const random = Math.random();
+            
+            // Weekends are more popular
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                if (random < 0.3) return { status: 'unavailable', message: 'Fully booked' };
+                if (random < 0.6) return { status: 'limited', message: 'Only 2 slots left' };
+                return { status: 'available', message: 'Available' };
+            }
+            
+            // Weekdays
+            if (random < 0.1) return { status: 'unavailable', message: 'Guide not available' };
+            if (random < 0.3) return { status: 'limited', message: 'Limited slots' };
+            return { status: 'available', message: 'Available' };
+        }
+
+        function selectDate(date, element) {
+            // Remove previous selection
+            document.querySelectorAll('.calendar-day.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selection to clicked date
+            element.classList.add('selected');
+            selectedDate = date;
+            
+            // Update the hidden date input field
+            const dateInput = document.getElementById('checkInDate');
+            if (dateInput) {
+                dateInput.value = formatDateForInput(date);
+            }
+            
+            // Update the display text
+            const selectedDateText = document.getElementById('selectedDateText');
+            if (selectedDateText) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                selectedDateText.textContent = date.toLocaleDateString('en-US', options);
+            }
+            
+            // Check availability
+            checkDateAvailability();
+            
+            // Close modal after selection
+            setTimeout(() => {
+                closeCalendarModal();
+            }, 500);
+        }
+
+        function checkDateAvailability() {
+            const dateInput = document.getElementById('checkInDate');
+            const availabilityStatus = document.getElementById('availabilityStatus');
+            
+            if (!dateInput || !availabilityStatus) return;
+            
+            const selectedDateValue = dateInput.value;
+            if (!selectedDateValue) {
+                availabilityStatus.style.display = 'none';
+                return;
+            }
+            
+            // Show checking status
+            availabilityStatus.className = 'availability-status checking';
+            availabilityStatus.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Checking availability...';
+            availabilityStatus.style.display = 'block';
+            
+            // Simulate availability check
+            setTimeout(() => {
+                const date = new Date(selectedDateValue);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (date < today) {
+                    availabilityStatus.className = 'availability-status unavailable';
+                    availabilityStatus.innerHTML = '<span class="material-icons-outlined">error</span> This date has passed. Please select a future date.';
+                    disableNextButton();
+                } else {
+                    const availability = generateAvailabilityForDate(date);
+                    availabilityStatus.className = `availability-status ${availability.status}`;
+                    
+                    if (availability.status === 'available') {
+                        availabilityStatus.innerHTML = `<span class="material-icons-outlined">check_circle</span> ${availability.message} - Tour guides available!`;
+                        enableNextButton();
+                    } else if (availability.status === 'limited') {
+                        availabilityStatus.innerHTML = `<span class="material-icons-outlined">warning</span> ${availability.message} - Book soon!`;
+                        enableNextButton();
+                    } else {
+                        availabilityStatus.innerHTML = `<span class="material-icons-outlined">block</span> ${availability.message} - Please choose another date.`;
+                        disableNextButton();
+                    }
+                }
+            }, 1000);
+        }
+
+        function enableNextButton() {
+            const nextBtn = document.querySelector('.btn-next');
+            if (nextBtn) {
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
+        }
+
+        function disableNextButton() {
+            const nextBtn = document.querySelector('.btn-next');
+            if (nextBtn) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            }
+        }
+
+        function formatDateForComparison(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Modify nextStep function to check availability first
+        function nextStep() {
+            const dateInput = document.getElementById('checkInDate');
+            const availabilityStatus = document.getElementById('availabilityStatus');
+            
+            if (!dateInput.value) {
+                alert('Please select a check-in date');
+                return;
+            }
+            
+            if (availabilityStatus && availabilityStatus.classList.contains('unavailable')) {
+                alert('Please select an available date before proceeding');
+                return;
+            }
+            
+            // Proceed with normal next step logic
+            const currentStep = document.querySelector('.booking-step.active');
+            const currentStepNumber = parseInt(currentStep.id.split('-')[1]);
+            
+            if (currentStepNumber < 4) {
+                currentStep.classList.remove('active');
+                document.getElementById(`step-${currentStepNumber + 1}`).classList.add('active');
+                updateProgressBar(currentStepNumber + 1);
+                updateReviewSection();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateReviewSection() {
+            // Update Tour Details
+            const guideSelect = document.getElementById('selectedGuide');
+            const destinationSelect = document.getElementById('destination');
+            const dateInput = document.getElementById('checkInDate');
+            const guestCountInput = document.getElementById('guestCount');
+            
+            // Update Guide
+            const reviewGuideName = document.getElementById('reviewGuideName');
+            if (guideSelect && reviewGuideName) {
+                const selectedOption = guideSelect.options[guideSelect.selectedIndex];
+                reviewGuideName.textContent = selectedOption && selectedOption.value ? selectedOption.text : '-';
+            }
+            
+            // Update Destination
+            const reviewDestination = document.getElementById('reviewDestination');
+            if (destinationSelect && reviewDestination) {
+                const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+                reviewDestination.textContent = selectedOption && selectedOption.value ? selectedOption.text : '-';
+            }
+            
+            // Update Date
+            const reviewDate = document.getElementById('reviewDate');
+            if (dateInput && reviewDate) {
+                if (dateInput.value) {
+                    const date = new Date(dateInput.value);
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    reviewDate.textContent = date.toLocaleDateString('en-US', options);
+                } else {
+                    reviewDate.textContent = '-';
+                }
+            }
+            
+            // Update Guests
+            const reviewGuests = document.getElementById('reviewGuests');
+            if (guestCountInput && reviewGuests) {
+                const guests = guestCountInput.value;
+                reviewGuests.textContent = guests ? `${guests} ${guests == 1 ? 'guest' : 'guests'}` : '-';
+            }
+            
+            // Update Personal Information
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const contactInput = document.getElementById('contactNumber');
+            
+            const reviewFullName = document.getElementById('reviewFullName');
+            const reviewEmail = document.getElementById('reviewEmail');
+            const reviewContact = document.getElementById('reviewContact');
+            
+            if (fullNameInput && reviewFullName) {
+                reviewFullName.textContent = fullNameInput.value || '-';
+            }
+            
+            if (emailInput && reviewEmail) {
+                reviewEmail.textContent = emailInput.value || '-';
+            }
+            
+            if (contactInput && reviewContact) {
+                reviewContact.textContent = contactInput.value || '-';
+            }
+            
+            // Update Price Calculation
+            updatePriceCalculation();
+        }
+
+        function updatePriceCalculation() {
+            const guestCount = parseInt(document.getElementById('guestCount')?.value || 1);
+            const priceGuideFee = 2500;
+            const priceEntrancePerPerson = 100;
+            const priceServiceFee = 200;
+            const pricePlatformFee = 100;
+            
+            const entranceFee = priceEntrancePerPerson * guestCount;
+            const total = priceGuideFee + entranceFee + priceServiceFee + pricePlatformFee;
+            
+            // Update price display elements
+            const priceGuestCountEl = document.getElementById('priceGuestCount');
+            const priceEntranceEl = document.getElementById('priceEntrance');
+            const priceTotalEl = document.getElementById('priceTotal');
+            
+            if (priceGuestCountEl) priceGuestCountEl.textContent = guestCount;
+            if (priceEntranceEl) priceEntranceEl.textContent = `₱${entranceFee.toFixed(2)}`;
+            if (priceTotalEl) priceTotalEl.textContent = `₱${total.toFixed(2)}`;
+            
+            // Update confirmation page prices
+            const confirmationGuestCountEl = document.getElementById('confirmationGuestCount');
+            const confirmationEntranceEl = document.getElementById('confirmationEntrance');
+            const confirmationTotalEl = document.getElementById('confirmationTotal');
+            
+            if (confirmationGuestCountEl) confirmationGuestCountEl.textContent = guestCount;
+            if (confirmationEntranceEl) confirmationEntranceEl.textContent = `₱${entranceFee.toFixed(2)}`;
+            if (confirmationTotalEl) confirmationTotalEl.textContent = `₱${total.toFixed(2)}`;
+        }
+
+        function updateProgressBar(step) {
+            // Remove active class from all steps
+            document.querySelectorAll('.progress-step').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Add active class to current step
+            const currentStepEl = document.querySelector(`.progress-step[data-step="${step}"]`);
+            if (currentStepEl) {
+                currentStepEl.classList.add('active');
+            }
+        }
+
+        function submitBooking() {
+            // Validate all required fields
+            const guideSelect = document.getElementById('selectedGuide');
+            const destinationSelect = document.getElementById('destination');
+            const dateInput = document.getElementById('checkInDate');
+            const guestCountInput = document.getElementById('guestCount');
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const contactInput = document.getElementById('contactNumber');
+            const termsAgreement = document.getElementById('termsAgreement');
+            const cancellationPolicy = document.getElementById('cancellationPolicy');
+
+            // Check required fields
+            if (!destinationSelect.value) {
+                alert('Please select a destination');
+                return;
+            }
+
+            if (!dateInput.value) {
+                alert('Please select a tour date');
+                return;
+            }
+
+            if (!guestCountInput.value || guestCountInput.value < 1) {
+                alert('Please enter number of guests');
+                return;
+            }
+
+            if (!fullNameInput.value.trim()) {
+                alert('Please enter your full name');
+                return;
+            }
+
+            if (!emailInput.value.trim()) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            if (!contactInput.value.trim()) {
+                alert('Please enter your contact number');
+                return;
+            }
+
+            if (!termsAgreement.checked) {
+                alert('Please agree to the Terms & Conditions');
+                return;
+            }
+
+            if (!cancellationPolicy.checked) {
+                alert('Please acknowledge the cancellation policy');
+                return;
+            }
+
+            // Check availability status
+            const availabilityStatus = document.getElementById('availabilityStatus');
+            if (availabilityStatus && availabilityStatus.classList.contains('unavailable')) {
+                alert('Please select an available date before proceeding');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('guide_id', guideSelect.value || '');
+            formData.append('destination', destinationSelect.value);
+            formData.append('date', dateInput.value);
+            formData.append('guests', guestCountInput.value);
+            formData.append('contact', contactInput.value);
+            formData.append('email', emailInput.value);
+            formData.append('special_requests', document.getElementById('specialRequests')?.value || '');
+
+            // Show loading state
+            const confirmBtn = document.querySelector('.btn-confirm');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing...';
+            confirmBtn.disabled = true;
+
+            // Submit booking
+            fetch('submit_booking.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update confirmation page with booking details
+                    updateConfirmationPage(data);
+                    
+                    // Move to confirmation step
+                    const currentStep = document.querySelector('.booking-step.active');
+                    currentStep.classList.remove('active');
+                    document.getElementById('step-4').classList.add('active');
+                    updateProgressBar(4);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('Booking failed: ' + data.message);
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting your booking. Please try again.');
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+            });
+        }
+
+        function updateConfirmationPage(bookingData) {
+            // Update booking reference
+            const confirmationBookingNumber = document.getElementById('confirmationBookingNumber');
+            if (confirmationBookingNumber) {
+                confirmationBookingNumber.textContent = bookingData.booking_reference;
+            }
+
+            // Update detail booking ID
+            const detailBookingId = document.getElementById('detailBookingId');
+            if (detailBookingId) {
+                detailBookingId.textContent = bookingData.booking_reference;
+            }
+
+            // Update tour details
+            const destinationSelect = document.getElementById('destination');
+            const dateInput = document.getElementById('checkInDate');
+            const guestCountInput = document.getElementById('guestCount');
+            const guideSelect = document.getElementById('selectedGuide');
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const contactInput = document.getElementById('contactNumber');
+
+            // Tour Information
+            const detailDestination = document.getElementById('detailDestination');
+            if (detailDestination && destinationSelect) {
+                const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+                detailDestination.textContent = selectedOption ? selectedOption.text : '-';
+            }
+
+            const detailTourDate = document.getElementById('detailTourDate');
+            if (detailTourDate && dateInput.value) {
+                const date = new Date(dateInput.value);
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                detailTourDate.textContent = date.toLocaleDateString('en-US', options);
+            }
+
+            const detailGuide = document.getElementById('detailGuide');
+            if (detailGuide && guideSelect) {
+                const selectedOption = guideSelect.options[guideSelect.selectedIndex];
+                detailGuide.textContent = selectedOption && selectedOption.value ? selectedOption.text : 'No guide selected';
+            }
+
+            const detailGuests = document.getElementById('detailGuests');
+            if (detailGuests && guestCountInput) {
+                detailGuests.textContent = guestCountInput.value;
+            }
+
+            // Guest Information
+            const detailGuestName = document.getElementById('detailGuestName');
+            if (detailGuestName && fullNameInput) {
+                detailGuestName.textContent = fullNameInput.value;
+            }
+
+            const detailGuestEmail = document.getElementById('detailGuestEmail');
+            if (detailGuestEmail && emailInput) {
+                detailGuestEmail.textContent = emailInput.value;
+            }
+
+            const detailGuestContact = document.getElementById('detailGuestContact');
+            if (detailGuestContact && contactInput) {
+                detailGuestContact.textContent = contactInput.value;
+            }
+
+            // Payment Summary (already updated by updatePriceCalculation)
+            updatePriceCalculation();
+        }
     </script>
 </body>
 </html>
