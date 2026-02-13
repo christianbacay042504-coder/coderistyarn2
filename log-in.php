@@ -1,4 +1,8 @@
 <?php
+// Prevent any output before JSON
+error_reporting(0);
+ini_set('display_errors', 0);
+
 // Include necessary files
 require_once __DIR__ . '/config/auth.php';
 
@@ -11,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         try {
             // Validate input
             if (empty($email) || empty($password)) {
+                header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Please enter both email and password']);
                 exit();
             }
@@ -30,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $emailResult = sendLoginOtpEmail($email, $otpCode);
                     
                     if ($emailResult['success']) {
+                        header('Content-Type: application/json');
                         echo json_encode([
                             'success' => true,
                             'verification_required' => true,
@@ -38,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         ]);
                     } else {
                         // Email failed but login was successful - allow login without OTP for now
+                        header('Content-Type: application/json');
                         echo json_encode([
                             'success' => true,
                             'verification_required' => false,
@@ -48,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     }
                 } else {
                     // OTP storage failed - allow login without OTP for now
+                    header('Content-Type: application/json');
                     echo json_encode([
                         'success' => true,
                         'verification_required' => false,
@@ -57,9 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ]);
                 }
             } else {
+                header('Content-Type: application/json');
                 echo json_encode($result);
             }
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
         }
         exit();
@@ -72,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         try {
             if (empty($email) || empty($code)) {
+                header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Email and verification code are required']);
                 exit();
             }
@@ -100,21 +111,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['user_type'] = $user['user_type'];
                         
+                        header('Content-Type: application/json');
                         echo json_encode([
                             'success' => true,
                             'message' => 'Verification successful! Redirecting...',
                             'user_type' => $user['user_type']
                         ]);
                     } else {
+                        header('Content-Type: application/json');
                         echo json_encode(['success' => false, 'message' => 'User not found']);
                     }
                 } else {
+                    header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => 'Database connection failed']);
                 }
             } else {
+                header('Content-Type: application/json');
                 echo json_encode($verifyResult);
             }
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Verification error: ' . $e->getMessage()]);
         }
         exit();

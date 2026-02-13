@@ -332,7 +332,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!response.ok) {
                     throw new Error('HTTP error! status: ' + response.status);
                 }
-                return response.json();
+                return response.text(); // Get text first to check for HTML
+            })
+            .then(text => {
+                // Check if response is HTML (error page) instead of JSON
+                if (text.trim().startsWith('<')) {
+                    console.error('Server returned HTML instead of JSON:', text.substring(0, 200));
+                    throw new Error('Server returned an error page instead of JSON response');
+                }
+                
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response text:', text.substring(0, 200));
+                    throw new Error('Invalid JSON response from server');
+                }
             })
             .then(data => {
                 // Reset button
