@@ -7,7 +7,7 @@ putenv('SMTP_HOST=smtp.gmail.com');
 putenv('SMTP_PORT=587');
 putenv('SMTP_SECURE=tls');
 putenv('SMTP_USERNAME=christianbacay042504@gmail.com');
-putenv('SMTP_PASSWORD=tfizljpwkgrkcyad');
+putenv('SMTP_PASSWORD=tayrkzczbhgehbej'); // New app password
 putenv('SMTP_FROM_EMAIL=christianbacay042504@gmail.com');
 putenv('SMTP_FROM_NAME=SJDM Tours');
 

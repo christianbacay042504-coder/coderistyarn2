@@ -19,19 +19,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $result = loginUser($email, $password);
             
             if ($result['success']) {
-                // Show modal for demonstration (without actual OTP verification)
-                echo json_encode([
-                    'success' => true,
-                    'verification_required' => true,
-                    'message' => 'Please check your email for verification code',
-                    'email' => $email,
-                    'debug_code' => '123456' // Static demo code
-                ]);
+                // Generate OTP code
+                $otpCode = generateOtpCode();
+                
+                // Store OTP in database
+                $storeResult = storeOtpCode($result['user_id'] ?? getCurrentUserId(), $email, $otpCode, 'login');
+                
+                if ($storeResult['success']) {
+                    // Send OTP email
+                    $emailResult = sendLoginOtpEmail($email, $otpCode);
+                    
+                    if ($emailResult['success']) {
+                        echo json_encode([
+                            'success' => true,
+                            'verification_required' => true,
+                            'message' => 'Please check your email for verification code',
+                            'email' => $email
+                        ]);
+                    } else {
+                        // Email failed but login was successful - allow login without OTP for now
+                        echo json_encode([
+                            'success' => true,
+                            'verification_required' => false,
+                            'message' => 'Login successful (email notification failed)',
+                            'user_type' => $result['user_type'],
+                            'email_error' => $emailResult['message']
+                        ]);
+                    }
+                } else {
+                    // OTP storage failed - allow login without OTP for now
+                    echo json_encode([
+                        'success' => true,
+                        'verification_required' => false,
+                        'message' => 'Login successful (OTP system unavailable)',
+                        'user_type' => $result['user_type'],
+                        'otp_error' => $storeResult['message']
+                    ]);
+                }
             } else {
                 echo json_encode($result);
             }
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+    
+    // Handle OTP verification
+    if ($_POST['action'] === 'verify_otp') {
+        $email = $_POST['email'] ?? '';
+        $code = $_POST['code'] ?? '';
+        
+        try {
+            if (empty($email) || empty($code)) {
+                echo json_encode(['success' => false, 'message' => 'Email and verification code are required']);
+                exit();
+            }
+            
+            // Verify OTP code
+            $verifyResult = verifyOtpCode($email, $code, 'login');
+            
+            if ($verifyResult['success']) {
+                // Get user details and complete login
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    $stmt = $conn->prepare("SELECT id, first_name, last_name, email, user_type FROM users WHERE id = ?");
+                    $stmt->bind_param("i", $verifyResult['user_id']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    
+                    if ($result->num_rows > 0) {
+                        $user = $result->fetch_assoc();
+                        $stmt->close();
+                        closeDatabaseConnection($conn);
+                        
+                        // Set session variables
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['first_name'] = $user['first_name'];
+                        $_SESSION['last_name'] = $user['last_name'];
+                        $_SESSION['email'] = $user['email'];
+                        $_SESSION['user_type'] = $user['user_type'];
+                        
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Verification successful! Redirecting...',
+                            'user_type' => $user['user_type']
+                        ]);
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'User not found']);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+                }
+            } else {
+                echo json_encode($verifyResult);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Verification error: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+    
+    // Handle OTP resend
+    if ($_POST['action'] === 'resend_otp') {
+        $email = $_POST['email'] ?? '';
+        
+        try {
+            if (empty($email)) {
+                echo json_encode(['success' => false, 'message' => 'Email is required']);
+                exit();
+            }
+            
+            // Get user by email
+            $conn = getDatabaseConnection();
+            if ($conn) {
+                $stmt = $conn->prepare("SELECT id, first_name, last_name, email, user_type FROM users WHERE email = ?");
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                if ($result->num_rows > 0) {
+                    $user = $result->fetch_assoc();
+                    $stmt->close();
+                    
+                    // Generate new OTP code
+                    $otpCode = generateOtpCode();
+                    
+                    // Store OTP in database
+                    $storeResult = storeOtpCode($user['id'], $email, $otpCode, 'login');
+                    
+                    if ($storeResult['success']) {
+                        // Send OTP email
+                        $emailResult = sendLoginOtpEmail($email, $otpCode);
+                        
+                        if ($emailResult['success']) {
+                            echo json_encode([
+                                'success' => true,
+                                'message' => 'Verification code resent successfully'
+                            ]);
+                        } else {
+                            echo json_encode([
+                                'success' => false,
+                                'message' => 'Failed to resend verification code: ' . $emailResult['message']
+                            ]);
+                        }
+                    } else {
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Failed to generate new verification code'
+                        ]);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Email not found']);
+                }
+                closeDatabaseConnection($conn);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Resend error: ' . $e->getMessage()]);
         }
         exit();
     }

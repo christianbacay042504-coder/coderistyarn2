@@ -133,20 +133,45 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setOtpLoading(true);
             
-            // For demo purposes, accept any 6-digit code and redirect based on stored session
-            // In real implementation, this would verify with backend
+            // Get email from modal display
+            const email = document.getElementById('otpEmail').textContent;
             
-            showAlert('Verification successful!', 'success');
-            closeVerificationModalInner();
+            // Send verification request to server
+            const formData = new FormData();
+            formData.append('action', 'verify_otp');
+            formData.append('email', email);
+            formData.append('code', code);
             
-            // Redirect based on user type (check session or default to user)
-            setTimeout(() => {
-                // For demo, redirect to user dashboard
-                window.location.href = 'sjdm-user/index.php';
-            }, 700);
+            const response = await fetch('', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert(data.message, 'success');
+                closeVerificationModalInner();
+                
+                // Redirect based on user type
+                setTimeout(() => {
+                    if (data.user_type === 'admin') {
+                        window.location.href = 'admin/dashboard.php';
+                    } else if (data.user_type === 'tour_guide') {
+                        window.location.href = 'tour-guide/dashboard.php';
+                    } else {
+                        window.location.href = 'sjdm-user/index.php';
+                    }
+                }, 1000);
+            } else {
+                showAlert(data.message, 'error');
+                // Clear inputs on error
+                clearOtpInputs();
+                focusFirstOtp();
+            }
             
         } catch (e) {
-            console.error(e);
+            console.error('Verification error:', e);
             showAlert('An error occurred. Please try again.', 'error');
         } finally {
             setOtpLoading(false);
@@ -157,13 +182,36 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             setOtpLoading(true);
             
-            // For demo purposes, just show success message
-            showAlert('Verification code resent! (Demo: 123456)', 'success');
-            clearOtpInputs();
-            focusFirstOtp();
+            // Get email from modal display
+            const email = document.getElementById('otpEmail').textContent;
+            
+            if (!email) {
+                showAlert('Email address not found', 'error');
+                return;
+            }
+            
+            // Send resend request to server
+            const formData = new FormData();
+            formData.append('action', 'resend_otp');
+            formData.append('email', email);
+            
+            const response = await fetch('', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert(data.message, 'success');
+                clearOtpInputs();
+                focusFirstOtp();
+            } else {
+                showAlert(data.message, 'error');
+            }
             
         } catch (e) {
-            console.error(e);
+            console.error('Resend error:', e);
             showAlert('An error occurred. Please try again.', 'error');
         } finally {
             setOtpLoading(false);
@@ -296,11 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     if (data.verification_required) {
                         console.log('Verification required, showing modal...');
-                        // Show verification code in alert for testing
-                        const message = data.debug_code ? 
-                            `Verification code: ${data.debug_code}` : 
-                            (data.message || 'Verification code sent');
-                        showAlert(message, 'success');
+                        showAlert(data.message || 'Verification code sent', 'success');
                         
                         // Force modal to show
                         setTimeout(() => {
