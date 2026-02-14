@@ -172,7 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
             
         } catch (e) {
             console.error('Verification error:', e);
-            showAlert('An error occurred. Please try again.', 'error');
+            console.error('Error details:', e.message, e.stack);
+            showAlert('Verification error: ' + (e.message || 'An error occurred. Please try again.'), 'error');
         } finally {
             setOtpLoading(false);
         }
@@ -393,12 +394,16 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 console.error('Error:', error);
+                console.error('Error details:', error.message, error.stack);
+                
                 let errorMessage = 'An error occurred. Please try again.';
 
                 if (error.message.includes('Failed to fetch')) {
                     errorMessage = 'Network error. Please check your connection.';
                 } else if (error.message.includes('JSON')) {
                     errorMessage = 'Server response error. Please try again.';
+                } else if (error.message) {
+                    errorMessage = 'Error: ' + error.message;
                 }
 
                 showAlert(errorMessage, 'error');

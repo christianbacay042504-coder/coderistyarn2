@@ -59,9 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     echo json_encode([
                         'success' => true,
                         'verification_required' => false,
-                        'message' => 'Login successful (OTP system unavailable)',
-                        'user_type' => $result['user_type'],
-                        'otp_error' => $storeResult['message']
+                        'message' => 'Login successful!',
+                        'user_type' => $result['user_type']
                     ]);
                 }
             } else {

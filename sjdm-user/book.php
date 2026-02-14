@@ -1707,14 +1707,10 @@ try {
                             <div class="form-group">
                                 <label>Check-in Date *</label>
                                 <div class="date-input-container">
-                                    <div class="selected-date-display" id="selectedDateDisplay">
+                                    <div class="selected-date-display" id="selectedDateDisplay" onclick="showCalendarAvailability()" style="cursor: pointer;">
                                         <span class="material-icons-outlined">event</span>
                                         <span id="selectedDateText">Click to select date</span>
                                     </div>
-                                    <button type="button" class="calendar-toggle-btn" onclick="showCalendarAvailability()">
-                                        <span class="material-icons-outlined">calendar_month</span>
-                                        Select Date
-                                    </button>
                                 </div>
                                 <div id="availabilityStatus" class="availability-status"></div>
                                 <input type="hidden" id="checkInDate" name="checkInDate" value="">
