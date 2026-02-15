@@ -26,7 +26,7 @@ if ($conn && isset($_SESSION['user_id'])) {
 
 // Fetch tour guides from database
 if ($conn) {
-    $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' ORDER BY name ASC");
+    $guidesStmt = $conn->prepare("SELECT * FROM tour_guides WHERE status = 'active' AND verified = 1 ORDER BY name ASC");
     if ($guidesStmt) {
         $guidesStmt->execute();
         $guidesResult = $guidesStmt->get_result();

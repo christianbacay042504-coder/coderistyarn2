@@ -434,66 +434,24 @@ function loginUser($email, $password) {
 
 
     logLoginActivity($conn, $user['id'], 'success');
-
-
-
     
-
-
-
     closeDatabaseConnection($conn);
-
-
-
     
-
-
-
-    // Set session variables
-
-
-
-    $_SESSION['user_id'] = $user['id'];
-
-
-
-    $_SESSION['first_name'] = $user['first_name'];
-
-
-
-    $_SESSION['last_name'] = $user['last_name'];
-
-
-
-    $_SESSION['email'] = $user['email'];
-
-
-
-    $_SESSION['user_type'] = $user['user_type'];
-
-
-
-    
-
-
-
+    // Return user data for OTP verification - DO NOT set session variables yet
     return [
-
-
-
         'success' => true, 
-
-
-
-        'message' => 'Login successful',
-
-
-
-        'user_type' => $user['user_type']
-
-
-
+        'message' => 'Password verified - OTP required',
+        'user_type' => $user['user_type'],
+        'user_id' => $user['id'],
+        'user_data' => [
+            'id' => $user['id'],
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'user_type' => $user['user_type']
+        ]
     ];
+
 
 
 
@@ -1744,9 +1702,27 @@ function generateOtpCode() {
 
 // Send OTP email for login verification
 function sendLoginOtpEmail($toEmail, $code) {
-    require_once __DIR__ . '/../vendor/autoload.php';
+    // Check if PHPMailer is available
+    $autoloaderPath = __DIR__ . '/../vendor/phpmailer/autoload.php';
+    if (!file_exists($autoloaderPath)) {
+        error_log("PHPMailer autoloader not found at: $autoloaderPath");
+        return [
+            'success' => false,
+            'message' => 'Email service not available'
+        ];
+    }
     
     try {
+        require_once $autoloaderPath;
+        
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found after autoloader");
+            return [
+                'success' => false,
+                'message' => 'Email service not available'
+            ];
+        }
+        
         $mail = new PHPMailer(true);
         
         // SMTP configuration - UPDATE THIS with your new app password
