@@ -74,9 +74,7 @@ if ($conn) {
 
     <style>
 
-        
-
- /* ===== USER PROFILE DROPDOWN ===== */
+        /* ===== USER PROFILE DROPDOWN ===== */
 
         .user-profile-dropdown {
 
@@ -87,8 +85,6 @@ if ($conn) {
             z-index: 1000;
 
         }
-
-
 
         .profile-trigger {
 
@@ -118,15 +114,11 @@ if ($conn) {
 
         }
 
-
-
         .profile-trigger:hover {
 
             background: #f0f0f0;
 
         }
-
-
 
         .profile-avatar,
 
@@ -156,8 +148,6 @@ if ($conn) {
 
         }
 
-
-
         .profile-avatar-large {
 
             width: 56px;
@@ -170,15 +160,11 @@ if ($conn) {
 
         }
 
-
-
         .profile-name {
 
             display: none;
 
         }
-
-
 
         .dropdown-menu {
 
@@ -212,8 +198,6 @@ if ($conn) {
 
         }
 
-
-
         .dropdown-menu.show {
 
             opacity: 1 !important;
@@ -223,8 +207,6 @@ if ($conn) {
             transform: translateY(0) !important;
 
         }
-
-
 
         .dropdown-header {
 
@@ -238,8 +220,6 @@ if ($conn) {
 
         }
 
-
-
         .dropdown-header h4 {
 
             margin: 8px 0 4px;
@@ -250,8 +230,6 @@ if ($conn) {
 
         }
 
-
-
         .dropdown-header p {
 
             font-size: 13px;
@@ -261,8 +239,6 @@ if ($conn) {
             margin: 0;
 
         }
-
-
 
         .dropdown-item {
 
@@ -282,15 +258,11 @@ if ($conn) {
 
         }
 
-
-
         .dropdown-item:hover {
 
             background: #f5f5f5;
 
         }
-
-
 
         .dropdown-item .material-icons-outlined {
 
@@ -299,8 +271,6 @@ if ($conn) {
             color: #555;
 
         }
-
-
 
         /* Responsive adjustments */
 
@@ -314,8 +284,6 @@ if ($conn) {
 
             }
 
-
-
             .dropdown-menu {
 
                 width: 280px;
@@ -324,377 +292,250 @@ if ($conn) {
 
         }
 
-        /* Additional styles for accommodation suggestions */
+        /* ===== MODERN & CLEAN CARD STYLES ===== */
 
         .accommodation-section {
-
             margin: 40px 0;
-
-            padding: 30px;
-
-            background: #ffffff; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-
-            border-radius: 20px;
-
-            color: var(--text-primary);
-
+            padding: 32px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
-
-
-
         .accommodation-section h2 {
-
-            color: var(--text-primary);
-
-            margin-bottom: 10px;
-
+            color: #0f172a;
+            margin-bottom: 8px;
             font-size: 28px;
-
-        }
-
-
-
-        .accommodation-section .section-subtitle {
-
-            color: var(--text-secondary);
-
-            margin-bottom: 30px;
-
-            font-size: 16px;
-
-        }
-
-
-
-        .spot-cards {
-
-            display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
-            gap: 20px;
-
-            margin-top: 20px;
-
-        }
-
-
-
-        .spot-card {
-
-            background: #ffffff; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-
-            
-
-            border-radius: 15px;
-
-            padding: 25px;
-
-            border: 1px solid var(--border);
-
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-        }
-
-
-
-        .spot-card:hover {
-
-            transform: translateY(-5px);
-
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-
-        }
-
-
-
-        .spot-card h3 {
-
-            color: var(--text-primary);
-
-            margin-bottom: 15px;
-
-            font-size: 20px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            line-height: 1.3;
-
-        }
-
-
-
-        .spot-card h3 .material-icons-outlined {
-
-            font-size: 24px;
-
-            flex-shrink: 0;
-
-            margin-top: 2px;
-
-        }
-
-
-
-        .area-badge {
-
-            display: inline-block;
-
-            background: var(--primary-light);
-
-            padding: 5px 12px;
-
-            border-radius: 20px;
-
-            font-size: 12px;
-
-            margin-bottom: 15px;
-
-            color: var(--primary);
-
-        }
-
-
-
-        .suggestion-category {
-
-            margin-bottom: 15px;
-
-        }
-
-
-
-        .suggestion-category h4 {
-
-            color: var(--text-primary);
-
-            font-size: 14px;
-
-            text-transform: uppercase;
-
-            letter-spacing: 1px;
-
-            margin-bottom: 8px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-        }
-
-
-
-        .suggestion-list {
-
-            list-style: none;
-
-            padding-left: 0;
-
-        }
-
-
-
-        .suggestion-list li {
-
-            color: var(--text-secondary);
-
-            margin-bottom: 5px;
-
-            padding-left: 25px;
-
-            position: relative;
-
-        }
-
-
-
-        .suggestion-list li:before {
-
-            content: "✓";
-
-            position: absolute;
-
-            left: 0;
-
-            color: #4ade80;
-
-        }
-
-
-
-        .transport-tip {
-
-            background: var(--primary-light);
-
-            padding: 12px 15px;
-
-            border-radius: 10px;
-
-            margin-top: 15px;
-
-            font-size: 14px;
-
-            color: var(--text-primary);
-
-            border-left: 4px solid var(--primary);
-
-        }
-
-
-
-        .general-tips-grid {
-
-            display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-
-            gap: 20px;
-
-            margin: 40px 0;
-
-        }
-
-
-
-        .general-tip-card {
-
-            background: white;
-
-            border-radius: 15px;
-
-            padding: 25px;
-
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-
-            transition: transform 0.3s ease;
-
-        }
-
-
-
-        .general-tip-card:hover {
-
-            transform: translateY(-5px);
-
-        }
-
-
-
-        .general-tip-card h3 {
-
-            color: #25631cff;
-
-            margin-bottom: 15px;
-
-            font-size: 18px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-        }
-
-
-
-        .general-tip-card ul {
-
-            list-style: none;
-
-            padding-left: 0;
-
-        }
-
-
-
-        .general-tip-card ul li {
-
-            margin-bottom: 8px;
-
-            padding-left: 25px;
-
-            position: relative;
-
-            color: #6b7280;
-
-        }
-
-
-
-        .general-tip-card ul li:before {
-
-            content: "•";
-
-            position: absolute;
-
-            left: 10px;
-
-            color: #3bc528ff;
-
-        }
-
-
-
-        .page-intro {
-
-            background: #ffffffff;
-
-            padding: 40px;
-
-            border-radius: 20px;
-
-            margin-bottom: 40px;
-
+            font-weight: 600;
             text-align: center;
-
-            border: 1px solid var(--border);
-
         }
-
-
-
-        .page-intro h1 {
-
-            color: var(--primary);
-
-            margin-bottom: 15px;
-
+        .accommodation-section .section-subtitle {
+            color: #64748b;
+            margin-bottom: 32px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: 400;
         }
-
-
-
-        .page-intro p {
-
-            color: var(--text-secondary);
-
+        .spot-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .spot-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.25s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .spot-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+        .spot-card-content {
+            padding: 24px;
+        }
+        .spot-card h3 {
+            color: #0f172a;
+            margin-bottom: 16px;
             font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.4;
+        }
+        .spot-card h3 .material-icons-outlined {
+            font-size: 20px;
+            flex-shrink: 0;
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.08);
+            padding: 6px;
+            border-radius: 8px;
+        }
+        .area-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #f8fafc;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .suggestion-category {
+            margin-bottom: 20px;
+        }
+        .suggestion-category:last-child {
+            margin-bottom: 16px;
+        }
+        .suggestion-category h4 {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .suggestion-category h4 .material-icons-outlined {
+            font-size: 16px;
+            color: #22c55e;
+        }
+        .suggestion-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .suggestion-list li {
+            color: #475569;
+            margin-bottom: 6px;
+            padding: 10px 14px;
+            background: #fafbfc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border-left: 2px solid #22c55e;
+        }
+        .suggestion-list li:hover {
+            background: #f1f5f9;
+            transform: translateX(2px);
+        }
+        .suggestion-list li:last-child {
+            margin-bottom: 0;
+        }
+        .transport-tip {
+            background: #f0f9ff;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #0c4a6e;
+            border-left: 3px solid #0ea5e9;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .transport-tip::before {
+            content: '📍';
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .transport-tip strong {
+            color: #0369a1;
+            font-weight: 600;
+        }
 
-            max-width: 800px;
+        /* ===== MODERN & CLEAN GENERAL TIPS CARDS ===== */
+        .general-tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        .general-tip-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .general-tip-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+        .general-tip-card-content {
+            padding: 24px;
+        }
+        .general-tip-card h3 {
+            color: #0f172a;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.4;
+        }
+        .general-tip-card h3 .material-icons-outlined {
+            font-size: 18px;
+            flex-shrink: 0;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            padding: 6px;
+            border-radius: 8px;
+        }
+        .general-tip-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .general-tip-card ul li {
+            margin-bottom: 8px;
+            padding: 10px 14px;
+            background: #fafbfc;
+            border-radius: 8px;
+            border-left: 2px solid #3b82f6;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .general-tip-card ul li:hover {
+            background: #f1f5f9;
+            transform: translateX(2px);
+        }
+        .general-tip-card ul li:last-child {
+            margin-bottom: 0;
+        }
+        .general-tip-card ul li::before {
+            content: '•';
+            position: absolute;
+            left: 6px;
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 16px;
+        }
 
+        /* ===== MODERN & CLEAN PAGE INTRO ===== */
+        .page-intro {
+            background: #ffffff;
+            padding: 40px 32px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+        }
+        .page-intro h1 {
+            color: #0f172a;
+            margin-bottom: 12px;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .page-intro p {
+            color: #64748b;
+            font-size: 18px;
+            max-width: 600px;
             margin: 0 auto;
-
+            font-weight: 400;
+            line-height: 1.6;
         }
-
-
-
-        .search-bar input:focus {
-
-            outline: none;
-
-            border-color: var(--primary);
-
-            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
-
-        }
-
-
 
         /* Full-width layout styles */
 
@@ -1134,247 +975,144 @@ if ($conn) {
                     <!-- Cards will be populated by JavaScript -->
 
                     <div class="spot-card" data-spot="City Oval (People's Park)">
-
-                        <div class="area-badge">SJDM Center</div>
-
-                        <h3><span class="material-icons-outlined">park</span> City Oval (People's Park)</h3>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Hotel Sogo</li>
-
-                                <li>Hotel Turista</li>
-
-                            </ul>
-
+                        <div class="spot-card-content">
+                            <div class="area-badge">SJDM Center</div>
+                            <h3><span class="material-icons-outlined">park</span> City Oval (People's Park)</h3>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                                <ul class="suggestion-list">
+                                    <li>Hotel Sogo</li>
+                                    <li>Hotel Turista</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                                <ul class="suggestion-list">
+                                    <li>Escobar's</li>
+                                    <li>Roadside Dampa</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="transport-tip">
+                                <strong>Transport Tip:</strong> Very accessible via jeepney and tricycle. Parking available.
+                            </div>
                         </div>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Escobar's</li>
-
-                                <li>Roadside Dampa</li>
-
-                            </ul>
-
-                        </div>
-
-                        
-
-                        <div class="transport-tip">
-
-                            <strong>Transport Tip:</strong> Very accessible via jeepney and tricycle. Parking available.
-
-                        </div>
-
                     </div>
 
                     
 
                     <div class="spot-card" data-spot="Our Lady of Lourdes Parish / Padre Pio Parish">
-
-                        <div class="area-badge">Tungkong Mangga</div>
-
-                        <h3><span class="material-icons-outlined">church</span> Our Lady of Lourdes Parish / Padre Pio Parish</h3>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Hotel Sogo</li>
-
-                                <li>Staycation Amaia</li>
-
-                            </ul>
-
+                        <div class="spot-card-content">
+                            <div class="area-badge">Tungkong Mangga</div>
+                            <h3><span class="material-icons-outlined">church</span> Our Lady of Lourdes Parish / Padre Pio Parish</h3>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                                <ul class="suggestion-list">
+                                    <li>Hotel Sogo</li>
+                                    <li>Staycation Amaia</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                                <ul class="suggestion-list">
+                                    <li>Max's SM SJDM</li>
+                                    <li>Escobar's</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="transport-tip">
+                                <strong>Transport Tip:</strong> Near major highways. Easy access from city center.
+                            </div>
                         </div>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Max's SM SJDM</li>
-
-                                <li>Escobar's</li>
-
-                            </ul>
-
-                        </div>
-
-                        
-
-                        <div class="transport-tip">
-
-                            <strong>Transport Tip:</strong> Near major highways. Easy access from city center.
-
-                        </div>
-
                     </div>
 
                     
 
                     <div class="spot-card" data-spot="The Rising Heart Monument">
-
-                        <div class="area-badge">Paradise 3 area</div>
-
-                        <h3><span class="material-icons-outlined">landscape</span> The Rising Heart Monument</h3>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Local lodges in Paradise 3 area</li>
-
-                            </ul>
-
+                        <div class="spot-card-content">
+                            <div class="area-badge">Paradise 3 area</div>
+                            <h3><span class="material-icons-outlined">landscape</span> The Rising Heart Monument</h3>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                                <ul class="suggestion-list">
+                                    <li>Local lodges in Paradise 3 area</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                                <ul class="suggestion-list">
+                                    <li>Los Arcos De Hermano (close resort)</li>
+                                    <li>Escobar's (short drive)</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="transport-tip">
+                                <strong>Transport Tip:</strong> Best visited by private vehicle. Photo spot along highway.
+                            </div>
                         </div>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Los Arcos De Hermano (close resort)</li>
-
-                                <li>Escobar's (short drive)</li>
-
-                            </ul>
-
-                        </div>
-
-                        
-
-                        <div class="transport-tip">
-
-                            <strong>Transport Tip:</strong> Best visited by private vehicle. Photo spot along highway.
-
-                        </div>
-
                     </div>
 
                     
 
                     <div class="spot-card" data-spot="Abes Farm / Paradise Hill Farm">
-
-                        <div class="area-badge">Paradise / Rural SJDM</div>
-
-                        <h3><span class="material-icons-outlined">agriculture</span> Abes Farm / Paradise Hill Farm</h3>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Los Arcos</li>
-
-                                <li>Pacific Waves Resort</li>
-
-                            </ul>
-
+                        <div class="spot-card-content">
+                            <div class="area-badge">Paradise / Rural SJDM</div>
+                            <h3><span class="material-icons-outlined">agriculture</span> Abes Farm / Paradise Hill Farm</h3>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                                <ul class="suggestion-list">
+                                    <li>Los Arcos</li>
+                                    <li>Pacific Waves Resort</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                                <ul class="suggestion-list">
+                                    <li>Farm-to-table restaurants in resort areas</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="transport-tip">
+                                <strong>Transport Tip:</strong> Requires private transportation. Rural roads may be narrow.
+                            </div>
                         </div>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Farm-to-table restaurants in resort areas</li>
-
-                            </ul>
-
-                        </div>
-
-                        
-
-                        <div class="transport-tip">
-
-                            <strong>Transport Tip:</strong> Requires private transportation. Rural roads may be narrow.
-
-                        </div>
-
                     </div>
 
                     
 
                     <div class="spot-card" data-spot="Waterfalls">
-
-                        <div class="area-badge">Barangays San Isidro / Sto. Cristo</div>
-
-                        <h3><span class="material-icons-outlined">waterfall</span> Waterfalls (Burong, Kaytitinga, Otso-Otso, Tungtong Falls)</h3>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Hotel Sogo</li>
-
-                                <li>Central SJDM accommodations</li>
-
-                            </ul>
-
+                        <div class="spot-card-content">
+                            <div class="area-badge">Barangays San Isidro / Sto. Cristo</div>
+                            <h3><span class="material-icons-outlined">waterfall</span> Waterfalls (Burong, Kaytitinga, Otso-Otso, Tungtong Falls)</h3>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">hotel</span> Hotels</h4>
+                                <ul class="suggestion-list">
+                                    <li>Hotel Sogo</li>
+                                    <li>Central SJDM accommodations</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="suggestion-category">
+                                <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
+                                <ul class="suggestion-list">
+                                    <li>Escobar's</li>
+                                    <li>Local carinderias</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="transport-tip">
+                                <strong>Transport Tip:</strong> Requires local guides and transportation. Start early in the morning.
+                            </div>
                         </div>
-
-                        
-
-                        <div class="suggestion-category">
-
-                            <h4><span class="material-icons-outlined">restaurant</span> Restaurants</h4>
-
-                            <ul class="suggestion-list">
-
-                                <li>Escobar's</li>
-
-                                <li>Local carinderias</li>
-
-                            </ul>
-
-                        </div>
-
-                        
-
-                        <div class="transport-tip">
-
-                            <strong>Transport Tip:</strong> Requires local guides and transportation. Start early in the morning.
-
-                        </div>
-
                     </div>
 
                 </div>
@@ -1408,11 +1146,9 @@ if ($conn) {
                         while ($tip = $result->fetch_assoc()) {
 
                             echo '<div class="general-tip-card" data-category="' . htmlspecialchars($tip['category']) . '">';
-
+                            echo '<div class="general-tip-card-content">';
                             echo '<h3><span class="material-icons-outlined">' . htmlspecialchars($tip['icon']) . '</span> ' . htmlspecialchars($tip['title']) . '</h3>';
-
                             
-
                             // Convert description from newlines to list items
 
                             $descriptionLines = explode("\n", $tip['description']);
@@ -1432,6 +1168,8 @@ if ($conn) {
                             }
 
                             echo '</ul>';
+
+                            echo '</div>';
 
                             echo '</div>';
 

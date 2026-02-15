@@ -682,7 +682,14 @@ function submitBooking() {
             // Move to confirmation step
             nextStep();
 
-            showNotification('Booking submitted successfully!', 'success');
+            // Show enhanced success notification with email status
+            let notificationMessage = 'Booking submitted successfully!';
+            if (data.email_sent) {
+                notificationMessage += ' 📧 Confirmation email sent to your inbox.';
+            } else {
+                notificationMessage += ' ⚠️ Email confirmation failed, but your booking is confirmed.';
+            }
+            showNotification(notificationMessage, data.email_sent ? 'success' : 'warning');
         })
         .catch(err => {
             console.error(err);
