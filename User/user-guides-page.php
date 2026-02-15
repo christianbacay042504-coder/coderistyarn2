@@ -55,7 +55,7 @@ if ($conn) {
     <title>Tour Guides - San Jose del Monte Bulacan</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="user-styles.css">
     <style>
         :root {
             --primary: #2c5f2d;
@@ -1383,38 +1383,35 @@ if ($conn) {
         <header class="main-header">
             <div class="header-left">
                 <h1 id="pageTitle">Dashboard</h1>
-                <div class="search-bar">
-                    <span class="material-icons-outlined">search</span>
-                    <input type="text" placeholder="Search destinations or guides...">
-                </div>
+                
             </div>
             <div class="header-right">
                 <nav class="header-nav">
-                    <a href="index.php" class="nav-link">
+                    <a href="user-index.php" class="nav-link">
                         <span class="material-icons-outlined">dashboard</span>
                         <span>Dashboard</span>
                     </a>
-                    <a href="user-guides.php" class="nav-link">
+                    <a href="user-guides-page.php" class="nav-link">
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="book.php" class="nav-link">
+                    <a href="user-book.php" class="nav-link">
                         <span class="material-icons-outlined">event</span>
                         <span>Book Now</span>
                     </a>
-                    <a href="booking-history.php" class="nav-link">
+                    <a href="user-booking-history.php" class="nav-link">
                         <span class="material-icons-outlined">history</span>
                         <span>Booking History</span>
                     </a>
-                    <a href="tourist-spots.php" class="nav-link">
+                    <a href="user-tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
                     </a>
-                    <a href="local-culture.php" class="nav-link">
+                    <a href="user-local-culture.php" class="nav-link">
                         <span class="material-icons-outlined">theater_comedy</span>
                         <span>Local Culture</span>
                     </a>
-                    <a href="travel-tips.php" class="nav-link">
+                    <a href="user-travel-tips.php" class="nav-link">
                         <span class="material-icons-outlined">tips_and_updates</span>
                         <span>Travel Tips</span>
                     </a>
@@ -1422,7 +1419,7 @@ if ($conn) {
                <div class="header-actions">
                     <?php if ($isLoggedIn): ?>
                         <div class="user-profile-dropdown">
-                            <button class="profile-trigger" onclick="toggleDropdown(this)">
+                            <button class="profile-trigger">
                                 <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
                                 <span class="profile-name"><?php echo htmlspecialchars($currentUser['name']); ?></span>
                                 <span class="material-icons-outlined">arrow_drop_down</span>
@@ -1435,20 +1432,20 @@ if ($conn) {
                                     <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a href="index.php" class="dropdown-item">
+                                <a href="user-index.php" class="dropdown-item">
                                     <span class="material-icons-outlined">dashboard</span>
                                     <span>Dashboard</span>
                                 </a>
-                                <a href="#" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
+                                <a href="user-booking-history.php" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
                                     <span class="material-icons-outlined">history</span>
                                     <span>Booking History</span>
                                 </a>
-                                <a href="saved-tours.php" class="dropdown-item">
+                                <a href="user-saved-tours.php" class="dropdown-item">
                                     <span class="material-icons-outlined">favorite</span>
                                     <span>Saved Tours</span>
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a href="logout.php" class="dropdown-item">
+                                <a href="user-logout.php" class="dropdown-item">
                                     <span class="material-icons-outlined">logout</span>
                                     <span>Sign Out</span>
                                 </a>
@@ -2045,21 +2042,6 @@ if ($conn) {
                     e.preventDefault();
                     e.stopPropagation();
                     showLogoutConfirmation();
-                });
-            }
-        }
-
-        // Toggle dropdown function for inline onclick
-        function toggleDropdown(button) {
-            const dropdown = button.nextElementSibling;
-            if (dropdown && dropdown.classList.contains('dropdown-menu')) {
-                dropdown.classList.toggle('show');
-                
-                // Close other dropdowns
-                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                    if (menu !== dropdown) {
-                        menu.classList.remove('show');
-                    }
                 });
             }
         }
