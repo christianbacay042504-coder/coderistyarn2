@@ -1703,9 +1703,12 @@ function generateOtpCode() {
 // Send OTP email for login verification
 function sendLoginOtpEmail($toEmail, $code) {
     // Check if PHPMailer is available
-    $autoloaderPath = __DIR__ . '/../vendor/phpmailer/autoload.php';
-    if (!file_exists($autoloaderPath)) {
-        error_log("PHPMailer autoloader not found at: $autoloaderPath");
+    $phpMailerPath = __DIR__ . '/../PHPMailer-6.9.1/src/PHPMailer.php';
+    $exceptionPath = __DIR__ . '/../PHPMailer-6.9.1/src/Exception.php';
+    $smtpPath = __DIR__ . '/../PHPMailer-6.9.1/src/SMTP.php';
+    
+    if (!file_exists($phpMailerPath) || !file_exists($exceptionPath) || !file_exists($smtpPath)) {
+        error_log("PHPMailer files not found at: $phpMailerPath");
         return [
             'success' => false,
             'message' => 'Email service not available'
@@ -1713,10 +1716,12 @@ function sendLoginOtpEmail($toEmail, $code) {
     }
     
     try {
-        require_once $autoloaderPath;
+        require_once $phpMailerPath;
+        require_once $exceptionPath;
+        require_once $smtpPath;
         
         if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-            error_log("PHPMailer class not found after autoloader");
+            error_log("PHPMailer class not found after including files");
             return [
                 'success' => false,
                 'message' => 'Email service not available'

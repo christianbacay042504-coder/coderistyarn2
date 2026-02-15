@@ -43,18 +43,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             'email' => $email
                         ]);
                     } else {
-                        // Email failed but login was successful - allow login without OTP for now
+                        // Email failed but login was successful - set session and allow login
+                        $_SESSION['user_id'] = $result['user_id'];
+                        $_SESSION['first_name'] = $result['user_data']['first_name'];
+                        $_SESSION['last_name'] = $result['user_data']['last_name'];
+                        $_SESSION['email'] = $result['user_data']['email'];
+                        $_SESSION['user_type'] = $result['user_type'];
+                        
                         header('Content-Type: application/json');
                         echo json_encode([
                             'success' => true,
                             'verification_required' => false,
-                            'message' => 'Login successful (email notification failed)',
+                            'message' => 'Login successful! (email notification failed)',
                             'user_type' => $result['user_type'],
                             'email_error' => $emailResult['message']
                         ]);
                     }
                 } else {
-                    // OTP storage failed - allow login without OTP for now
+                    // OTP storage failed - set session and allow login
+                    $_SESSION['user_id'] = $result['user_id'];
+                    $_SESSION['first_name'] = $result['user_data']['first_name'];
+                    $_SESSION['last_name'] = $result['user_data']['last_name'];
+                    $_SESSION['email'] = $result['user_data']['email'];
+                    $_SESSION['user_type'] = $result['user_type'];
+                    
                     header('Content-Type: application/json');
                     echo json_encode([
                         'success' => true,
