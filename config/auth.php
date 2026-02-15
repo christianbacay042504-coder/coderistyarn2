@@ -1807,6 +1807,201 @@ function sendLoginOtpEmail($toEmail, $code) {
     }
 }
 
+// Send booking confirmation email with e-receipt
+function sendBookingConfirmationEmail($toEmail, $bookingData) {
+    // Check if PHPMailer is available
+    $phpMailerPath = __DIR__ . '/../PHPMailer-6.9.1/src/PHPMailer.php';
+    $exceptionPath = __DIR__ . '/../PHPMailer-6.9.1/src/Exception.php';
+    $smtpPath = __DIR__ . '/../PHPMailer-6.9.1/src/SMTP.php';
+    
+    if (!file_exists($phpMailerPath) || !file_exists($exceptionPath) || !file_exists($smtpPath)) {
+        error_log("PHPMailer files not found at: $phpMailerPath");
+        return [
+            'success' => false,
+            'message' => 'Email service not available'
+        ];
+    }
+    
+    try {
+        require_once $phpMailerPath;
+        require_once $exceptionPath;
+        require_once $smtpPath;
+        
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found after including files");
+            return [
+                'success' => false,
+                'message' => 'Email service not available'
+            ];
+        }
+        
+        $mail = new PHPMailer(true);
+        
+        // SMTP configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'christianbacay042504@gmail.com';
+        $mail->Password = 'tayrkzczbhgehbej';
+        $mail->Port = 587;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        
+        // Email content
+        $mail->setFrom('christianbacay042504@gmail.com', 'SJDM Tours');
+        $mail->addAddress($toEmail);
+        $mail->isHTML(true);
+        $mail->Subject = 'Booking Confirmation - SJDM Tours - ' . $bookingData['booking_reference'];
+        
+        // Format date for display
+        $formattedDate = date('F j, Y', strtotime($bookingData['tour_date']));
+        
+        // HTML email template
+        $mail->Body = '
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; border-radius: 15px 15px 0 0; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 36px; font-weight: bold;">🎉 Booking Confirmed!</h1>
+                <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">Your SJDM Tours adventure is all set</p>
+            </div>
+            
+            <div style="background-color: white; padding: 40px 30px; border-radius: 0 0 15px 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                
+                <div style="background-color: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 0 0 30px 0; border-radius: 5px;">
+                    <h2 style="color: #155724; margin: 0 0 10px 0; font-size: 24px;">✅ Booking Successful</h2>
+                    <p style="color: #155724; margin: 0; font-size: 16px;">Thank you for choosing SJDM Tours! Your booking has been confirmed and we\'re excited to host your adventure.</p>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin: 0 0 30px 0; border: 2px solid #e9ecef;">
+                    <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 20px; text-align: center;">📋 E-RECEIPT</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Booking Reference</p>
+                            <p style="margin: 0; color: #2c3e50; font-weight: bold; font-size: 16px;">' . $bookingData['booking_reference'] . '</p>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Status</p>
+                            <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">Pending</p>
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6; padding: 20px 0; margin: 20px 0;">
+                        <h4 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">📍 Tour Details</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Destination</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . htmlspecialchars($bookingData['destination']) . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Tour Date</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $formattedDate . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Number of Guests</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $bookingData['guests'] . ' ' . ($bookingData['guests'] == 1 ? 'Person' : 'People') . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Contact Number</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . htmlspecialchars($bookingData['contact_number']) . '</p>
+                            </div>
+                        </div>';
+        
+        // Add special requests if any
+        if (!empty($bookingData['special_requests'])) {
+            $mail->Body .= '
+                        <div style="margin-top: 20px;">
+                            <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Special Requests</p>
+                            <p style="margin: 0; color: #2c3e50; font-style: italic;">' . htmlspecialchars($bookingData['special_requests']) . '</p>
+                        </div>';
+        }
+        
+        $mail->Body .= '
+                    </div>
+                    
+                    <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h4 style="color: #856404; margin: 0 0 15px 0; font-size: 18px;">💰 Payment Breakdown</h4>
+                        <div style="display: grid; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #5a6c7d;">Tour Guide Fee</span>
+                                <span style="color: #2c3e50; font-weight: 600;">₱' . number_format($bookingData['guide_fee'], 2) . '</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #5a6c7d;">Entrance Fee (' . $bookingData['guests'] . ' guests)</span>
+                                <span style="color: #2c3e50; font-weight: 600;">₱' . number_format($bookingData['entrance_fee'], 2) . '</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #5a6c7d;">Service Fee</span>
+                                <span style="color: #2c3e50; font-weight: 600;">₱' . number_format($bookingData['service_fee'], 2) . '</span>
+                            </div>
+                            <div style="border-top: 2px solid #ffc107; padding-top: 10px; margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #2c3e50; font-weight: bold; font-size: 18px;">TOTAL AMOUNT</span>
+                                    <span style="color: #28a745; font-weight: bold; font-size: 20px;">₱' . number_format($bookingData['total_amount'], 2) . '</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                    <h4 style="color: #1976d2; margin: 0 0 15px 0; font-size: 18px;">📝 Important Information</h4>
+                    <ul style="color: #5a6c7d; line-height: 1.8; margin: 0; padding-left: 20px;">
+                        <li>Please arrive at the meeting point 15 minutes before your scheduled tour</li>
+                        <li>Bring a valid ID for verification</li>
+                        <li>Wear comfortable clothing and appropriate footwear</li>
+                        <li>Don\'t forget to bring water and sun protection</li>
+                        <li>Our tour guide will contact you via phone for final coordination</li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e9ecef;">
+                    <div style="margin-bottom: 20px;">
+                        <a href="#" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">View My Bookings</a>
+                    </div>
+                    <p style="color: #7f8c8d; font-size: 14px; margin: 0;">
+                        If you have any questions, feel free to contact us at:<br>
+                        📧 christianbacay042504@gmail.com | 📱 ' . htmlspecialchars($bookingData['contact_number']) . '
+                    </p>
+                    <p style="color: #7f8c8d; font-size: 14px; margin: 20px 0 0 0;">
+                        © 2024 SJDM Tours. All rights reserved.<br>
+                        Discover the Balcony of Metropolis 🏔️
+                    </p>
+                </div>
+            </div>
+        </div>';
+        
+        // Plain text version
+        $mail->AltBody = "BOOKING CONFIRMATION - SJDM Tours\n\n" .
+            "Booking Reference: " . $bookingData['booking_reference'] . "\n" .
+            "Status: Confirmed\n\n" .
+            "Tour Details:\n" .
+            "Destination: " . $bookingData['destination'] . "\n" .
+            "Date: " . $formattedDate . "\n" .
+            "Guests: " . $bookingData['guests'] . "\n" .
+            "Contact: " . $bookingData['contact_number'] . "\n\n" .
+            "Payment Breakdown:\n" .
+            "Tour Guide Fee: ₱" . number_format($bookingData['guide_fee'], 2) . "\n" .
+            "Entrance Fee: ₱" . number_format($bookingData['entrance_fee'], 2) . "\n" .
+            "Service Fee: ₱" . number_format($bookingData['service_fee'], 2) . "\n" .
+            "Total: ₱" . number_format($bookingData['total_amount'], 2) . "\n\n" .
+            "Thank you for choosing SJDM Tours!\n" .
+            "For questions, contact: christianbacay042504@gmail.com\n";
+        
+        $mail->send();
+        
+        return [
+            'success' => true,
+            'message' => 'Booking confirmation email sent successfully'
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Email sending failed: ' . $e->getMessage()
+        ];
+    }
+}
+
 // Store OTP code in database
 function storeOtpCode($userId, $email, $code, $type = 'login') {
     $conn = getDatabaseConnection();

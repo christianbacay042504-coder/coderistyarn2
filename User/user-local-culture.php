@@ -385,7 +385,7 @@ if ($conn && isset($_SESSION['user_id'])) {
                     if ($result && $result->num_rows > 0) {
                         while ($culture = $result->fetch_assoc()) {
                             echo '<div class="info-card">';
-                            echo '<h3>' . htmlspecialchars($culture['icon']) . ' ' . htmlspecialchars($culture['title']) . '</h3>';
+                            echo '<h3 data-icon="' . htmlspecialchars($culture['icon']) . '">' . htmlspecialchars($culture['title']) . '</h3>';
                             
                             // Convert description from newlines to list items
                             $descriptionLines = explode("\n", $culture['description']);
