@@ -465,16 +465,31 @@ $queryValues = [
                 <!-- User Statistics -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h3><?php echo $stats['totalUsers']; ?></h3>
-                        <p>Total Users</p>
+                        <div class="stat-icon blue">
+                            <span class="material-icons-outlined">people</span>
+                        </div>
+                        <div class="stat-details">
+                            <h3><?php echo $stats['totalUsers']; ?></h3>
+                            <p>Total Users</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h3><?php echo $stats['activeUsers']; ?></h3>
-                        <p>Active Users</p>
+                        <div class="stat-icon green">
+                            <span class="material-icons-outlined">person_check</span>
+                        </div>
+                        <div class="stat-details">
+                            <h3><?php echo $stats['activeUsers']; ?></h3>
+                            <p>Active Users</p>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h3><?php echo $stats['todayLogins']; ?></h3>
-                        <p>Today's Logins</p>
+                        <div class="stat-icon orange">
+                            <span class="material-icons-outlined">login</span>
+                        </div>
+                        <div class="stat-details">
+                            <h3><?php echo $stats['todayLogins']; ?></h3>
+                            <p>Today's Logins</p>
+                        </div>
                     </div>
                 </div>
 

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Export Test</title>
+</head>
+<body>
+    <h1>Export Functionality Test</h1>
+    
+    <div class="export-dropdown">
+        <button class="btn-secondary" id="exportToggleBtn">
+            <span>Export</span>
+            <span>▼</span>
+        </button>
+        <div class="export-menu" id="exportMenu" style="display: none;">
+            <a href="export.php?type=login_activity" download>
+                <span>Login Activity</span>
+            </a>
+            <a href="export.php?type=admin_activity" download>
+                <span>Admin Activity</span>
+            </a>
+            <a href="export.php?type=user_registrations" download>
+                <span>User Registrations</span>
+            </a>
+            <a href="export.php?type=bookings" download>
+                <span>Bookings</span>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Simple test without the full admin dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            
+            const exportToggleBtn = document.getElementById('exportToggleBtn');
+            const exportMenu = document.getElementById('exportMenu');
+            
+            console.log('Export button:', exportToggleBtn);
+            console.log('Export menu:', exportMenu);
+            
+            if (exportToggleBtn && exportMenu) {
+                exportToggleBtn.addEventListener('click', (e) => {
+                    console.log('Export button clicked');
+                    e.stopPropagation();
+                    const isVisible = exportMenu.style.display !== 'none';
+                    exportMenu.style.display = isVisible ? 'none' : 'block';
+                    console.log('Menu display:', exportMenu.style.display);
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!exportToggleBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+                        exportMenu.style.display = 'none';
+                    }
+                });
+                
+                const exportLinks = exportMenu.querySelectorAll('a');
+                console.log('Export links found:', exportLinks.length);
+                
+                exportLinks.forEach((link, index) => {
+                    link.addEventListener('click', (e) => {
+                        console.log('Link clicked:', index);
+                        e.preventDefault();
+                        const href = link.getAttribute('href');
+                        console.log('Export URL:', href);
+                        window.open(href, '_blank');
+                    });
+                });
+            }
+        });
+    </script>
+    
+    <style>
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .export-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 1000;
+        }
+        
+        .export-menu a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .export-menu a:hover {
+            background: #f5f5f5;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>

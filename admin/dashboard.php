@@ -401,10 +401,31 @@ if ($conn) {
                 <div class="card">
                     <div class="card-header">
                         <h2><span class="material-icons-outlined">history</span> Recent Activity</h2>
-                        <button class="btn-secondary" onclick="admin.exportActivity()">
-                            <span class="material-icons-outlined">download</span>
-                            Export
-                        </button>
+                        <div class="export-dropdown">
+                            <button class="btn-secondary" id="exportToggleBtn" onclick="toggleExportMenu(event)">
+                                <span class="material-icons-outlined">download</span>
+                                Export
+                                <span class="material-icons-outlined">expand_more</span>
+                            </button>
+                            <div class="export-menu" id="exportMenu" style="display: none;">
+                                <a href="export.php?type=login_activity" download>
+                                    <span class="material-icons-outlined">login</span>
+                                    Login Activity
+                                </a>
+                                <a href="export.php?type=admin_activity" download>
+                                    <span class="material-icons-outlined">admin_panel_settings</span>
+                                    Admin Activity
+                                </a>
+                                <a href="export.php?type=user_registrations" download>
+                                    <span class="material-icons-outlined">person_add</span>
+                                    User Registrations
+                                </a>
+                                <a href="export.php?type=bookings" download>
+                                    <span class="material-icons-outlined">event</span>
+                                    Bookings
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table class="data-table">
@@ -461,6 +482,40 @@ if ($conn) {
     <!-- JavaScript -->
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
+    <script>
+        // Simple export menu toggle function
+        function toggleExportMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('exportMenu');
+            if (menu) {
+                const isVisible = menu.classList.contains('show');
+                if (isVisible) {
+                    menu.classList.remove('show');
+                    setTimeout(() => {
+                        menu.style.display = 'none';
+                    }, 300); // Wait for animation to complete
+                } else {
+                    menu.style.display = 'block';
+                    setTimeout(() => {
+                        menu.classList.add('show');
+                    }, 10); // Small delay to ensure display is set
+                }
+            }
+        }
+
+        // Close export menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('exportMenu');
+            const button = document.getElementById('exportToggleBtn');
+            
+            if (menu && button && !button.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.remove('show');
+                setTimeout(() => {
+                    menu.style.display = 'none';
+                }, 300);
+            }
+        });
+    </script>
 </body>
 </html>
 <?php
