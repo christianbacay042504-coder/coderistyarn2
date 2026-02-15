@@ -39,6 +39,30 @@ function addBooking($conn, $data)
     }
 }
 
+function editBookingRecord($conn, $data)
+{
+    try {
+        $stmt = $conn->prepare("UPDATE bookings SET tour_name = ?, booking_date = ?, number_of_people = ?, total_amount = ?, status = ? WHERE id = ?");
+        $stmt->bind_param(
+            "ssidsi",
+            $data['tour_name'],
+            $data['booking_date'],
+            $data['number_of_people'],
+            $data['total_amount'],
+            $data['status'],
+            $data['booking_id']
+        );
+
+        if ($stmt->execute()) {
+            return ['success' => true, 'message' => 'Booking updated successfully'];
+        }
+
+        return ['success' => false, 'message' => 'Failed to update booking'];
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
 function updateBookingStatus($conn, $data)
 {
     try {
@@ -74,13 +98,14 @@ function deleteBooking($conn, $bookingId)
 function getBooking($conn, $bookingId)
 {
     try {
-        $stmt = $conn->prepare("SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as user_name FROM bookings b JOIN users u ON b.user_id = u.id WHERE b.id = ?");
+        $stmt = $conn->prepare("SELECT b.*, CONCAT(u.first_name, ' ', u.last_name) as user_name, u.email as user_email FROM bookings b JOIN users u ON b.user_id = u.id WHERE b.id = ?");
         $stmt->bind_param("i", $bookingId);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            return ['success' => true, 'data' => $result->fetch_assoc()];
+            $bookingData = $result->fetch_assoc();
+            return ['success' => true, 'data' => $bookingData];
         } else {
             return ['success' => false, 'message' => 'Booking not found'];
         }
@@ -297,6 +322,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $response = addBooking($conn, $_POST);
             echo json_encode($response);
             exit;
+        case 'edit_booking':
+            $response = editBookingRecord($conn, $_POST);
+            echo json_encode($response);
+            exit;
         case 'update_booking_status':
             $response = updateBookingStatus($conn, $_POST);
             echo json_encode($response);
@@ -466,19 +495,22 @@ $queryValues = [
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="search-filters">
-                    <input type="text" id="searchInput" placeholder="Search bookings by tour name or user..."
-                        value="<?php echo htmlspecialchars($search); ?>">
-                    <select id="statusFilter" onchange="filterBookings()">
-                        <option value="">All Status</option>
-                        <option value="pending" <?php echo $status == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                        <option value="confirmed" <?php echo $status == 'confirmed' ? 'selected' : ''; ?>>Confirmed
-                        </option>
-                        <option value="completed" <?php echo $status == 'completed' ? 'selected' : ''; ?>>Completed
-                        </option>
-                        <option value="cancelled" <?php echo $status == 'cancelled' ? 'selected' : ''; ?>>Cancelled
-                        </option>
-                    </select>
+                <div class="booking-search-bar">
+                    <div class="booking-search-input">
+                        <span class="material-icons-outlined">search</span>
+                        <input type="text" id="searchInput" placeholder="Search bookings by tour name or user..."
+                            value="<?php echo htmlspecialchars($search); ?>">
+                    </div>
+                    <div class="booking-status-filter">
+                        <span class="material-icons-outlined">tune</span>
+                        <select id="statusFilter" onchange="filterBookings()">
+                            <option value="">All Status</option>
+                            <option value="pending" <?php echo $status == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                            <option value="confirmed" <?php echo $status == 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                            <option value="completed" <?php echo $status == 'completed' ? 'selected' : ''; ?>>Completed</option>
+                            <option value="cancelled" <?php echo $status == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                        </select>
+                    </div>
                     <button class="btn-secondary" onclick="searchBookings()">
                         <span class="material-icons-outlined">search</span>
                         Search
@@ -585,9 +617,468 @@ $queryValues = [
         </main>
     </div>
 
+    <!-- View Booking Modal -->
+    <div id="viewBookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Booking Details</h2>
+                <button class="modal-close" onclick="closeViewBookingModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="dest-view">
+                    <div class="dest-view-section">
+                        <h4><span class="material-icons-outlined">confirmation_number</span> Booking</h4>
+                        <div class="dest-view-kv">
+                            <div class="dest-view-k">
+                                <span class="material-icons-outlined">tag</span>
+                                <div>
+                                    <div class="dest-view-k-label">Booking ID</div>
+                                    <div class="dest-view-k-value" id="viewBookingId"></div>
+                                </div>
+                            </div>
+                            <div class="dest-view-k">
+                                <span class="material-icons-outlined">event</span>
+                                <div>
+                                    <div class="dest-view-k-label">Booking Date</div>
+                                    <div class="dest-view-k-value" id="viewBookingDate"></div>
+                                </div>
+                            </div>
+                            <div class="dest-view-k">
+                                <span class="material-icons-outlined">groups</span>
+                                <div>
+                                    <div class="dest-view-k-label">People</div>
+                                    <div class="dest-view-k-value" id="viewBookingPeople"></div>
+                                </div>
+                            </div>
+                            <div class="dest-view-k">
+                                <span class="material-icons-outlined">payments</span>
+                                <div>
+                                    <div class="dest-view-k-label">Amount</div>
+                                    <div class="dest-view-k-value" id="viewBookingAmount"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dest-view-section">
+                        <h4><span class="material-icons-outlined">tour</span> Tour</h4>
+                        <p class="dest-view-text" id="viewBookingTour"></p>
+                    </div>
+
+                    <div class="dest-view-section">
+                        <h4><span class="material-icons-outlined">person</span> User</h4>
+                        <div class="dest-view-contact">
+                            <div class="dest-view-contact-item">
+                                <span class="material-icons-outlined">badge</span>
+                                <span id="viewBookingUser"></span>
+                            </div>
+                            <div class="dest-view-contact-item">
+                                <span class="material-icons-outlined">mail</span>
+                                <span id="viewBookingEmail"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dest-view-section">
+                        <h4><span class="material-icons-outlined">flag</span> Status</h4>
+                        <div class="dest-view-badges">
+                            <span class="status-badge" id="viewBookingStatus"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeViewBookingModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Booking Modal -->
+    <div id="deleteBookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Delete Booking</h2>
+                <button class="modal-close" onclick="closeDeleteBookingModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="deleteBookingForm" onsubmit="handleDeleteBooking(event)">
+                <input type="hidden" id="deleteBookingId" name="booking_id">
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteBookingLabel"></strong>? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeDeleteBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div id="accountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>My Account</h2>
+                <button class="modal-close" onclick="closeAccountModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="dest-view">
+                    <div class="dest-view-item">
+                        <span class="dest-view-label">Name</span>
+                        <span class="dest-view-value"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></span>
+                    </div>
+                    <div class="dest-view-item">
+                        <span class="dest-view-label">Email</span>
+                        <span class="dest-view-value"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></span>
+                    </div>
+                    <div class="dest-view-item">
+                        <span class="dest-view-label">Role</span>
+                        <span class="dest-view-value">Administrator</span>
+                    </div>
+                    <div class="dest-view-item">
+                        <span class="dest-view-label">Admin Mark</span>
+                        <span class="dest-view-value"><?php echo isset($adminMark) ? htmlspecialchars($adminMark) : 'A'; ?></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeAccountModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Booking Status Modal -->
+    <div id="updateStatusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Booking Status</h2>
+                <button class="modal-close" onclick="closeUpdateStatusModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="updateStatusForm" onsubmit="handleUpdateStatus(event)">
+                <input type="hidden" id="updateStatusBookingId" name="booking_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="updateStatusSelect">Status *</label>
+                        <select id="updateStatusSelect" name="status" required>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeUpdateStatusModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Booking Modal -->
+    <div id="editBookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Booking</h2>
+                <button class="modal-close" onclick="closeEditBookingModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="editBookingForm" onsubmit="handleEditBooking(event)">
+                <input type="hidden" id="editBookingId" name="booking_id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editBookingTour">Tour Name *</label>
+                        <input type="text" id="editBookingTour" name="tour_name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editBookingDate">Booking Date *</label>
+                            <input type="date" id="editBookingDate" name="booking_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBookingPeople">Number of People *</label>
+                            <input type="number" id="editBookingPeople" name="number_of_people" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editBookingAmount">Total Amount *</label>
+                            <input type="number" id="editBookingAmount" name="total_amount" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBookingStatus">Status *</label>
+                            <select id="editBookingStatus" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .booking-search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.03),
+                0 2px 8px rgba(0, 0, 0, 0.02);
+            margin-bottom: 24px;
+            backdrop-filter: blur(8px);
+        }
+
+        .booking-search-input,
+        .booking-status-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: var(--gray-50);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .booking-search-input {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .booking-search-input:focus-within,
+        .booking-status-filter:focus-within {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(44, 95, 45, 0.10);
+            transform: translateY(-1px);
+        }
+
+        .booking-search-input .material-icons-outlined,
+        .booking-status-filter .material-icons-outlined {
+            font-size: 20px;
+            color: var(--text-muted);
+        }
+
+        .booking-search-input input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .booking-search-input input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .booking-status-filter select {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding-right: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .booking-search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .booking-search-input,
+            .booking-status-filter {
+                width: 100%;
+            }
+
+            .booking-search-bar .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        #viewBookingModal .dest-view {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #viewBookingModal .dest-view-section {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        }
+
+        #viewBookingModal .dest-view-section h4 {
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        #viewBookingModal .dest-view-section h4 .material-icons-outlined {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        #viewBookingModal .dest-view-kv {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        #viewBookingModal .dest-view-k {
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 14px;
+            background: var(--gray-50);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        #viewBookingModal .dest-view-k .material-icons-outlined {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        #viewBookingModal .dest-view-k-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        #viewBookingModal .dest-view-k-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        #viewBookingModal .dest-view-text {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        #viewBookingModal .dest-view-contact {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        #viewBookingModal .dest-view-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 14px;
+            background: var(--gray-50);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            color: var(--text-secondary);
+            font-weight: 600;
+            overflow: hidden;
+        }
+
+        #viewBookingModal .dest-view-contact-item .material-icons-outlined {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        #viewBookingModal .dest-view-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        @media (max-width: 560px) {
+            #viewBookingModal .dest-view-kv,
+            #viewBookingModal .dest-view-contact {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
+        // Open Account modal when clicking My Account in dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountLink = document.getElementById('adminAccountLink');
+            if (accountLink) {
+                accountLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Close dropdown
+                    const menu = document.getElementById('adminProfileMenu');
+                    if (menu) menu.classList.remove('show');
+                    // Open Account modal
+                    const modal = document.getElementById('accountModal');
+                    if (modal) {
+                        modal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            }
+        });
+
+        function closeAccountModal() {
+            const modal = document.getElementById('accountModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close Account modal on overlay click or Escape
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('accountModal');
+            if (modal && event.target === modal) {
+                closeAccountModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('accountModal');
+                if (modal && modal.classList.contains('show')) {
+                    closeAccountModal();
+                }
+            }
+        });
+
         function searchBookings() {
             const searchValue = document.getElementById('searchInput').value;
             const statusValue = document.getElementById('statusFilter').value;
@@ -618,35 +1109,235 @@ $queryValues = [
         }
 
         function viewBooking(bookingId) {
-            // Implement view booking modal
-            console.log('View booking:', bookingId);
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_booking&booking_id=${bookingId}`
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message || 'Failed to load booking details.');
+                    return;
+                }
+
+                const b = result.data;
+
+                document.getElementById('viewBookingId').textContent = b.id ? `#${String(b.id).padStart(6, '0')}` : '';
+                document.getElementById('viewBookingTour').textContent = b.tour_name || '';
+                document.getElementById('viewBookingPeople').textContent = b.number_of_people || '';
+                document.getElementById('viewBookingAmount').textContent = b.total_amount ? `₱${parseFloat(b.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₱0.00';
+                document.getElementById('viewBookingDate').textContent = b.booking_date ? new Date(b.booking_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+
+                document.getElementById('viewBookingUser').textContent = b.user_name || '';
+                document.getElementById('viewBookingEmail').textContent = b.user_email || '';
+
+                const statusEl = document.getElementById('viewBookingStatus');
+                const status = b.status || '';
+                statusEl.textContent = status ? (status.charAt(0).toUpperCase() + status.slice(1)) : '';
+                statusEl.className = `status-badge status-${status || 'pending'}`;
+
+                const modal = document.getElementById('viewBookingModal');
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load booking details.');
+            });
+        }
+
+        function closeViewBookingModal() {
+            const modal = document.getElementById('viewBookingModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
         }
 
         function editBooking(bookingId) {
-            // Implement edit booking modal
-            console.log('Edit booking:', bookingId);
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_booking&booking_id=${bookingId}`
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message || 'Failed to load booking details.');
+                    return;
+                }
+
+                const b = result.data;
+                document.getElementById('editBookingId').value = b.id || '';
+                document.getElementById('editBookingTour').value = b.tour_name || '';
+                document.getElementById('editBookingPeople').value = b.number_of_people || 1;
+                document.getElementById('editBookingAmount').value = b.total_amount || 0;
+                document.getElementById('editBookingStatus').value = b.status || 'pending';
+
+                // Convert to YYYY-MM-DD for <input type="date">
+                if (b.booking_date) {
+                    const d = new Date(b.booking_date);
+                    if (!isNaN(d.getTime())) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        document.getElementById('editBookingDate').value = `${y}-${m}-${day}`;
+                    } else {
+                        document.getElementById('editBookingDate').value = '';
+                    }
+                }
+
+                const modal = document.getElementById('editBookingModal');
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to load booking details.');
+            });
+        }
+
+        function closeEditBookingModal() {
+            const modal = document.getElementById('editBookingModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function handleEditBooking(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Updating...';
+                submitBtn.disabled = true;
+            }
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            data.action = 'edit_booking';
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    closeEditBookingModal();
+                    location.reload();
+                } else {
+                    alert(result.message || 'Failed to update booking.');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update booking.');
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
         }
 
         function updateStatus(bookingId) {
-            const newStatus = prompt('Enter new status (pending, confirmed, completed, cancelled):');
-            if (newStatus && ['pending', 'confirmed', 'completed', 'cancelled'].includes(newStatus)) {
-                fetch('', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=update_booking_status&booking_id=${bookingId}&status=${newStatus}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    });
+            document.getElementById('updateStatusBookingId').value = bookingId;
+            document.getElementById('updateStatusSelect').value = 'pending';
+
+            // Prefill with current status from server (best-effort)
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_booking&booking_id=${bookingId}`
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result && result.success && result.data && result.data.status) {
+                    document.getElementById('updateStatusSelect').value = result.data.status;
+                }
+            })
+            .catch(() => {
+                // ignore
+            })
+            .finally(() => {
+                const modal = document.getElementById('updateStatusModal');
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        function closeUpdateStatusModal() {
+            const modal = document.getElementById('updateStatusModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
             }
+        }
+
+        function handleUpdateStatus(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Updating...';
+                submitBtn.disabled = true;
+            }
+
+            const formData = new FormData(event.target);
+            const bookingId = formData.get('booking_id');
+            const status = formData.get('status');
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=update_booking_status&booking_id=${encodeURIComponent(bookingId)}&status=${encodeURIComponent(status)}`
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    closeUpdateStatusModal();
+                    location.reload();
+                } else {
+                    alert(result.message || 'Failed to update booking status.');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update booking status.');
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
         }
 
         function acceptBooking(bookingId) {
@@ -689,24 +1380,84 @@ $queryValues = [
         }
 
         function deleteBooking(bookingId) {
-            if (confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
-                fetch('', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete_booking&booking_id=${bookingId}`
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    });
+            document.getElementById('deleteBookingId').value = bookingId;
+            document.getElementById('deleteBookingLabel').textContent = `Booking #${String(bookingId).padStart(6, '0')}`;
+
+            // Best-effort: add tour name in label
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=get_booking&booking_id=${bookingId}`
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result && result.success && result.data && result.data.tour_name) {
+                    document.getElementById('deleteBookingLabel').textContent = `Booking #${String(bookingId).padStart(6, '0')} (${result.data.tour_name})`;
+                }
+            })
+            .catch(() => {
+                // ignore
+            })
+            .finally(() => {
+                const modal = document.getElementById('deleteBookingModal');
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        function closeDeleteBookingModal() {
+            const modal = document.getElementById('deleteBookingModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
             }
+        }
+
+        function handleDeleteBooking(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Deleting...';
+                submitBtn.disabled = true;
+            }
+
+            const formData = new FormData(event.target);
+            const bookingId = formData.get('booking_id');
+
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=delete_booking&booking_id=${encodeURIComponent(bookingId)}`
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    closeDeleteBookingModal();
+                    location.reload();
+                } else {
+                    alert(result.message || 'Failed to delete booking.');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete booking.');
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
         }
 
         function showAddBookingModal() {
@@ -718,6 +1469,54 @@ $queryValues = [
         document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchBookings();
+            }
+        });
+
+        // Close view modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const viewModal = document.getElementById('viewBookingModal');
+            if (event.target === viewModal) {
+                closeViewBookingModal();
+            }
+
+            const editModal = document.getElementById('editBookingModal');
+            if (event.target === editModal) {
+                closeEditBookingModal();
+            }
+
+            const statusModal = document.getElementById('updateStatusModal');
+            if (event.target === statusModal) {
+                closeUpdateStatusModal();
+            }
+
+            const deleteModal = document.getElementById('deleteBookingModal');
+            if (event.target === deleteModal) {
+                closeDeleteBookingModal();
+            }
+        });
+
+        // Close view modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const viewModal = document.getElementById('viewBookingModal');
+                if (viewModal && viewModal.style.display === 'block') {
+                    closeViewBookingModal();
+                }
+
+                const editModal = document.getElementById('editBookingModal');
+                if (editModal && editModal.style.display === 'block') {
+                    closeEditBookingModal();
+                }
+
+                const statusModal = document.getElementById('updateStatusModal');
+                if (statusModal && statusModal.style.display === 'block') {
+                    closeUpdateStatusModal();
+                }
+
+                const deleteModal = document.getElementById('deleteBookingModal');
+                if (deleteModal && deleteModal.style.display === 'block') {
+                    closeDeleteBookingModal();
+                }
             }
         });
     </script>

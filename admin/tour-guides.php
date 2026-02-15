@@ -263,15 +263,35 @@ function updateGuideVerification($conn, $guideId, $verified)
 function deleteTourGuide($conn, $guideId)
 {
     try {
+        // Delete dependencies first to avoid foreign key constraint failures
+        $conn->begin_transaction();
+
+        $stmt = $conn->prepare("DELETE FROM guide_destinations WHERE guide_id = ?");
+        $stmt->bind_param("i", $guideId);
+        $stmt->execute();
+        $stmt->close();
+
         $stmt = $conn->prepare("DELETE FROM tour_guides WHERE id = ?");
         $stmt->bind_param("i", $guideId);
 
         if ($stmt->execute()) {
+            $stmt->close();
+            $conn->commit();
             return ['success' => true, 'message' => 'Tour guide deleted successfully'];
-        } else {
-            return ['success' => false, 'message' => 'Failed to delete tour guide'];
         }
+
+        $error = $stmt->error;
+        $stmt->close();
+        $conn->rollback();
+        return ['success' => false, 'message' => 'Failed to delete tour guide: ' . $error];
     } catch (Exception $e) {
+        if ($conn) {
+            try {
+                $conn->rollback();
+            } catch (Exception $rollbackError) {
+                // ignore
+            }
+        }
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     }
 }
@@ -743,7 +763,7 @@ $queryValues = [
                                                 title="View">
                                                 <span class="material-icons-outlined">visibility</span>
                                             </button>
-                                            <button class="btn-icon" onclick="toggleVerification(<?php echo $guide['id']; ?>, <?php echo $guide['verified']; ?>)"
+                                            <button class="btn-icon" onclick="toggleVerification(this, <?php echo $guide['id']; ?>, <?php echo $guide['verified']; ?>)"
                                                 title="<?php echo $guide['verified'] ? 'Unverify Guide' : 'Verify Guide'; ?>">
                                                 <span class="material-icons-outlined"><?php echo $guide['verified'] ? 'verified_user' : 'person_add'; ?></span>
                                             </button>
@@ -902,6 +922,29 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Verify/Unverify Tour Guide Modal -->
+    <div id="verifyGuideModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="verifyGuideModalTitle">Update Verification</h2>
+                <button class="modal-close" onclick="closeVerifyGuideModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="verifyGuideForm" onsubmit="handleVerifyGuide(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="verifyGuideId" name="guide_id">
+                    <input type="hidden" id="verifyGuideAction" name="action">
+                    <p id="verifyGuideModalText">Are you sure you want to continue?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeVerifyGuideModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="verifyGuideConfirmBtn">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- View Tour Guide Modal -->
     <div id="viewGuideModal" class="modal">
         <div class="modal-content">
@@ -927,6 +970,7 @@ $queryValues = [
                                 <div class="guide-badges">
                                     <span id="viewGuideStatus" class="status-badge"></span>
                                 </div>
+                            </div>
                         </div>
 
                         <!-- Contact Information -->
@@ -1019,6 +1063,21 @@ $queryValues = [
             window.location.href = url;
         }
 
+        function ucfirst(str) {
+            return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function viewGuide(guideId) {
             console.log('Viewing guide with ID:', guideId);
             
@@ -1045,12 +1104,12 @@ $queryValues = [
                     document.body.style.overflow = 'hidden';
                 } else {
                     console.error('Server error:', data.message);
-                    alert('Error: ' + data.message);
+                    showErrorAnimation(data.message);
                 }
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                alert('Error fetching guide data: ' + error.message);
+                showErrorAnimation('Error fetching guide data: ' + error.message);
             });
         }
 
@@ -1105,7 +1164,14 @@ $queryValues = [
             // Application Info
             const createdDateElement = document.getElementById('viewGuideCreatedDate');
             if (createdDateElement) {
-                createdDateElement.textContent = guide.created_at ? formatDate(guide.created_at) : 'N/A';
+                if (!guide.created_at) {
+                    createdDateElement.textContent = 'N/A';
+                } else if (typeof formatDate === 'function') {
+                    createdDateElement.textContent = formatDate(guide.created_at);
+                } else {
+                    const d = new Date(guide.created_at);
+                    createdDateElement.textContent = isNaN(d.getTime()) ? guide.created_at : d.toLocaleString();
+                }
             }
             
             const resumeElement = document.getElementById('viewGuideResume');
@@ -1146,21 +1212,6 @@ $queryValues = [
             document.body.style.overflow = 'auto';
         }
 
-        function ucfirst(str) {
-            return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
         function showDeleteGuideModal(guideId) {
             document.getElementById('deleteGuideId').value = guideId;
             const modal = document.getElementById('deleteGuideModal');
@@ -1171,6 +1222,45 @@ $queryValues = [
 
         function closeDeleteGuideModal() {
             const modal = document.getElementById('deleteGuideModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showVerifyGuideModal(guideId, currentStatus, triggerBtn) {
+            const willVerify = !currentStatus;
+            const action = willVerify ? 'verify_guide' : 'unverify_guide';
+
+            document.getElementById('verifyGuideId').value = guideId;
+            document.getElementById('verifyGuideAction').value = action;
+
+            const titleEl = document.getElementById('verifyGuideModalTitle');
+            const textEl = document.getElementById('verifyGuideModalText');
+            const confirmBtn = document.getElementById('verifyGuideConfirmBtn');
+            const modal = document.getElementById('verifyGuideModal');
+
+            if (titleEl) titleEl.textContent = willVerify ? 'Verify Tour Guide' : 'Unverify Tour Guide';
+            if (textEl) {
+                textEl.textContent = willVerify
+                    ? 'Are you sure you want to verify this guide? They will appear in the user booking portal.'
+                    : 'Are you sure you want to unverify this guide? They will no longer appear in the user booking portal.';
+            }
+            if (confirmBtn) confirmBtn.textContent = willVerify ? 'Verify' : 'Unverify';
+
+            if (modal) {
+                modal.dataset.triggerBtnId = '';
+                if (triggerBtn && triggerBtn.id) {
+                    modal.dataset.triggerBtnId = triggerBtn.id;
+                }
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeVerifyGuideModal() {
+            const modal = document.getElementById('verifyGuideModal');
+            if (!modal) return;
             modal.style.display = 'none';
             modal.classList.remove('show');
             document.body.style.overflow = 'auto';
@@ -1225,6 +1315,7 @@ $queryValues = [
             const addModal = document.getElementById('addGuideModal');
             const viewModal = document.getElementById('viewGuideModal');
             const deleteModal = document.getElementById('deleteGuideModal');
+            const verifyModal = document.getElementById('verifyGuideModal');
             
             if (event.target === addModal) {
                 closeAddGuideModal();
@@ -1232,6 +1323,8 @@ $queryValues = [
                 closeViewGuideModal();
             } else if (event.target === deleteModal) {
                 closeDeleteGuideModal();
+            } else if (event.target === verifyModal) {
+                closeVerifyGuideModal();
             }
         }
 
@@ -1241,6 +1334,7 @@ $queryValues = [
                 const addModal = document.getElementById('addGuideModal');
                 const viewModal = document.getElementById('viewGuideModal');
                 const deleteModal = document.getElementById('deleteGuideModal');
+                const verifyModal = document.getElementById('verifyGuideModal');
                 
                 if (addModal && addModal.style.display === 'block') {
                     closeAddGuideModal();
@@ -1248,6 +1342,8 @@ $queryValues = [
                     closeViewGuideModal();
                 } else if (deleteModal && deleteModal.style.display === 'block') {
                     closeDeleteGuideModal();
+                } else if (verifyModal && verifyModal.style.display === 'block') {
+                    closeVerifyGuideModal();
                 }
             }
         });
@@ -1387,54 +1483,59 @@ $queryValues = [
             }
         });
 
-        function toggleVerification(guideId, currentStatus) {
-            const action = currentStatus ? 'unverify_guide' : 'verify_guide';
-            const confirmText = currentStatus ? 
-                'Are you sure you want to unverify this guide? They will no longer appear in the user booking portal.' : 
-                'Are you sure you want to verify this guide? They will appear in the user booking portal.';
-            
-            if (!confirm(confirmText)) {
-                return;
+        function toggleVerification(btn, guideId, currentStatus) {
+            if (btn && !btn.id) {
+                btn.id = `verifyBtn_${guideId}`;
             }
-            
-            // Show loading state
-            event.target.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span>';
-            event.target.disabled = true;
-            
-            // Send verification request
+            showVerifyGuideModal(guideId, !!currentStatus, btn);
+        }
+
+        function handleVerifyGuide(event) {
+            event.preventDefault();
+
+            const modal = document.getElementById('verifyGuideModal');
+            const formData = new FormData(event.target);
+            const guideId = formData.get('guide_id');
+            const action = formData.get('action');
+
+            const confirmBtn = document.getElementById('verifyGuideConfirmBtn');
+            const originalText = confirmBtn ? confirmBtn.textContent : 'Confirm';
+
+            if (confirmBtn) {
+                confirmBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing...';
+                confirmBtn.disabled = true;
+            }
+
             fetch('', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `action=${action}&guide_id=${guideId}`
+                body: `action=${encodeURIComponent(action)}&guide_id=${encodeURIComponent(guideId)}`
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // Show success message
                     showSuccessAnimation();
-                    
-                    // Reload page to show updated status
                     setTimeout(() => {
+                        closeVerifyGuideModal();
                         location.reload();
                     }, 1500);
                 } else {
-                    // Show error message
                     showErrorAnimation(result.message);
-                    
-                    // Reset button
-                    event.target.innerHTML = `<span class="material-icons-outlined">${currentStatus ? 'verified_user' : 'person_add'}</span>`;
-                    event.target.disabled = false;
+                    if (confirmBtn) {
+                        confirmBtn.textContent = originalText;
+                        confirmBtn.disabled = false;
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 showErrorAnimation('An error occurred while updating verification status.');
-                
-                // Reset button
-                event.target.innerHTML = `<span class="material-icons-outlined">${currentStatus ? 'verified_user' : 'person_add'}</span>`;
-                event.target.disabled = false;
+                if (confirmBtn) {
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                }
             });
         }
 

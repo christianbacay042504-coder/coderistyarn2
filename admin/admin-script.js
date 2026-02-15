@@ -18,6 +18,7 @@ class AdminDashboard {
         this.setupLogoutConfirmation();
         this.setupTheme();
         this.setupThemeToggle();
+        this.setupExportDropdown();
     }
 
     setupNavigation() {
@@ -1273,8 +1274,34 @@ class AdminDashboard {
         this.showToast('CSV exported successfully', 'success');
     }
 
-    exportActivity() {
-        this.showToast('Export feature requires backend implementation', 'info');
+    exportActivity(type) {
+        console.log('Export activity called with type:', type);
+        try {
+            // Show loading message
+            this.showToast('Preparing export...', 'info');
+            
+            // Create the export URL
+            const exportUrl = `export.php?type=${encodeURIComponent(type)}`;
+            console.log('Export URL:', exportUrl);
+            
+            // Create a temporary link to trigger the download
+            const link = document.createElement('a');
+            link.href = exportUrl;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            console.log('Triggering download...');
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show success message after a short delay
+            setTimeout(() => {
+                this.showToast('Export download started', 'success');
+            }, 500);
+            
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showToast('Export failed. Please try again.', 'error');
+        }
     }
 
     loadDashboardData() {
@@ -1364,6 +1391,49 @@ class AdminDashboard {
                     this.showToast('Light mode enabled', 'info');
                 }
             });
+        }
+    }
+
+    setupExportDropdown() {
+        console.log('Setting up export dropdown...');
+        const exportToggleBtn = document.getElementById('exportToggleBtn');
+        const exportMenu = document.getElementById('exportMenu');
+
+        console.log('Export toggle button:', exportToggleBtn);
+        console.log('Export menu:', exportMenu);
+
+        if (exportToggleBtn && exportMenu) {
+            // Toggle dropdown
+            exportToggleBtn.addEventListener('click', (e) => {
+                console.log('Export button clicked');
+                e.stopPropagation();
+                const isVisible = exportMenu.style.display !== 'none';
+                exportMenu.style.display = isVisible ? 'none' : 'block';
+                console.log('Menu display set to:', exportMenu.style.display);
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!exportToggleBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+                    exportMenu.style.display = 'none';
+                }
+            });
+
+            // Handle export menu item clicks
+            const exportLinks = exportMenu.querySelectorAll('a');
+            console.log('Found export links:', exportLinks.length);
+            exportLinks.forEach((link, index) => {
+                link.addEventListener('click', (e) => {
+                    console.log('Export link clicked:', index);
+                    e.preventDefault();
+                    const href = link.getAttribute('href');
+                    const exportType = href.split('type=')[1];
+                    console.log('Export type:', exportType);
+                    this.exportActivity(exportType);
+                });
+            });
+        } else {
+            console.error('Export dropdown elements not found');
         }
     }
 
