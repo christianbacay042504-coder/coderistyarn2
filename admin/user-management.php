@@ -288,6 +288,10 @@ if ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
+// Extract admin info variables
+$adminMark = $adminInfo['admin_mark'] ?? 'A';
+$roleTitle = $adminInfo['role_title'] ?? 'Administrator';
+
 // Fetch sidebar menu
 $menuItems = [];
 $result = $conn->query("SELECT * FROM admin_menu_items WHERE is_active = 1 ORDER BY display_order ASC");
@@ -452,7 +456,7 @@ $queryValues = [
                                 <span class="material-icons-outlined">help_outline</span>
                                 <span>Help & Support</span>
                             </a>
-                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink" onclick="showSignoutModal()">
                                 <span class="material-icons-outlined">logout</span>
                                 <span>Sign Out</span>
                             </a>
@@ -568,20 +572,56 @@ $queryValues = [
 
                 <!-- Pagination -->
                 <?php if ($pagination['total_pages'] > 1): ?>
-                    <div class="pagination">
-                        <?php if ($pagination['current_page'] > 1): ?>
-                            <button onclick="goToPage(<?php echo $pagination['current_page'] - 1; ?>)">Previous</button>
-                        <?php endif; ?>
-
-                        <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
-                            <button onclick="goToPage(<?php echo $i; ?>)" <?php echo $i == $pagination['current_page'] ? 'class="active"' : ''; ?>>
-                                <?php echo $i; ?>
-                            </button>
-                        <?php endfor; ?>
-
-                        <?php if ($pagination['current_page'] < $pagination['total_pages']): ?>
-                            <button onclick="goToPage(<?php echo $pagination['current_page'] + 1; ?>)">Next</button>
-                        <?php endif; ?>
+                    <div class="pagination-wrapper">
+                        <div class="pagination-info">
+                            <span class="pagination-text">
+                                Showing <?php echo (($pagination['current_page'] - 1) * $limit) + 1; ?>-<?php echo min($pagination['current_page'] * $limit, $pagination['total_count']); ?> 
+                                of <?php echo $pagination['total_count']; ?> users
+                            </span>
+                        </div>
+                        
+                        <div class="pagination-controls">
+                            <?php if ($pagination['current_page'] > 1): ?>
+                                <button class="pagination-btn pagination-btn-prev" onclick="goToPage(<?php echo $pagination['current_page'] - 1; ?>)">
+                                    <span class="material-icons-outlined">chevron_left</span>
+                                    Previous
+                                </button>
+                            <?php endif; ?>
+                            
+                            <div class="pagination-numbers">
+                                <?php 
+                                $startPage = max(1, $pagination['current_page'] - 2);
+                                $endPage = min($pagination['total_pages'], $pagination['current_page'] + 2);
+                                
+                                if ($startPage > 1): ?>
+                                    <button class="pagination-number" onclick="goToPage(1)">1</button>
+                                    <span class="pagination-ellipsis">...</span>
+                                <?php endif; ?>
+                                
+                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                    <button class="pagination-number <?php echo $i == $pagination['current_page'] ? 'active' : ''; ?>" onclick="goToPage(<?php echo $i; ?>)">
+                                        <?php echo $i; ?>
+                                    </button>
+                                <?php endfor; ?>
+                                
+                                <?php if ($endPage < $pagination['total_pages']): ?>
+                                    <span class="pagination-ellipsis">...</span>
+                                <?php endif; ?>
+                                
+                                <?php if ($pagination['total_pages'] > $endPage + 1): ?>
+                                    <button class="pagination-number" onclick="goToPage(<?php echo $pagination['total_pages']; ?>)">
+                                        <?php echo $pagination['total_pages']; ?>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <?php if ($pagination['current_page'] < $pagination['total_pages']): ?>
+                                <button class="pagination-btn pagination-btn-next" onclick="goToPage(<?php echo $pagination['current_page'] + 1; ?>)">
+                                    Next
+                                    <span class="material-icons-outlined">chevron_right</span>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
             </div>
@@ -624,6 +664,33 @@ $queryValues = [
                     <button type="submit" class="btn-primary">Add User</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Sign Out Confirmation Modal -->
+    <div id="signOutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Out</h2>
+                <button class="modal-close" onclick="closeSignOutModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="signout-content">
+                    <div class="signout-icon">
+                        <span class="material-icons-outlined">logout</span>
+                    </div>
+                    <div class="signout-message">
+                        <h3>Are you sure you want to sign out?</h3>
+                        <p>You will be logged out of the admin panel and redirected to the login page.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
+            </div>
         </div>
     </div>
 
@@ -761,7 +828,720 @@ $queryValues = [
             searchUsers();
         }
     });
-</script>
+
+    // Open Account modal when clicking My Account in dropdown - USE DYNAMIC MODAL ONLY
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountLink = document.getElementById('adminAccountLink');
+        if (accountLink) {
+            accountLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Close dropdown
+                const menu = document.getElementById('adminProfileMenu');
+                if (menu) menu.classList.remove('show');
+                // Use dynamic modal only
+                if (typeof showAdminAccountModal === 'function') {
+                    showAdminAccountModal();
+                }
+            });
+        }
+    });
+
+    function closeAccountModal() {
+        // Close only the dynamic modal
+        const dynamicModal = document.getElementById('adminAccountModal');
+        
+        if (dynamicModal) {
+            dynamicModal.remove();
+        }
+        
+        document.body.style.overflow = 'auto';
+    }
+
+    function editAccount() {
+        alert('Edit profile functionality coming soon!');
+    }
+
+    // Open Settings modal when clicking Settings in dropdown - USE DYNAMIC MODAL ONLY
+    document.addEventListener('DOMContentLoaded', function() {
+        const settingsLink = document.getElementById('adminSettingsLink');
+        if (settingsLink) {
+            settingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Close dropdown
+                const menu = document.getElementById('adminProfileMenu');
+                if (menu) menu.classList.remove('show');
+                // Use dynamic modal only
+                if (typeof showAdminSettingsModal === 'function') {
+                    showAdminSettingsModal();
+                }
+            });
+        }
+    });
+
+    function closeSettingsModal() {
+        // Close only the dynamic modal
+        const dynamicModal = document.getElementById('adminSettingsModal');
+        
+        if (dynamicModal) {
+            dynamicModal.remove();
+        }
+        
+        document.body.style.overflow = 'auto';
+    }
+
+    function saveSettings() {
+        alert('Settings saved successfully! (Functionality coming soon)');
+        closeSettingsModal();
+    }
+
+    // Open Help modal when clicking Help & Support in dropdown - USE DYNAMIC MODAL ONLY
+    document.addEventListener('DOMContentLoaded', function() {
+        const helpLink = document.getElementById('adminHelpLink');
+        if (helpLink) {
+            helpLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Close dropdown
+                const menu = document.getElementById('adminProfileMenu');
+                if (menu) menu.classList.remove('show');
+                // Use dynamic modal only
+                if (typeof showAdminHelpModal === 'function') {
+                    showAdminHelpModal();
+                }
+            });
+        }
+    });
+
+    function closeHelpModal() {
+        // Close only the dynamic modal
+        const dynamicModal = document.getElementById('adminHelpModal');
+        
+        if (dynamicModal) {
+            dynamicModal.remove();
+        }
+        
+        document.body.style.overflow = 'auto';
+    }
+
+    function toggleFAQ(element) {
+        const answer = element.nextElementSibling;
+        const icon = element.querySelector('.material-icons-outlined');
+        
+        if (answer.style.display === 'block') {
+            answer.style.display = 'none';
+            icon.style.transform = 'rotate(0deg)';
+        } else {
+            answer.style.display = 'block';
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    function openLiveChat() {
+        alert('Live chat functionality coming soon! For now, please contact support@sjdmtours.com');
+    }
+
+    // Close Help modal on overlay click or Escape
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('helpModal');
+        if (modal && event.target === modal) {
+            closeHelpModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('helpModal');
+            if (modal && modal.classList.contains('show')) {
+                closeHelpModal();
+            }
+        }
+    });
+
+    // Open Sign Out modal when clicking Sign Out in dropdown
+    document.addEventListener('DOMContentLoaded', function() {
+        const signoutLink = document.getElementById('adminSignoutLink');
+        if (signoutLink) {
+            signoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Close dropdown
+                const menu = document.getElementById('adminProfileMenu');
+                if (menu) menu.classList.remove('show');
+                // Open Sign Out modal
+                const modal = document.getElementById('signOutModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        }
+    });
+
+    function closeSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    function confirmSignOut() {
+        // Redirect to logout page
+        window.location.href = 'logout.php';
+    }
+
+    // Close Sign Out modal on overlay click or Escape
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('signOutModal');
+        if (modal && event.target === modal) {
+            closeSignOutModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('signOutModal');
+            if (modal && modal.classList.contains('show')) {
+                closeSignOutModal();
+            }
+        }
+    });
+    </script>
+
+    <style>
+        /* Clean & Modern Pagination Styles */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 20px;
+            margin-top: 32px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .pagination-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .pagination-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-right: 16px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pagination-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            min-width: 100px;
+        }
+
+        .pagination-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.12);
+        }
+
+        .pagination-btn-prev {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .pagination-btn-next {
+            border-radius: 0 8px 8px 8px;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pagination-number {
+            min-width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-number:hover {
+            background: var(--gray-50);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .pagination-number.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(44, 95, 45, 0.15);
+        }
+
+        .pagination-ellipsis {
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0 8px;
+            user-select: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .pagination-wrapper {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .pagination-numbers {
+                gap: 6px;
+            }
+
+            .pagination-number {
+                min-width: 36px;
+                height: 36px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pagination-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+                min-width: 80px;
+            }
+
+            .pagination-number {
+                min-width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+        }
+
+        /* Modal Centering and Account Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999999;
+            overflow: auto;
+        }
+
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 0;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-50);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Account Modal Specific Styles */
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .account-avatar {
+            flex-shrink: 0;
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #1a3d1a 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(44, 95, 45, 0.2);
+        }
+
+        .account-details h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .account-details p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .account-role {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .account-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-item .material-icons-outlined {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Responsive Design for Account Modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+
+            .account-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .account-stats {
+                gap: 12px;
+            }
+
+            .stat-item {
+                padding: 12px;
+                gap: 12px;
+            }
+        }
+
+        /* Settings Modal Styles */
+        .settings-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+            .stat-value {
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            /* Responsive Design for Account Modal */
+            @media (max-width: 768px) {
+                .modal-content {
+                    width: 95%;
+                    margin: 20px;
+                }
+
+                .account-info {
+                    flex-direction: column;
+                    text-align: center;
+                    gap: 16px;
+                }
+
+                .account-stats {
+                    gap: 12px;
+                }
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .settings-input,
+        .settings-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .settings-input:focus,
+        .settings-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+
+        .settings-input[readonly] {
+            background: var(--gray-50);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .settings-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .settings-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .settings-checkbox input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .settings-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .checkmark {
+            display: none;
+        }
+
+        /* Settings Modal Responsive Design */
+        @media (max-width: 768px) {
+            .settings-sections {
+                gap: 24px;
+            }
+
+            .settings-section {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            .settings-item {
+                margin-bottom: 16px;
+            }
+        }
+
+        /* Sign Out Modal Styles */
+        .signout-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .signout-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dc3545 0%, #b91c1c 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
+        }
+
+        .signout-icon .material-icons-outlined {
+            font-size: 40px;
+        }
+
+        .signout-message h3 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .signout-message p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Sign Out Modal Responsive Design */
+        @media (max-width: 768px) {
+            .signout-content {
+                gap: 20px;
+                padding: 16px 0;
+            }
+
+            .signout-icon {
+                width: 60px;
+                height: 60px;
+            }
+
+            .signout-icon .material-icons-outlined {
+                font-size: 30px;
+            }
+
+            .signout-message h3 {
+                font-size: 18px;
+            }
+
+            .signout-message p {
+                font-size: 13px;
+            }
+        }
+    </style>
 <?php closeAdminConnection($conn); ?>
 </body>
 

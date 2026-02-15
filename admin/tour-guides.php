@@ -662,7 +662,7 @@ $queryValues = [
                                 <span class="material-icons-outlined">help_outline</span>
                                 <span>Help & Support</span>
                             </a>
-                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink">
                                 <span class="material-icons-outlined">logout</span>
                                 <span>Sign Out</span>
                             </a>
@@ -1593,6 +1593,151 @@ $queryValues = [
             });
         }
 
+        </script>
+
+        <!-- Sign Out Confirmation Modal -->
+        <div id="signOutModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Sign Out</h2>
+                    <button class="modal-close" onclick="closeSignOutModal()">
+                        <span class="material-icons-outlined">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="signout-content">
+                        <div class="signout-icon">
+                            <span class="material-icons-outlined">logout</span>
+                        </div>
+                        <div class="signout-message">
+                            <h3>Are you sure you want to sign out?</h3>
+                            <p>You will be logged out of the admin panel and redirected to the login page.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
+                    <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            /* Sign Out Modal Styles */
+            .signout-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+                padding: 24px 0;
+                text-align: center;
+            }
+
+            .signout-icon {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: var(--red);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
+            }
+
+            .signout-icon .material-icons-outlined {
+                font-size: 40px;
+            }
+
+            .signout-message h3 {
+                margin: 0 0 8px 0;
+                font-size: 20px;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            .signout-message p {
+                margin: 0;
+                font-size: 14px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+            }
+
+            /* Sign Out Modal Responsive Design */
+            @media (max-width: 768px) {
+                .signout-content {
+                    gap: 20px;
+                    padding: 16px 0;
+                }
+
+                .signout-icon {
+                    width: 60px;
+                    height: 60px;
+                }
+
+                .signout-icon .material-icons-outlined {
+                    font-size: 30px;
+                }
+
+                .signout-message h3 {
+                    font-size: 18px;
+                }
+
+                .signout-message p {
+                    font-size: 13px;
+                }
+            }
+        </style>
+
+        <script>
+            // Open Sign Out modal when clicking Sign Out in dropdown
+            document.addEventListener('DOMContentLoaded', function() {
+                const signoutLink = document.getElementById('adminSignoutLink');
+                if (signoutLink) {
+                    signoutLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Close dropdown
+                        const menu = document.getElementById('adminProfileMenu');
+                        if (menu) menu.classList.remove('show');
+                        // Open Sign Out modal
+                        const modal = document.getElementById('signOutModal');
+                        if (modal) {
+                            modal.classList.add('show');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    });
+                }
+            });
+
+            function closeSignOutModal() {
+                const modal = document.getElementById('signOutModal');
+                if (modal) {
+                    modal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            function confirmSignOut() {
+                // Redirect to logout page
+                window.location.href = 'logout.php';
+            }
+
+            // Close Sign Out modal on overlay click or Escape
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('signOutModal');
+                if (modal && event.target === modal) {
+                    closeSignOutModal();
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    const modal = document.getElementById('signOutModal');
+                    if (modal && modal.classList.contains('show')) {
+                        closeSignOutModal();
+                    }
+                }
+            });
         </script>
 </body>
 
