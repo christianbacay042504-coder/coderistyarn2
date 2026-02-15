@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else if (data.user_type === 'tour_guide') {
                         window.location.href = 'tour-guide/dashboard.php';
                     } else {
-                        window.location.href = 'sjdm-user/index.php';
+                        window.location.href = 'User/user-index.php';
                     }
                 }, 1000);
             } else {
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else if (data.user_type === 'tour_guide') {
                             window.location.href = 'tour-guide/dashboard.php';
                         } else {
-                            window.location.href = 'sjdm-user/index.php';
+                            window.location.href = 'User/user-index.php';
                         }
                     }, 1000);
                 } else {

@@ -1,0 +1,997 @@
+<?php
+// Include database connection and authentication
+require_once '../config/database.php';
+require_once '../config/auth.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../log-in/log-in.php');
+    exit();
+}
+
+// Get current user data
+$conn = getDatabaseConnection();
+if ($conn) {
+    $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+    $stmt->bind_param("i", $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $currentUser = [
+            'name' => $user['first_name'] . ' ' . $user['last_name'],
+            'email' => $user['email']
+        ];
+    }
+    closeDatabaseConnection($conn);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotels - San Jose del Monte Bulacan</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user-styles.css">
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h1>SJDM Tours</h1>
+            <p>Explore San Jose del Monte</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="index.php">
+                <span class="material-icons-outlined">home</span>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" href="user-guides.php">
+                <span class="material-icons-outlined">people</span>
+                <span>Tour Guides</span>
+            </a>
+            <a class="nav-item" href="book.php">
+                <span class="material-icons-outlined">event</span>
+                <span>Book Now</span>
+            </a>
+            <a class="nav-item" href="tourist-spots.php">
+                <span class="material-icons-outlined">place</span>
+                <span>Tourist Spots</span>
+            </a>
+            <a class="nav-item active" href="javascript:void(0)">
+                <span class="material-icons-outlined">hotel</span>
+                <span>Hotels</span>
+            </a>
+            <a class="nav-item" href="local-culture.php">
+                <span class="material-icons-outlined">theater_comedy</span>
+                <span>Local Culture</span>
+            </a>
+            <a class="nav-item" href="travel-tips.php">
+                <span class="material-icons-outlined">tips_and_updates</span>
+                <span>Travel Tips</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="main-header">
+            <h1>Hotels & Restaurants</h1>
+            <div class="search-bar">
+                <span class="material-icons-outlined">search</span>
+                <input type="text" placeholder="Search hotels and restaurants...">
+            </div>
+            <div class="header-actions">
+                
+            </div>
+        </header>
+
+        <div class="content-area">
+            <h2 class="section-title">Hotels & Resorts in San Jose del Monte</h2>
+            
+            <!-- Location Header -->
+            <div class="calendar-header">
+                <div class="date-display">
+                    <div class="weekday">Near Your Destination</div>
+                    <div class="month-year">Best Accommodations for Your Tour</div>
+                </div>
+                <div class="weather-info">
+                    <span class="material-icons-outlined">hotel</span>
+                    <span class="temperature">20+ Options</span>
+                    <span class="weather-label">Verified Stays</span>
+                </div>
+            </div>
+
+            <!-- Hotel Category Filters -->
+            <div class="travelry-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Hotel Category</label>
+                        <select class="filter-select" id="hotelTypeFilter">
+                            <option value="all">All Accommodations</option>
+                            <?php
+                            // Fetch unique categories from database
+                            $conn = getDatabaseConnection();
+                            if ($conn) {
+                                $query = "SELECT DISTINCT category FROM hotels WHERE status = 'active'";
+                                $result = $conn->query($query);
+                                if ($result && $result->num_rows > 0) {
+                                    while ($category = $result->fetch_assoc()) {
+                                        $displayCategory = ucfirst(str_replace('-', ' ', $category['category']));
+                                        echo '<option value="' . $category['category'] . '">' . $displayCategory . '</option>';
+                                    }
+                                }
+                                closeDatabaseConnection($conn);
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Near Tourist Spot</label>
+                        <select class="filter-select" id="nearbySpotFilter">
+                            <option value="all">All Areas</option>
+                            <option value="nature">Nature & Waterfalls</option>
+                            <option value="farm">Farm Tours</option>
+                            <option value="park">City Parks</option>
+                            <option value="religious">Religious Sites</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Price Range</label>
+                        <select class="filter-select" id="priceFilter">
+                            <option value="all">All Prices</option>
+                            <option value="budget">Budget (₱800 - ₱1,500)</option>
+                            <option value="mid">Mid-Range (₱1,500 - ₱3,000)</option>
+                            <option value="premium">Premium (₱3,000+)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotels Grid -->
+            <div class="travelry-grid" id="hotelsGrid">
+                <?php
+                // Fetch hotels from database
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    $query = "SELECT * FROM hotels WHERE status = 'active' ORDER BY rating DESC";
+                    $result = $conn->query($query);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        while ($hotel = $result->fetch_assoc()) {
+                            $categoryClass = '';
+                            $priceClass = '';
+                            
+                            // Set category class
+                            switch ($hotel['category']) {
+                                case 'budget':
+                                    $categoryClass = 'budget';
+                                    $priceClass = 'budget';
+                                    break;
+                                case 'mid-range':
+                                    $categoryClass = 'mid-range';
+                                    $priceClass = 'mid';
+                                    break;
+                                case 'luxury':
+                                    $categoryClass = 'luxury';
+                                    $priceClass = 'luxury';
+                                    break;
+                                case 'event':
+                                    $categoryClass = 'event';
+                                    $priceClass = 'event';
+                                    break;
+                                default:
+                                    $categoryClass = 'mid-range';
+                                    $priceClass = 'mid';
+                            }
+                            
+                            // Format amenities
+                            $amenities = !empty($hotel['amenities']) ? explode(',', $hotel['amenities']) : [];
+                            $amenityTags = '';
+                            foreach (array_slice($amenities, 0, 3) as $amenity) {
+                                $amenityTags .= '<span class="feature-tag">' . trim($amenity) . '</span>';
+                            }
+                            
+                            // Format category display
+                            $categoryDisplay = ucfirst(str_replace('_', ' ', $hotel['category']));
+                            
+                            echo '<div class="travelry-card" data-category="' . $categoryClass . '" data-nearby="all" data-price="' . $priceClass . '">';
+                            echo '<div class="card-image">';
+                            echo '<img src="' . (!empty($hotel['image_url']) ? $hotel['image_url'] : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop') . '" alt="' . htmlspecialchars($hotel['name']) . '">';
+                            echo '<div class="card-badge">';
+                            echo '<span class="material-icons-outlined">hotel</span>';
+                            echo $categoryDisplay;
+                            echo '</div>';
+                            echo '<div class="distance-badge">';
+                            echo '<span class="material-icons-outlined">location_on</span>';
+                            echo htmlspecialchars($hotel['location']);
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="card-content">';
+                            echo '<div class="card-date">';
+                            echo '<span class="material-icons-outlined">schedule</span>';
+                            echo 'Check-in: 2:00 PM • Check-out: 12:00 PM';
+                            echo '</div>';
+                            echo '<h3 class="card-title">' . htmlspecialchars($hotel['name']) . '</h3>';
+                            echo '<span class="card-category">' . $categoryDisplay . ' Hotels</span>';
+                            echo '<p class="card-description">' . htmlspecialchars($hotel['description']) . '</p>';
+                            echo '<div class="card-features">';
+                            echo $amenityTags;
+                            echo '</div>';
+                            echo '<a class="card-button" href="' . (!empty($hotel['website']) ? htmlspecialchars($hotel['website']) : '#') . '" target="_blank">';
+                            echo 'Visit Website';
+                            echo '</a>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    }
+                    closeDatabaseConnection($conn);
+                }
+                ?>
+            </div>
+
+            <!-- Restaurants Section -->
+            <h2 class="section-title" style="margin-top: 60px;">Restaurants & Dining</h2>
+            
+            <!-- Restaurant Location Header -->
+            <div class="calendar-header">
+                <div class="date-display">
+                    <div class="weekday">Local Cuisine</div>
+                    <div class="month-year">Authentic Filipino Dining Experience</div>
+                </div>
+                <div class="weather-info">
+                    <span class="material-icons-outlined">restaurant</span>
+                    <span class="temperature">10+ Options</span>
+                    <span class="weather-label">Verified Restaurants</span>
+                </div>
+            </div>
+
+            <!-- Restaurants Grid -->
+            <div class="travelry-grid" id="restaurantsGrid">
+                <?php
+                // Fetch restaurants from database
+                $conn = getDatabaseConnection();
+                if ($conn) {
+                    $query = "SELECT * FROM restaurants WHERE status = 'active' ORDER BY rating DESC";
+                    $result = $conn->query($query);
+                    
+                    if ($result && $result->num_rows > 0) {
+                        while ($restaurant = $result->fetch_assoc()) {
+                            $categoryClass = '';
+                            
+                            // Set category class
+                            switch ($restaurant['category']) {
+                                case 'casual_dining':
+                                    $categoryClass = 'casual-dining';
+                                    break;
+                                case 'local_eatery':
+                                    $categoryClass = 'local-eatery';
+                                    break;
+                                case 'fast_food':
+                                    $categoryClass = 'fast-food';
+                                    break;
+                                case 'fine_dining':
+                                    $categoryClass = 'fine-dining';
+                                    break;
+                                case 'cafe':
+                                    $categoryClass = 'cafe';
+                                    break;
+                                case 'bar':
+                                    $categoryClass = 'bar';
+                                    break;
+                                default:
+                                    $categoryClass = 'casual-dining';
+                            }
+                            
+                            // Format features
+                            $features = !empty($restaurant['features']) ? explode(',', $restaurant['features']) : [];
+                            $featureTags = '';
+                            foreach (array_slice($features, 0, 3) as $feature) {
+                                $featureTags .= '<span class="feature-tag">' . trim($feature) . '</span>';
+                            }
+                            
+                            // Format category display
+                            $categoryDisplay = ucfirst(str_replace('_', ' ', $restaurant['category']));
+                            
+                            echo '<div class="travelry-card restaurant-card">';
+                            echo '<div class="card-image">';
+                            echo '<img src="' . (!empty($restaurant['image_url']) ? $restaurant['image_url'] : 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop') . '" alt="' . htmlspecialchars($restaurant['name']) . '">';
+                            echo '<div class="card-badge restaurant-badge">';
+                            echo '<span class="material-icons-outlined">restaurant</span>';
+                            echo $categoryDisplay;
+                            echo '</div>';
+                            echo '<div class="distance-badge">';
+                            echo '<span class="material-icons-outlined">location_on</span>';
+                            echo htmlspecialchars($restaurant['location']);
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="card-content">';
+                            echo '<div class="card-date">';
+                            echo '<span class="material-icons-outlined">schedule</span>';
+                            echo 'Open Daily • Local Hours';
+                            echo '</div>';
+                            echo '<h3 class="card-title">' . htmlspecialchars($restaurant['name']) . '</h3>';
+                            echo '<span class="card-category">' . $categoryDisplay . '</span>';
+                            echo '<p class="card-description">' . htmlspecialchars($restaurant['description']) . '</p>';
+                            echo '<div class="card-features">';
+                            echo $featureTags;
+                            echo '</div>';
+                            echo '<a class="card-button restaurant-button" href="' . (!empty($restaurant['website']) ? htmlspecialchars($restaurant['website']) : '#') . '" target="_blank">';
+                            echo 'Visit Website';
+                            echo '</a>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    }
+                    closeDatabaseConnection($conn);
+                }
+                ?>
+            </div>
+
+            <!-- Hotel Booking Tips -->
+            <div class="info-section" style="background: white; padding: 30px; border-radius: 20px; margin-top: 40px;">
+                <h3>💡 Hotel Booking Tips for SJDM Visitors</h3>
+                <div class="info-cards" style="margin-top: 20px;">
+                    <?php
+                    // Fetch real hotel data for tips
+                    $conn = getDatabaseConnection();
+                    if ($conn) {
+                        // Get price ranges for tips
+                        $priceQuery = "SELECT DISTINCT price_range, category FROM hotels WHERE status = 'active' ORDER BY price_range";
+                        $priceResult = $conn->query($priceQuery);
+                        
+                        // Get categories for tips
+                        $categoryQuery = "SELECT DISTINCT category, COUNT(*) as count FROM hotels WHERE status = 'active' GROUP BY category";
+                        $categoryResult = $conn->query($categoryQuery);
+                        
+                        // Get average rating
+                        $ratingQuery = "SELECT AVG(rating) as avg_rating, COUNT(*) as total_hotels FROM hotels WHERE status = 'active'";
+                        $ratingResult = $conn->query($ratingQuery);
+                        $ratingData = $ratingResult ? $ratingResult->fetch_assoc() : null;
+                        
+                        echo '<div class="info-card">';
+                        echo '<h4>📍 Available Hotel Categories</h4>';
+                        echo '<ul>';
+                        if ($categoryResult && $categoryResult->num_rows > 0) {
+                            while ($category = $categoryResult->fetch_assoc()) {
+                                $categoryName = ucfirst(str_replace('-', ' ', $category['category']));
+                                echo '<li><strong>' . $categoryName . ':</strong> ' . $category['count'] . ' option' . ($category['count'] > 1 ? 's' : '') . ' available</li>';
+                            }
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                        
+                        echo '<div class="info-card">';
+                        echo '<h4>💰 Available Price Ranges</h4>';
+                        echo '<ul>';
+                        if ($priceResult && $priceResult->num_rows > 0) {
+                            while ($price = $priceResult->fetch_assoc()) {
+                                $categoryName = ucfirst(str_replace('-', ' ', $price['category']));
+                                echo '<li><strong>' . $categoryName . ':</strong> ' . htmlspecialchars($price['price_range']) . '</li>';
+                            }
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                        
+                        echo '<div class="info-card">';
+                        echo '<h4>ℹ Hotel Statistics</h4>';
+                        echo '<ul>';
+                        if ($ratingData) {
+                            echo '<li><strong>Total Hotels:</strong> ' . $ratingData['total_hotels'] . ' available</li>';
+                            echo '<li><strong>Average Rating:</strong> ' . number_format($ratingData['avg_rating'], 1) . '/5 stars</li>';
+                        }
+                        echo '<li><strong>Check-in Time:</strong> 2:00 PM (Standard)</li>';
+                        echo '<li><strong>Check-out Time:</strong> 12:00 PM (Standard)</li>';
+                        echo '</ul>';
+                        echo '</div>';
+                        
+                        closeDatabaseConnection($conn);
+                    } else {
+                        // Fallback if database connection fails
+                        echo '<div class="info-card">';
+                        echo '<h4>📞 Booking Advice</h4>';
+                        echo '<ul>';
+                        echo '<li>Book 1-2 weeks ahead for weekend stays</li>';
+                        echo '<li>Confirm transportation arrangements</li>';
+                        echo '<li>Check hotel policies on group sizes</li>';
+                        echo '<li>Ask about tour guide coordination services</li>';
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                    ?>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Pass current user data to JavaScript
+        <?php if (isset($currentUser)): ?>
+        const currentUser = <?php echo json_encode($currentUser); ?>;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        <?php endif; ?>
+    </script>
+
+    <!-- Hotel Booking Modal -->
+    <div id="hotelBookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <div class="modal-title-section">
+                        <div class="modal-category">Hotel Details</div>
+                        <h2 id="modalHotelName">Hotel Name</h2>
+                    </div>
+                    <button class="modal-close" onclick="closeHotelBookingModal()">
+                        <span class="material-icons-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="hotel-details-container">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hotel Details Modal Functions
+        function showHotelDetails(hotelName, category, image, icon, badge, priceRange, rating, reviewCount, description, amenities) {
+            const modal = document.getElementById('hotelBookingModal');
+            const hotelNameElement = document.getElementById('modalHotelName');
+            
+            if (!modal) {
+                console.error('Hotel details modal not found!');
+                return;
+            }
+            
+            // Set hotel name
+            hotelNameElement.textContent = hotelName;
+            
+            // Create hotel info object from database parameters
+            const hotelInfo = {
+                category: category,
+                priceRange: priceRange,
+                rating: rating,
+                reviewCount: reviewCount,
+                location: 'San Jose del Monte',
+                description: description || 'Experience comfort and convenience in San Jose del Monte.',
+                amenities: amenities || 'Basic amenities available'
+            };
+            
+            // Update modal content with hotel details
+            updateHotelDetailsContent(hotelInfo);
+            
+            // Show modal
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function updateHotelDetailsContent(hotelInfo) {
+            // Update modal body with hotel details from database
+            const modalBody = document.querySelector('.hotel-details-container');
+            if (!hotelInfo) {
+                modalBody.innerHTML = '<p>Hotel information not available.</p>';
+                return;
+            }
+            
+            modalBody.innerHTML = `
+                <div class="hotel-overview">
+                    <div class="hotel-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Category</span>
+                            <span class="info-value">${hotelInfo.category}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Price Range</span>
+                            <span class="info-value">${hotelInfo.priceRange}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Rating</span>
+                            <span class="info-value">${hotelInfo.rating}/5 (${hotelInfo.reviewCount} reviews)</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Location</span>
+                            <span class="info-value">${hotelInfo.location}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hotel-description">
+                    <h3>About This Hotel</h3>
+                    <p>${hotelInfo.description}</p>
+                </div>
+                
+                <div class="hotel-features">
+                    <h3>Amenities & Features</h3>
+                    <div class="features-list">
+                        ${hotelInfo.amenities ? hotelInfo.amenities.split(',').map(feature => `<span class="feature-badge">${feature.trim()}</span>`).join('') : '<span class="feature-badge">Basic Amenities</span>'}
+                    </div>
+                </div>
+                
+                <div class="hotel-schedule">
+                    <h3>Check-in & Check-out</h3>
+                    <div class="schedule-grid">
+                        <div class="schedule-item">
+                            <span class="schedule-icon">🕐</span>
+                            <div>
+                                <div class="schedule-label">Check-in</div>
+                                <div class="schedule-time">2:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="schedule-item">
+                            <span class="schedule-icon">🕑</span>
+                            <div>
+                                <div class="schedule-label">Check-out</div>
+                                <div class="schedule-time">12:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeHotelBookingModal()">
+                        <span class="material-icons-outlined">close</span>
+                        Close
+                    </button>
+                    <button type="button" class="btn-primary" onclick="contactHotel()">
+                        <span class="material-icons-outlined">visibility</span>
+                        View All
+                    </button>
+                </div>
+            `;
+        }
+        
+        function closeHotelBookingModal() {
+            const modal = document.getElementById('hotelBookingModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        function contactHotel() {
+            const hotelName = document.getElementById('modalHotelName').textContent;
+            closeHotelBookingModal();
+            
+            // Create mapping for hotel names to detail pages
+            const hotelPages = {
+                'Pacific Waves Resort': '../hotel-detail/pacific-waves-resort.php',
+                'Grotto Vista Resort': '../hotel-detail/grotto-vista-resort.php',
+                'Los Arcos De Hermano': '../hotel-detail/los-arcos-de-hermano.php',
+                'The Hillside Farm Resort': '../hotel-detail/the-hillside-farm-resort.php',
+                'Tierra Fontana 12 Waves': '../hotel-detail/tierra-fontana-12-waves.php',
+                'Hotel Savano': '../hotel-detail/hotel-savano.php',
+                'Reddoorz @ GaDi Hotel': '../hotel-detail/reddoorz-gadi-hotel.php',
+                'Hotel Sogo SJDM': '../hotel-detail/hotel-sogo-sjdm.php',
+                'Hotel Turista San Jose': '../hotel-detail/hotel-turista-san-jose.php',
+                'La Cecilia Resort': '../hotel-detail/la-cecilia-resort.php',
+                'Casa Regina Resorts': '../hotel-detail/casa-regina-resorts.php'
+            };
+            
+            // Get the appropriate page URL or default to a generic page
+            const detailPage = hotelPages[hotelName] || '../hotel-detail/hotels.php';
+            
+            // Redirect to the detail page
+            window.location.href = detailPage;
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('hotelBookingModal');
+            if (event.target === modal) {
+                closeHotelBookingModal();
+            }
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeHotelBookingModal();
+            }
+        });
+    </script>
+
+    <style>
+        /* Hotel Booking Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 20px auto;
+            padding: 0;
+            border-radius: 24px;
+            width: 95%;
+            max-width: 900px;
+            max-height: 95vh;
+            overflow: hidden;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.25),
+                0 16px 32px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 0;
+            border-bottom: none;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+        }
+        
+        .modal-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 50px 50px 50px;
+            background: linear-gradient(135deg, #4a7c4e 0%, #2c5f2d 50%, #1a4d1e 100%);
+            min-height: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-header-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .modal-title-section {
+            flex: 1;
+            text-align: center;
+            padding-right: 60px;
+        }
+        
+        .modal-category {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-header h2 {
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-close {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+        
+        .modal-close .material-icons-outlined {
+            color: white;
+            font-size: 22px;
+        }
+        
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            max-height: calc(95vh - 180px);
+            overflow-y: auto;
+            padding: 40px 50px;
+            background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+        }
+        
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4a7c4e, #2c5f2d);
+            border-radius: 10px;
+        }
+        
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #3d6341, #244d26);
+        }
+        
+        .hotel-overview {
+            margin-bottom: 32px;
+        }
+        
+        .hotel-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .info-label {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .hotel-description,
+        .hotel-features,
+        .hotel-schedule {
+            margin-bottom: 32px;
+        }
+        
+        .hotel-description h3,
+        .hotel-features h3,
+        .hotel-schedule h3 {
+            font-size: 1.3em;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .hotel-description p {
+            line-height: 1.7;
+            color: #444;
+        }
+        
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .feature-badge {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            color: #2c5f2d;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .schedule-icon {
+            font-size: 2em;
+        }
+        
+        .schedule-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .schedule-time {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .btn-primary,
+        .btn-secondary {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4a7c4e, #2c5f2d);
+            color: white;
+            box-shadow: 0 6px 20px rgba(44, 95, 45, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3d6341, #244d26);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(44, 95, 45, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            color: #666;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-color: #ff9800;
+            color: #e65100;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.2);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification-success {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+        }
+        
+        .notification-error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 100%;
+                margin: 10px;
+                max-height: calc(100vh - 20px);
+            }
+            
+            .modal-header-content {
+                padding: 24px 24px 20px 24px;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.6em;
+            }
+            
+            .modal-body {
+                padding: 24px;
+            }
+            
+            .hotel-info-grid,
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>

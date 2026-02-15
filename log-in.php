@@ -217,7 +217,7 @@ if (isLoggedIn() && !isset($_SESSION['logout_message'])) {
     } elseif (isTourGuide()) {
         header('Location: tour-guide/dashboard.php');
     } else {
-        header('Location: sjdm-user/index.php');
+        header('Location: User/user-index.php');
     }
     exit();
 }

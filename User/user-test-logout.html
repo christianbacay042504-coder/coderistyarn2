@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logout Test</title>
+</head>
+<body>
+    <h1>Testing Logout Functionality</h1>
+    
+    <h2>Direct Logout Test:</h2>
+    <a href="../logout.php" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+        Test Direct Logout
+    </a>
+    
+    <h2>Current Session Status:</h2>
+    <div id="sessionStatus">Checking...</div>
+    
+    <script>
+        // Check current session status
+        fetch('check_session.php')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('sessionStatus').innerHTML = `
+                    <p><strong>Logged In:</strong> ${data.logged_in ? 'Yes' : 'No'}</p>
+                    <p><strong>User ID:</strong> ${data.user_id || 'Not set'}</p>
+                    <p><strong>Session Active:</strong> ${data.session_active ? 'Yes' : 'No'}</p>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('sessionStatus').innerHTML = `<p>Error checking session: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>

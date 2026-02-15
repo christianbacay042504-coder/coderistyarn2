@@ -1875,38 +1875,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <header class="main-header">
             <div class="header-left">
                 <h1 id="pageTitle">Dashboard</h1>
-                <div class="search-bar">
-                    <span class="material-icons-outlined">search</span>
-                    <input type="text" placeholder="Search destinations or guides...">
-                </div>
+                
             </div>
             <div class="header-right">
                 <nav class="header-nav">
-                    <a href="index.php" class="nav-link">
+                    <a href="user-index.php" class="nav-link">
                         <span class="material-icons-outlined">dashboard</span>
                         <span>Dashboard</span>
                     </a>
-                    <a href="user-guides.php" class="nav-link">
+                    <a href="user-guides-page.php" class="nav-link">
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="book.php" class="nav-link">
+                    <a href="user-book.php" class="nav-link">
                         <span class="material-icons-outlined">event</span>
                         <span>Book Now</span>
                     </a>
-                    <a href="booking-history.php" class="nav-link">
+                    <a href="user-booking-history.php" class="nav-link">
                         <span class="material-icons-outlined">history</span>
                         <span>Booking History</span>
                     </a>
-                    <a href="tourist-spots.php" class="nav-link">
+                    <a href="user-tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
                     </a>
-                    <a href="local-culture.php" class="nav-link">
+                    <a href="user-local-culture.php" class="nav-link">
                         <span class="material-icons-outlined">theater_comedy</span>
                         <span>Local Culture</span>
                     </a>
-                    <a href="travel-tips.php" class="nav-link">
+                    <a href="user-travel-tips.php" class="nav-link">
                         <span class="material-icons-outlined">tips_and_updates</span>
                         <span>Travel Tips</span>
                     </a>
@@ -1927,20 +1924,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a href="index.php" class="dropdown-item">
+                                <a href="user-index.php" class="dropdown-item">
                                     <span class="material-icons-outlined">dashboard</span>
                                     <span>Dashboard</span>
                                 </a>
-                                <a href="#" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
+                                <a href="user-booking-history.php" class="dropdown-item">
                                     <span class="material-icons-outlined">history</span>
                                     <span>Booking History</span>
                                 </a>
-                                <a href="saved-tours.php" class="dropdown-item">
+                                <a href="user-saved-tours.php" class="dropdown-item">
                                     <span class="material-icons-outlined">favorite</span>
                                     <span>Saved Tours</span>
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a href="logout.php" class="dropdown-item">
+                                <a href="user-logout.php" class="dropdown-item">
                                     <span class="material-icons-outlined">logout</span>
                                     <span>Sign Out</span>
                                 </a>
@@ -1958,7 +1955,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="hero">
                 <h1><?php echo htmlspecialchars($homepageContent['hero_title']['main_title'] ?? 'Welcome to San Jose del Monte, Bulacan'); ?></h1>
                 <p><?php echo htmlspecialchars($homepageContent['hero_subtitle']['main_subtitle'] ?? 'The Balcony of Metropolis - Where Nature Meets Progress'); ?></p>
-                <button class="btn-hero" onclick="window.location.href='user-guides.php'">
+                <button class="btn-hero" onclick="window.location.href='user-guides-page.php'">
                     <?php echo htmlspecialchars($homepageContent['hero_button_text']['main_button'] ?? 'Find Your Guide'); ?>
                 </button>
             </div>
@@ -2117,21 +2114,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ========== USER PROFILE DROPDOWN ==========
         function initUserProfileDropdown() {
             const profileDropdown = document.querySelector('.user-profile-dropdown');
-            const profileTrigger = document.querySelector('.profile-trigger');
             const dropdownMenu = document.querySelector('.dropdown-menu');
             const logoutLink = document.querySelector('[href="logout.php"]');
 
-            if (!profileDropdown || !profileTrigger || !dropdownMenu) {
+            if (!profileDropdown || !dropdownMenu) {
                 console.log('Profile dropdown elements not found');
                 return;
             }
-
-            // Toggle dropdown on click
-            profileTrigger.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                dropdownMenu.classList.toggle('show');
-            });
 
             // Close dropdown when clicking outside
             document.addEventListener('click', function (e) {
