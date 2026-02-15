@@ -48,14 +48,50 @@ function initAdminProfileDropdown() {
 
 // Modal Helper Function
 function createAdminModal(id, title, content, icon = 'info') {
-    // Remove existing modal if any
+    console.log('Creating modal:', id, title);
+    
+    // Close ALL existing modals first to prevent duplicates
+    const existingModals = document.querySelectorAll('.modal-overlay, .modal.show');
+    existingModals.forEach(modal => {
+        console.log('Closing existing modal:', modal);
+        modal.remove();
+    });
+    
+    // Remove existing modal with same ID if any
     const existing = document.getElementById(id);
-    if (existing) existing.remove();
+    if (existing) {
+        console.log('Removing existing modal with same ID:', existing);
+        existing.remove();
+    }
 
     const modal = document.createElement('div');
     modal.id = id;
-    modal.className = 'modal-overlay';
-    modal.style.display = 'flex';
+    modal.className = 'modal-overlay show';
+    
+    // Add inline styles as fallback to ensure centering
+    modal.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        backdrop-filter: blur(4px) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 999999 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    `;
+    
+    console.log('Modal element created:', modal);
+    console.log('Modal classes:', modal.className);
+    console.log('Modal inline styles:', modal.style.cssText);
+    
     modal.innerHTML = `
         <div class="modal-container">
             <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -72,7 +108,13 @@ function createAdminModal(id, title, content, icon = 'info') {
             </div>
         </div>
     `;
+    
     document.body.appendChild(modal);
+    console.log('Modal appended to body');
+    
+    // Force a reflow to ensure styles are applied
+    modal.offsetHeight;
+    console.log('Modal styles applied, modal visible:', modal);
 
     // Close modal on backdrop click
     modal.addEventListener('click', function (e) {

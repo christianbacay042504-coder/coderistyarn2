@@ -225,8 +225,8 @@ function getBookingStats($conn)
     $stats['this_month'] = $result->fetch_assoc()['total'];
 
     // Total revenue
-    $result = $conn->query("SELECT SUM(total_amount) as total FROM bookings WHERE status = 'completed'");
-    $stats['total_revenue'] = $result->fetch_assoc()['total'] ?? 0;
+    $result = $conn->query("SELECT SUM(total_amount) as total FROM bookings WHERE status = 'confirmed'");
+    $stats['total_revenue'] = $result ? ($result->fetch_assoc()['total'] ?? 0) : 0;
 
     return $stats;
 }
@@ -430,11 +430,6 @@ $queryValues = [
                 </div>
 
                 <div class="top-bar-actions">
-                    <button class="btn-primary" onclick="showAddBookingModal()">
-                        <span class="material-icons-outlined">add</span>
-                        Add Booking
-                    </button>
-                    
                     <!-- Admin Profile Dropdown -->
                     <div class="profile-dropdown">
                         <button class="profile-button" id="adminProfileButton">
@@ -563,10 +558,6 @@ $queryValues = [
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button class="btn-icon" onclick="viewBooking(<?php echo $booking['id']; ?>)"
-                                                title="View">
-                                                <span class="material-icons-outlined">visibility</span>
-                                            </button>
                                             <?php if ($booking['status'] === 'pending'): ?>
                                                 <button class="btn-icon" onclick="acceptBooking(<?php echo $booking['id']; ?>)" title="Accept">
                                                     <span class="material-icons-outlined">check</span>
@@ -617,84 +608,6 @@ $queryValues = [
         </main>
     </div>
 
-    <!-- View Booking Modal -->
-    <div id="viewBookingModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Booking Details</h2>
-                <button class="modal-close" onclick="closeViewBookingModal()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="dest-view">
-                    <div class="dest-view-section">
-                        <h4><span class="material-icons-outlined">confirmation_number</span> Booking</h4>
-                        <div class="dest-view-kv">
-                            <div class="dest-view-k">
-                                <span class="material-icons-outlined">tag</span>
-                                <div>
-                                    <div class="dest-view-k-label">Booking ID</div>
-                                    <div class="dest-view-k-value" id="viewBookingId"></div>
-                                </div>
-                            </div>
-                            <div class="dest-view-k">
-                                <span class="material-icons-outlined">event</span>
-                                <div>
-                                    <div class="dest-view-k-label">Booking Date</div>
-                                    <div class="dest-view-k-value" id="viewBookingDate"></div>
-                                </div>
-                            </div>
-                            <div class="dest-view-k">
-                                <span class="material-icons-outlined">groups</span>
-                                <div>
-                                    <div class="dest-view-k-label">People</div>
-                                    <div class="dest-view-k-value" id="viewBookingPeople"></div>
-                                </div>
-                            </div>
-                            <div class="dest-view-k">
-                                <span class="material-icons-outlined">payments</span>
-                                <div>
-                                    <div class="dest-view-k-label">Amount</div>
-                                    <div class="dest-view-k-value" id="viewBookingAmount"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dest-view-section">
-                        <h4><span class="material-icons-outlined">tour</span> Tour</h4>
-                        <p class="dest-view-text" id="viewBookingTour"></p>
-                    </div>
-
-                    <div class="dest-view-section">
-                        <h4><span class="material-icons-outlined">person</span> User</h4>
-                        <div class="dest-view-contact">
-                            <div class="dest-view-contact-item">
-                                <span class="material-icons-outlined">badge</span>
-                                <span id="viewBookingUser"></span>
-                            </div>
-                            <div class="dest-view-contact-item">
-                                <span class="material-icons-outlined">mail</span>
-                                <span id="viewBookingEmail"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dest-view-section">
-                        <h4><span class="material-icons-outlined">flag</span> Status</h4>
-                        <div class="dest-view-badges">
-                            <span class="status-badge" id="viewBookingStatus"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeViewBookingModal()">Close</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Delete Booking Modal -->
     <div id="deleteBookingModal" class="modal">
         <div class="modal-content">
@@ -714,41 +627,6 @@ $queryValues = [
                     <button type="submit" class="btn-primary">Delete</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- Account Modal -->
-    <div id="accountModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>My Account</h2>
-                <button class="modal-close" onclick="closeAccountModal()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="dest-view">
-                    <div class="dest-view-item">
-                        <span class="dest-view-label">Name</span>
-                        <span class="dest-view-value"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></span>
-                    </div>
-                    <div class="dest-view-item">
-                        <span class="dest-view-label">Email</span>
-                        <span class="dest-view-value"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></span>
-                    </div>
-                    <div class="dest-view-item">
-                        <span class="dest-view-label">Role</span>
-                        <span class="dest-view-value">Administrator</span>
-                    </div>
-                    <div class="dest-view-item">
-                        <span class="dest-view-label">Admin Mark</span>
-                        <span class="dest-view-value"><?php echo isset($adminMark) ? htmlspecialchars($adminMark) : 'A'; ?></span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeAccountModal()">Close</button>
-            </div>
         </div>
     </div>
 
@@ -921,164 +799,11 @@ $queryValues = [
                 justify-content: center;
             }
         }
-
-        #viewBookingModal .dest-view {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        #viewBookingModal .dest-view-section {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-        }
-
-        #viewBookingModal .dest-view-section h4 {
-            margin: 0 0 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
-
-        #viewBookingModal .dest-view-section h4 .material-icons-outlined {
-            font-size: 20px;
-            color: var(--primary);
-        }
-
-        #viewBookingModal .dest-view-kv {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        #viewBookingModal .dest-view-k {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            border-radius: 14px;
-            background: var(--gray-50);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-        }
-
-        #viewBookingModal .dest-view-k .material-icons-outlined {
-            color: var(--primary);
-            font-size: 20px;
-        }
-
-        #viewBookingModal .dest-view-k-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        #viewBookingModal .dest-view-k-value {
-            font-size: 14px;
-            color: var(--text-primary);
-            font-weight: 700;
-        }
-
-        #viewBookingModal .dest-view-text {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.65;
-            white-space: pre-wrap;
-        }
-
-        #viewBookingModal .dest-view-contact {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        #viewBookingModal .dest-view-contact-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border-radius: 14px;
-            background: var(--gray-50);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            color: var(--text-secondary);
-            font-weight: 600;
-            overflow: hidden;
-        }
-
-        #viewBookingModal .dest-view-contact-item .material-icons-outlined {
-            color: var(--primary);
-            font-size: 20px;
-        }
-
-        #viewBookingModal .dest-view-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        @media (max-width: 560px) {
-            #viewBookingModal .dest-view-kv,
-            #viewBookingModal .dest-view-contact {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
-        // Open Account modal when clicking My Account in dropdown
-        document.addEventListener('DOMContentLoaded', function() {
-            const accountLink = document.getElementById('adminAccountLink');
-            if (accountLink) {
-                accountLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Close dropdown
-                    const menu = document.getElementById('adminProfileMenu');
-                    if (menu) menu.classList.remove('show');
-                    // Open Account modal
-                    const modal = document.getElementById('accountModal');
-                    if (modal) {
-                        modal.classList.add('show');
-                        document.body.style.overflow = 'hidden';
-                    }
-                });
-            }
-        });
-
-        function closeAccountModal() {
-            const modal = document.getElementById('accountModal');
-            if (modal) {
-                modal.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        // Close Account modal on overlay click or Escape
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('accountModal');
-            if (modal && event.target === modal) {
-                closeAccountModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modal = document.getElementById('accountModal');
-                if (modal && modal.classList.contains('show')) {
-                    closeAccountModal();
-                }
-            }
-        });
-
         function searchBookings() {
             const searchValue = document.getElementById('searchInput').value;
             const statusValue = document.getElementById('statusFilter').value;
@@ -1106,57 +831,6 @@ $queryValues = [
             if (searchValue) params.append('search', searchValue);
             if (statusValue) params.append('status', statusValue);
             window.location.href = `?${params.toString()}`;
-        }
-
-        function viewBooking(bookingId) {
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=get_booking&booking_id=${bookingId}`
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (!result.success) {
-                    alert(result.message || 'Failed to load booking details.');
-                    return;
-                }
-
-                const b = result.data;
-
-                document.getElementById('viewBookingId').textContent = b.id ? `#${String(b.id).padStart(6, '0')}` : '';
-                document.getElementById('viewBookingTour').textContent = b.tour_name || '';
-                document.getElementById('viewBookingPeople').textContent = b.number_of_people || '';
-                document.getElementById('viewBookingAmount').textContent = b.total_amount ? `₱${parseFloat(b.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₱0.00';
-                document.getElementById('viewBookingDate').textContent = b.booking_date ? new Date(b.booking_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-
-                document.getElementById('viewBookingUser').textContent = b.user_name || '';
-                document.getElementById('viewBookingEmail').textContent = b.user_email || '';
-
-                const statusEl = document.getElementById('viewBookingStatus');
-                const status = b.status || '';
-                statusEl.textContent = status ? (status.charAt(0).toUpperCase() + status.slice(1)) : '';
-                statusEl.className = `status-badge status-${status || 'pending'}`;
-
-                const modal = document.getElementById('viewBookingModal');
-                modal.style.display = 'block';
-                modal.classList.add('show');
-                document.body.style.overflow = 'hidden';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to load booking details.');
-            });
-        }
-
-        function closeViewBookingModal() {
-            const modal = document.getElementById('viewBookingModal');
-            if (modal) {
-                modal.style.display = 'none';
-                modal.classList.remove('show');
-                document.body.style.overflow = 'auto';
-            }
         }
 
         function editBooking(bookingId) {
@@ -1472,13 +1146,8 @@ $queryValues = [
             }
         });
 
-        // Close view modal when clicking outside
+        // Close modals when clicking outside
         window.addEventListener('click', function(event) {
-            const viewModal = document.getElementById('viewBookingModal');
-            if (event.target === viewModal) {
-                closeViewBookingModal();
-            }
-
             const editModal = document.getElementById('editBookingModal');
             if (event.target === editModal) {
                 closeEditBookingModal();
@@ -1495,14 +1164,9 @@ $queryValues = [
             }
         });
 
-        // Close view modal with Escape key
+        // Close modals with Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                const viewModal = document.getElementById('viewBookingModal');
-                if (viewModal && viewModal.style.display === 'block') {
-                    closeViewBookingModal();
-                }
-
                 const editModal = document.getElementById('editBookingModal');
                 if (editModal && editModal.style.display === 'block') {
                     closeEditBookingModal();

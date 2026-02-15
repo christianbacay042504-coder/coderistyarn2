@@ -994,12 +994,14 @@ overflow: auto;
 }
 
 .modal.show {
-display: block !important;
+display: flex !important;
+align-items: center;
+justify-content: center;
 }
 
 .modal-content {
 background-color: var(--white);
-margin: 3% auto;
+margin: 0;
 padding: 0;
 border-radius: var(--radius-lg);
 width: 90%;
@@ -1564,9 +1566,20 @@ transform: translateY(0) scale(1);
 }
 
 .modal-container {
+    background-color: white;
+    margin: 0;
     padding: 32px;
-    overflow-y: auto;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 600px;
     max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    animation: modalSlideIn 0.3s ease-out;
+    position: relative;
+    z-index: 1000000;
+    display: flex;
+    flex-direction: column;
 }
 
 .guide-details-container {
@@ -1766,6 +1779,48 @@ transform: translateY(0) scale(1);
     color: var(--primary);
 }
 
+/* Modal overlay for dynamically created modals */
+.modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 999999 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.modal-overlay.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.modal-container {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    animation: modalSlideIn 0.3s ease-out;
+    position: relative;
+    z-index: 1000000;
+    padding: 24px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .guide-header-section {
@@ -1781,4 +1836,45 @@ transform: translateY(0) scale(1);
     .guide-badges {
         justify-content: center;
     }
+    
+    .modal-container {
+        width: 95%;
+        margin: 20px;
+    }
+}
+
+/* Signout Modal Styles */
+.signout-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.signout-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: white;
+    font-size: 28px;
+}
+
+.signout-message h3 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.signout-message p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.5;
 }
