@@ -370,7 +370,7 @@ function getTourGuidesList($conn, $page = 1, $limit = 15, $search = '')
     $search = $conn->real_escape_string($search);
 
     // Get tour guides with pagination
-    $guidesQuery = "SELECT tg.* FROM tour_guides tg WHERE 1=1";
+    $guidesQuery = "SELECT tg.*, u.first_name, u.last_name, u.email, tg.contact_number, tg.specialty, tg.rating, tg.review_count, tg.price_range, tg.languages, tg.areas_of_expertise, tg.experience_years, tg.group_size, tg.total_tours, tg.verified FROM tour_guides tg LEFT JOIN users u ON tg.user_id = u.id WHERE 1=1";
 
     if ($search) {
         $guidesQuery .= " AND (tg.name LIKE '%$search%' OR tg.specialty LIKE '%$search%' OR tg.email LIKE '%$search%')";
@@ -688,6 +688,18 @@ $queryValues = [
                     </div>
                 </div>
 
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="showTab('tour-guides', this)" data-tab="tour-guides">
+                        <span class="material-icons-outlined">tour</span>
+                        Tour Guides
+                    </button>
+                    <button class="filter-tab" onclick="showTab('registrations', this)" data-tab="registrations">
+                        <span class="material-icons-outlined">how_to_reg</span>
+                        Tour Guide Registrations
+                    </button>
+                </div>
+
                 <!-- Search and Filters -->
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Search guides by name, specialty, or email..."
@@ -708,7 +720,7 @@ $queryValues = [
                         <thead>
                             <tr>
                                 <th>Photo</th>
-                                <th>Name</th>
+                                <th>Full Name</th>
                                 <th>Specialty</th>
                                 <th>Contact</th>
                                 <th>Rating</th>
@@ -1055,6 +1067,34 @@ $queryValues = [
         function clearSearch() {
             document.getElementById('searchInput').value = '';
             window.location.href = '?';
+        }
+
+        function showTab(tabName, element) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to clicked tab
+            element.classList.add('active');
+            
+            // Handle tab switching
+            if (tabName === 'registrations') {
+                // Redirect to tour guide registrations page
+                window.location.href = 'tour-guide-registrations.php';
+            } else {
+                // Update URL with tab parameter for other tabs
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.delete('tab');
+                currentUrl.searchParams.set('tab', tabName);
+                window.location.href = currentUrl.toString();
+            }
+        }
+
+        function searchGuides() {
+            const searchValue = document.getElementById('searchInput').value;
+            const activeTab = document.querySelector('.filter-tab.active')?.getAttribute('data-tab') || 'all';
+            window.location.href = `?search=${encodeURIComponent(searchValue)}&tab=${activeTab}`;
         }
 
         function goToPage(page) {
