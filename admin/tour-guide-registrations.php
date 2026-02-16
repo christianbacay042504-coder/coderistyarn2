@@ -72,7 +72,7 @@ function updateRegistrationStatus($conn, $registrationId, $status)
 function deleteRegistration($conn, $registrationId)
 {
     try {
-        $stmt = $conn->prepare("DELETE FROM tour_guide_registrations WHERE id = ?");
+        $stmt = $conn->prepare("DELETE FROM registration_tour_guide WHERE id = ?");
         $stmt->bind_param("i", $registrationId);
 
         if ($stmt->execute()) {
@@ -539,10 +539,6 @@ $queryValues = [
                                                 title="View">
                                                 <span class="material-icons-outlined">visibility</span>
                                             </button>
-                                            <button class="btn-icon btn-edit" onclick="editRegistration(<?php echo $registration['id']; ?>)"
-                                                title="Edit">
-                                                <span class="material-icons-outlined">edit</span>
-                                            </button>
                                             <button class="btn-icon btn-delete" onclick="deleteRegistration(<?php echo $registration['id']; ?>)"
                                                 title="Delete">
                                                 <span class="material-icons-outlined">delete</span>
@@ -621,6 +617,29 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteRegistrationModal" class="modal">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2>Delete Registration</h2>
+                <button class="modal-close" onclick="closeDeleteRegistrationModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="deleteRegistrationForm" onsubmit="handleDeleteRegistration(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="deleteRegistrationId" name="registration_id">
+                    <p id="deleteRegistrationText">Are you sure you want to delete this registration?</p>
+                    <p style="margin-top: 10px; color: var(--danger); font-weight: 600;">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeDeleteRegistrationModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" style="background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
@@ -644,9 +663,94 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Document Preview Modal -->
+    <div id="documentPreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 70%; max-height: 80vh; width: 800px;">
+            <div class="modal-header">
+                <h2 id="documentPreviewTitle">Document Preview</h2>
+                <button class="modal-close" onclick="closeDocumentPreviewModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 0; max-height: 65vh; overflow: auto;">
+                <div id="documentPreviewContent" style="text-align: center; padding: 15px;">
+                    <!-- Document preview will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeDocumentPreviewModal()">Close</button>
+                <a id="documentDownloadLink" href="" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <span class="material-icons-outlined" style="font-size: 18px;">download</span>
+                    Download
+                </a>
+            </div>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
     <script src="admin-profile-dropdown.js"></script>
     <script>
+        function viewDocument(filePath, documentTitle, fileExtension) {
+            const modal = document.getElementById('documentPreviewModal');
+            const title = document.getElementById('documentPreviewTitle');
+            const content = document.getElementById('documentPreviewContent');
+            const downloadLink = document.getElementById('documentDownloadLink');
+            
+            title.textContent = documentTitle;
+            downloadLink.href = filePath;
+            
+            const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+            const isPDF = fileExtension === 'pdf';
+            
+            if (isImage) {
+                content.innerHTML = `
+                    <div style="padding: 10px;">
+                        <img src="${filePath}" alt="${documentTitle}" style="max-width: 100%; max-height: 50vh; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>
+                `;
+            } else if (isPDF) {
+                content.innerHTML = `
+                    <div style="padding: 10px;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <span class="material-icons-outlined" style="font-size: 32px; color: var(--primary);">picture_as_pdf</span>
+                            <p style="margin: 5px 0; color: #6c757d; font-size: 14px;">PDF Document Preview</p>
+                        </div>
+                        <iframe src="${filePath}" style="width: 100%; height: 50vh; border: none; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></iframe>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="padding: 20px; text-align: center;">
+                        <span class="material-icons-outlined" style="font-size: 36px; color: var(--primary);">description</span>
+                        <h3 style="margin: 15px 0 8px 0; color: #333; font-size: 18px;">${documentTitle}</h3>
+                        <p style="color: #6c757d; margin-bottom: 15px; font-size: 14px;">File type: ${fileExtension.toUpperCase()}</p>
+                        <p style="color: #6c757d; margin-bottom: 20px; font-size: 14px;">This file type cannot be previewed. Please download to view.</p>
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <a href="${filePath}" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 8px 16px;">
+                                <span class="material-icons-outlined" style="font-size: 16px;">open_in_new</span>
+                                Open in New Tab
+                            </a>
+                            <a href="${filePath}" download class="btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 8px 16px;">
+                                <span class="material-icons-outlined" style="font-size: 16px;">download</span>
+                                Download File
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDocumentPreviewModal() {
+            const modal = document.getElementById('documentPreviewModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
         function searchRegistrations() {
             const searchValue = document.getElementById('searchInput').value;
             window.location.href = `?search=${encodeURIComponent(searchValue)}`;
@@ -694,6 +798,60 @@ $queryValues = [
                 console.error('Fetch error:', error);
                 alert('Error fetching registration data: ' + error.message);
             });
+        }
+
+        function generateDocumentLinks(registration) {
+            const documents = [
+                { field: 'resume_file', label: 'Resume/CV', basePath: '/coderistyarn2/uploads/' },
+                { field: 'dot_id_file', label: 'DOT ID', basePath: '/coderistyarn2/uploads/' },
+                { field: 'government_id_file', label: 'Government ID', basePath: '/coderistyarn2/uploads/' },
+                { field: 'nbi_clearance_file', label: 'NBI Clearance', basePath: '/coderistyarn2/uploads/' },
+                { field: 'first_aid_certificate_file', label: 'First Aid Certificate', basePath: '/coderistyarn2/uploads/' },
+                { field: 'id_photo_file', label: 'ID Photo', basePath: '/coderistyarn2/uploads/' }
+            ];
+
+            let html = '';
+            documents.forEach(doc => {
+                if (registration[doc.field]) {
+                    // The database already contains the directory path, so just append to base
+                    const filePath = doc.basePath + registration[doc.field];
+                    const fileExtension = registration[doc.field].split('.').pop().toLowerCase();
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension);
+                    const isPDF = fileExtension === 'pdf';
+                    
+                    let icon = 'description';
+                    if (isImage) icon = 'image';
+                    else if (isPDF) icon = 'picture_as_pdf';
+                    
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="material-icons-outlined" style="margin-right: 8px; color: var(--primary);">${icon}</span>
+                                <span style="font-weight: 700; color: #495057;">${doc.label}:</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="font-size: 12px; color: #6c757d; background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${fileExtension.toUpperCase()}</span>
+                                <button onclick="viewDocument('${filePath}', '${doc.label}', '${fileExtension}')" 
+                                        style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    <span class="material-icons-outlined" style="font-size: 14px; vertical-align: middle;">visibility</span>
+                                    View
+                                </button>
+                                <a href="${filePath}" target="_blank" 
+                                   style="color: var(--primary); text-decoration: none; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                    <span class="material-icons-outlined" style="font-size: 14px;">open_in_new</span>
+                                    Open
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (!html) {
+                html = '<div style="text-align: center; padding: 20px; color: #6c757d;">No documents uploaded</div>';
+            }
+
+            return html;
         }
 
         function populateViewModal(registration) {
@@ -826,42 +984,9 @@ $queryValues = [
                         
                         <!-- Documents -->
                         <h4 style="margin: 20px 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px;">Documents</h4>
-                        ${registration.resume_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
-                                <span style="font-weight: 700; color: #495057;">Resume/CV:</span>
-                                <a href="../uploads/resumes/${registration.resume_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View Resume/CV</a>
-                            </div>
-                        ` : ''}
-                        ${registration.dot_id_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
-                                <span style="font-weight: 700; color: #495057;">DOT ID:</span>
-                                <a href="../uploads/tour_guide_documents/${registration.dot_id_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View DOT ID</a>
-                            </div>
-                        ` : ''}
-                        ${registration.government_id_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
-                                <span style="font-weight: 700; color: #495057;">Government ID:</span>
-                                <a href="../uploads/tour_guide_documents/${registration.government_id_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View Government ID</a>
-                            </div>
-                        ` : ''}
-                        ${registration.nbi_clearance_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
-                                <span style="font-weight: 700; color: #495057;">NBI Clearance:</span>
-                                <a href="../uploads/tour_guide_documents/${registration.nbi_clearance_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View NBI Clearance</a>
-                            </div>
-                        ` : ''}
-                        ${registration.first_aid_certificate_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
-                                <span style="font-weight: 700; color: #495057;">First Aid Certificate:</span>
-                                <a href="../uploads/tour_guide_documents/${registration.first_aid_certificate_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View Certificate</a>
-                            </div>
-                        ` : ''}
-                        ${registration.id_photo_file ? `
-                            <div style="display: flex; justify-content: space-between; padding: 15px 0;">
-                                <span style="font-weight: 700; color: #495057;">ID Photo:</span>
-                                <a href="../uploads/tour_guide_documents/${registration.id_photo_file}" target="_blank" style="color: var(--primary); text-decoration: none;">View ID Photo</a>
-                            </div>
-                        ` : ''}
+                        <div id="documentsContainer">
+                            ${generateDocumentLinks(registration)}
+                        </div>
                         
                         <!-- Action Buttons -->
                         <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
@@ -1140,6 +1265,57 @@ $queryValues = [
             document.body.style.overflow = 'auto';
         }
 
+        function openDeleteRegistrationModal(registrationId) {
+            const modal = document.getElementById('deleteRegistrationModal');
+            const idInput = document.getElementById('deleteRegistrationId');
+
+            if (modal && idInput) {
+                idInput.value = registrationId;
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeDeleteRegistrationModal() {
+            const modal = document.getElementById('deleteRegistrationModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function handleDeleteRegistration(event) {
+            event.preventDefault();
+            const registrationId = document.getElementById('deleteRegistrationId')?.value;
+
+            if (!registrationId) {
+                alert('Missing registration id');
+                return;
+            }
+
+            fetch('tour-guide-registrations.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=delete_registration&registration_id=${encodeURIComponent(registrationId)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeDeleteRegistrationModal();
+                    showSuccessModal(data.message || 'Registration deleted successfully!', () => {
+                        location.reload();
+                    });
+                } else {
+                    alert(data.message || 'Error deleting registration');
+                }
+            })
+            .catch(error => {
+                alert('Error deleting registration: ' + error.message);
+            });
+        }
+
         function handleUpdateStatus(event) {
             event.preventDefault();
             const form = event.target;
@@ -1165,27 +1341,7 @@ $queryValues = [
         }
 
         function deleteRegistration(registrationId) {
-            if (confirm('Are you sure you want to delete this registration?')) {
-                fetch('tour-guide-registrations.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=delete_registration&registration_id=${registrationId}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Error deleting registration');
-                    }
-                })
-                .catch(error => {
-                    alert('Error deleting registration: ' + error.message);
-                });
-            }
+            openDeleteRegistrationModal(registrationId);
         }
 
         function editRegistration(registrationId) {

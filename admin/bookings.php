@@ -66,8 +66,14 @@ function editBookingRecord($conn, $data)
 function updateBookingStatus($conn, $data)
 {
     try {
-        $stmt = $conn->prepare("UPDATE bookings SET status = ? WHERE id = ?");
-        $stmt->bind_param("si", $data['status'], $data['booking_id']);
+        // If status is being set to cancelled/rejected and notes are provided, update notes as well
+        if ($data['status'] === 'cancelled' && isset($data['rejection_notes'])) {
+            $stmt = $conn->prepare("UPDATE bookings SET status = ?, rejection_notes = ? WHERE id = ?");
+            $stmt->bind_param("ssi", $data['status'], $data['rejection_notes'], $data['booking_id']);
+        } else {
+            $stmt = $conn->prepare("UPDATE bookings SET status = ? WHERE id = ?");
+            $stmt->bind_param("si", $data['status'], $data['booking_id']);
+        }
 
         if ($stmt->execute()) {
             return ['success' => true, 'message' => 'Booking status updated successfully'];
@@ -471,21 +477,41 @@ $queryValues = [
             <div class="content-area">
                 <!-- Booking Statistics -->
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3><?php echo $bookingStats['total']; ?></h3>
-                        <p>Total Bookings</p>
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">book</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $bookingStats['total']; ?></h3>
+                            <p>Total Bookings</p>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3><?php echo $bookingStats['today']; ?></h3>
-                        <p>Today's Bookings</p>
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">today</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $bookingStats['today']; ?></h3>
+                            <p>Today's Bookings</p>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>₱<?php echo number_format($bookingStats['total_revenue'], 2); ?></h3>
-                        <p>Total Revenue</p>
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">payments</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3>₱<?php echo number_format($bookingStats['total_revenue'], 2); ?></h3>
+                            <p>Total Revenue</p>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3><?php echo $bookingStats['this_month']; ?></h3>
-                        <p>This Month</p>
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">calendar_month</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $bookingStats['this_month']; ?></h3>
+                            <p>This Month</p>
+                        </div>
                     </div>
                 </div>
 
@@ -528,6 +554,7 @@ $queryValues = [
                                 <th>People</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th>Notes</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -555,6 +582,18 @@ $queryValues = [
                                         <span class="status-badge status-<?php echo $booking['status']; ?>">
                                             <?php echo ucfirst($booking['status']); ?>
                                         </span>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        if (!empty($booking['rejection_notes'])) {
+                                            echo '<div class="notes-cell" title="' . htmlspecialchars($booking['rejection_notes']) . '">';
+                                            echo '<span class="material-icons-outlined">note</span>';
+                                            echo '<span class="notes-text">' . substr(htmlspecialchars($booking['rejection_notes']), 0, 50) . (strlen($booking['rejection_notes']) > 50 ? '...' : '') . '</span>';
+                                            echo '</div>';
+                                        } else {
+                                            echo '<span class="no-notes">—</span>';
+                                        }
+                                        ?>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
@@ -660,6 +699,51 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Reject Booking Modal -->
+    <div id="rejectBookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reject Booking</h2>
+                <button class="modal-close" onclick="closeRejectBookingModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <form id="rejectBookingForm" onsubmit="handleRejectBooking(event)">
+                <input type="hidden" id="rejectBookingId" name="booking_id">
+                <div class="modal-body">
+                    <div class="reject-booking-info">
+                        <div class="reject-icon">
+                            <span class="material-icons-outlined">warning</span>
+                        </div>
+                        <div class="reject-message">
+                            <h3>Are you sure you want to reject this booking?</h3>
+                            <p>Please provide a reason for rejection. This will be visible to the customer.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rejectionNotes">Rejection Reason *</label>
+                        <textarea id="rejectionNotes" name="rejection_notes" rows="4" placeholder="Please explain why this booking is being rejected..." required></textarea>
+                        <small class="form-help">Be specific and professional. This reason will be sent to the customer.</small>
+                    </div>
+                    <div class="rejection-reasons">
+                        <label>Common reasons:</label>
+                        <div class="reason-chips">
+                            <button type="button" class="reason-chip" onclick="addReason('Fully booked')">Fully booked</button>
+                            <button type="button" class="reason-chip" onclick="addReason('Tour not available')">Tour not available</button>
+                            <button type="button" class="reason-chip" onclick="addReason('Payment issue')">Payment issue</button>
+                            <button type="button" class="reason-chip" onclick="addReason('Schedule conflict')">Schedule conflict</button>
+                            <button type="button" class="reason-chip" onclick="addReason('Weather conditions')">Weather conditions</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeRejectBookingModal()">Cancel</button>
+                    <button type="submit" class="btn-danger">Reject Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Edit Booking Modal -->
     <div id="editBookingModal" class="modal">
         <div class="modal-content">
@@ -711,56 +795,224 @@ $queryValues = [
     </div>
 
     <style>
+        /* Enhanced Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-height: 120px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .stat-icon .material-icons-outlined {
+            font-size: 32px;
+            color: white;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-content {
+            flex: 1;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-content h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0 0 4px 0;
+            line-height: 1.1;
+            transition: all 0.3s ease;
+        }
+
+        .stat-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stat Card Variants */
+        .stat-card-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card-primary .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-primary::before {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .stat-card-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .stat-card-success .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-success::before {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        }
+
+        .stat-card-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .stat-card-warning .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-warning::before {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+        }
+
+        .stat-card-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .stat-card-info .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-info::before {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+        }
+
+        /* Enhanced Search Bar */
         .booking-search-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            gap: 16px;
+            padding: 24px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.03),
-                0 2px 8px rgba(0, 0, 0, 0.02);
-            margin-bottom: 24px;
-            backdrop-filter: blur(8px);
+                0 20px 40px rgba(0, 0, 0, 0.06),
+                0 4px 12px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 32px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .booking-search-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(44, 95, 45, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .booking-search-bar:hover::before {
+            left: 100%;
         }
 
         .booking-search-input,
         .booking-status-filter {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 14px;
-            border-radius: 16px;
-            background: var(--gray-50);
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .booking-search-input {
             flex: 1;
-            min-width: 240px;
+            min-width: 280px;
         }
 
         .booking-search-input:focus-within,
         .booking-status-filter:focus-within {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(44, 95, 45, 0.10);
-            transform: translateY(-1px);
+            box-shadow: 
+                0 0 0 8px rgba(44, 95, 45, 0.15),
+                0 8px 24px rgba(44, 95, 45, 0.08);
+            transform: translateY(-2px);
         }
 
         .booking-search-input .material-icons-outlined,
         .booking-status-filter .material-icons-outlined {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--text-muted);
+            transition: all 0.3s ease;
         }
 
-        .booking-search-input input {
-            width: 100%;
-            border: none;
-            outline: none;
+        .booking-search-input:focus-within .material-icons-outlined,
+        .booking-status-filter:focus-within .material-icons-outlined {
+            color: var(--primary);
+            transform: scale(1.1);
             background: transparent;
             font-size: 14px;
             font-weight: 500;
@@ -794,10 +1046,266 @@ $queryValues = [
                 width: 100%;
             }
 
-            .booking-search-bar .btn-secondary {
-                width: 100%;
-                justify-content: center;
+            .booking-search-input {
+                flex: 1;
+                min-width: 280px;
             }
+
+            .booking-search-input:focus-within,
+            .booking-status-filter:focus-within {
+                background: rgba(255, 255, 255, 0.95);
+                border-color: var(--primary);
+                box-shadow: 
+                    0 0 0 8px rgba(44, 95, 45, 0.15),
+                    0 8px 24px rgba(44, 95, 45, 0.08);
+                transform: translateY(-2px);
+            }
+        }
+
+        /* Force cancelled status to be red - override all other styles */
+        .status-badge.status-cancelled {
+            background: #fee2e2 !important;
+            color: #dc2626 !important;
+            border: 2px solid #ef4444 !important;
+            font-weight: 700 !important;
+        }
+
+        .status-badge.status-cancelled:hover {
+            background: #fecaca !important;
+            color: #b91c1c !important;
+            border-color: #dc2626 !important;
+        }
+
+        /* Enhanced Rejection Modal Styles */
+        .reject-booking-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 1px solid #fecaca;
+        }
+
+        .reject-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .reject-icon .material-icons-outlined {
+            font-size: 28px;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .reject-message {
+            flex: 1;
+        }
+
+        .reject-message h3 {
+            margin: 0 0 8px 0;
+            color: #991b1b;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .reject-message p {
+            margin: 0;
+            color: #7f1d1d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .rejection-reasons {
+            margin-bottom: 20px;
+        }
+
+        .rejection-reasons label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .reason-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .reason-chip {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .reason-chip:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .reason-chip:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Enhanced form styling for rejection modal */
+        #rejectBookingForm .form-group {
+            margin-bottom: 20px;
+        }
+
+        #rejectBookingForm .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        #rejectBookingForm textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+
+        #rejectBookingForm textarea:focus {
+            outline: none;
+            border-color: #ef4444;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        #rejectBookingForm .form-help {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Enhanced modal footer for rejection */
+        #rejectBookingModal .modal-footer {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        #rejectBookingModal .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #rejectBookingModal .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        #rejectBookingModal .btn-secondary {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #rejectBookingModal .btn-secondary:hover {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Notes Column Styling */
+        .notes-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            max-width: 200px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notes-cell:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e5e7eb 100%);
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .notes-cell .material-icons-outlined {
+            font-size: 16px;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+
+        .notes-text {
+            font-size: 0.85rem;
+            color: #374151;
+            line-height: 1.4;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .no-notes {
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            display: block;
         }
     </style>
 
@@ -1034,23 +1542,99 @@ $queryValues = [
         }
 
         function rejectBooking(bookingId) {
-            if (!confirm('Reject this booking?')) return;
+            // Set booking ID in modal
+            document.getElementById('rejectBookingId').value = bookingId;
+            
+            // Show rejection modal
+            document.getElementById('rejectBookingModal').style.display = 'block';
+        }
+
+        function closeRejectBookingModal() {
+            const modal = document.getElementById('rejectBookingModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function addReason(reason) {
+            const textarea = document.getElementById('rejectionNotes');
+            const currentValue = textarea.value.trim();
+            
+            if (currentValue) {
+                textarea.value = currentValue + ' ' + reason;
+            } else {
+                textarea.value = reason;
+            }
+            
+            // Focus on textarea after adding reason
+            textarea.focus();
+        }
+
+        function handleRejectBooking(event) {
+            event.preventDefault();
+
+            // Validate rejection notes
+            const rejectionNotes = document.getElementById('rejectionNotes').value.trim();
+            
+            if (!rejectionNotes) {
+                alert('Please provide a reason for rejecting this booking.');
+                document.getElementById('rejectionNotes').focus();
+                return;
+            }
+            
+            if (rejectionNotes.length < 10) {
+                alert('Please provide a more detailed reason for rejection (at least 10 characters).');
+                document.getElementById('rejectionNotes').focus();
+                return;
+            }
+            
+            if (rejectionNotes.length > 500) {
+                alert('Rejection reason must be less than 500 characters.');
+                document.getElementById('rejectionNotes').focus();
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Rejecting...';
+                submitBtn.disabled = true;
+            }
+
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            data.action = 'update_booking_status';
+            data.status = 'cancelled';
+
             fetch('', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `action=update_booking_status&booking_id=${bookingId}&status=cancelled`
+                body: new URLSearchParams(data)
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Booking rejected');
-                        location.reload();
-                    } else {
-                        alert(data.message);
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    closeRejectBookingModal();
+                    location.reload();
+                } else {
+                    alert(result.message || 'Failed to reject booking.');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
                     }
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to reject booking.');
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
         }
 
         function deleteBooking(bookingId) {
@@ -1162,6 +1746,11 @@ $queryValues = [
             if (event.target === deleteModal) {
                 closeDeleteBookingModal();
             }
+
+            const rejectModal = document.getElementById('rejectBookingModal');
+            if (event.target === rejectModal) {
+                closeRejectBookingModal();
+            }
         });
 
         // Close modals with Escape key
@@ -1180,6 +1769,11 @@ $queryValues = [
                 const deleteModal = document.getElementById('deleteBookingModal');
                 if (deleteModal && deleteModal.style.display === 'block') {
                     closeDeleteBookingModal();
+                }
+
+                const rejectModal = document.getElementById('rejectBookingModal');
+                if (rejectModal && rejectModal.style.display === 'block') {
+                    closeRejectBookingModal();
                 }
             }
         });

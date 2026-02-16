@@ -942,6 +942,12 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    header('Content-Type: application/json');
+
+    ini_set('display_errors', 0);
+
+    error_reporting(E_ALL);
+
     $action = $_POST['action'] ?? '';
 
 
@@ -2920,7 +2926,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function viewDestination(spotId) {
 
-            fetch('', {
+            fetch('destinations.php', {
 
                 method: 'POST',
 
@@ -3066,7 +3072,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function editDestination(spotId) {
 
-            fetch('', {
+            fetch('destinations.php', {
 
                 method: 'POST',
 
@@ -3660,7 +3666,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-        <!-- Sign Out Confirmation Modal -->
+    </script>
+
+    <!-- Sign Out Confirmation Modal -->
     <div id="signOutModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">

@@ -752,44 +752,25 @@ if ($conn) {
 
                     
 
-                    <div class="stat-card" data-stat="monthlyRevenue">
-
-                        <div class="stat-icon green">
-
+                    <div class="stat-card stat-card-warning" data-stat="monthlyRevenue">
+                        <div class="stat-icon">
                             <span class="material-icons-outlined">payments</span>
-
                         </div>
-
-                        <div class="stat-details">
-
+                        <div class="stat-content">
                             <h3>₱<?php echo number_format($monthlyRevenue, 2); ?></h3>
-
                             <p>Monthly Revenue</p>
-
                             <div class="stat-meta">This month's earnings</div>
-
                             <div class="stat-trend positive">
-
                                 <span class="material-icons-outlined">trending_up</span>
-
                                 <span>8% growth</span>
-
                             </div>
-
                         </div>
-
                         <div class="stat-progress">
-
                             <div class="progress-bar">
-
-                                <div class="progress-fill green" style="width: 80%"></div>
-
+                                <div class="progress-fill" style="width: 80%"></div>
                             </div>
-
                             <span class="progress-text">80% of target</span>
-
                         </div>
-
                     </div>
 
                 </div>
@@ -1021,6 +1002,203 @@ if ($conn) {
     <script src="admin-profile-dropdown.js"></script>
 
     <style>
+        /* Enhanced Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-height: 120px;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .stat-icon .material-icons-outlined {
+            font-size: 32px;
+            color: white;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-content {
+            flex: 1;
+            z-index: 2;
+            position: relative;
+        }
+
+        .stat-content h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0 0 4px 0;
+            line-height: 1.1;
+            transition: all 0.3s ease;
+        }
+
+        .stat-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stat Card Variants */
+        .stat-card-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card-primary .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-primary::before {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .stat-card-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .stat-card-success .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-success::before {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+        }
+
+        .stat-card-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .stat-card-warning .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-warning::before {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+        }
+
+        .stat-card-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .stat-card-info .stat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card-info::before {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+        }
+
+        .stat-meta {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 4px 0 0;
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .stat-trend.positive {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-trend.negative {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .stat-trend .material-icons-outlined {
+            font-size: 16px;
+        }
+
+        .stat-progress {
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
         /* Sign Out Modal Styles */
         .signout-content {
             display: flex;

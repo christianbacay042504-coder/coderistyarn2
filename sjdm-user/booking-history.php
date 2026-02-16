@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Fetch bookings for this user
 $userBookings = [];
 if ($conn) {
-    $bookingsSql = "SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, tg.name AS guide_name
+    $bookingsSql = "SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, b.rejection_notes, tg.name AS guide_name
         FROM bookings b
         LEFT JOIN tour_guides tg ON b.guide_id = tg.id
         WHERE b.user_id = ?
@@ -110,12 +110,11 @@ if ($conn) {
 
     $bookingsStmt = $conn->prepare($bookingsSql);
     if (!$bookingsStmt) {
-        $bookingsSql = "SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, tg.name AS guide_name
+        $bookingsStmt = $conn->prepare("SELECT b.id, b.booking_reference, b.tour_name, b.destination, b.booking_date, b.number_of_people, b.total_amount, b.status, tg.name AS guide_name
             FROM bookings b
             LEFT JOIN tour_guides tg ON b.guide_id = tg.id
             WHERE b.user_id = ?
-            ORDER BY b.id DESC";
-        $bookingsStmt = $conn->prepare($bookingsSql);
+            ORDER BY b.id DESC");
     }
 
     if ($bookingsStmt) {
@@ -554,6 +553,36 @@ if ($conn) {
             color: white;
         }
 
+        /* Rejection Notice Styles */
+        .rejection-notice {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .rejection-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #991b1b;
+            font-weight: 600;
+        }
+
+        .rejection-header .material-icons-outlined {
+            font-size: 18px;
+            color: #dc2626;
+        }
+
+        .rejection-message {
+            color: #7f1d1d;
+            font-size: 14px;
+            line-height: 1.5;
+            padding-left: 26px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .modal-content {
@@ -980,6 +1009,17 @@ if ($conn) {
                         </span>
                     </div>
                     
+                    ${booking.status === 'cancelled' && booking.rejection_notes ? `
+                        <div class="rejection-notice">
+                            <div class="rejection-header">
+                                <span class="material-icons-outlined">info</span>
+                                <strong>Rejection Reason:</strong>
+                            </div>
+                            <div class="rejection-message">${booking.rejection_notes}</div>
+                        </div>
+                        <div class="booking-card-divider"></div>
+                    ` : ''}
+                    
                     <div class="booking-card-divider"></div>
                     
                     <div class="booking-details-grid">
@@ -1119,6 +1159,15 @@ if ($conn) {
                     <p><strong>Ref #:</strong> ${booking.booking_reference || ('#' + booking.id)}</p>
                     <p><strong>Status:</strong> ${booking.status.toUpperCase()}</p>
                     <p><strong>Total:</strong> ₱${Number(booking.total_amount).toLocaleString()}</p>
+                    ${booking.status === 'cancelled' && booking.rejection_notes ? `
+                        <div class="rejection-notice">
+                            <div class="rejection-header">
+                                <span class="material-icons-outlined">info</span>
+                                <strong>Rejection Reason:</strong>
+                            </div>
+                            <div class="rejection-message">${booking.rejection_notes}</div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
             
