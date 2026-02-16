@@ -1,164 +1,178 @@
 <?php
-require_once __DIR__ . '/config/database.php';
+/**
+ * Tour Guide Registration Handler
+ * Processes the registration form submission from register-guide.php
+ * Created: February 16, 2026
+ */
 
-// Handle registration form submission
+// Set response header for JSON
+header('Content-Type: application/json');
+
+// Include required files
+require_once __DIR__ . '/functions/tour_guide_registration.php';
+
+// Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
-    
     try {
-        // Get database connection
-        $conn = getDatabaseConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-        
-        // 1. Sanitize and prepare Personal Information
-        $lastName = trim($_POST['lastName'] ?? '');
-        $firstName = trim($_POST['firstName'] ?? '');
-        $middleInitial = trim($_POST['middleInitial'] ?? '');
-        $preferredName = trim($_POST['preferredName'] ?? '');
-        $dateOfBirth = $_POST['dateOfBirth'] ?? null;
-        $gender = $_POST['gender'] ?? null;
-        $homeAddress = trim($_POST['homeAddress'] ?? '');
-        $primaryPhone = trim($_POST['primaryPhone'] ?? '');
-        $secondaryPhone = trim($_POST['secondaryPhone'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $emergencyContactName = trim($_POST['emergencyContactName'] ?? '');
-        $emergencyContactRelationship = trim($_POST['emergencyContactRelationship'] ?? '');
-        $emergencyContactPhone = trim($_POST['emergencyContactPhone'] ?? '');
-        
-        // 2. Professional Qualifications
-        $dotAccreditation = trim($_POST['dotAccreditation'] ?? '');
-        $accreditationExpiry = $_POST['accreditationExpiry'] ?? null;
-        $yearsExperience = intval($_POST['yearsExperience'] ?? 0);
-        $firstAidCertified = $_POST['firstAidCertified'] ?? null;
-        $firstAidExpiry = $_POST['firstAidExpiry'] ?? null;
-        $baseLocation = trim($_POST['baseLocation'] ?? '');
-        $employmentType = $_POST['employmentType'] ?? null;
-        $hasVehicle = $_POST['hasVehicle'] ?? null;
-        
-        // 3. Handle Languages (JSON format)
-        $languages = [];
-        if (isset($_POST['languages']) && isset($_POST['languageProficiency'])) {
-            $languageData = $_POST['languages'];
-            $proficiencyData = $_POST['languageProficiency'];
-            for ($i = 0; $i < count($languageData); $i++) {
-                if (!empty($languageData[$i]) && !empty($proficiencyData[$i])) {
-                    $languages[] = [
-                        'language' => $languageData[$i],
-                        'proficiency' => $proficiencyData[$i]
-                    ];
-                }
-            }
-        }
-        $languagesJson = json_encode($languages);
-        
-        // 4. Handle Specialization (FIX: Ensures it's a JSON string, not a zero)
-        $specializations = [];
-        if (isset($_POST['specialization']) && is_array($_POST['specialization'])) {
-            $specializations = $_POST['specialization'];
-        }
-        $specializationsJson = json_encode(array_values($specializations)); 
-        
-        // 5. Handle File Uploads
-        $uploadDir = __DIR__ . '/uploads/tour_guide_documents/';
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-        
-        $documentPaths = [
-            'resume_path' => handleFileUpload('resume', $uploadDir, ['pdf', 'doc', 'docx'], 5 * 1024 * 1024),
-            'dot_id_path' => handleFileUpload('dotId', $uploadDir, ['pdf', 'jpg', 'jpeg', 'png'], 5 * 1024 * 1024),
-            'government_id_path' => handleFileUpload('governmentId', $uploadDir, ['pdf', 'jpg', 'jpeg', 'png'], 5 * 1024 * 1024),
-            'nbi_clearance_path' => handleFileUpload('nbiClearance', $uploadDir, ['pdf', 'jpg', 'jpeg', 'png'], 5 * 1024 * 1024),
-            'first_aid_certificate_path' => handleFileUpload('firstAidCertificate', $uploadDir, ['pdf', 'jpg', 'jpeg', 'png'], 5 * 1024 * 1024),
-            'id_photo_path' => handleFileUpload('idPhoto', $uploadDir, ['jpg', 'jpeg', 'png'], 2 * 1024 * 1024)
+        // Validate required fields
+        $requiredFields = [
+            'lastName', 'firstName', 'dateOfBirth', 'gender', 'homeAddress',
+            'primaryPhone', 'email', 'emergencyContactName', 'emergencyContactRelationship',
+            'emergencyContactPhone', 'dotAccreditation', 'accreditationExpiry',
+            'specialization', 'yearsExperience', 'firstAidCertified',
+            'baseLocation', 'employmentType', 'hasVehicle'
         ];
         
-        // 6. Prepare SQL statement (30 columns in table, 1 hardcoded 'Pending', 29 placeholders)
-        $sql = "INSERT INTO registration_tour_guides (
-            status, last_name, first_name, middle_initial, preferred_name, 
-            date_of_birth, gender, home_address, primary_phone, secondary_phone, 
-            email, emergency_contact_name, emergency_contact_relationship, emergency_contact_phone,
-            dot_accreditation_number, accreditation_expiry_date, languages_spoken, specialization,
-            years_of_experience, first_aid_certified, first_aid_expiry_date,
-            base_location, employment_type, has_vehicle,
-            resume_path, dot_id_path, government_id_path, nbi_clearance_path,
-            first_aid_certificate_path, id_photo_path
-        ) VALUES (
-            'Pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )";
-        
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception("Database prepare error: " . $conn->error);
+        foreach ($requiredFields as $field) {
+            if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Missing required field: " . ucfirst(str_replace('_', ' ', $field))
+                ]);
+                exit;
+            }
         }
         
-        // 7. Bind Parameters
-        // Sequence: 16 strings, 1 string (specialization), 1 integer (years), then the rest are strings.
-        // Format: "ssssssssssssssssissssssssssss" (Total 29 characters)
-        $stmt->bind_param(
-            "ssssssssssssssssissssssssssss", 
-            $lastName, $firstName, $middleInitial, $preferredName,
-            $dateOfBirth, $gender, $homeAddress, $primaryPhone, $secondaryPhone,
-            $email, $emergencyContactName, $emergencyContactRelationship, $emergencyContactPhone,
-            $dotAccreditation, $accreditationExpiry, $languagesJson, $specializationsJson,
-            $yearsExperience, $firstAidCertified, $firstAidExpiry,
-            $baseLocation, $employmentType, $hasVehicle,
-            $documentPaths['resume_path'], $documentPaths['dot_id_path'], 
-            $documentPaths['government_id_path'], $documentPaths['nbi_clearance_path'],
-            $documentPaths['first_aid_certificate_path'], $documentPaths['id_photo_path']
-        );
-        
-        // 8. Execute
-        if ($stmt->execute()) {
+        // Validate email
+        if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             echo json_encode([
-                'success' => true, 
-                'message' => 'Application submitted successfully!',
-                'application_id' => $conn->insert_id
+                'success' => false,
+                'message' => 'Invalid email address format'
             ]);
-        } else {
-            throw new Exception("Execution failed: " . $stmt->error);
+            exit;
         }
         
-        $stmt->close();
-        $conn->close();
+        // Validate date fields
+        $dateFields = ['dateOfBirth', 'accreditationExpiry'];
+        foreach ($dateFields as $field) {
+            $date = DateTime::createFromFormat('Y-m-d', $_POST[$field]);
+            if (!$date || $date->format('Y-m-d') !== $_POST[$field]) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "Invalid date format for " . ucfirst(str_replace('_', ' ', $field))
+                ]);
+                exit;
+            }
+        }
+        
+        // Validate years experience
+        if (!is_numeric($_POST['yearsExperience']) || $_POST['yearsExperience'] < 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Years of experience must be a positive number'
+            ]);
+            exit;
+        }
+        
+        // Validate first aid expiry if certified
+        if ($_POST['firstAidCertified'] === 'yes') {
+            if (empty($_POST['firstAidExpiry'])) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'First Aid expiry date is required when certified'
+                ]);
+                exit;
+            }
+            
+            $firstAidDate = DateTime::createFromFormat('Y-m-d', $_POST['firstAidExpiry']);
+            if (!$firstAidDate || $firstAidDate->format('Y-m-d') !== $_POST['firstAidExpiry']) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Invalid First Aid expiry date format'
+                ]);
+                exit;
+            }
+        } else {
+            $_POST['firstAidExpiry'] = null;
+        }
+        
+        // Set nullable fields to null if empty
+        $nullableFields = ['middleInitial', 'preferredName', 'secondaryPhone'];
+        foreach ($nullableFields as $field) {
+            if (empty(trim($_POST[$field]))) {
+                $_POST[$field] = null;
+            }
+        }
+        
+        // Validate languages
+        if (!isset($_POST['languages']) || !is_array($_POST['languages']) || empty(array_filter($_POST['languages']))) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'At least one language must be selected'
+            ]);
+            exit;
+        }
+        
+        // Validate language proficiencies
+        if (!isset($_POST['languageProficiency']) || !is_array($_POST['languageProficiency'])) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Language proficiencies are required'
+            ]);
+            exit;
+        }
+        
+        // Filter out empty language entries
+        $filteredLanguages = [];
+        $filteredProficiencies = [];
+        
+        foreach ($_POST['languages'] as $index => $language) {
+            if (!empty($language) && isset($_POST['languageProficiency'][$index]) && !empty($_POST['languageProficiency'][$index])) {
+                $filteredLanguages[] = $language;
+                $filteredProficiencies[] = $_POST['languageProficiency'][$index];
+            }
+        }
+        
+        if (empty($filteredLanguages)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'At least one complete language entry is required'
+            ]);
+            exit;
+        }
+        
+        $_POST['languages'] = $filteredLanguages;
+        $_POST['languageProficiency'] = $filteredProficiencies;
+        
+        // Validate required files
+        $requiredFiles = ['resume', 'dotId', 'governmentId', 'nbiClearance', 'idPhoto'];
+        foreach ($requiredFiles as $file) {
+            if (!isset($_FILES[$file]) || $_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => ucfirst(str_replace('_', ' ', $file)) . ' file is required'
+                ]);
+                exit;
+            }
+        }
+        
+        // Validate first aid certificate if certified
+        if ($_POST['firstAidCertified'] === 'yes') {
+            if (!isset($_FILES['firstAidCertificate']) || $_FILES['firstAidCertificate']['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'First Aid certificate file is required when certified'
+                ]);
+                exit;
+            }
+        }
+        
+        // Save registration
+        $result = saveTourGuideRegistration($_POST, $_FILES);
+        
+        echo json_encode($result);
         
     } catch (Exception $e) {
-        error_log("Tour Guide Registration Error: " . $e->getMessage());
+        error_log("Registration handler error: " . $e->getMessage());
         echo json_encode([
-            'success' => false, 
-            'message' => 'Error: ' . $e->getMessage()
+            'success' => false,
+            'message' => 'An error occurred during registration. Please try again.'
         ]);
     }
-    exit();
-}
-
-/**
- * Helper function for file uploads
- */
-function handleFileUpload($fieldName, $uploadDir, $allowedExtensions, $maxSize) {
-    if (!isset($_FILES[$fieldName]) || $_FILES[$fieldName]['error'] !== UPLOAD_ERR_OK) {
-        return null;
-    }
-    
-    $file = $_FILES[$fieldName];
-    if ($file['size'] > $maxSize) {
-        throw new Exception("File $fieldName is too large.");
-    }
-    
-    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($extension, $allowedExtensions)) {
-        throw new Exception("Invalid file type for $fieldName.");
-    }
-    
-    $filename = uniqid() . '_' . $fieldName . '_' . time() . '.' . $extension;
-    $filePath = $uploadDir . $filename;
-    
-    if (!move_uploaded_file($file['tmp_name'], $filePath)) {
-        throw new Exception("Failed to move uploaded file: $fieldName");
-    }
-    
-    return 'uploads/tour_guide_documents/' . $filename;
+} else {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid request method'
+    ]);
 }
 ?>
