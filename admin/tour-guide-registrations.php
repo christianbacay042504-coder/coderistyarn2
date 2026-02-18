@@ -189,6 +189,205 @@ function editRegistrationData($conn, $data)
     }
 }
 
+function approveTourGuideRegistration($conn, $registrationId)
+{
+    try {
+        // Start transaction
+        $conn->begin_transaction();
+        
+        // Get registration details
+        $stmt = $conn->prepare("SELECT * FROM registration_tour_guide WHERE id = ?");
+        $stmt->bind_param("i", $registrationId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            $conn->rollback();
+            return ['success' => false, 'message' => 'Registration not found'];
+        }
+        
+        $registration = $result->fetch_assoc();
+        
+        // Check if user already exists
+        $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $checkStmt->bind_param("s", $registration['email']);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows > 0) {
+            $conn->rollback();
+            return ['success' => false, 'message' => 'User with this email already exists'];
+        }
+        
+        // Generate random password
+        $randomPassword = generateRandomPassword();
+        $hashedPassword = password_hash($randomPassword, PASSWORD_DEFAULT);
+        
+        // Insert into users table
+        $insertStmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, user_type, status) VALUES (?, ?, ?, ?, 'tour_guide', 'active')");
+        $insertStmt->bind_param("ssss", 
+            $registration['first_name'], 
+            $registration['last_name'], 
+            $registration['email'], 
+            $hashedPassword
+        );
+        
+        if (!$insertStmt->execute()) {
+            $conn->rollback();
+            return ['success' => false, 'message' => 'Failed to create user account: ' . $insertStmt->error];
+        }
+        
+        $userId = $conn->insert_id;
+        
+        // Insert into tour_guides table with additional information
+        $tourGuideStmt = $conn->prepare("INSERT INTO tour_guides (user_id, name, category, experience_years, contact_number, email) VALUES (?, ?, ?, ?, ?, ?)");
+        $name = $registration['first_name'] . ' ' . $registration['last_name'];
+        $category = $registration['specialization']; // Map specialization to category
+        $experience = $registration['years_experience'] ?? 0;
+        $contact = $registration['primary_phone'];
+        $email = $registration['email'];
+        
+        $tourGuideStmt->bind_param("ississ", $userId, $name, $category, $experience, $contact, $email);
+        
+        if (!$tourGuideStmt->execute()) {
+            $conn->rollback();
+            return ['success' => false, 'message' => 'Failed to create tour guide profile: ' . $tourGuideStmt->error];
+        }
+        
+        // Update registration status to approved
+        $processedBy = ($_SESSION['first_name'] ?? 'Admin') . ' ' . ($_SESSION['last_name'] ?? 'User');
+        $updateStmt = $conn->prepare("UPDATE registration_tour_guide SET status = 'approved', review_date = CURRENT_TIMESTAMP, reviewed_by = ? WHERE id = ?");
+        $updateStmt->bind_param("ii", $_SESSION['id'], $registrationId);
+        
+        if (!$updateStmt->execute()) {
+            $conn->rollback();
+            return ['success' => false, 'message' => 'Failed to update registration status'];
+        }
+        
+        // Commit transaction
+        $conn->commit();
+        
+        // Send email notification
+        $emailSent = sendApprovalEmail($registration['email'], $registration['first_name'], $randomPassword);
+        
+        $message = 'Registration approved successfully! User account created.';
+        if ($emailSent) {
+            $message .= ' Approval email sent to tour guide.';
+        } else {
+            $message .= ' Warning: Approval email could not be sent.';
+        }
+        
+        return ['success' => true, 'message' => $message, 'password' => $randomPassword];
+        
+    } catch (Exception $e) {
+        $conn->rollback();
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
+function generateRandomPassword($length = 12)
+{
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*';
+    $password = '';
+    for ($i = 0; $i < $length; $i++) {
+        $password .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    return $password;
+}
+
+function sendApprovalEmail($email, $firstName, $password)
+{
+    try {
+        // Include PHPMailer
+        require_once '../PHPMailer-6.9.1/src/PHPMailer.php';
+        require_once '../PHPMailer-6.9.1/src/SMTP.php';
+        require_once '../PHPMailer-6.9.1/src/Exception.php';
+        
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        
+        // SMTP configuration
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = getenv('SMTP_USERNAME') ?: 'christianbacay042504@gmail.com';
+        $mail->Password = getenv('SMTP_PASSWORD') ?: 'tayrkzczbhgehbej';
+        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        
+        // Email settings
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'christianbacay042504@gmail.com', 'SJDM Tours');
+        $mail->addAddress($email);
+        $mail->Subject = 'Your Tour Guide Application Has Been Approved!';
+        
+        // Email body
+        $mail->isHTML(true);
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
+                <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                    <h1 style='margin: 0; font-size: 28px;'>🎉 Congratulations!</h1>
+                    <p style='margin: 10px 0 0 0; font-size: 18px;'>Your Tour Guide Application Has Been Approved</p>
+                </div>
+                
+                <div style='background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;'>
+                    <p>Dear <strong>$firstName</strong>,</p>
+                    
+                    <p>We are thrilled to inform you that your application to become a tour guide with SJDM Tours has been <strong style='color: #28a745;'>approved</strong>!</p>
+                    
+                    <div style='background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 5px;'>
+                        <h3 style='margin-top: 0; color: #333;'>Your Account Details:</h3>
+                        <p><strong>Email:</strong> $email</p>
+                        <p><strong>Temporary Password:</strong> <code style='background: #f0f0f0; padding: 5px 10px; border-radius: 3px; font-size: 14px;'>$password</code></p>
+                    </div>
+                    
+                    <div style='background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin: 20px 0;'>
+                        <p style='margin: 0;'><strong>🔒 Important Security Notice:</strong></p>
+                        <p style='margin: 5px 0 0 0;'>For your account security, please <strong>change your password</strong> immediately after your first login.</p>
+                    </div>
+                    
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='http://localhost/coderistyarn2/log-in.php' style='background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;'>Login to Your Account</a>
+                    </div>
+                    
+                    <p>Welcome to the SJDM Tours team! We look forward to working with you.</p>
+                    
+                    <hr style='border: none; border-top: 1px solid #ddd; margin: 30px 0;'>
+                    
+                    <p style='font-size: 12px; color: #666; text-align: center;'>
+                        Best regards,<br>
+                        <strong>SJDM Tours Team</strong><br>
+                        <em>This is an automated message. Please do not reply to this email.</em>
+                    </p>
+                </div>
+            </div>
+        ";
+        
+        $mail->AltBody = "
+            Congratulations $firstName!
+            
+            Your tour guide application with SJDM Tours has been approved.
+            
+            Your account details:
+            Email: $email
+            Temporary Password: $password
+            
+            Important: Please change your password after your first login for security.
+            
+            Login here: http://localhost/coderistyarn2/log-in.php
+            
+            Welcome to the SJDM Tours team!
+            
+            SJDM Tours Team
+        ";
+        
+        $mail->send();
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        return false;
+    }
+}
+
 function getRegistrationStats($conn)
 {
     $stats = [];
@@ -296,7 +495,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode($response);
                 exit;
             case 'update_status':
-                $response = updateRegistrationStatus($conn, $_POST['registration_id'], $_POST['status']);
+                $registrationId = $_POST['registration_id'];
+                $status = $_POST['status'];
+                
+                // If approving, use the enhanced approval function
+                if ($status === 'approved') {
+                    $response = approveTourGuideRegistration($conn, $registrationId);
+                } else {
+                    // For other status updates, use the regular function
+                    $response = updateRegistrationStatus($conn, $registrationId, $status);
+                }
                 echo json_encode($response);
                 exit;
             case 'delete_registration':
