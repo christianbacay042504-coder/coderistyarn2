@@ -268,16 +268,19 @@ function approveTourGuideRegistration($conn, $registrationId)
         $conn->commit();
         
         // Send email notification
+        error_log("Attempting to send approval email to: " . $registration['email']);
         $emailSent = sendApprovalEmail($registration['email'], $registration['first_name'], $randomPassword);
         
         $message = 'Registration approved successfully! User account created.';
         if ($emailSent) {
             $message .= ' Approval email sent to tour guide.';
+            error_log("Email sent successfully to: " . $registration['email']);
         } else {
-            $message .= ' Warning: Approval email could not be sent.';
+            $message .= ' Warning: Approval email could not be sent. Check error logs for details.';
+            error_log("Failed to send email to: " . $registration['email']);
         }
         
-        return ['success' => true, 'message' => $message, 'password' => $randomPassword];
+        return ['success' => true, 'message' => $message, 'password' => $randomPassword, 'email' => $registration['email'], 'name' => $registration['first_name'] . ' ' . $registration['last_name']];
         
     } catch (Exception $e) {
         $conn->rollback();
@@ -287,12 +290,16 @@ function approveTourGuideRegistration($conn, $registrationId)
 
 function generateRandomPassword($length = 12)
 {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*';
-    $password = '';
-    for ($i = 0; $i < $length; $i++) {
-        $password .= $characters[rand(0, strlen($characters) - 1)];
+    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $prefix = 'tourguide';
+    $suffixLength = $length - strlen($prefix);
+    $suffix = '';
+    
+    for ($i = 0; $i < $suffixLength; $i++) {
+        $suffix .= $characters[rand(0, strlen($characters) - 1)];
     }
-    return $password;
+    
+    return $prefix . $suffix;
 }
 
 function sendApprovalEmail($email, $firstName, $password)
@@ -305,60 +312,140 @@ function sendApprovalEmail($email, $firstName, $password)
         
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         
+        // Enable debug mode for troubleshooting
+        $mail->SMTPDebug = 2; // Enable verbose debug output
+        $mail->Debugoutput = function($str, $level) {
+            error_log("SMTP Debug Level $level: $str");
+        };
+        
         // SMTP configuration
         $mail->isSMTP();
-        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = getenv('SMTP_USERNAME') ?: 'christianbacay042504@gmail.com';
-        $mail->Password = getenv('SMTP_PASSWORD') ?: 'tayrkzczbhgehbej';
-        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
-        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        $mail->Username = 'christianbacay042504@gmail.com';
+        $mail->Password = 'tayrkzczbhgehbej';
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+        
+        // Set timeout
+        $mail->Timeout = 30;
+        $mail->SMTPKeepAlive = true;
         
         // Email settings
-        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'christianbacay042504@gmail.com', 'SJDM Tours');
+        $mail->setFrom('christianbacay042504@gmail.com', 'SJDM Tours');
         $mail->addAddress($email);
         $mail->Subject = 'Your Tour Guide Application Has Been Approved!';
         
         // Email body
         $mail->isHTML(true);
         $mail->Body = "
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
-                <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
-                    <h1 style='margin: 0; font-size: 28px;'>🎉 Congratulations!</h1>
-                    <p style='margin: 10px 0 0 0; font-size: 18px;'>Your Tour Guide Application Has Been Approved</p>
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                <title>Welcome to SJDM Tours!</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f5f7fa; }
+                    .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+                    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px 40px; text-align: center; position: relative; }
+                    .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"25\" cy=\"25\" r=\"1\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"75\" cy=\"75\" r=\"1\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"50\" cy=\"10\" r=\"0.5\" fill=\"white\" opacity=\"0.2\"/><circle cx=\"20\" cy=\"60\" r=\"0.5\" fill=\"white\" opacity=\"0.2\"/><circle cx=\"80\" cy=\"40\" r=\"0.5\" fill=\"white\" opacity=\"0.2\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>'); opacity: 0.3; }
+                    .header-content { position: relative; z-index: 1; }
+                    .logo { font-size: 48px; margin-bottom: 10px; }
+                    .title { font-size: 32px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                    .subtitle { font-size: 18px; margin: 10px 0 0 0; opacity: 0.9; }
+                    .content { padding: 50px 40px; }
+                    .welcome-text { font-size: 18px; line-height: 1.6; color: #2c3e50; margin-bottom: 30px; }
+                    .highlight { color: #27ae60; font-weight: 700; font-size: 20px; }
+                    .credentials-box { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; padding: 35px; margin: 30px 0; border-left: 5px solid #667eea; position: relative; }
+                    .credentials-box::before { content: '🔐'; position: absolute; top: -15px; left: 30px; background: #667eea; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+                    .credentials-title { font-size: 20px; font-weight: 700; color: #2c3e50; margin: 0 0 20px 0; text-align: center; }
+                    .credential-item { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+                    .credential-label { font-weight: 600; color: #495057; }
+                    .credential-value { font-family: 'Courier New', monospace; font-weight: 700; color: #007bff; font-size: 16px; }
+                    .password-value { color: #e74c3c; }
+                    .security-note { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 12px; padding: 25px; margin: 30px 0; border-left: 5px solid #f39c12; }
+                    .security-title { color: #856404; font-weight: 700; font-size: 16px; margin: 0 0 10px 0; }
+                    .security-text { color: #856404; margin: 0; line-height: 1.5; }
+                    .cta-section { text-align: center; margin: 40px 0; }
+                    .cta-button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: 700; font-size: 18px; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); transition: all 0.3s ease; }
+                    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4); }
+                    .footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #e9ecef; }
+                    .footer-text { color: #6c757d; font-size: 14px; margin: 5px 0; }
+                    .footer-signature { font-weight: 700; color: #2c3e50; }
+                    .divider { width: 60px; height: 3px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 30px auto; border-radius: 2px; }
+                    .icon-decoration { font-size: 24px; margin: 0 5px; }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <div class='header-content'>
+                            <div class='logo'>🌟</div>
+                            <h1 class='title'>Congratulations!</h1>
+                            <p class='subtitle'>Your Tour Guide Application Has Been Approved</p>
+                        </div>
+                    </div>
+                    
+                    <div class='content'>
+                        <p class='welcome-text'>
+                            Dear <strong>$firstName</strong>,
+                        </p>
+                        
+                        <p class='welcome-text'>
+                            We are absolutely thrilled to inform you that your application to become a tour guide with <strong>SJDM Tours</strong> has been <span class='highlight'>approved</span>! 🎉
+                        </p>
+                        
+                        <p class='welcome-text'>
+                            Welcome to our team of passionate travel experts! We're excited to have you join us in creating amazing experiences for our guests.
+                        </p>
+                        
+                        <div class='credentials-box'>
+                            <h3 class='credentials-title'>Your Account Credentials</h3>
+                            <div class='credential-item'>
+                                <span class='credential-label'>📧 Email Address:</span>
+                                <span class='credential-value'>$email</span>
+                            </div>
+                            <div class='credential-item'>
+                                <span class='credential-label'>🔑 Temporary Password:</span>
+                                <span class='credential-value password-value'>$password</span>
+                            </div>
+                        </div>
+                        
+                        <div class='security-note'>
+                            <p class='security-title'>🔒 Important Security Notice</p>
+                            <p class='security-text'>For your account security, please change your password immediately after your first login. This ensures your personal information remains protected.</p>
+                        </div>
+                        
+                        <div class='cta-section'>
+                            <a href='http://localhost/coderistyarn2/log-in.php' class='cta-button'>
+                                🚀 Login to Your Account
+                            </a>
+                        </div>
+                        
+                        <p class='welcome-text' style='text-align: center; margin-top: 40px;'>
+                            <strong>We look forward to working with you!</strong><br>
+                            Together, we'll create unforgettable journeys for travelers from around the world.
+                        </p>
+                    </div>
+                    
+                    <div class='footer'>
+                        <div class='divider'></div>
+                        <p class='footer-text'>
+                            <span class='icon-decoration'>✈️</span>
+                            <span class='footer-signature'>SJDM Tours Team</span>
+                            <span class='icon-decoration'>🌍</span>
+                        </p>
+                        <p class='footer-text'>
+                            <em>This is an automated message. Please do not reply to this email.</em>
+                        </p>
+                        <p class='footer-text'>
+                            <small>© 2024 SJDM Tours. All rights reserved.</small>
+                        </p>
+                    </div>
                 </div>
-                
-                <div style='background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;'>
-                    <p>Dear <strong>$firstName</strong>,</p>
-                    
-                    <p>We are thrilled to inform you that your application to become a tour guide with SJDM Tours has been <strong style='color: #28a745;'>approved</strong>!</p>
-                    
-                    <div style='background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 5px;'>
-                        <h3 style='margin-top: 0; color: #333;'>Your Account Details:</h3>
-                        <p><strong>Email:</strong> $email</p>
-                        <p><strong>Temporary Password:</strong> <code style='background: #f0f0f0; padding: 5px 10px; border-radius: 3px; font-size: 14px;'>$password</code></p>
-                    </div>
-                    
-                    <div style='background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin: 20px 0;'>
-                        <p style='margin: 0;'><strong>🔒 Important Security Notice:</strong></p>
-                        <p style='margin: 5px 0 0 0;'>For your account security, please <strong>change your password</strong> immediately after your first login.</p>
-                    </div>
-                    
-                    <div style='text-align: center; margin: 30px 0;'>
-                        <a href='http://localhost/coderistyarn2/log-in.php' style='background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;'>Login to Your Account</a>
-                    </div>
-                    
-                    <p>Welcome to the SJDM Tours team! We look forward to working with you.</p>
-                    
-                    <hr style='border: none; border-top: 1px solid #ddd; margin: 30px 0;'>
-                    
-                    <p style='font-size: 12px; color: #666; text-align: center;'>
-                        Best regards,<br>
-                        <strong>SJDM Tours Team</strong><br>
-                        <em>This is an automated message. Please do not reply to this email.</em>
-                    </p>
-                </div>
-            </div>
+            </body>
+            </html>
         ";
         
         $mail->AltBody = "
@@ -379,11 +466,17 @@ function sendApprovalEmail($email, $firstName, $password)
             SJDM Tours Team
         ";
         
-        $mail->send();
+        // Send email
+        $result = $mail->send();
+        
+        // Log success
+        error_log("Email sent successfully to: $email");
         return true;
         
     } catch (Exception $e) {
-        error_log("Email sending failed: " . $e->getMessage());
+        // Log detailed error
+        error_log("Email sending failed to $email: " . $e->getMessage());
+        error_log("PHPMailer Error: " . $mail->ErrorInfo);
         return false;
     }
 }
@@ -848,6 +941,63 @@ $queryValues = [
         </div>
     </div>
 
+    <!-- Account Created Modal -->
+    <div id="accountCreatedModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>✅ Tour Guide Account Created Successfully!</h2>
+                <button class="modal-close" onclick="closeAccountCreatedModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #28a745, #20c997); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons-outlined" style="color: white; font-size: 40px;">person_add</span>
+                    </div>
+                    
+                    <h3 id="accountCreatedName" style="margin: 0 0 20px 0; color: #333;">Tour Guide Name</h3>
+                    
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 12px; border-left: 4px solid #28a745; margin: 20px 0;">
+                        <h4 style="margin: 0 0 15px 0; color: #28a745; text-align: left;">🔐 Account Credentials</h4>
+                        <div style="text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: white; border-radius: 6px;">
+                                <strong style="color: #495057;">Email (Username):</strong>
+                                <span id="accountCreatedEmail" style="font-family: monospace; color: #007bff; font-weight: 600;">email@example.com</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 12px; background: white; border-radius: 6px;">
+                                <strong style="color: #495057;">Temporary Password:</strong>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span id="accountCreatedPassword" style="font-family: monospace; color: #dc3545; font-weight: 600; font-size: 16px;">password123</span>
+                                    <button onclick="copyPassword()" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                        <span class="material-icons-outlined" style="font-size: 14px; vertical-align: middle;">content_copy</span>
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0; text-align: left;">
+                        <p style="margin: 0; color: #856404;">
+                            <strong>📧 Email Notification:</strong> An approval email with these credentials has been sent to the tour guide's email address.
+                        </p>
+                    </div>
+                    
+                    <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; border-left: 4px solid #17a2b8; margin: 20px 0; text-align: left;">
+                        <p style="margin: 0; color: #0c5460;">
+                            <strong>🔒 Security Note:</strong> The tour guide should change their password after first login for security.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeAccountCreatedModal()">Close</button>
+                <button type="button" class="btn-primary" onclick="location.reload()">Refresh List</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
@@ -867,6 +1017,53 @@ $queryValues = [
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-primary" onclick="closeSuccessModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Error</h2>
+                <button class="modal-close" onclick="closeErrorModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 20px; background: #dc3545; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons-outlined" style="color: white; font-size: 30px;">error</span>
+                    </div>
+                    <p id="errorMessage" style="font-size: 18px; margin: 0; color: #333;">An error occurred!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-danger" onclick="closeErrorModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <button class="modal-close" onclick="closeConfirmationModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 20px; background: #ffc107; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-icons-outlined" style="color: #212529; font-size: 30px;">help</span>
+                    </div>
+                    <p id="confirmationMessage" style="font-size: 18px; margin: 0; color: #333;">Are you sure you want to proceed?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
+                <button type="button" class="btn-primary" id="confirmationConfirmBtn">Confirm</button>
             </div>
         </div>
     </div>
@@ -1220,29 +1417,43 @@ $queryValues = [
         }
 
         function updateRegistrationStatus(registrationId, status) {
-            if (confirm(`Are you sure you want to ${status} this registration?`)) {
-                fetch('tour-guide-registrations.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=update_status&registration_id=${registrationId}&status=${status}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSuccessModal(data.message || `Registration ${status} successfully!`, () => {
-                            location.reload();
-                        });
-                    } else {
-                        alert(data.message || 'Error updating registration status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating registration status: ' + error.message);
-                });
-            }
+            const actionText = status === 'approved' ? 'approve' : (status === 'rejected' ? 'reject' : 'mark as under review');
+            showConfirmationModal(
+                `Are you sure you want to ${actionText} this registration?`,
+                () => {
+                    // User confirmed - proceed with the action
+                    fetch('tour-guide-registrations.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=update_status&registration_id=${registrationId}&status=${status}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // If approved and account details are returned, show account created modal
+                            if (status === 'approved' && data.email && data.password) {
+                                showAccountCreatedModal(data);
+                            } else {
+                                showSuccessModal(data.message || `Registration ${status} successfully!`, () => {
+                                    location.reload();
+                                });
+                            }
+                        } else {
+                            showErrorModal(data.message || 'Error updating registration status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showErrorModal('Error updating registration status: ' + error.message);
+                    });
+                },
+                () => {
+                    // User cancelled - do nothing
+                    console.log('Action cancelled by user');
+                }
+            );
         }
 
         function editRegistration() {
@@ -1257,7 +1468,7 @@ $queryValues = [
                 });
                 
                 if (!registrationId) {
-                    alert('No registration selected for editing');
+                    showErrorModal('No registration selected for editing');
                     return;
                 }
             }, 100); // Small delay to ensure DOM is ready
@@ -1346,6 +1557,53 @@ $queryValues = [
             document.body.style.overflow = 'hidden';
         }
 
+        function showAccountCreatedModal(accountData) {
+            const modal = document.getElementById('accountCreatedModal');
+            const nameEl = document.getElementById('accountCreatedName');
+            const emailEl = document.getElementById('accountCreatedEmail');
+            const passwordEl = document.getElementById('accountCreatedPassword');
+            
+            // Set the account details
+            nameEl.textContent = accountData.name || 'Tour Guide';
+            emailEl.textContent = accountData.email || 'email@example.com';
+            passwordEl.textContent = accountData.password || 'password123';
+            
+            // Store password for copy function
+            window.generatedPassword = accountData.password;
+            
+            // Show the modal
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAccountCreatedModal() {
+            const modal = document.getElementById('accountCreatedModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function copyPassword() {
+            if (window.generatedPassword) {
+                navigator.clipboard.writeText(window.generatedPassword).then(() => {
+                    // Show feedback
+                    const copyBtn = event.target.closest('button');
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<span class="material-icons-outlined" style="font-size: 14px; vertical-align: middle;">check</span> Copied!';
+                    copyBtn.style.background = '#28a745';
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalText;
+                        copyBtn.style.background = '#007bff';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy password: ', err);
+                    showErrorModal('Failed to copy password. Please copy it manually.');
+                });
+            }
+        }
+
         function closeSuccessModal() {
             const modal = document.getElementById('successModal');
             modal.style.display = 'none';
@@ -1372,6 +1630,73 @@ $queryValues = [
             // Store callback to execute after modal closes
             if (callback) {
                 window.successModalCallback = callback;
+            }
+        }
+
+        function showErrorModal(message, callback = null) {
+            const modal = document.getElementById('errorModal');
+            const messageEl = document.getElementById('errorMessage');
+            
+            messageEl.textContent = message;
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Store callback to execute after modal closes
+            if (callback) {
+                window.errorModalCallback = callback;
+            }
+        }
+
+        function closeErrorModal() {
+            const modal = document.getElementById('errorModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // Execute callback if exists
+            if (window.errorModalCallback) {
+                const callback = window.errorModalCallback;
+                window.errorModalCallback = null; // Clear callback
+                callback();
+            }
+        }
+
+        function showConfirmationModal(message, onConfirm, onCancel = null) {
+            const modal = document.getElementById('confirmationModal');
+            const messageEl = document.getElementById('confirmationMessage');
+            const confirmBtn = document.getElementById('confirmationConfirmBtn');
+            
+            messageEl.textContent = message;
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Remove existing event listeners
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            
+            // Add new event listener
+            newConfirmBtn.addEventListener('click', function() {
+                closeConfirmationModal();
+                if (onConfirm) onConfirm();
+            });
+            
+            // Store cancel callback
+            window.confirmationCancelCallback = onCancel;
+        }
+
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            // Execute cancel callback if exists
+            if (window.confirmationCancelCallback) {
+                const callback = window.confirmationCancelCallback;
+                window.confirmationCancelCallback = null; // Clear callback
+                callback();
             }
         }
 
@@ -1416,7 +1741,7 @@ $queryValues = [
                 // Handle empty response
                 if (!text || text.trim() === '') {
                     console.error('Empty response received');
-                    alert('Error updating registration: Empty server response');
+                    showErrorModal('Error updating registration: Empty server response');
                     return;
                 }
                 
@@ -1429,18 +1754,18 @@ $queryValues = [
                             location.reload();
                         });
                     } else {
-                        alert(data.message || 'Error updating registration');
+                        showErrorModal(data.message || 'Error updating registration');
                     }
                 } catch (e) {
                     console.error('JSON parse error:', e);
                     console.error('Response that failed to parse:', text);
                     console.error('Response starts with:', text.substring(0, 100));
-                    alert('Error updating registration: Invalid server response - ' + text.substring(0, 50) + '...');
+                    showErrorModal('Error updating registration: Invalid server response');
                 }
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                alert('Error updating registration: ' + error.message);
+                showErrorModal('Error updating registration: ' + error.message);
             });
         }
 
@@ -1497,7 +1822,7 @@ $queryValues = [
             const registrationId = document.getElementById('deleteRegistrationId')?.value;
 
             if (!registrationId) {
-                alert('Missing registration id');
+                showErrorModal('Missing registration id');
                 return;
             }
 
@@ -1516,11 +1841,11 @@ $queryValues = [
                         location.reload();
                     });
                 } else {
-                    alert(data.message || 'Error deleting registration');
+                    showErrorModal(data.message || 'Error deleting registration');
                 }
             })
             .catch(error => {
-                alert('Error deleting registration: ' + error.message);
+                showErrorModal('Error deleting registration: ' + error.message);
             });
         }
 
@@ -1536,15 +1861,16 @@ $queryValues = [
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
-                    closeUpdateStatusModal();
-                    location.reload();
+                    showSuccessModal(data.message, () => {
+                        closeUpdateStatusModal();
+                        location.reload();
+                    });
                 } else {
-                    alert(data.message || 'Error updating status');
+                    showErrorModal(data.message || 'Error updating status');
                 }
             })
             .catch(error => {
-                alert('Error updating status: ' + error.message);
+                showErrorModal('Error updating status: ' + error.message);
             });
         }
 
@@ -1577,11 +1903,11 @@ $queryValues = [
                         openEditForm();
                     }, 100);
                 } else {
-                    alert(data.message || 'Error fetching registration data');
+                    showErrorModal(data.message || 'Error fetching registration data');
                 }
             })
             .catch(error => {
-                alert('Error fetching registration data: ' + error.message);
+                showErrorModal('Error fetching registration data: ' + error.message);
             });
         }
     </script>

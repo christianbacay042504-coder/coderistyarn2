@@ -235,23 +235,59 @@ $queryValues = [
         }
 
         .stat-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 0;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 24px;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon::before {
+            opacity: 1;
         }
 
         .stat-icon .material-icons-outlined {
-            font-size: 32px;
+            font-size: 36px;
             color: white;
             z-index: 2;
             position: relative;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.15),
+                0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card:hover .stat-icon .material-icons-outlined {
+            transform: scale(1.1) rotate(5deg);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .stat-content {
@@ -386,6 +422,173 @@ $queryValues = [
             font-weight: 500;
             margin-top: 6px;
         }
+
+        /* Enhanced Chart Containers */
+        .chart-container {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.08),
+                0 8px 24px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.12),
+                0 12px 35px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-container:hover::before {
+            opacity: 1;
+        }
+
+        .chart-container h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chart-container h3::before {
+            content: '';
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        /* Enhanced Chart.js Customizations */
+        .chart-wrapper canvas {
+            border-radius: 12px;
+        }
+
+        /* Chart Grid Styling */
+        .chart-container:hover .chart-wrapper {
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            border-color: rgba(44, 95, 45, 0.1);
+        }
+
+        /* Chart Legend Styling */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Chart Tooltips */
+        .chart-tooltip {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Chart Loading Animation */
+        @keyframes chartPulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .chart-loading {
+            animation: chartPulse 2s ease-in-out infinite;
+        }
+
+        /* Chart Grid Lines */
+        .chart-grid-line {
+            stroke: rgba(0, 0, 0, 0.05);
+            stroke-width: 1;
+            stroke-dasharray: 5, 5;
+        }
+
+        /* Chart Axis Labels */
+        .chart-axis-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Chart Data Point Animation */
+        @keyframes dataPointPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .chart-data-point {
+            animation: dataPointPulse 2s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -484,21 +687,33 @@ $queryValues = [
             <div class="content-area">
                 <!-- Key Metrics -->
                 <div class="analytics-grid">
-                    <div class="stat-card">
-                        <h3><?php echo $stats['totalUsers']; ?></h3>
-                        <p>Total Users</p>
-                        <small class="trend-up">
-                            <span class="material-icons-outlined">trending_up</span>
-                            12% growth
-                        </small>
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">groups</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $stats['totalUsers']; ?></h3>
+                            <p>Total Users</p>
+                            <div class="stat-meta">Registered accounts</div>
+                            <div class="stat-trend positive">
+                                <span class="material-icons-outlined">trending_up</span>
+                                <span>12% growth</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3><?php echo $stats['totalBookings']; ?></h3>
-                        <p>Total Bookings</p>
-                        <small class="trend-up">
-                            <span class="material-icons-outlined">trending_up</span>
-                            8% increase
-                        </small>
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">book</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $stats['totalBookings']; ?></h3>
+                            <p>Total Bookings</p>
+                            <div class="stat-meta">All time bookings</div>
+                            <div class="stat-trend positive">
+                                <span class="material-icons-outlined">trending_up</span>
+                                <span>8% increase</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="stat-card stat-card-warning">
                         <div class="stat-icon">
@@ -514,13 +729,19 @@ $queryValues = [
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <h3><?php echo $stats['totalDestinations']; ?></h3>
-                        <p>Destinations</p>
-                        <small class="trend-up">
-                            <span class="material-icons-outlined">trending_up</span>
-                            3 new this month
-                        </small>
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-icon">
+                            <span class="material-icons-outlined">tour</span>
+                        </div>
+                        <div class="stat-content">
+                            <h3><?php echo $stats['totalDestinations']; ?></h3>
+                            <p>Destinations</p>
+                            <div class="stat-meta">Available tours</div>
+                            <div class="stat-trend positive">
+                                <span class="material-icons-outlined">add_circle</span>
+                                <span>3 new this month</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -571,24 +792,115 @@ $queryValues = [
                     data: <?php echo json_encode(array_column($monthlyRevenue, 'revenue')); ?>,
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#2563eb',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 3
                 }, {
                     label: 'Bookings',
                     data: <?php echo json_encode(array_column($monthlyRevenue, 'bookings')); ?>,
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
                     tension: 0.4,
+                    fill: true,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointHoverBackgroundColor: '#059669',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 3,
                     yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            color: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: true,
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.datasetIndex === 0) {
+                                        label += '₱' + context.parsed.y.toLocaleString();
+                                    } else {
+                                        label += context.parsed.y.toLocaleString() + ' bookings';
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
                     y: {
                         type: 'linear',
                         display: true,
                         position: 'left',
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
+                        }
                     },
                     y1: {
                         type: 'linear',
@@ -597,7 +909,21 @@ $queryValues = [
                         grid: {
                             drawOnChartArea: false,
                         },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
                     }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
                 }
             }
         });
@@ -610,12 +936,65 @@ $queryValues = [
                 labels: <?php echo json_encode(array_keys($bookingStats['by_status'])); ?>,
                 datasets: [{
                     data: <?php echo json_encode(array_values($bookingStats['by_status'])); ?>,
-                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444']
+                    backgroundColor: [
+                        '#f59e0b',
+                        '#3b82f6', 
+                        '#10b981',
+                        '#ef4444'
+                    ],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8,
+                    hoverBorderWidth: 4
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            color: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: true,
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed.toLocaleString() + ' bookings';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                cutout: '60%'
             }
         });
 
@@ -628,12 +1007,133 @@ $queryValues = [
                 datasets: [{
                     label: 'New Users',
                     data: <?php echo json_encode(array_column($userTrends, 'users')); ?>,
-                    backgroundColor: '#8b5cf6'
+                    backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                    borderColor: '#8b5cf6',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#2563eb',
+                    hoverBorderColor: '#1e40af',
+                    hoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
+                            color: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: true,
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toLocaleString() + ' users';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart',
+                    onComplete: function() {
+                        // Add pulse effect to bars
+                        const chart = this.chart;
+                        const meta = chart.getDatasetMeta(0);
+                        meta.controller = new Chart.controllers.bar.prototype;
+                        Object.assign(meta.controller, {
+                            draw: function(ease) {
+                                const originalDraw = Chart.controllers.bar.prototype.draw;
+                                return function(chartInstance) {
+                                    const context = chartInstance.ctx;
+                                    const meta = chartInstance.getDatasetMeta(0);
+                                    
+                                    // Draw original bars
+                                    originalDraw.apply(this, arguments);
+                                    
+                                    // Add pulse effect to bars
+                                    context.save();
+                                    context.globalAlpha = 0.1;
+                                    context.fillStyle = '#8b5cf6';
+                                    
+                                    chartInstance.data.datasets[0].data.forEach((value, index) => {
+                                        const bar = chartInstance.getDatasetMeta(0).data[index];
+                                        if (bar) {
+                                            const x = bar.x;
+                                            const y = bar.y;
+                                            const width = bar.width;
+                                            const height = bar.height;
+                                            
+                                            // Draw glow effect
+                                            context.shadowColor = '#8b5cf6';
+                                            context.shadowBlur = 10;
+                                            context.shadowOffsetX = 0;
+                                            context.shadowOffsetY = 0;
+                                            
+                                            context.fillRect(x, y, width, height);
+                                        }
+                                    });
+                                    
+                                    context.restore();
+                                };
+                            }
+                        });
+                    }
+                }
             }
         });
 

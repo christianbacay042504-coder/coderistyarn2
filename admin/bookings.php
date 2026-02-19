@@ -840,23 +840,59 @@ $queryValues = [
         }
 
         .stat-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 0;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 24px;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon::before {
+            opacity: 1;
         }
 
         .stat-icon .material-icons-outlined {
-            font-size: 32px;
+            font-size: 36px;
             color: white;
             z-index: 2;
             position: relative;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.15),
+                0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card:hover .stat-icon .material-icons-outlined {
+            transform: scale(1.1) rotate(5deg);
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .stat-content {

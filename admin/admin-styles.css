@@ -4906,3 +4906,140 @@ body .modal.show {
 body .modal.show .modal-content {
     margin: 0 !important;
 }
+
+/* Enhanced Error Modal Styling */
+#errorModal .modal-header {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-bottom: 1px solid #fca5a5;
+}
+
+#errorModal .modal-header h2 {
+    color: #dc2626;
+}
+
+#errorModal .modal-body {
+    padding: 30px 24px;
+}
+
+#errorModal .modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #fee2e2;
+    background: #fef2f2;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+#errorModal .btn-danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+#errorModal .btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+}
+
+/* Enhanced Success Modal Styling */
+#successModal .modal-header {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-bottom: 1px solid #86efac;
+}
+
+#successModal .modal-header h2 {
+    color: #16a34a;
+}
+
+#successModal .modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #dcfce7;
+    background: #f0fdf4;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Enhanced Confirmation Modal Styling */
+#confirmationModal .modal-header {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-bottom: 1px solid #fbbf24;
+}
+
+#confirmationModal .modal-header h2 {
+    color: #d97706;
+}
+
+#confirmationModal .modal-body {
+    padding: 30px 24px;
+}
+
+#confirmationModal .modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #fef3c7;
+    background: #fffbeb;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+#confirmationModal .btn-secondary {
+    background: var(--white);
+    color: var(--text-secondary);
+    border: 2px solid var(--gray-200);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+#confirmationModal .btn-secondary:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-300);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#confirmationModal .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(44, 95, 45, 0.2);
+}
+
+#confirmationModal .btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #1e4220);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(44, 95, 45, 0.3);
+}
+
+/* Modal Animation Enhancements */
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+    transition: all 0.3s ease;
+}
+
+.modal-content:hover {
+    transform: scale(1.01);
+}
+
+/* Icon Animations */
+.modal-body .material-icons-outlined {
+    animation: iconPulse 2s infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}

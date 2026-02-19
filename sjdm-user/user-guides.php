@@ -1456,7 +1456,7 @@ if ($conn) {
                         </div>
                     <?php else: ?>
                         <!-- Sign In Button for Guests -->
-                        <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
+                        <button class="btn-signin" onclick="window.location.href='/log-in.php'">Sign in/register</button>
                     <?php endif; ?>
                 </div>
             </div>
