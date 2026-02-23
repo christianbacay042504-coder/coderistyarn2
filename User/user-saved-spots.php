@@ -69,7 +69,7 @@ if ($conn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Tours - SJDM Tours</title>
+    <title>Saved Tourist Spots - SJDM Tours</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="user-styles.css">
@@ -267,24 +267,169 @@ if ($conn) {
             margin: 0 auto;
         }
 
+        /* Saved Spots Grid */
+        .spots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .spot-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(44, 95, 45, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            border-color: rgba(44, 95, 45, 0.2);
+        }
+
+        .spot-card-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 48px;
+        }
+
+        .spot-card-content {
+            padding: 25px;
+        }
+
+        .spot-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .spot-card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .spot-card-category {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spot-card-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .spot-card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            background: rgba(44, 95, 45, 0.1);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(44, 95, 45, 0.2);
+        }
+
+        .spot-card-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .btn-view:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: flex;
-            }
-
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
             .main-content.full-width .main-header {
                 padding: 20px;
                 flex-direction: column;
@@ -318,196 +463,35 @@ if ($conn) {
             .nav-link .material-icons-outlined {
                 font-size: 16px;
             }
-
-            .profile-name {
-                display: inline-block;
-                font-size: 14px;
-            }
-
-            .dropdown-menu {
-                width: 280px;
-            }
-        }
-    </style>
-    
-    <!-- Logout Modal Styles -->
-    <style>
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow: hidden;
-            box-shadow: 
-                0 32px 64px rgba(0, 0, 0, 0.25),
-                0 16px 32px rgba(0, 0, 0, 0.15),
-                0 8px 16px rgba(0, 0, 0, 0.1);
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 32px 24px 32px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            position: relative;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-        }
-
-        .close-modal {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 12px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .close-modal:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
-        .close-modal .material-icons-outlined {
-            font-size: 20px;
-        }
-
-        .modal-body {
-            padding: 32px;
-            max-height: calc(90vh - 120px);
-            overflow-y: auto;
-        }
-
-        /* Logout Modal Styles */
-        .logout-message {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logout-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-        }
-
-        .logout-message h3 {
-            margin: 16px 0 8px;
-            color: var(--text-primary);
-        }
-
-        .logout-message p {
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn-cancel,
-        .btn-confirm-logout {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-cancel {
-            background: var(--gray-100);
-            color: var(--text-secondary);
-        }
-
-        .btn-cancel:hover {
-            background: var(--gray-200);
-        }
-
-        .btn-confirm-logout {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-confirm-logout:hover {
-            background: #dc2626;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 95%;
-                margin: 20px;
+            
+            .main-content.full-width .content-area {
+                padding: 20px;
             }
             
-            .modal-header {
-                padding: 20px 24px 20px 24px;
+            .spots-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
             
-            .modal-body {
-                padding: 24px;
+            .spot-card {
+                border-radius: 16px;
+            }
+            
+            .spot-card-image {
+                height: 180px;
+            }
+            
+            .spot-card-content {
+                padding: 20px;
+            }
+            
+            .spot-card-title {
+                font-size: 1.2rem;
+            }
+            
+            .spot-card-actions {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>
@@ -517,7 +501,7 @@ if ($conn) {
     <main class="main-content full-width">
         <header class="main-header">
             <div class="header-left">
-                <h1 id="pageTitle">Saved Tours</h1>
+                <h1 id="pageTitle">Saved Tourist Spots</h1>
                
             </div>
             <div class="header-right">
@@ -538,9 +522,13 @@ if ($conn) {
                         <span class="material-icons-outlined">history</span>
                         <span>Booking History</span>
                     </a>
-                    <a href="user-tourist-spots.php" class="nav-link">
+                    <a href="user-tourist-spots.php" class="nav-link active">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
+                    </a>
+                    <a href="user-saved-tours.php" class="nav-link">
+                        <span class="material-icons-outlined">favorite</span>
+                        <span>Saved Tours</span>
                     </a>
                     <a href="user-local-culture.php" class="nav-link">
                         <span class="material-icons-outlined">theater_comedy</span>
@@ -579,6 +567,10 @@ if ($conn) {
                                 <span class="material-icons-outlined">favorite</span>
                                 <span>Saved Spots</span>
                             </a>
+                            <a href="user-saved-tours.php" class="dropdown-item">
+                                <span class="material-icons-outlined">people</span>
+                                <span>Saved Guides</span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a href="user-logout.php" class="dropdown-item">
                                 <span class="material-icons-outlined">logout</span>
@@ -591,7 +583,7 @@ if ($conn) {
         </header>
 
         <div class="content-area">
-            <h2 class="section-title">Saved Tours</h2>
+            <h2 class="section-title">Your Saved Tourist Spots</h2>
             
             <!-- Calendar Header -->
             <div class="calendar-header">
@@ -606,122 +598,190 @@ if ($conn) {
                 </div>
             </div>
 
-            <div id="savedToursList" class="guides-grid"></div>
+            <div id="savedSpotsList" class="spots-grid"></div>
         </div>
     </main>
 
     <script>
-        // Tour Guide Data (same as in script.js)
-        const guides = [
+        // Tourist Spots Data
+        const touristSpots = [
             {
-                id: 1,
-                name: "Rico Mendoza",
-                photo: "👨‍🏫",
-                specialty: "Mt. Balagbag Hiking Expert",
-                category: "mountain",
-                description: "Certified mountain guide with 10 years of experience leading Mt. Balagbag expeditions. Safety-first approach with extensive knowledge of local trails.",
-                areas: "Mt. Balagbag, Tuntong Falls, Mountain trails",
-                rating: 5.0,
-                reviewCount: 127,
-                priceRange: "₱2,000 - ₱3,500 per day",
-                languages: "English, Tagalog",
-                experience: "10 years",
-                verified: true
+                name: 'Mt. Balagbag',
+                category: 'Mountain',
+                type: 'mountain',
+                image: '🏔️',
+                description: 'Experience breathtaking beauty of Mt. Balagbag, one of San Jose del Monte\'s most majestic mountain peaks.',
+                features: ['Challenging trails', 'Panoramic views', 'Rich biodiversity']
             },
             {
-                id: 2,
-                name: "Anna Marie Santos",
-                photo: "👩‍💼",
-                specialty: "Nature & Waterfall Tours",
-                category: "nature",
-                description: "Expert nature guide specializing in Kaytitinga Falls and forest eco-tours. Passionate about sustainable tourism and local ecology.",
-                areas: "Kaytitinga Falls, Forest trails, Eco-tourism sites",
-                rating: 4.9,
-                reviewCount: 89,
-                priceRange: "₱2,500 - ₱4,000 per day",
-                languages: "English, Tagalog",
-                experience: "7 years",
-                verified: true
+                name: 'Burong Falls',
+                category: 'Waterfall',
+                type: 'waterfall',
+                image: '💧',
+                description: 'Discover the natural wonder of Burong Falls, a hidden gem nestled in lush landscapes.',
+                features: ['Crystal-clear waters', 'Natural pools', 'Lush surroundings']
             },
             {
-                id: 3,
-                name: "Father Jose Reyes",
-                photo: "🙏",
-                specialty: "Religious & Pilgrimage Tours",
-                category: "religious",
-                description: "Former parish coordinator offering spiritual tours to Grotto of Our Lady of Lourdes and Padre Pio shrine with historical insights.",
-                areas: "Grotto of Our Lady of Lourdes, Padre Pio Mountain, Churches",
-                rating: 4.8,
-                reviewCount: 156,
-                priceRange: "₱1,500 - ₱2,500 per day",
-                languages: "English, Tagalog, Spanish",
-                experience: "15 years",
-                verified: true
+                name: 'City Oval & People\'s Park',
+                category: 'Park',
+                type: 'park',
+                image: '🏞️',
+                description: 'Enjoy recreational activities at City Oval & People\'s Park in San Jose del Monte.',
+                features: ['Sports facilities', 'Playground', 'Jogging paths']
             },
             {
-                id: 4,
-                name: "Michael Cruz",
-                photo: "🚵‍♂️",
-                specialty: "Adventure & Extreme Sports",
-                category: "adventure",
-                description: "Adrenaline enthusiast offering adventure packages including hiking, rappelling, and team building activities at Paradise Adventure Camp.",
-                areas: "Paradise Adventure Camp, Mt. Balagbag, Extreme trails",
-                rating: 4.9,
-                reviewCount: 94,
-                priceRange: "₱3,000 - ₱5,000 per day",
-                languages: "English, Tagalog",
-                experience: "8 years",
-                verified: true
+                name: 'Our Lady of Lourdes',
+                category: 'Religious',
+                type: 'religious',
+                image: '⛪',
+                description: 'Find spiritual solace and architectural beauty at Our Lady of Lourdes.',
+                features: ['Beautiful architecture', 'Peaceful atmosphere', 'Cultural significance']
             },
             {
-                id: 5,
-                name: "Linda Bautista",
-                photo: "👩‍🌾",
-                specialty: "Farm & Food Tours",
-                category: "food",
-                description: "Local farmer and culinary tour guide showcasing SJDM's agricultural heritage, orchid farms, and authentic Bulacan cuisine.",
-                areas: "Orchid Garden, Pineapple Farms, Local restaurants, Markets",
-                rating: 4.8,
-                reviewCount: 72,
-                priceRange: "₱2,000 - ₱3,500 per day",
-                languages: "English, Tagalog",
-                experience: "6 years",
-                verified: true
-            },
-            {
-                id: 6,
-                name: "Carlos Villanueva",
-                photo: "🏙️",
-                specialty: "City & Cultural Tours",
-                category: "city",
-                description: "Urban guide and local historian showcasing SJDM's transformation from rural town to modern city while preserving cultural heritage.",
-                areas: "City proper, Malls, Historical sites, Urban attractions",
-                rating: 4.7,
-                reviewCount: 68,
-                priceRange: "₱1,800 - ₱3,000 per day",
-                languages: "English, Tagalog",
-                experience: "5 years",
-                verified: true
+                name: 'Abes Farm',
+                category: 'Farm',
+                type: 'farm',
+                image: '🌾',
+                description: 'Experience sustainable agriculture and rural life at Abes Farm.',
+                features: ['Organic farming', 'Fresh produce', 'Educational tours']
             }
         ];
-    </script>
-    <script src="script.js"></script>
-    <script>
+
+        // Detail page mapping
+        const spotDetailPages = {
+            'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
+            'Burong Falls': '../tourist-detail/burong-falls.php',
+            'City Oval & People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+            'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
+            'Abes Farm': '../tourist-detail/abes-farm.php'
+        };
+
         window.addEventListener('DOMContentLoaded', function() {
-            displayFavorites();
+            displaySavedSpots();
             initUserProfileDropdown();
-            // updateUserInterface is defined in script.js to handle UI updates
-            if (typeof updateUserInterface === 'function') {
-                updateUserInterface();
-            }
         });
 
-        // ========== USER PROFILE DROPDOWN ==========
+        function displaySavedSpots() {
+            const savedSpots = JSON.parse(localStorage.getItem('savedSpots')) || [];
+            const container = document.getElementById('savedSpotsList');
+            
+            if (savedSpots.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <span class="material-icons-outlined">favorite_border</span>
+                        </div>
+                        <h3>No Saved Tourist Spots Yet</h3>
+                        <p>Start exploring and click the heart icon on tourist spots to save them here for quick access!</p>
+                        <div class="centered-actions">
+                            <button class="btn-hero" onclick="window.location.href='user-tourist-spots.php'">
+                                <span class="material-icons-outlined">explore</span>
+                                Explore Tourist Spots
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const savedSpotData = touristSpots.filter(spot => savedSpots.includes(spot.name));
+            container.innerHTML = savedSpotData.map(spot => createSpotCard(spot)).join('');
+        }
+
+        function createSpotCard(spot) {
+            const detailPage = spotDetailPages[spot.name] || '#';
+            return `
+                <div class="spot-card" onclick="window.location.href='${detailPage}'">
+                    <div class="spot-card-image">
+                        <span style="font-size: 48px;">${spot.image}</span>
+                    </div>
+                    <div class="spot-card-content">
+                        <div class="spot-card-header">
+                            <h3 class="spot-card-title">${spot.name}</h3>
+                            <span class="spot-card-category">${spot.category}</span>
+                        </div>
+                        <p class="spot-card-description">${spot.description}</p>
+                        <div class="spot-card-features">
+                            ${spot.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                        </div>
+                        <div class="spot-card-actions">
+                            <button class="btn-remove" onclick="event.stopPropagation(); removeSavedSpot('${spot.name}')">
+                                <span class="material-icons-outlined">favorite</span>
+                                Remove
+                            </button>
+                            <a href="${detailPage}" class="btn-view" onclick="event.stopPropagation()">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function removeSavedSpot(spotName) {
+            const savedSpots = JSON.parse(localStorage.getItem('savedSpots')) || [];
+            const index = savedSpots.indexOf(spotName);
+            
+            if (index > -1) {
+                savedSpots.splice(index, 1);
+                localStorage.setItem('savedSpots', JSON.stringify(savedSpots));
+                displaySavedSpots();
+                showNotification('Removed from saved spots', 'info');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification banner
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            // Icon mapping for different types
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 400);
+            }, 3000);
+        }
+
+        // User Profile Dropdown
         function initUserProfileDropdown() {
             const profileDropdown = document.querySelector('.user-profile-dropdown');
             const profileTrigger = document.querySelector('.profile-trigger');
             const dropdownMenu = document.querySelector('.dropdown-menu');
-            const logoutLink = document.querySelector('[href="logout.php"]');
+            const logoutLink = document.querySelector('[href="../log-in/logout.php"]');
 
             if (!profileDropdown || !profileTrigger || !dropdownMenu) {
                 console.log('Profile dropdown elements not found');
@@ -752,7 +812,6 @@ if ($conn) {
             }
         }
 
-        // Show logout confirmation modal
         function showLogoutConfirmation() {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
@@ -789,107 +848,12 @@ if ($conn) {
             setTimeout(() => modal.classList.add('show'), 10);
         }
 
-        // Confirm and execute logout
         function confirmLogout() {
-            // Remove modal
             const modal = document.querySelector('.modal-overlay');
             if (modal) {
                 modal.remove();
             }
-
-            // Redirect to logout script
-            window.location.href = 'logout.php';
-        }
-
-        function displayFavorites() {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            const container = document.getElementById('savedToursList');
-            
-            if (favorites.length === 0) {
-                container.innerHTML = `
-                    <div class="modal-empty-state">
-                        <div class="empty-icon">
-                            <span class="material-icons-outlined">favorite_border</span>
-                        </div>
-                        <h3>No Saved Tours Yet</h3>
-                        <p>Save your favorite tour guides and destinations to quickly access them later. Start exploring and click the heart icon!</p>
-                        <div class="centered-actions">
-                            <button class="btn-hero" onclick="window.location.href='user-guides.php'">
-                                <span class="material-icons-outlined">explore</span>
-                                Browse Tour Guides
-                            </button>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-            
-            const favoriteGuides = guides.filter(g => favorites.includes(g.id));
-            container.innerHTML = favoriteGuides.map(g => createGuideCard(g)).join('');
-        }
-
-        function createGuideCard(g) {
-            const isFav = isFavorite(g.id);
-            return `
-                <div class="guide-card" onclick="window.location.href='index.php#profile-${g.id}'">
-                    <div class="guide-photo">
-                        ${g.photo}
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${g.id})">
-                            <span class="material-icons-outlined">${isFav ? 'favorite' : 'favorite_border'}</span>
-                        </button>
-                        ${g.verified ? '<span class="verified-badge"><span class="material-icons-outlined">verified</span></span>' : ''}
-                    </div>
-                    <div class="guide-info">
-                        <div class="guide-name">${g.name}</div>
-                        <span class="guide-specialty">${g.specialty}</span>
-                        <p class="guide-description">${g.description}</p>
-                        <div class="guide-meta">
-                            <div class="meta-item">
-                                <span class="material-icons-outlined">place</span>
-                                <span>${g.areas.split(',')[0]}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons-outlined">language</span>
-                                <span>${g.languages}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="material-icons-outlined">work</span>
-                                <span>${g.experience}</span>
-                            </div>
-                            <div class="rating-display">
-                                <span class="material-icons-outlined">star</span>
-                                <span class="rating-value">${g.rating.toFixed(1)}</span>
-                                <span class="review-count">(${g.reviewCount})</span>
-                            </div>
-                        </div>
-                        <div class="guide-footer">
-                            <span class="price-tag">${g.priceRange}</span>
-                            <button class="btn-view-profile">View Profile</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function isFavorite(guideId) {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            return favorites.includes(guideId);
-        }
-
-        function toggleFavorite(guideId) {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            const index = favorites.indexOf(guideId);
-            
-            if (index > -1) {
-                favorites.splice(index, 1);
-                showNotification('Removed from favorites', 'info');
-            } else {
-                favorites.push(guideId);
-                showNotification('Added to favorites', 'success');
-            }
-            
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            displayFavorites();
+            window.location.href = '../log-in/logout.php';
         }
     </script>
 </body>

@@ -1730,17 +1730,19 @@ function sendLoginOtpEmail($toEmail, $code) {
         
         $mail = new PHPMailer(true);
         
-        // SMTP configuration - UPDATE THIS with your new app password
+        // SMTP configuration - Use centralized SMTP config
+        require_once __DIR__ . '/smtp.php';
+        
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'christianbacay042504@gmail.com';
-        $mail->Password = 'tayrkzczbhgehbej'; // New app password
-        $mail->Port = 587;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
+        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
+        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         
         // Email content
-        $mail->setFrom('christianbacay042504@gmail.com', 'SJDM Tours');
+        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
         $mail->addAddress($toEmail);
         $mail->isHTML(true);
         $mail->Subject = 'Your SJDM Tours Login Verification Code';
@@ -1841,13 +1843,13 @@ function sendBookingConfirmationEmail($toEmail, $bookingData) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'christianbacay042504@gmail.com';
-        $mail->Password = 'tayrkzczbhgehbej';
+        $mail->Username = 'sjdmbulacanlgu@gmail.com';
+        $mail->Password = 'hdzszfxiqekenxlb';
         $mail->Port = 587;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         
         // Email content
-        $mail->setFrom('christianbacay042504@gmail.com', 'SJDM Tours');
+        $mail->setFrom('sjdmbulacanlgu@gmail.com', 'SJDM Tours');
         $mail->addAddress($toEmail);
         $mail->isHTML(true);
         $mail->Subject = 'Booking Confirmation - SJDM Tours - ' . $bookingData['booking_reference'];
@@ -1991,6 +1993,321 @@ function sendBookingConfirmationEmail($toEmail, $bookingData) {
         return [
             'success' => true,
             'message' => 'Booking confirmation email sent successfully'
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Email sending failed: ' . $e->getMessage()
+        ];
+    }
+}
+
+// Send booking status update email (approved/confirmed)
+function sendBookingStatusUpdateEmail($toEmail, $bookingData, $status) {
+    // Check if PHPMailer is available
+    $phpMailerPath = __DIR__ . '/../PHPMailer-6.9.1/src/PHPMailer.php';
+    $exceptionPath = __DIR__ . '/../PHPMailer-6.9.1/src/Exception.php';
+    $smtpPath = __DIR__ . '/../PHPMailer-6.9.1/src/SMTP.php';
+    
+    if (!file_exists($phpMailerPath) || !file_exists($exceptionPath) || !file_exists($smtpPath)) {
+        error_log("PHPMailer files not found at: $phpMailerPath");
+        return [
+            'success' => false,
+            'message' => 'Email service not available'
+        ];
+    }
+    
+    try {
+        require_once $phpMailerPath;
+        require_once $exceptionPath;
+        require_once $smtpPath;
+        
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found after including files");
+            return [
+                'success' => false,
+                'message' => 'Email service not available'
+            ];
+        }
+        
+        $mail = new PHPMailer(true);
+        
+        // SMTP configuration - Use centralized SMTP config
+        require_once __DIR__ . '/smtp.php';
+        
+        $mail->isSMTP();
+        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
+        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
+        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        
+        // Email content
+        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->addAddress($toEmail);
+        $mail->isHTML(true);
+        
+        $formattedDate = date('F j, Y', strtotime($bookingData['booking_date']));
+        $bookingId = str_pad($bookingData['id'], 6, '0', STR_PAD_LEFT);
+        
+        if ($status === 'confirmed') {
+            $mail->Subject = 'Booking Approved - SJDM Tours - #' . $bookingId;
+            
+            $mail->Body = '
+            <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+                <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 40px 30px; border-radius: 15px 15px 0 0; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 36px; font-weight: bold;">🎉 Booking Approved!</h1>
+                    <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">Your tour has been confirmed</p>
+                </div>
+                
+                <div style="background-color: white; padding: 40px 30px; border-radius: 0 0 15px 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    
+                    <div style="background-color: #d4edda; border-left: 5px solid #28a745; padding: 20px; margin: 0 0 30px 0; border-radius: 5px;">
+                        <h2 style="color: #155724; margin: 0 0 10px 0; font-size: 24px;">✅ Good News!</h2>
+                        <p style="color: #155724; margin: 0; font-size: 16px;">Your booking has been approved and confirmed. Get ready for an amazing adventure with SJDM Tours!</p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin: 0 0 30px 0; border: 2px solid #e9ecef;">
+                        <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 20px; text-align: center;">📋 UPDATED E-RECEIPT</h3>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Booking ID</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: bold; font-size: 16px;">#' . $bookingId . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Status</p>
+                                <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">✅ Confirmed</p>
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6; padding: 20px 0; margin: 20px 0;">
+                            <h4 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">📍 Tour Details</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Tour Name</p>
+                                    <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . htmlspecialchars($bookingData['tour_name']) . '</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Tour Date</p>
+                                    <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $formattedDate . '</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Number of People</p>
+                                    <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $bookingData['number_of_people'] . '</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Total Amount</p>
+                                    <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">₱' . number_format($bookingData['total_amount'], 2) . '</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                        <h4 style="color: #1976d2; margin: 0 0 15px 0; font-size: 18px;">📝 What\'s Next?</h4>
+                        <ul style="color: #5a6c7d; line-height: 1.8; margin: 0; padding-left: 20px;">
+                            <li>Please arrive at the meeting point 15 minutes before your scheduled tour</li>
+                            <li>Bring a valid ID for verification</li>
+                            <li>Wear comfortable clothing and appropriate footwear</li>
+                            <li>Our tour guide will contact you via phone for final coordination</li>
+                            <li>Payment can be made on the day of the tour</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e9ecef;">
+                        <p style="color: #7f8c8d; font-size: 14px; margin: 0;">
+                            If you have any questions, feel free to contact us at:<br>
+                            📧 ' . readEnvValue('SMTP_FROM_EMAIL') . ' | 📱 Contact: 0912-345-6789
+                        </p>
+                        <p style="color: #7f8c8d; font-size: 14px; margin: 20px 0 0 0;">
+                            © 2024 SJDM Tours. All rights reserved.<br>
+                            Discover the Balcony of Metropolis 🏔️
+                        </p>
+                    </div>
+                </div>
+            </div>';
+            
+            $mail->AltBody = "BOOKING APPROVED - SJDM Tours\n\n" .
+                "Booking ID: #" . $bookingId . "\n" .
+                "Status: Confirmed\n\n" .
+                "Tour Details:\n" .
+                "Tour Name: " . $bookingData['tour_name'] . "\n" .
+                "Date: " . $formattedDate . "\n" .
+                "People: " . $bookingData['number_of_people'] . "\n" .
+                "Total Amount: ₱" . number_format($bookingData['total_amount'], 2) . "\n\n" .
+                "Your booking has been approved! Get ready for your tour.\n" .
+                "For questions, contact: " . readEnvValue('SMTP_FROM_EMAIL') . "\n";
+        }
+        
+        $mail->send();
+        
+        return [
+            'success' => true,
+            'message' => 'Booking status update email sent successfully'
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Email sending failed: ' . $e->getMessage()
+        ];
+    }
+}
+
+// Send booking rejection email with reason
+function sendBookingRejectionEmail($toEmail, $bookingData, $rejectionReason) {
+    // Check if PHPMailer is available
+    $phpMailerPath = __DIR__ . '/../PHPMailer-6.9.1/src/PHPMailer.php';
+    $exceptionPath = __DIR__ . '/../PHPMailer-6.9.1/src/Exception.php';
+    $smtpPath = __DIR__ . '/../PHPMailer-6.9.1/src/SMTP.php';
+    
+    if (!file_exists($phpMailerPath) || !file_exists($exceptionPath) || !file_exists($smtpPath)) {
+        error_log("PHPMailer files not found at: $phpMailerPath");
+        return [
+            'success' => false,
+            'message' => 'Email service not available'
+        ];
+    }
+    
+    try {
+        require_once $phpMailerPath;
+        require_once $exceptionPath;
+        require_once $smtpPath;
+        
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found after including files");
+            return [
+                'success' => false,
+                'message' => 'Email service not available'
+            ];
+        }
+        
+        $mail = new PHPMailer(true);
+        
+        // SMTP configuration - Use centralized SMTP config
+        require_once __DIR__ . '/smtp.php';
+        
+        $mail->isSMTP();
+        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
+        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
+        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        
+        // Email content
+        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->addAddress($toEmail);
+        $mail->isHTML(true);
+        
+        $formattedDate = date('F j, Y', strtotime($bookingData['booking_date']));
+        $bookingId = str_pad($bookingData['id'], 6, '0', STR_PAD_LEFT);
+        
+        $mail->Subject = 'Booking Update - SJDM Tours - #' . $bookingId;
+        
+        $mail->Body = '
+        <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
+            <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 40px 30px; border-radius: 15px 15px 0 0; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 36px; font-weight: bold;">📋 Booking Update</h1>
+                <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;">Information about your booking</p>
+            </div>
+            
+            <div style="background-color: white; padding: 40px 30px; border-radius: 0 0 15px 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                
+                <div style="background-color: #f8d7da; border-left: 5px solid #dc3545; padding: 20px; margin: 0 0 30px 0; border-radius: 5px;">
+                    <h2 style="color: #721c24; margin: 0 0 10px 0; font-size: 24px;">❌ Booking Cancelled</h2>
+                    <p style="color: #721c24; margin: 0; font-size: 16px;">We regret to inform you that your booking has been cancelled. Please see the reason below.</p>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 25px; border-radius: 10px; margin: 0 0 30px 0; border: 2px solid #e9ecef;">
+                    <h3 style="color: #2c3e50; margin: 0 0 20px 0; font-size: 20px; text-align: center;">📋 BOOKING DETAILS</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Booking ID</p>
+                            <p style="margin: 0; color: #2c3e50; font-weight: bold; font-size: 16px;">#' . $bookingId . '</p>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Status</p>
+                            <p style="margin: 0; color: #dc3545; font-weight: bold; font-size: 16px;">❌ Cancelled</p>
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6; padding: 20px 0; margin: 20px 0;">
+                        <h4 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">📍 Tour Details</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Tour Name</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . htmlspecialchars($bookingData['tour_name']) . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Tour Date</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $formattedDate . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Number of People</p>
+                                <p style="margin: 0; color: #2c3e50; font-weight: 600;">' . $bookingData['number_of_people'] . '</p>
+                            </div>
+                            <div>
+                                <p style="margin: 0 0 5px 0; color: #7f8c8d; font-size: 12px; text-transform: uppercase;">Total Amount</p>
+                                <p style="margin: 0; color: #6c757d; font-weight: bold; font-size: 16px;">₱' . number_format($bookingData['total_amount'], 2) . '</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                    <h4 style="color: #856404; margin: 0 0 15px 0; font-size: 18px;">📝 Reason for Cancellation</h4>
+                    <p style="color: #856404; margin: 0; font-size: 16px; line-height: 1.6; font-style: italic;">' . htmlspecialchars($rejectionReason) . '</p>
+                </div>
+                
+                <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                    <h4 style="color: #1976d2; margin: 0 0 15px 0; font-size: 18px;">💡 What You Can Do</h4>
+                    <ul style="color: #5a6c7d; line-height: 1.8; margin: 0; padding-left: 20px;">
+                        <li>You can book a new tour for a different date</li>
+                        <li>Contact our support team for assistance with rebooking</li>
+                        <li>Check our website for available tour schedules</li>
+                        <li>We apologize for any inconvenience caused</li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e9ecef;">
+                    <div style="margin-bottom: 20px;">
+                        <a href="#" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">Book New Tour</a>
+                    </div>
+                    <p style="color: #7f8c8d; font-size: 14px; margin: 0;">
+                        If you have any questions or need assistance, feel free to contact us at:<br>
+                        📧 ' . readEnvValue('SMTP_FROM_EMAIL') . ' | 📱 0912-345-6789
+                    </p>
+                    <p style="color: #7f8c8d; font-size: 14px; margin: 20px 0 0 0;">
+                        © 2024 SJDM Tours. All rights reserved.<br>
+                        Discover the Balcony of Metropolis 🏔️
+                    </p>
+                </div>
+            </div>
+        </div>';
+        
+        $mail->AltBody = "BOOKING CANCELLED - SJDM Tours\n\n" .
+            "Booking ID: #" . $bookingId . "\n" .
+            "Status: Cancelled\n\n" .
+            "Tour Details:\n" .
+            "Tour Name: " . $bookingData['tour_name'] . "\n" .
+            "Date: " . $formattedDate . "\n" .
+            "People: " . $bookingData['number_of_people'] . "\n\n" .
+            "Reason for Cancellation:\n" . $rejectionReason . "\n\n" .
+            "We apologize for the inconvenience. You can book a new tour anytime.\n" .
+            "For assistance, contact: " . readEnvValue('SMTP_FROM_EMAIL') . "\n";
+        
+        $mail->send();
+        
+        return [
+            'success' => true,
+            'message' => 'Booking rejection email sent successfully'
         ];
         
     } catch (Exception $e) {

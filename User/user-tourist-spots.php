@@ -1513,9 +1513,9 @@ if ($conn && $isLoggedIn) {
                                 <span class="material-icons-outlined">history</span>
                                 <span>Booking History</span>
                             </a>
-                            <a href="user-saved-tours.php" class="dropdown-item">
+                            <a href="user-saved-spots.php" class="dropdown-item">
                                 <span class="material-icons-outlined">favorite</span>
-                                <span>Saved Tours</span>
+                                <span>Saved Spots</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <a href="user-logout.php" class="dropdown-item">
@@ -2147,47 +2147,21 @@ if ($conn && $isLoggedIn) {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
             
+            // Check if this spot is already saved and update UI
+            const savedSpots = JSON.parse(localStorage.getItem('savedSpots')) || [];
+            const saveBtn = document.querySelector('.modal-save-btn');
+            if (savedSpots.includes(name)) {
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
+            } else {
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
+            }
+            
             // Add animation class for smooth appearance
             setTimeout(() => {
                 modal.classList.add('show');
             }, 10);
-        }
-        
-        // Helper function to generate star rating HTML
-        function generateStars(rating) {
-            const fullStars = Math.floor(rating);
-            const hasHalfStar = (rating - fullStars) >= 0.5;
-            let starsHtml = '';
-            
-            for (let i = 0; i < fullStars; i++) {
-                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star</span>';
-            }
-            if (hasHalfStar) {
-                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star_half</span>';
-            }
-            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-            for (let i = 0; i < emptyStars; i++) {
-                starsHtml += '<span class="material-icons-outlined" style="color: #ddd; font-size: 14px;">star_outline</span>';
-            }
-            return starsHtml;
-        }
-        
-        function viewGuideProfile(guideId) {
-            console.log('Viewing guide profile:', guideId);
-            closeTouristSpotModal();
-            // Redirect to user-guides.php with guide ID parameter
-            window.location.href = 'user-guides.php?guide=' + guideId;
-        }
-        
-        function closeTouristSpotModal() {
-            const modal = document.getElementById('touristSpotModal');
-            if (modal) {
-                modal.classList.remove('show');
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }, 300);
-            }
         }
         
         function viewAllDetails() {
@@ -2230,29 +2204,157 @@ if ($conn && $isLoggedIn) {
             const detailPage = spotPages[spotName] || '../tourist-detail/city-ovals-peoples-park.php';
             console.log('Final detail page:', detailPage);
             
-            // Redirect to the detail page
+            // Redirect to detail page
             window.location.href = detailPage;
+        }
+        
+        function closeTouristSpotModal() {
+            const modal = document.getElementById('touristSpotModal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
         }
         
         function saveThisSpot() {
             const spotName = document.getElementById('modalSpotName').textContent;
             const saveBtn = document.querySelector('.modal-save-btn');
             
+            // Get current saved spots from localStorage
+            const savedSpots = JSON.parse(localStorage.getItem('savedSpots')) || [];
+            
             // Toggle saved state
             if (saveBtn.classList.contains('saved')) {
+                // Remove from saved spots
+                const index = savedSpots.indexOf(spotName);
+                if (index > -1) {
+                    savedSpots.splice(index, 1);
+                }
                 saveBtn.classList.remove('saved');
                 saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
                 showNotification('Removed from favorites', 'info');
             } else {
+                // Add to saved spots
+                if (!savedSpots.includes(spotName)) {
+                    savedSpots.push(spotName);
+                }
                 saveBtn.classList.add('saved');
                 saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
                 showNotification('Added to favorites!', 'success');
             }
+            
+            // Save to localStorage
+            localStorage.setItem('savedSpots', JSON.stringify(savedSpots));
         }
         
         function showNotification(message, type = 'info') {
             // Remove any existing notifications
             const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification banner
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            // Icon mapping for different types
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 400);
+            }, 3000);
+        }
+    </script>
+    
+    <script>    
+        // Helper function to generate star rating HTML
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = (rating - fullStars) >= 0.5;
+            let starsHtml = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star</span>';
+            }
+            if (hasHalfStar) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ffc107; font-size: 14px;">star_half</span>';
+            }
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<span class="material-icons-outlined" style="color: #ddd; font-size: 14px;">star_outline</span>';
+            }
+            return starsHtml;
+        }
+        
+        function viewGuideProfile(guideId) {
+            console.log('Viewing guide profile:', guideId);
+            console.log('Spot name from modal:', spotName);
+            closeTouristSpotModal();
+            
+            // Create mapping for spot names to detail pages
+            const spotPages = {
+                'Mt. Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Mt. Balagbag Mountain': '../tourist-detail/mt-balagbag.php',
+                'Mount Balagbag': '../tourist-detail/mt-balagbag.php',
+                'Abes Farm': '../tourist-detail/abes-farm.php',
+                'Abes Farm Resort': '../tourist-detail/abes-farm.php',
+                'Burong Falls': '../tourist-detail/burong-falls.php',
+                'Burong Falls San Jose del Monte': '../tourist-detail/burong-falls.php',
+                'City Oval & People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'City Oval and People\'s Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'City Oval Peoples Park': '../tourist-detail/city-ovals-peoples-park.php',
+                'Kaytitinga Falls': '../tourist-detail/kaytitinga-falls.php',
+                'Kaytitinga Falls San Jose del Monte': '../tourist-detail/kaytitinga-falls.php',
+                'Otso Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Otso-Otso Falls': '../tourist-detail/otso-otso-falls.php',
+                'Our Lady of Lourdes': '../tourist-detail/our-lady-of-lourdes.php',
+                'Our Lady of Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
+                'Lourdes Parish': '../tourist-detail/our-lady-of-lourdes.php',
+                'Padre Pio': '../tourist-detail/padre-pio.php',
+                'Padre Pio Shrine': '../tourist-detail/padre-pio.php',
+                'Paradise Hill Farm': '../tourist-detail/paradise-hill-farm.php',
+                'Paradise Hill Farm Resort': '../tourist-detail/paradise-hill-farm.php',
+                'The Rising Heart': '../tourist-detail/the-rising-heart.php',
+                'The Rising Heart Farm': '../tourist-detail/the-rising-heart.php',
+                'Tungtong Falls': '../tourist-detail/tungtong.php',
+                'Tungtong Falls San Jose del Monte': '../tourist-detail/tungtong.php'
+            };
+            
+            console.log('Available spot pages:', Object.keys(spotPages));
+            console.log('Looking for spot name:', spotName);
+            const detailPage = spotPages[spotName] || '../tourist-detail/city-ovals-peoples-park.php';
+            console.log('Final detail page:', detailPage);
             if (existingNotification) {
                 existingNotification.remove();
             }
@@ -2425,7 +2527,81 @@ if ($conn && $isLoggedIn) {
                 } else {
                     card.style.display = 'none';
                 }
-            });
+        function saveThisSpot() {
+            const spotName = document.getElementById('modalSpotName').textContent;
+            const saveBtn = document.querySelector('.modal-save-btn');
+            
+            // Get current saved spots from localStorage
+            const savedSpots = JSON.parse(localStorage.getItem('savedSpots')) || [];
+            
+            // Toggle saved state
+            if (saveBtn.classList.contains('saved')) {
+                // Remove from saved spots
+                const index = savedSpots.indexOf(spotName);
+                if (index > -1) {
+                    savedSpots.splice(index, 1);
+                }
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite_border</span> Save to Favorites';
+                showNotification('Removed from favorites', 'info');
+            } else {
+                // Add to saved spots
+                if (!savedSpots.includes(spotName)) {
+                    savedSpots.push(spotName);
+                }
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<span class="material-icons-outlined">favorite</span> Saved to Favorites';
+                showNotification('Added to favorites!', 'success');
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('savedSpots', JSON.stringify(savedSpots));
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification-banner');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification banner
+            const notification = document.createElement('div');
+            notification.className = `notification-banner ${type}`;
+            
+            // Icon mapping for different types
+            const icons = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                info: 'info'
+            };
+            
+            notification.innerHTML = `
+                <span class="material-icons-outlined notification-icon">${icons[type] || 'info'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        document.body.removeChild(notification);
+                    }
+                }, 400);
+            }, 3000);
         }
     </script>
     

@@ -66,6 +66,18 @@ function editBookingRecord($conn, $data)
 function updateBookingStatus($conn, $data)
 {
     try {
+        // Get current booking data before updating
+        $currentBookingStmt = $conn->prepare("SELECT b.*, u.email as user_email FROM bookings b JOIN users u ON b.user_id = u.id WHERE b.id = ?");
+        $currentBookingStmt->bind_param("i", $data['booking_id']);
+        $currentBookingStmt->execute();
+        $currentBookingResult = $currentBookingStmt->get_result();
+        $currentBooking = $currentBookingResult->fetch_assoc();
+        $currentBookingStmt->close();
+        
+        if (!$currentBooking) {
+            return ['success' => false, 'message' => 'Booking not found'];
+        }
+        
         // If status is being set to cancelled/rejected and notes are provided, update notes as well
         if ($data['status'] === 'cancelled' && isset($data['rejection_notes'])) {
             $stmt = $conn->prepare("UPDATE bookings SET status = ?, rejection_notes = ? WHERE id = ?");
@@ -76,8 +88,35 @@ function updateBookingStatus($conn, $data)
         }
 
         if ($stmt->execute()) {
-            return ['success' => true, 'message' => 'Booking status updated successfully'];
+            $stmt->close();
+            
+            // Send email notification based on status change
+            $emailSent = false;
+            $emailMessage = '';
+            
+            if ($data['status'] === 'confirmed' && $currentBooking['status'] !== 'confirmed') {
+                // Send approval email
+                $emailResult = sendBookingStatusUpdateEmail($currentBooking['user_email'], $currentBooking, 'confirmed');
+                $emailSent = $emailResult['success'];
+                $emailMessage = $emailResult['message'];
+            } elseif ($data['status'] === 'cancelled' && $currentBooking['status'] !== 'cancelled') {
+                // Send rejection email with reason
+                $rejectionReason = $data['rejection_notes'] ?? 'No specific reason provided';
+                $emailResult = sendBookingRejectionEmail($currentBooking['user_email'], $currentBooking, $rejectionReason);
+                $emailSent = $emailResult['success'];
+                $emailMessage = $emailResult['message'];
+            }
+            
+            $responseMessage = 'Booking status updated successfully';
+            if ($emailSent) {
+                $responseMessage .= ' (Email notification sent)';
+            } elseif (!empty($emailMessage)) {
+                $responseMessage .= ' (Email notification failed: ' . $emailMessage . ')';
+            }
+            
+            return ['success' => true, 'message' => $responseMessage];
         } else {
+            $stmt->close();
             return ['success' => false, 'message' => 'Failed to update booking status'];
         }
     } catch (Exception $e) {
@@ -1569,7 +1608,11 @@ $queryValues = [
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Booking accepted');
+                        if (data.message.includes('Email notification sent')) {
+                            alert('Booking approved and confirmation email sent to customer!');
+                        } else {
+                            alert('Booking approved (Email notification failed, but booking was updated)');
+                        }
                         location.reload();
                     } else {
                         alert(data.message);
@@ -1653,6 +1696,11 @@ $queryValues = [
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
+                    if (result.message.includes('Email notification sent')) {
+                        alert('Booking rejected and cancellation email with reason sent to customer!');
+                    } else {
+                        alert('Booking rejected (Email notification failed, but booking was updated)');
+                    }
                     closeRejectBookingModal();
                     location.reload();
                 } else {
