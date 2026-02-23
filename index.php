@@ -1,17 +1,49 @@
+<?php
+// Get logo file content and convert to base64
+$logoPath = __DIR__ . '/lgo.png';
+
+// Check if file exists and is readable
+if (!file_exists($logoPath) || !is_readable($logoPath)) {
+    die('Logo file not found or not readable: ' . $logoPath);
+}
+
+$logoData = file_get_contents($logoPath);
+if ($logoData === false) {
+    die('Failed to read logo file: ' . $logoPath);
+}
+
+$logoBase64 = base64_encode($logoData);
+$logoMime = 'image/png';
+
+// Debug: Output base64 preview (first 100 chars)
+$base64Preview = substr($logoBase64, 0, 100);
+error_log('Logo base64 preview: ' . $base64Preview);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="/coderistyarn2/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discover San Jose del Monte | Your Gateway to Nature & Adventure</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <link rel="stylesheet" href="landingpage/style.css">
+    
+    <!-- Favicon with multiple fallbacks -->
+    <link rel="icon" type="image/png" href="lgo.png">
+    <link rel="shortcut icon" type="image/png" href="lgo.png">
+    <link rel="apple-touch-icon" href="lgo.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
+    <link rel="stylesheet" href="landingpage/style.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <!-- Navigation -->
     <nav id="navbar">
-        <div class="logo">SJDM TOURS</div>
+        <div class="logo">
+            <img src="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>" alt="SJDM Tours Logo - Discover San Jose del Monte" class="logo-img">
+            <span class="logo-text">SJDM TOURS</span>
+        </div>
         <div class="nav-links">
             <a href="#home">Home</a>
             <a href="#destinations">Destinations</a>

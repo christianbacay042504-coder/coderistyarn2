@@ -3,6 +3,12 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
+// Get logo file content and convert to base64
+$logoPath = __DIR__ . '/lgo.png';
+$logoData = file_get_contents($logoPath);
+$logoBase64 = base64_encode($logoData);
+$logoMime = 'image/png';
+
 // Include necessary files
 require_once __DIR__ . '/config/auth.php';
 
@@ -240,6 +246,9 @@ if (isset($_SESSION['logout_message'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | SJDM Tours</title>
+    <link rel="icon" type="image/png" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
+    <link rel="shortcut icon" type="image/png" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
+    <link rel="apple-touch-icon" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="log-in/styles.css">
@@ -254,6 +263,7 @@ if (isset($_SESSION['logout_message'])) {
         <div class="login-left-panel">
             <div class="login-brand">
                 <div class="brand-logo">
+                    <img src="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px; margin-right: 8px;">
                     <span class="material-icons-outlined">landscape</span>
                 </div>
                 <h1>SJDM TOURS</h1>

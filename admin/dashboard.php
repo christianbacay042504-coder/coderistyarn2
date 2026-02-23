@@ -191,7 +191,7 @@ if ($conn) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard Overview | SJDM Tours</title>
-
+    <link rel="icon" type="image/png" href="../lgo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -210,9 +210,9 @@ if ($conn) {
 
             <div class="sidebar-header">
 
-                <div class="logo">
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
 
-                    <span class="material-icons-outlined">admin_panel_settings</span>
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
 
                     <span>SJDM ADMIN</span>
 

@@ -44,6 +44,28 @@ nav.scrolled {
     font-weight: 900;
     color: #fff;
     letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.logo-img {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.logo-text {
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.logo:hover .logo-img {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 nav.scrolled .logo,
@@ -642,6 +664,15 @@ nav.scrolled .mobile-menu span {
 
     .mobile-menu {
         display: block;
+    }
+
+    .logo {
+        font-size: 24px;
+    }
+
+    .logo-img {
+        height: 32px;
+        width: 32px;
     }
 
     .hero-title {

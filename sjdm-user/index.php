@@ -88,12 +88,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 ?>
+<?php
+// Get logo file content and convert to base64
+$logoPath = __DIR__ . '/../lgo.png';
+$logoData = file_get_contents($logoPath);
+$logoBase64 = base64_encode($logoData);
+$logoMime = 'image/png';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>San Jose del Monte Bulacan - Tour Guide & Tourism</title>
+    <link rel="icon" type="image/png" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
+    <link rel="shortcut icon" type="image/png" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
+    <link rel="apple-touch-icon" href="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -1874,6 +1884,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="main-content full-width">
         <header class="main-header">
             <div class="header-left">
+                <div class="logo" style="display: flex; align-items: center; gap: 12px; margin-right: 30px;">
+                    <img src="data:<?php echo $logoMime; ?>;base64,<?php echo $logoBase64; ?>" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+                    <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary);">SJDM TOURS</span>
+                </div>
                 <h1 id="pageTitle">Dashboard</h1>
                 <div class="search-bar">
                     <span class="material-icons-outlined">search</span>

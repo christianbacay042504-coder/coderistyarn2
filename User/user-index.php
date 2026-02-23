@@ -94,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>San Jose del Monte Bulacan - Tour Guide & Tourism</title>
+    <link rel="icon" type="image/png" href="../lgo.png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -1874,6 +1875,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="main-content full-width">
         <header class="main-header">
             <div class="header-left">
+                <div class="logo" style="display: flex; align-items: center; gap: 12px; margin-right: 30px;">
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+                    <span style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: var(--primary);">SJDM TOURS</span>
+                </div>
                 <h1 id="pageTitle">Dashboard</h1>
                 
             </div>
