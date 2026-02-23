@@ -247,9 +247,8 @@
 
 .otp-input.error {
     border-color: #ef4444 !important;
-    box-shadow: 
-        0 0 0 4px rgba(239, 68, 68, 0.2) !important,
-        0 8px 24px rgba(239, 68, 68, 0.15) !important;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important,
+                0 8px 24px rgba(239, 68, 68, 0.15) !important;
     animation: shake 0.6s ease-in-out;
     background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 100%);
 }
@@ -1230,12 +1229,21 @@ body {
     text-decoration: underline;
 }
 
-/* Responsive Design */
+/* Enhanced Mobile Responsiveness */
 @media (max-width: 1200px) {
-
     .login-left-panel,
     .login-right-panel {
-        padding: 40px 35px;
+        padding: 50px 40px;
+    }
+
+    .login-left-panel {
+        flex: 0 0 40%;
+        max-width: 40%;
+    }
+
+    .login-right-panel {
+        flex: 0 0 60%;
+        max-width: 60%;
     }
 }
 
@@ -1253,49 +1261,189 @@ body {
 
     .login-left-panel {
         min-height: auto;
+        order: 2;
     }
 
     .login-right-panel {
         min-height: 100vh;
+        order: 1;
     }
-}
 
-@media (max-width: 768px) {
-
-    .login-left-panel,
-    .login-right-panel {
-        padding: 30px 20px;
+    .login-hero {
+        padding: 20px 0;
     }
 
     .login-hero h2 {
         font-size: 24px;
     }
 
-    .form-header h2 {
-        font-size: 28px;
+    .brand-logo {
+        width: 50px;
+        height: 50px;
     }
 
-    .social-buttons {
-        grid-template-columns: 1fr;
+    .login-brand h1 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-left-panel,
+    .login-right-panel {
+        padding: 30px 20px;
+    }
+
+    .login-right-panel {
+        min-height: 100vh;
+        justify-content: center;
+    }
+
+    .login-wrapper {
+        max-width: 100%;
+    }
+
+    .login-hero h2 {
+        font-size: 20px;
+    }
+
+    .login-hero p {
+        font-size: 14px;
     }
 
     .features-list {
         gap: 12px;
     }
 
-    .support-section {
-        flex-direction: column;
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .login-brand h1 {
-        font-size: 24px;
+    .feature-item {
+        font-size: 14px;
     }
 
     .form-header h2 {
         font-size: 24px;
+    }
+
+    .form-header p {
+        font-size: 14px;
+    }
+
+    .form-group input {
+        padding: 14px 16px;
+        font-size: 14px;
+    }
+
+    .login-btn {
+        padding: 16px;
+        font-size: 15px;
+    }
+
+    .social-buttons {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .social-btn {
+        padding: 14px;
+        font-size: 14px;
+    }
+
+    .support-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .support-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .support-icon .material-icons-outlined {
+        font-size: 20px;
+    }
+
+    /* OTP Modal responsiveness */
+    .verification-modal .modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 0;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 24px 24px 20px;
+    }
+
+    .modal-header h2 {
+        font-size: 20px;
+    }
+
+    .modal-header p {
+        font-size: 14px;
+    }
+
+    .modal-body {
+        padding: 0 24px 24px;
+    }
+
+    .otp-inputs {
+        gap: 10px;
+    }
+
+    .otp-input {
+        width: 45px;
+        height: 55px;
+        font-size: 22px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-left-panel,
+    .login-right-panel {
+        padding: 20px 15px;
+    }
+
+    .login-brand h1 {
+        font-size: 24px;
+    }
+
+    .brand-tagline {
+        font-size: 12px;
+    }
+
+    .login-hero h2 {
+        font-size: 18px;
+    }
+
+    .login-hero p {
+        font-size: 13px;
+    }
+
+    .form-header h2 {
+        font-size: 20px;
+    }
+
+    .form-group input {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+    }
+
+    .login-btn {
+        padding: 14px;
+        font-size: 14px;
+    }
+
+    .social-btn {
+        padding: 12px;
+        font-size: 13px;
     }
 
     .form-options {
@@ -1304,14 +1452,167 @@ body {
         gap: 12px;
     }
 
-    .login-btn {
-        padding: 14px;
-        font-size: 15px;
+    .remember-me {
+        font-size: 13px;
     }
 
-    .login-left-panel,
+    .forgot-password {
+        font-size: 13px;
+    }
+
+    .register-link {
+        font-size: 13px;
+    }
+
+    .support-section {
+        padding: 16px;
+    }
+
+    .support-info p {
+        font-size: 13px;
+    }
+
+    .support-info a {
+        font-size: 14px;
+    }
+
+    /* Enhanced OTP Modal for small screens */
+    .verification-modal .modal-content {
+        width: 98%;
+        border-radius: 16px;
+    }
+
+    .modal-header {
+        padding: 20px 20px 16px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    .modal-header p {
+        font-size: 13px;
+    }
+
+    .modal-body {
+        padding: 0 20px 20px;
+    }
+
+    .otp-inputs {
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+
+    .otp-input {
+        width: 40px;
+        height: 50px;
+        font-size: 20px;
+        border-radius: 12px;
+    }
+
+    .email-display {
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+    .email-display span {
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+
+    .modal-footer {
+        padding: 16px 20px;
+    }
+
+    .modal-footer p {
+        font-size: 13px;
+    }
+
+    .btn-link {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        top: 16px;
+        right: 16px;
+    }
+
+    .modal-close .material-icons-outlined {
+        font-size: 18px;
+    }
+
+    /* Terms section */
+    .terms-section {
+        padding: 16px 0;
+        font-size: 12px;
+    }
+
+    .terms-section a {
+        font-size: 12px;
+    }
+
+    /* Alert messages */
+    .alert {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .alert .material-icons-outlined {
+        font-size: 16px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .form-group input:focus {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .otp-input:focus {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .btn,
+    .social-btn,
+    .login-btn {
+        min-height: 44px; /* Minimum touch target size */
+    }
+
+    .nav-item,
+    .remember-me,
+    .forgot-password {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+    .login-left-panel {
+        display: none;
+    }
+
     .login-right-panel {
-        padding: 20px 15px;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .login-wrapper {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .verification-modal .modal-content {
+        max-height: 95vh;
+        overflow-y: auto;
     }
 }
 

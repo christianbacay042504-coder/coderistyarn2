@@ -61,6 +61,369 @@ body {
     padding: 10px;
     cursor: pointer;
     box-shadow: var(--shadow-md);
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--primary-dark);
+}
+
+.mobile-menu-toggle .material-icons-outlined {
+    font-size: 24px;
+}
+
+/* Sidebar Overlay for Mobile */
+body.sidebar-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 1024px) {
+    .main-header {
+        padding: 24px 30px;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .main-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .search-bar {
+        max-width: 100%;
+    }
+
+    .destinations-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 80px;
+    }
+
+    .main-header {
+        padding: 20px 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+
+    .main-header h1 {
+        font-size: 1.5rem;
+        margin-left: 60px;
+    }
+
+    .search-bar {
+        display: none;
+    }
+
+    .header-actions {
+        gap: 12px;
+    }
+
+    .icon-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .content-area {
+        padding: 20px 15px;
+    }
+
+    .hero {
+        padding: 100px 20px 60px;
+        border-radius: 0;
+        margin-bottom: 40px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .btn-hero {
+        padding: 14px 28px;
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    .destinations-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .destination-card {
+        border-radius: 16px;
+    }
+
+    .destination-img {
+        height: 200px;
+    }
+
+    .destination-content {
+        padding: 20px;
+    }
+
+    .destination-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 30px 20px;
+        text-align: center;
+    }
+
+    .stat-card h3 {
+        font-size: 2.5rem;
+    }
+
+    .user-preferences-section {
+        padding: 20px 15px;
+        margin-bottom: 24px;
+    }
+
+    .preferences-display {
+        gap: 8px;
+    }
+
+    .preference-tag {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-header {
+        padding: 15px 15px;
+    }
+
+    .main-header h1 {
+        font-size: 1.3rem;
+        margin-left: 50px;
+    }
+
+    .header-actions {
+        gap: 8px;
+    }
+
+    .icon-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .content-area {
+        padding: 15px 10px;
+    }
+
+    .hero {
+        padding: 80px 15px 50px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .btn-hero {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .destination-content {
+        padding: 15px;
+    }
+
+    .destination-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .destination-content p {
+        font-size: 0.9rem;
+    }
+
+    .stat-card {
+        padding: 25px 15px;
+    }
+
+    .stat-card h3 {
+        font-size: 2rem;
+    }
+
+    .stat-card p {
+        font-size: 1rem;
+    }
+
+    .preference-tag {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .preference-tag .material-icons-outlined {
+        font-size: 14px;
+    }
+
+    /* Modal responsiveness */
+    .modal {
+        padding: 20px;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-width: none;
+        margin: 0;
+    }
+
+    /* Travelry card responsiveness */
+    .travelry-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card-image {
+        height: 180px;
+    }
+
+    .card-content {
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-stats {
+        padding-top: 12px;
+        gap: 12px;
+    }
+
+    .stat-item {
+        min-width: 60px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .card-button {
+        bottom: 15px;
+        right: 15px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+    }
+
+    /* Filter responsiveness */
+    .filter-section {
+        padding: 20px 15px;
+        margin-bottom: 24px;
+    }
+
+    .filter-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .filter-buttons {
+        justify-content: center;
+    }
+
+    .filter-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .sort-section {
+        justify-content: center;
+    }
+
+    /* Calendar header responsiveness */
+    .calendar-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .date-display {
+        text-align: center;
+    }
+
+    .month-year {
+        font-size: 1.5rem;
+    }
+
+    .weather-info {
+        justify-content: center;
+    }
 }
 
 /* User Preferences Section */
