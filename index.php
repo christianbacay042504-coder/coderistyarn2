@@ -22,7 +22,6 @@ error_log('Logo base64 preview: ' . $base64Preview);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <base href="/coderistyarn2/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discover San Jose del Monte | Your Gateway to Nature & Adventure</title>
