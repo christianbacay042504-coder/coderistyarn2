@@ -262,7 +262,11 @@ function deleteUser($conn, $userId)
 
 
 
-    try {
+    try 
+
+
+
+    {
 
 
 
@@ -278,7 +282,11 @@ function deleteUser($conn, $userId)
 
 
 
-        if ($stmt->execute()) {
+        if ($stmt->execute()) 
+
+
+
+        {
 
 
 
@@ -286,7 +294,11 @@ function deleteUser($conn, $userId)
 
 
 
-        } else {
+        } else 
+
+
+
+        {
 
 
 
@@ -298,7 +310,11 @@ function deleteUser($conn, $userId)
 
 
 
-    } catch (Exception $e) {
+    } catch (Exception $e) 
+
+
+
+    {
 
 
 
@@ -326,11 +342,15 @@ function getUser($conn, $userId)
 
 
 
-    try {
+    try 
 
 
 
-        $stmt = $conn->prepare("SELECT id, first_name, last_name, email, phone, status, created_at, last_login FROM users WHERE id = ? AND user_type = 'user'");
+    {
+
+
+
+        $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 
 
 
@@ -338,7 +358,15 @@ function getUser($conn, $userId)
 
 
 
+
+
+
+
         $stmt->execute();
+
+
+
+
 
 
 
@@ -350,7 +378,11 @@ function getUser($conn, $userId)
 
 
 
-        if ($result->num_rows > 0) {
+        if ($result->num_rows > 0) 
+
+
+
+        {
 
 
 
@@ -366,7 +398,15 @@ function getUser($conn, $userId)
 
 
 
+
+
+
+
             $activityStmt = $conn->prepare("SELECT login_time, ip_address, status FROM login_activity WHERE user_id = ? ORDER BY login_time DESC LIMIT 10");
+
+
+
+
 
 
 
@@ -374,7 +414,15 @@ function getUser($conn, $userId)
 
 
 
+
+
+
+
             $activityStmt->execute();
+
+
+
+
 
 
 
@@ -382,15 +430,31 @@ function getUser($conn, $userId)
 
 
 
+
+
+
+
             $user['activity'] = [];
 
 
 
-            while ($row = $activityResult->fetch_assoc()) {
+
+
+
+
+            while ($row = $activityResult->fetch_assoc()) 
+
+
+
+            {
 
 
 
                 $user['activity'][] = $row;
+
+
+
+
 
 
 
@@ -406,7 +470,15 @@ function getUser($conn, $userId)
 
 
 
-        } else {
+
+
+
+
+        } else 
+
+
+
+        {
 
 
 
@@ -414,15 +486,27 @@ function getUser($conn, $userId)
 
 
 
+
+
+
+
         }
 
 
 
-    } catch (Exception $e) {
+    } catch (Exception $e) 
+
+
+
+    {
 
 
 
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+
+
+
+
 
 
 
@@ -439,17 +523,8 @@ function getUser($conn, $userId)
 
 
 function bulkUpdateStatus($conn, $data)
-
-
-
 {
-
-
-
     try {
-
-
-
         $userIds = json_decode($data['user_ids']);
 
 
@@ -690,64 +765,28 @@ function resetPassword($conn, $data)
 
 
 
-function getUsersList($conn, $page = 1, $limit = 15, $search = '')
 
-
-
+function getUsersList($conn, $page = 1, $limit = 15, $search = '', $userType = '')
 {
-
-
-
     $offset = ($page - 1) * $limit;
-
-
-
     $search = $conn->real_escape_string($search);
-
-
-
-
-
-
+    $userType = $conn->real_escape_string($userType);
 
     // Get users with pagination
-
-
-
-    $usersQuery = "SELECT u.*, a.admin_mark,
-
-
-
+    $usersQuery = "SELECT u.*, a.admin_mark, tg.name as guide_name,
                    (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) as total_bookings,
-
-
-
                    (SELECT SUM(total_amount) FROM bookings WHERE user_id = u.id AND status = 'completed') as total_spent
-
-
-
                    FROM users u 
-
-
-
-                   LEFT JOIN admin_users a ON u.id = a.user_id WHERE 1=1";
-
-
-
-
-
-
+                   LEFT JOIN admin_users a ON u.id = a.user_id
+                   LEFT JOIN tour_guides tg ON u.id = tg.user_id WHERE 1=1";
 
     if ($search) {
-
-
-
         $usersQuery .= " AND (u.first_name LIKE '%$search%' OR u.last_name LIKE '%$search%' OR u.email LIKE '%$search%')";
-
-
-
     }
-
+    
+    if ($userType) {
+        $usersQuery .= " AND u.user_type = '$userType'";
+    }
 
 
 
@@ -771,17 +810,13 @@ function getUsersList($conn, $page = 1, $limit = 15, $search = '')
 
 
     $countQuery = "SELECT COUNT(*) as total FROM users WHERE 1=1";
-
-
-
+    
     if ($search) {
-
-
-
         $countQuery .= " AND (first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR email LIKE '%$search%')";
-
-
-
+    }
+    
+    if ($userType) {
+        $countQuery .= " AND user_type = '$userType'";
     }
 
 
@@ -1367,6 +1402,7 @@ $limit = intval($umSettings['default_user_limit'] ?? 15);
 
 
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+$userType = isset($_GET['user_type']) ? $conn->real_escape_string($_GET['user_type']) : '';
 
 
 
@@ -1378,7 +1414,7 @@ $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : 
 
 
 
-$usersData = getUsersList($conn, $page, $limit, $search);
+$usersData = getUsersList($conn, $page, $limit, $search, $userType);
 
 
 
@@ -1475,7 +1511,13 @@ $queryValues = [
 
 
     <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="ultra-modern-filters.css">
 
+
+
+    <!-- Load admin scripts early to ensure AdminDashboard class is available -->
+    <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
 
 
 </head>
@@ -1492,34 +1534,19 @@ $queryValues = [
 
         <!-- Sidebar -->
 
-
-
-        <aside class="sidebar">
-
-
+       <aside class="sidebar">
 
             <div class="sidebar-header">
 
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
 
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
 
-                <div class="logo">
-
-
-
-                    <div class="mark-icon"><?php echo $adminMark; ?></div>
-
-
-
-                    <span><?php echo $logoText; ?></span>
-
-
+                    <span>SJDM ADMIN</span>
 
                 </div>
 
-
-
             </div>
-
 
 
 
@@ -1830,7 +1857,7 @@ $queryValues = [
 
 
 
-                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink" onclick="openSignOutModal()">
 
 
 
@@ -1939,49 +1966,52 @@ $queryValues = [
 
 
                 <div class="search-bar">
-
-
-
-                    <input type="text" id="searchInput" placeholder="Search users by name or email..."
-
-
-
-                        value="<?php echo htmlspecialchars($search); ?>">
-
-
-
-                    <button class="btn-secondary" onclick="searchUsers()">
-
-
-
-                        <span class="material-icons-outlined">search</span>
-
-
-
-                        Search
-
-
-
-                    </button>
-
-
-
-                    <button class="btn-secondary" onclick="clearSearch()">
-
-
-
-                        <span class="material-icons-outlined">clear</span>
-
-
-
-                        Clear
-
-
-
-                    </button>
-
-
-
+                    <div class="search-filters">
+                        <div class="filter-buttons">
+                            <button class="filter-btn <?php echo $userType === '' ? 'active' : ''; ?>" onclick="filterByType('')">
+                                <span class="material-icons-outlined">people</span>
+                                All Users
+                            </button>
+                            <button class="filter-btn <?php echo $userType === 'user' ? 'active' : ''; ?>" onclick="filterByType('user')">
+                                <span class="material-icons-outlined">person</span>
+                                Regular Users
+                            </button>
+                            <button class="filter-btn <?php echo $userType === 'tour_guide' ? 'active' : ''; ?>" onclick="filterByType('tour_guide')">
+                                <span class="material-icons-outlined">tour</span>
+                                Tour Guides
+                            </button>
+                            <button class="filter-btn <?php echo $userType === 'admin' ? 'active' : ''; ?>" onclick="filterByType('admin')">
+                                <span class="material-icons-outlined">admin_panel_settings</span>
+                                Admins
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Inline script to ensure filterByType is available -->
+                    <script>
+                        function filterByType(userType) {
+                            const currentUrl = new URL(window.location);
+                            if (userType) {
+                                currentUrl.searchParams.set('user_type', userType);
+                            } else {
+                                currentUrl.searchParams.delete('user_type');
+                            }
+                            window.location.href = currentUrl.toString();
+                        }
+                    </script>
+                    
+                    <div class="search-inputs">
+                        <input type="text" id="searchInput" placeholder="Search users by name or email..."
+                            value="<?php echo htmlspecialchars($search); ?>">
+                        <button class="btn-secondary" onclick="searchUsers()">
+                            <span class="material-icons-outlined">search</span>
+                            Search
+                        </button>
+                        <button class="btn-secondary" onclick="clearSearch()">
+                            <span class="material-icons-outlined">clear</span>
+                            Clear
+                        </button>
+                    </div>
                 </div>
 
 
@@ -2082,22 +2112,19 @@ $queryValues = [
 
 
 
-                                    <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
-
-
-
+                                    <td>
+                                        <?php 
+                                        if ($user['user_type'] == 'tour_guide' && !empty($user['guide_name'])):
+                                            echo htmlspecialchars($user['guide_name']);
+                                        else:
+                                            echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+                                        endif;
+                                        ?>
                                         <?php if ($user['user_type'] == 'admin'): ?>
-
-
-
                                             <span class="badge" style="background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 5px;">ADMIN</span>
-
-
-
+                                        <?php elseif ($user['user_type'] == 'tour_guide'): ?>
+                                            <span class="badge" style="background: #f0f9ff; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 5px;">TOUR GUIDE</span>
                                         <?php endif; ?>
-
-
-
                                     </td>
 
 
@@ -2146,7 +2173,7 @@ $queryValues = [
 
 
 
-                                            <button class="btn-icon" onclick="viewUserSafe(<?php echo $user['id']; ?>)"
+                                            <button class="btn-icon" onclick="viewUser(<?php echo $user['id']; ?>)"
 
 
 
@@ -2162,34 +2189,14 @@ $queryValues = [
 
 
 
-                                            <button class="btn-icon" onclick="console.log('Edit button clicked'); if (typeof window.admin !== 'undefined') { window.admin.editUserModal(<?php echo $user['id']; ?>); } else { console.log('Admin not initialized yet'); }"
-
-
-
+                                            <button class="btn-icon" onclick="editUser(<?php echo $user['id']; ?>)"
                                                 title="Edit">
-
-
-
                                                 <span class="material-icons-outlined">edit</span>
-
-
-
                                             </button>
 
-
-
-                                            <button class="btn-icon" onclick="console.log('Delete button clicked'); if (typeof window.admin !== 'undefined') { window.admin.deleteUser(<?php echo $user['id']; ?>); } else { console.log('Admin not initialized yet'); }"
-
-
-
+                                            <button class="btn-icon" onclick="showDeleteUserModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>')"
                                                 title="Delete">
-
-
-
                                                 <span class="material-icons-outlined">delete</span>
-
-
-
                                             </button>
 
 
@@ -2642,6 +2649,132 @@ $queryValues = [
 
 
 
+    <!-- Edit User Modal -->
+
+    <div id="editUserModal" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>Edit User</h2>
+
+                <button class="modal-close" onclick="closeEditUserModal()">
+
+                    <span class="material-icons-outlined">close</span>
+
+                </button>
+
+            </div>
+
+            <form id="editUserForm" action="" method="POST">
+
+                <input type="hidden" name="action" value="edit_user">
+
+                <input type="hidden" name="user_id" id="editUserId">
+
+                <div class="modal-body">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="editFirstName">First Name *</label>
+
+                            <input type="text" id="editFirstName" name="first_name" required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="editLastName">Last Name *</label>
+
+                            <input type="text" id="editLastName" name="last_name" required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="editEmail">Email Address *</label>
+
+                        <input type="email" id="editEmail" name="email" required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="editStatus">Status</label>
+
+                        <select id="editStatus" name="status">
+
+                            <option value="active">Active</option>
+
+                            <option value="inactive">Inactive</option>
+
+                            <option value="suspended">Suspended</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="editPassword">New Password (leave blank to keep current)</label>
+
+                        <input type="password" id="editPassword" name="password">
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+
+                    <button type="submit" class="btn-primary">Update User</button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+
+
+    <!-- Delete User Confirmation Modal -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Delete User</h2>
+                <button class="modal-close" onclick="closeDeleteUserModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-content">
+                    <div class="delete-icon">
+                        <span class="material-icons-outlined" style="color: #dc3545; font-size: 48px;">warning</span>
+                    </div>
+                    <div class="delete-message">
+                        <h3>Are you sure you want to delete this user?</h3>
+                        <p><strong id="deleteUserName"></strong></p>
+                        <p>This action cannot be undone. All user data will be permanently removed.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeDeleteUserModal()">Cancel</button>
+                <button type="button" class="btn-danger" onclick="confirmDeleteUser()">Delete User</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sign Out Confirmation Modal -->
 
     <div id="signOutModal" class="modal">
@@ -2688,20 +2821,6 @@ $queryValues = [
 
                 <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
 
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- Sign Out Confirmation Modal -->
-
-    <div id="signOutModal" class="modal">
-
-        <div class="modal-content">
-
             <div class="modal-header">
 
                 <h2>Sign Out</h2>
@@ -2741,7 +2860,6 @@ $queryValues = [
                 <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
 
                 <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
-
             </div>
 
         </div>
@@ -2751,914 +2869,734 @@ $queryValues = [
 
 
 
+                        <option value="suspended">Suspended</option>
 
-    <script src="admin-script.js"></script>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="editPassword">New Password (leave blank to keep current)</label>
+
+                    <input type="password" id="editPassword" name="password">
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+
+                <button type="submit" class="btn-primary">Update User</button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 
 
 
-    <script src="admin-profile-dropdown.js"></script>
+
+
+<!-- Sign Out Confirmation Modal -->
+
+<div id="signOutModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>Sign Out</h2>
+
+            <button class="modal-close" onclick="closeSignOutModal()">
+
+                <span class="material-icons-outlined">close</span>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="signout-content">
+
+                <div class="signout-icon">
+
+                    <span class="material-icons-outlined">logout</span>
+
+                </div>
+
+                <div class="signout-message">
+
+                    <h3>Are you sure you want to sign out?</h3>
+
+                    <p>You will be logged out of the admin panel and redirected to the login page.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
+
+            <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
+
+        <div class="modal-header">
+
+            <h2>Sign Out</h2>
+
+            <button class="modal-close" onclick="closeSignOutModal()">
+
+                <span class="material-icons-outlined">close</span>
+
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="signout-content">
+
+                <div class="signout-icon">
+
+                    <span class="material-icons-outlined">logout</span>
+
+                </div>
+
+                <div class="signout-message">
+
+                    <h3>Are you sure you want to sign out?</h3>
+
+                    <p>You will be logged out of the admin panel and redirected to the login page.</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
+
+            <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
+        </div>
+
+    </div>
+
+</div>
 
 
 
-    <script>
 
 
+<script src="admin-script.js"></script>
 
-        // Initialize Admin Dashboard
+<script src="admin-profile-dropdown.js"></script>
 
+<script>
+    // User management functions following destinations.php pattern
+    let currentViewUserId = null;
 
+    function viewUser(userId) {
+        console.log('viewUser called with userId:', userId);
+        fetch('user-management.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=get_user&user_id=${userId}`
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (!data.success) {
+                alert(data.message || 'Failed to load user details.');
+                return;
+            }
 
-        let admin;
+            currentViewUserId = data.data.id;
 
+            document.getElementById('viewUserName').textContent = `${data.data.first_name} ${data.data.last_name}` || '';
+            document.getElementById('viewUserEmail').textContent = data.data.email || '';
+            document.getElementById('viewUserStatus').textContent = data.data.status ? data.data.status.charAt(0).toUpperCase() + data.data.status.slice(1) : '';
+            document.getElementById('viewUserStatus').className = `status-badge status-${data.data.status || 'inactive'}`;
+            document.getElementById('viewUserId').textContent = data.data.id || '';
+            document.getElementById('viewUserFirstName').textContent = data.data.first_name || '';
+            document.getElementById('viewUserLastName').textContent = data.data.last_name || '';
+            document.getElementById('viewUserEmailDetail').textContent = data.data.email || '';
+            document.getElementById('viewUserStatusDetail').textContent = data.data.status ? data.data.status.charAt(0).toUpperCase() + data.data.status.slice(1) : '';
+            document.getElementById('viewUserStatusDetail').className = `status-badge status-${data.data.status || 'inactive'}`;
+            document.getElementById('viewUserType').textContent = data.data.user_type || 'user';
+            document.getElementById('viewUserBookings').textContent = data.data.total_bookings || 0;
+            document.getElementById('viewUserSpent').textContent = `₱${(data.data.total_spent || 0).toFixed(2)}`;
+            document.getElementById('viewUserJoined').textContent = data.data.created_at ? new Date(data.data.created_at).toLocaleDateString() : '-';
+            document.getElementById('viewUserLastLogin').textContent = data.data.last_login ? new Date(data.data.last_login).toLocaleString() : '-';
 
-
-        
-
-        document.addEventListener('DOMContentLoaded', function() {
-
-
-
-            admin = new AdminDashboard();
-
-
-
+            const modal = document.getElementById('viewUserModal');
+            console.log('Modal element:', modal);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                console.log('Modal should be visible now');
+            } else {
+                console.error('Modal not found!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading user details.');
         });
-
-
-
-    
-
-
-
-    function searchUsers() {
-
-
-
-        const searchValue = document.getElementById('searchInput').value;
-
-
-
-        window.location.href = `?search=${encodeURIComponent(searchValue)}`;
-
-
-
     }
-
-
-
-
-
-
-
-    function clearSearch() {
-
-
-
-        document.getElementById('searchInput').value = '';
-
-
-
-        window.location.href = '?';
-
-
-
-    }
-
-
-
-
-
-
-
-    function goToPage(page) {
-
-
-
-        const searchValue = document.getElementById('searchInput').value;
-
-
-
-        const url = searchValue ? `?page=${page}&search=${encodeURIComponent(searchValue)}` : `?page=${page}`;
-
-
-
-        window.location.href = url;
-
-
-
-    }
-
-
-
-
-
-
-
-    function toggleSelectAll() {
-
-
-
-        const selectAll = document.getElementById('selectAll');
-
-
-
-        const checkboxes = document.querySelectorAll('.user-checkbox');
-
-
-
-        checkboxes.forEach(checkbox => {
-
-
-
-            checkbox.checked = selectAll.checked;
-
-
-
-        });
-
-
-
-    }
-
-
-
-
-
-
 
     function editUser(userId) {
+        console.log('editUser called with userId:', userId);
+        fetch('user-management.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=get_user&user_id=${userId}`
+        })
+        .then(response => {
+            console.log('Edit Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Edit Response data:', data);
+            if (!data.success) {
+                alert(data.message || 'Failed to load user data.');
+                return;
+            }
 
+            // Populate edit form
+            document.getElementById('editUserId').value = data.data.id;
+            document.getElementById('editFirstName').value = data.data.first_name || '';
+            document.getElementById('editLastName').value = data.data.last_name || '';
+            document.getElementById('editEmail').value = data.data.email || '';
+            document.getElementById('editStatus').value = data.data.status || 'active';
 
-
-        if (admin) {
-
-
-
-            admin.editUserModal(userId);
-
-
-
-        } else {
-
-
-
-            console.log('Edit user:', userId);
-
-
-
-        }
-
-
-
+            const modal = document.getElementById('editUserModal');
+            console.log('Edit Modal element:', modal);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+                console.log('Edit Modal should be visible now');
+            } else {
+                console.error('Edit Modal not found!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading user data.');
+        });
     }
 
+    // Delete User Modal Functions
+    let deleteUserId = null;
 
-
-    function viewUserSafe(userId) {
-
-        // Wait for admin to be initialized
-
-        if (typeof window.admin !== 'undefined') {
-
-            window.admin.viewUser(userId);
-
-        } else {
-
-            // Retry after a short delay
-
-            setTimeout(() => {
-
-                if (typeof window.admin !== 'undefined') {
-
-                    window.admin.viewUser(userId);
-
-                } else {
-
-                    console.log('Admin still not initialized after retry');
-
-                }
-
-            }, 100);
-
+    function showDeleteUserModal(userId, userName) {
+        deleteUserId = userId;
+        document.getElementById('deleteUserName').textContent = userName;
+        const modal = document.getElementById('deleteUserModal');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
         }
-
     }
 
+    function closeDeleteUserModal() {
+        const modal = document.getElementById('deleteUserModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            deleteUserId = null;
+        }
+    }
 
+    function confirmDeleteUser() {
+        if (!deleteUserId) return;
+        
+        fetch('user-management.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=delete_user&user_id=${deleteUserId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeDeleteUserModal();
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message || 'Error deleting user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting user');
+        });
+    }
 
     function deleteUser(userId) {
-
-
-
-        if (admin) {
-
-
-
-            admin.deleteUser(userId);
-
-
-
-        } else {
-
-
-
-            // Fallback for cases where admin is not initialized
-
-
-
-            if (confirm('Are you sure you want to delete this user?')) {
-
-
-
-                fetch('', {
-
-
-
-                    method: 'POST',
-
-
-
-                    headers: {
-
-
-
-                        'Content-Type': 'application/x-www-form-urlencoded',
-
-
-
-                    },
-
-
-
-                    body: `action=delete_user&user_id=${userId}`
-
-
-
-                })
-
-
-
-                    .then(response => response.json())
-
-
-
-                    .then(data => {
-
-
-
-                        if (data.success) {
-
-
-
-                            alert(data.message);
-
-
-
-                            location.reload();
-
-
-
-                        } else {
-
-
-
-                            alert(data.message);
-
-
-
-                        }
-
-
-
-                    });
-
-
-
+        // This function is kept for backward compatibility but now uses modal
+        // Get user name from the table row
+        const row = document.querySelector(`tr:has([onclick*="deleteUser(${userId})"]`);
+        let userName = 'this user';
+        if (row) {
+            const nameCell = row.cells[1]; // Name is in second column
+            if (nameCell) {
+                userName = nameCell.textContent.trim();
             }
-
-
-
         }
-
-
-
+        showDeleteUserModal(userId, userName);
     }
 
-
-
-
-
-
-
-    function showAddUserModal() {
-
-
-
-        if (admin) {
-
-
-
-            admin.showModal('addUserModal');
-
-
-
-        } else {
-
-
-
-            // Fallback modal display
-
-
-
-            const modal = document.getElementById('addUserModal');
-
-
-
-            if (modal) {
-
-
-
-                modal.style.display = 'block';
-
-
-
-                modal.classList.add('show');
-
-
-
-                document.body.style.overflow = 'hidden';
-
-
-
-            } else {
-
-
-
-                console.error('Modal not found!');
-
-
-
-            }
-
-
-
+    // Close Delete User modal on overlay click or Escape
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('deleteUserModal');
+        if (modal && event.target === modal) {
+            closeDeleteUserModal();
         }
+    });
 
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const modal = document.getElementById('deleteUserModal');
+            if (modal && modal.classList.contains('show')) {
+                closeDeleteUserModal();
+            }
+        }
+    });
 
-
+    function editUserFromView() {
+        if (!currentViewUserId) return;
+        closeViewUserModal();
+        setTimeout(() => editUser(currentViewUserId), 150);
     }
 
+    function closeViewUserModal() {
+        const modal = document.getElementById('viewUserModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            currentViewUserId = null;
+        }
+    }
 
-
-
-
-
+    function closeEditUserModal() {
+        const modal = document.getElementById('editUserModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            const form = document.getElementById('editUserForm');
+            if (form) {
+                form.reset();
+            }
+        }
+    }
 
     function closeAddUserModal() {
-
-
-
-        if (admin) {
-
-
-
-            admin.closeModal('addUserModal');
-
-
-
-        } else {
-
-
-
-            // Fallback modal close
-
-
-
-            const modal = document.getElementById('addUserModal');
-
-
-
-            if (modal) {
-
-
-
-                modal.style.display = 'none';
-
-
-
-                modal.classList.remove('show');
-
-
-
-                document.body.style.overflow = 'auto';
-
-
-
-                const form = document.getElementById('addUserForm');
-
-
-
-                if (form) {
-
-
-
-                    form.reset();
-
-
-
-                }
-
-
-
-            }
-
-
-
-        }
-
-
-
-    }
-
         const modal = document.getElementById('addUserModal');
-
-
-
         if (modal) {
-
-
-
-            modal.style.display = 'block';
-
-
-
-            modal.classList.add('show');
-
-
-
-            document.body.style.overflow = 'hidden';
-
-
-
-        } else {
-
-
-
-            console.error('Modal not found!');
-
-
-
-        }
-
-
-
-    }
-
-
-
-}
-
-
-
-// Close add user modal
-
-
-
-function closeAddUserModal() {
-
-
-
-    if (admin) {
-
-
-
-        admin.closeModal('addUserModal');
-
-
-
-    } else {
-
-
-
-        // Fallback modal close
-
-
-
-        const modal = document.getElementById('addUserModal');
-
-
-
-        if (modal) {
-
-
-
             modal.style.display = 'none';
-
-
-
             modal.classList.remove('show');
-
-
-
             document.body.style.overflow = 'auto';
-
-
-
             const form = document.getElementById('addUserForm');
-
-
-
             if (form) {
-
-
-
                 form.reset();
-
-
-
             }
+        }
+    }
 
+    function openSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+    }
 
+    function closeSignOutModal() {
+        const modal = document.getElementById('signOutModal');
+        if (modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    }
 
+    function confirmSignOut() {
+        window.location.href = 'logout.php';
+    }
+</script>
+
+<script>
+    // Global functions for user management - must be accessible from HTML onclick handlers
+    function filterByType(userType) {
+        const currentUrl = new URL(window.location);
+        if (userType) {
+            currentUrl.searchParams.set('user_type', userType);
+        } else {
+            currentUrl.searchParams.delete('user_type');
+        }
+        window.location.href = currentUrl.toString();
+    }
+    
+    function viewUserSafe(userId) {
+        // Wait for admin to be initialized with better retry logic
+        if (typeof window.admin !== 'undefined') {
+            window.admin.viewUser(userId);
+        } else {
+            // Retry with increasing delays
+            let retryCount = 0;
+            const maxRetries = 5;
+            const retryDelay = 100;
+            
+            function tryViewUser() {
+                if (typeof window.admin !== 'undefined') {
+                    window.admin.viewUser(userId);
+                } else if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(tryViewUser, retryDelay * retryCount);
+                } else {
+                    console.log('Admin still not initialized after retries for view');
+                    // Fallback: show basic user info
+                    alert(`View user functionality not available. User ID: ${userId}`);
+                }
+            }
+            
+            tryViewUser();
+        }
+    }
+
+    function editUserSafe(userId) {
+        // Wait for admin to be initialized with better retry logic
+        if (typeof window.admin !== 'undefined') {
+            window.admin.editUserModal(userId);
+        } else {
+            // Retry with increasing delays
+            let retryCount = 0;
+            const maxRetries = 5;
+            const retryDelay = 100;
+            
+            function tryEditUser() {
+                if (typeof window.admin !== 'undefined') {
+                    window.admin.editUserModal(userId);
+                } else if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(tryEditUser, retryDelay * retryCount);
+                } else {
+                    console.log('Admin still not initialized after retries for edit');
+                    // Fallback: redirect with edit parameter
+                    window.location.href = `?edit_user=${userId}`;
+                }
+            }
+            
+            tryEditUser();
+        }
+    }
+
+    function deleteUserSafe(userId) {
+        // Wait for admin to be initialized with better retry logic
+        if (typeof window.admin !== 'undefined') {
+            window.admin.deleteUser(userId);
+        } else {
+            // Retry with increasing delays
+            let retryCount = 0;
+            const maxRetries = 5;
+            const retryDelay = 100;
+            
+            function tryDeleteUser() {
+                if (typeof window.admin !== 'undefined') {
+                    window.admin.deleteUser(userId);
+                } else if (retryCount < maxRetries) {
+                    retryCount++;
+                    setTimeout(tryDeleteUser, retryDelay * retryCount);
+                } else {
+                    console.log('Admin still not initialized after retries for delete');
+                    // Fallback: direct delete
+                    if (confirm('Are you sure you want to delete this user?')) {
+                        fetch('', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: `action=delete_user&user_id=${userId}`
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert(data.message);
+                                    location.reload();
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Delete error:', error);
+                                alert('Error deleting user');
+                            });
+                    }
+                }
+            }
+            
+            tryDeleteUser();
+        }
+        
+        function initializeAdmin() {
+            try {
+                if (typeof AdminDashboard !== 'undefined') {
+                    admin = new AdminDashboard();
+                    window.admin = admin;
+                    console.log('Admin dashboard initialized successfully');
+                } else {
+                    console.error('AdminDashboard class not found');
+                }
+            } catch (error) {
+                console.error('Error initializing admin dashboard:', error);
+            }
+        }
+        
+        // Try to initialize immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeAdmin);
+        } else {
+            // DOM is already loaded
+            initializeAdmin();
         }
 
-
-
-    }
-
-
-
-}
-
-
-
-// Enhanced close modal when clicking outside
-
-
-
-window.onclick = function(event) {
-
-
-
-    const modal = document.getElementById('addUserModal');
-
-
-
-    if (event.target === modal) {
-
-
-
-        closeAddUserModal();
-
-
-
-    }
-
-
-
-    const viewUserModal = document.getElementById('viewUserModal');
-
-
-
-    if (event.target === viewUserModal) {
-
-
-
-        closeViewUserModal();
-
-
-
-    }
-
-
-
-}
-
-
-
-// Close modal with Escape key
-
-
-
-document.addEventListener('keydown', function(event) {
-
-
-
-    if (event.key === 'Escape') {
-
-
-
-        const modal = document.getElementById('addUserModal');
-
-
-
-        if (modal && modal.style.display === 'block') {
-
-
-
-            closeAddUserModal();
-
-
-
+        // Additional utility functions
+        function searchUsers() {
+            const searchValue = document.getElementById('searchInput').value;
+            const currentUrl = new URL(window.location);
+            if (searchValue) {
+                currentUrl.searchParams.set('search', searchValue);
+            } else {
+                currentUrl.searchParams.delete('search');
+            }
+            window.location.href = currentUrl.toString();
         }
 
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.delete('search');
+            window.location.href = currentUrl.toString();
+        }
 
+        function filterByType(userType) {
+            const currentUrl = new URL(window.location);
+            if (userType) {
+                currentUrl.searchParams.set('user_type', userType);
+            } else {
+                currentUrl.searchParams.delete('user_type');
+            }
+            window.location.href = currentUrl.toString();
+        }
 
-        const viewUserModal = document.getElementById('viewUserModal');
+        function goToPage(page) {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('page', page);
+            window.location.href = currentUrl.toString();
+        }
 
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
 
-
-        if (viewUserModal && viewUserModal.classList.contains('show')) {
-
-
-
-            closeViewUserModal();
-
-
-
-
-
-    document.addEventListener('keydown', function(event) {
-
-
-
-        if (event.key === 'Escape') {
-
-
-
+        function showAddUserModal() {
             const modal = document.getElementById('addUserModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Retry with increasing delays
+                let retryCount = 0;
+                const maxRetries = 5;
+                const retryDelay = 100;
+                
+                function tryViewUser() {
+                    if (typeof window.admin !== 'undefined') {
+                        window.admin.viewUser(userId);
+                    } else if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(tryViewUser, retryDelay * retryCount);
+                    } else {
+                        console.log('Admin still not initialized after retries for view');
+                        // Fallback: show basic user info
+                        alert(`View user functionality not available. User ID: ${userId}`);
+                    }
+                }
+                
+                tryViewUser();
+            }
+        }
 
+        function editUserSafe(userId) {
+            // Wait for admin to be initialized with better retry logic
+            if (typeof window.admin !== 'undefined') {
+                window.admin.editUserModal(userId);
+            } else {
+                // Retry with increasing delays
+                let retryCount = 0;
+                const maxRetries = 5;
+                const retryDelay = 100;
+                
+                function tryEditUser() {
+                    if (typeof window.admin !== 'undefined') {
+                        window.admin.editUserModal(userId);
+                    } else if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(tryEditUser, retryDelay * retryCount);
+                    } else {
+                        console.log('Admin still not initialized after retries for edit');
+                        // Fallback: redirect with edit parameter
+                        window.location.href = `?edit_user=${userId}`;
+                    }
+                }
+                
+                tryEditUser();
+            }
+        }
 
-
-            if (modal && modal.style.display === 'block') {
-
-
-
-                closeAddUserModal();
-
-
-
+        function deleteUserSafe(userId) {
+            // Wait for admin to be initialized with better retry logic
+            if (typeof window.admin !== 'undefined') {
+                window.admin.deleteUser(userId);
+            } else {
+                // Retry with increasing delays
+                let retryCount = 0;
+                const maxRetries = 5;
+                const retryDelay = 100;
+                
+                function tryDeleteUser() {
+                    if (typeof window.admin !== 'undefined') {
+                        window.admin.deleteUser(userId);
+                    } else if (retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(tryDeleteUser, retryDelay * retryCount);
+                    } else {
+                        console.log('Admin still not initialized after retries for delete');
+                        // Fallback: direct delete
+                        if (confirm('Are you sure you want to delete this user?')) {
+                            fetch('', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: `action=delete_user&user_id=${userId}`
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert(data.message);
+                                        location.reload();
+                                    } else {
+                                        alert(data.message);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Delete error:', error);
+                                    alert('Error deleting user');
+                                });
+                        }
+                    }
+                }
+                
+                tryDeleteUser();
+            }
+            
+            function initializeAdmin() {
+                try {
+                    if (typeof AdminDashboard !== 'undefined') {
+                        admin = new AdminDashboard();
+                        window.admin = admin;
+                        console.log('Admin dashboard initialized successfully');
+                    } else {
+                        console.error('AdminDashboard class not found');
+                    }
+                } catch (error) {
+                    console.error('Error initializing admin dashboard:', error);
+                }
+            }
+            
+            // Try to initialize immediately
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeAdmin);
+            } else {
+                // DOM is already loaded
+                initializeAdmin();
             }
 
+            // Additional utility functions
+            function searchUsers() {
+                const searchValue = document.getElementById('searchInput').value;
+                window.location.href = `?search=${encodeURIComponent(searchValue)}`;
+            }
 
+            function clearSearch() {
+                document.getElementById('searchInput').value = '';
+                window.location.href = '?';
+            }
 
-        }
+            function goToPage(page) {
+                const searchValue = document.getElementById('searchInput').value;
+                const url = searchValue ? `?page=${page}&search=${encodeURIComponent(searchValue)}` : `?page=${page}`;
+                window.location.href = url;
+            }
 
+            function toggleSelectAll() {
+                const selectAll = document.getElementById('selectAll');
+                const checkboxes = document.querySelectorAll('.user-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAll.checked;
+                });
+            }
 
-
-    });
-
-
-
-
-
-
-
-    // Search on Enter key
-
-
-
-    document.getElementById('searchInput').addEventListener('keypress', function (e) {
-
-
-
-        if (e.key === 'Enter') {
-
-
-
-            searchUsers();
-
-
-
-        }
-
-
-
-    });
-
-
-
-
-
-    // Open Account modal when clicking My Account in dropdown - USE DYNAMIC MODAL ONLY
-
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const accountLink = document.getElementById('adminAccountLink');
-
-        if (accountLink) {
-
-            accountLink.addEventListener('click', function(e) {
-
-                e.preventDefault();
-
-                // Close dropdown
-
-                const menu = document.getElementById('adminProfileMenu');
-
-                if (menu) menu.classList.remove('show');
-
-                // Use dynamic modal only
-
-                if (typeof showAdminAccountModal === 'function') {
-
-                    showAdminAccountModal();
-
+            function showAddUserModal() {
+                const modal = document.getElementById('addUserModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Modal not found!');
                 }
+            }
 
-            });
-
-        }
-
-    });
-
-
-
-    function closeAccountModal() {
-
-        // Close only the dynamic modal
-
-        const dynamicModal = document.getElementById('adminAccountModal');
-
-        
-
-        if (dynamicModal) {
-
-            dynamicModal.remove();
-
-        }
-
-        
-
-        document.body.style.overflow = 'auto';
-
-    }
-
-
-
-    function editAccount() {
-
-        alert('Edit profile functionality coming soon!');
-
-    }
-
-
-
-    // Open Settings modal when clicking Settings in dropdown - USE DYNAMIC MODAL ONLY
-
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const settingsLink = document.getElementById('adminSettingsLink');
-
-        if (settingsLink) {
-
-            settingsLink.addEventListener('click', function(e) {
-
-                e.preventDefault();
-
-                // Close dropdown
-
-                const menu = document.getElementById('adminProfileMenu');
-
-                if (menu) menu.classList.remove('show');
-
-                // Use dynamic modal only
-
-                if (typeof showAdminSettingsModal === 'function') {
-
-                    showAdminSettingsModal();
-
+            function filterByType(userType) {
+                const currentUrl = new URL(window.location);
+                if (userType) {
+                    currentUrl.searchParams.set('user_type', userType);
+                } else {
+                    currentUrl.searchParams.delete('user_type');
                 }
-
-            });
-
-        }
-
-    });
-
-
-
-    function closeSettingsModal() {
-
-        // Close only the dynamic modal
-
-        const dynamicModal = document.getElementById('adminSettingsModal');
-
-        
-
-        if (dynamicModal) {
-
-            dynamicModal.remove();
-
-        }
-
-        
-
-        document.body.style.overflow = 'auto';
-
-    }
-
-
-
-    function saveSettings() {
-
-        alert('Settings saved successfully! (Functionality coming soon)');
-
-        closeSettingsModal();
-
-    }
-
-
-
-    // Open Help modal when clicking Help & Support in dropdown - USE DYNAMIC MODAL ONLY
-
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const helpLink = document.getElementById('adminHelpLink');
-
-        if (helpLink) {
-
-            helpLink.addEventListener('click', function(e) {
-
-                e.preventDefault();
-
-                // Close dropdown
-
-                const menu = document.getElementById('adminProfileMenu');
-
-                if (menu) menu.classList.remove('show');
-
-                // Use dynamic modal only
-
-                if (typeof showAdminHelpModal === 'function') {
-
-                    showAdminHelpModal();
-
-                }
-
-            });
-
-        }
-
-    });
-
-
-
-    function closeHelpModal() {
-
-        // Close only the dynamic modal
-
-        const dynamicModal = document.getElementById('adminHelpModal');
-
-        
-
-        if (dynamicModal) {
-
-            dynamicModal.remove();
-
-        }
-
-        
-
-        document.body.style.overflow = 'auto';
-
-    }
-
-
-
-    function toggleFAQ(element) {
-
-        const answer = element.nextElementSibling;
-
-        const icon = element.querySelector('.material-icons-outlined');
-
-        
-
-        if (answer.style.display === 'block') {
-
-            answer.style.display = 'none';
-
-            icon.style.transform = 'rotate(0deg)';
-
-        } else {
-
-            answer.style.display = 'block';
-
-            icon.style.transform = 'rotate(180deg)';
-
-        }
-
-    }
-
-
-
-    function openLiveChat() {
-
-        alert('Live chat functionality coming soon! For now, please contact support@sjdmtours.com');
-
-    }
-
-
+                window.location.href = currentUrl.toString();
+            }
 
     // Close Help modal on overlay click or Escape
 
@@ -4137,11 +4075,6 @@ document.addEventListener('keydown', function(event) {
                 closeSignOutModal();
 
             }
-
-        }
-
-    });
-
 </script>
 
 
@@ -6490,8 +6423,371 @@ document.addEventListener('keydown', function(event) {
 
 
 
+<style>
+
+    /* Modal Styles */
+
+    .modal {
+
+        display: none;
+
+        position: fixed;
+
+        z-index: 1000;
+
+        left: 0;
+
+        top: 0;
+
+        width: 100%;
+
+        height: 100%;
+
+        background-color: rgba(0, 0, 0, 0.5);
+
+        backdrop-filter: blur(5px);
+
+        animation: fadeIn 0.3s ease;
+
+    }
+
+    @keyframes fadeIn {
+
+        from {
+
+            opacity: 0;
+
+        }
+
+        to {
+
+            opacity: 1;
+
+        }
+
+    }
+
+    .modal-content {
+
+        background-color: white;
+
+        margin: 10% auto;
+
+        padding: 0;
+
+        border-radius: 16px;
+
+        width: 90%;
+
+        max-width: 500px;
+
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+        animation: slideIn 0.3s ease;
+
+        overflow: hidden;
+
+    }
+
+    @keyframes slideIn {
+
+        from {
+
+            transform: translateY(-50px);
+
+            opacity: 0;
+
+        }
+
+        to {
+
+            transform: translateY(0);
+
+            opacity: 1;
+
+        }
+
+    }
+
+    .modal-header {
+
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        color: white;
+
+        padding: 24px 32px;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+    }
+
+    .modal-header h2 {
+
+        margin: 0;
+
+        font-size: 1.5rem;
+
+        font-weight: 600;
+
+    }
+
+    .modal-close {
+
+        background: rgba(255, 255, 255, 0.2);
+
+        border: none;
+
+        color: white;
+
+        font-size: 24px;
+
+        cursor: pointer;
+
+        width: 40px;
+
+        height: 40px;
+
+        border-radius: 50%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        transition: all 0.3s ease;
+
+    }
+
+    .modal-close:hover {
+
+        background: rgba(255, 255, 255, 0.3);
+
+        transform: scale(1.1);
+
+    }
+
+    .modal-body {
+
+        padding: 32px;
+
+    }
+
+    .modal-footer {
+
+        padding: 24px 32px;
+
+        border-top: 1px solid #e5e7eb;
+
+        display: flex;
+
+        gap: 12px;
+
+        justify-content: flex-end;
+
+    }
+
+    .btn-secondary {
+
+        background: #f3f4f6;
+
+        color: #374151;
+
+        border: 1px solid #d1d5db;
+
+        padding: 12px 24px;
+
+        border-radius: 8px;
+
+        cursor: pointer;
+
+        font-weight: 500;
+
+        transition: all 0.3s ease;
+
+    }
+
+    .btn-secondary:hover {
+
+        background: #e5e7eb;
+
+    }
+
+    .btn-primary {
+
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+        color: white;
+
+        border: none;
+
+        padding: 12px 24px;
+
+        border-radius: 8px;
+
+        cursor: pointer;
+
+        font-weight: 500;
+
+        transition: all 0.3s ease;
+
+    }
+
+    .btn-primary:hover {
+
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+
+        transform: translateY(-1px);
+
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+
+    }
+
+    .signout-content {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 24px;
+
+        padding: 24px 0;
+
+        text-align: center;
+
+    }
+
+    .signout-icon {
+
+        width: 80px;
+
+        height: 80px;
+
+        border-radius: 50%;
+
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+        color: white;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+
+    }
+
+    .signout-icon .material-icons-outlined {
+
+        font-size: 40px;
+
+    }
+
+    .signout-message h3 {
+
+        margin: 0 0 8px 0;
+
+        font-size: 20px;
+
+        font-weight: 600;
+
+        color: #1a202c;
+
+    }
+
+    .signout-message p {
+
+        margin: 0;
+
+        font-size: 14px;
+
+        color: #64748b;
+
+        line-height: 1.5;
+
+    }
+
+    /* Sign Out Modal Responsive Design */
+
+    @media (max-width: 768px) {
+
+        .signout-content {
+
+            gap: 20px;
+
+            padding: 16px 0;
+
+        }
+
+        .signout-icon {
+
+            width: 60px;
+
+            height: 60px;
+
+        }
+
+        .signout-icon .material-icons-outlined {
+
+            font-size: 30px;
+
+        }
+
+        .signout-message h3 {
+
+            font-size: 18px;
+
+        }
+
+        .signout-message p {
+
+            font-size: 13px;
+
+        }
+
+    }
+
+</style>
+
+
+
+<!-- Sign Out Confirmation Modal -->
+
+    <div id="signOutModal" class="modal">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sign Out</h2>
+                <button class="modal-close" onclick="closeSignOutModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="signout-content">
+                    <div class="signout-icon">
+                        <span class="material-icons-outlined">logout</span>
+                    </div>
+                    <div class="signout-message">
+                        <h3>Are you sure you want to sign out?</h3>
+                        <p>You will be logged out of the admin panel and redirected to the login page.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
 </body>
-
-
 
 </html>

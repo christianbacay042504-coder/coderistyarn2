@@ -577,14 +577,19 @@ $queryValues = [
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+       <aside class="sidebar">
+
             <div class="sidebar-header">
-                <div class="logo">
-                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1) ?: 'A'); ?></div>
-                    <span><?php echo $logoText; ?></span>
+
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+
+                    <span>SJDM ADMIN</span>
+
                 </div>
+
             </div>
-            
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
                     // Skip hotels, settings, and reports menu items
@@ -662,7 +667,7 @@ $queryValues = [
                                 <span class="material-icons-outlined">help_outline</span>
                                 <span>Help & Support</span>
                             </a>
-                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink">
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink" onclick="openSignOutModal()">
                                 <span class="material-icons-outlined">logout</span>
                                 <span>Sign Out</span>
                             </a>
@@ -1744,7 +1749,6 @@ $queryValues = [
                         if (modal) {
                             modal.classList.add('show');
                             document.body.style.overflow = 'hidden';
-                        }
                     });
                 }
             });
@@ -1754,6 +1758,14 @@ $queryValues = [
                 if (modal) {
                     modal.classList.remove('show');
                     document.body.style.overflow = 'auto';
+                }
+            }
+
+            function openSignOutModal() {
+                const modal = document.getElementById('signOutModal');
+                if (modal) {
+                    modal.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
                 }
             }
 

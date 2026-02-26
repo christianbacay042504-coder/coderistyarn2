@@ -235,9 +235,9 @@ $queryValues = [
         }
 
         .stat-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -246,9 +246,9 @@ $queryValues = [
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
             box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.1),
-                0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+                0 4px 12px rgba(0, 0, 0, 0.1),
+                0 2px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .stat-icon::before {
@@ -265,22 +265,25 @@ $queryValues = [
             transition: opacity 0.3s ease;
         }
 
-        .stat-card:hover .stat-icon::before {
-            opacity: 1;
-        }
+            .stat-card-info::before {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+            }
 
-        .stat-icon .material-icons-outlined {
-            font-size: 36px;
-            color: white;
-            z-index: 2;
-            position: relative;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
+            .stat-meta {
+                font-size: 0.8rem;
+                color: rgba(255, 255, 255, 0.9);
+                margin: 4px 0 0;
+                font-weight: 500;
+            }
 
-        .stat-card:hover .stat-icon {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 
+            .stat-trend {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-top: 8px;
+            }
                 0 12px 35px rgba(0, 0, 0, 0.15),
                 0 6px 18px rgba(0, 0, 0, 0.08);
         }
@@ -297,15 +300,15 @@ $queryValues = [
         }
 
         .stat-content h3 {
-            font-size: 2.2rem;
-            font-weight: 800;
+            font-size: 1.8rem;
+            font-weight: 700;
             margin: 0 0 4px 0;
             line-height: 1.1;
             transition: all 0.3s ease;
         }
 
         .stat-content p {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             margin: 0;
             font-weight: 500;
@@ -595,14 +598,19 @@ $queryValues = [
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1) ?: 'A'); ?></div>
-                    <span><?php echo $logoText; ?></span>
-                </div>
-            </div>
+       <aside class="sidebar">
 
+            <div class="sidebar-header">
+
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+
+                    <span>SJDM ADMIN</span>
+
+                </div>
+
+            </div>
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
                     // Skip hotels, settings, and reports menu items
@@ -695,10 +703,6 @@ $queryValues = [
                             <h3><?php echo $stats['totalUsers']; ?></h3>
                             <p>Total Users</p>
                             <div class="stat-meta">Registered accounts</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>12% growth</span>
-                            </div>
                         </div>
                     </div>
                     <div class="stat-card stat-card-success">
@@ -709,10 +713,6 @@ $queryValues = [
                             <h3><?php echo $stats['totalBookings']; ?></h3>
                             <p>Total Bookings</p>
                             <div class="stat-meta">All time bookings</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>8% increase</span>
-                            </div>
                         </div>
                     </div>
                     <div class="stat-card stat-card-warning">
@@ -723,10 +723,7 @@ $queryValues = [
                             <h3>₱<?php echo number_format($bookingStats['total_revenue'], 2); ?></h3>
                             <p>Total Revenue</p>
                             <div class="stat-meta">All-time earnings</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>15% growth</span>
-                            </div>
+
                         </div>
                     </div>
                     <div class="stat-card stat-card-info">
@@ -737,10 +734,7 @@ $queryValues = [
                             <h3><?php echo $stats['totalDestinations']; ?></h3>
                             <p>Destinations</p>
                             <div class="stat-meta">Available tours</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">add_circle</span>
-                                <span>3 new this month</span>
-                            </div>
+
                         </div>
                     </div>
                 </div>

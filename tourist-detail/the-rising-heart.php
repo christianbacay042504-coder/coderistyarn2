@@ -808,10 +808,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
                         Book City Guide
                     </button>
-                    <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#events'">
-                        View Monument Events
+                    <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-guides-page.php'">
+                        Book a Tour Guide
                     </button>
-                <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/tourist-spots.php'">
+                <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-tourist-spots.php'">
                         <span class="material-icons-outlined">place</span>
                         View All Destinations
                     </button></div>

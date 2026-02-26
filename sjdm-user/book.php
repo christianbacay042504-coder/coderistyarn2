@@ -1931,6 +1931,10 @@ try {
                             <span class="material-icons-outlined">arrow_back</span>
                             Back to Personal Info
                         </button>
+                        <button type="button" class="btn-debug" onclick="debugReviewSection()" style="background: #ff6b6b; color: white; margin-right: 10px;">
+                            <span class="material-icons-outlined">bug_report</span>
+                            Debug Review
+                        </button>
                         <button type="button" class="btn-confirm" onclick="submitBooking()">
                             <span class="material-icons-outlined">check_circle</span>
                             Confirm Booking
@@ -2614,38 +2618,73 @@ try {
                 currentStep.classList.remove('active');
                 document.getElementById(`step-${currentStepNumber + 1}`).classList.add('active');
                 updateProgressBar(currentStepNumber + 1);
-                updateReviewSection();
+                
+                // Only update review section when moving to step 3
+                if (currentStepNumber + 1 === 3) {
+                    updateReviewSection();
+                }
+                
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
         function updateReviewSection() {
+            console.log('updateReviewSection called');
+            
             // Update Tour Details
             const guideSelect = document.getElementById('selectedGuide');
             const destinationSelect = document.getElementById('destination');
             const dateInput = document.getElementById('checkInDate');
             const guestCountInput = document.getElementById('guestCount');
             
+            console.log('Elements found:', {
+                guideSelect: !!guideSelect,
+                destinationSelect: !!destinationSelect,
+                dateInput: !!dateInput,
+                guestCountInput: !!guestCountInput
+            });
+            
+            console.log('Form values:', {
+                guideValue: guideSelect?.value,
+                destinationValue: destinationSelect?.value,
+                dateValue: dateInput?.value,
+                guestValue: guestCountInput?.value,
+                destinationOptions: destinationSelect ? destinationSelect.options.length : 'N/A'
+            });
+            
             // Update Guide
             const reviewGuideName = document.getElementById('reviewGuideName');
             if (guideSelect && reviewGuideName) {
                 const selectedOption = guideSelect.options[guideSelect.selectedIndex];
+                console.log('Guide selected:', selectedOption);
                 reviewGuideName.textContent = selectedOption && selectedOption.value ? selectedOption.text : '-';
             }
             
             // Update Destination
             const reviewDestination = document.getElementById('reviewDestination');
             if (destinationSelect && reviewDestination) {
+                console.log('Destination select element:', destinationSelect);
+                console.log('Destination select value:', destinationSelect.value);
+                console.log('Destination select selectedIndex:', destinationSelect.selectedIndex);
                 const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+                console.log('Destination selected option:', selectedOption);
+                if (selectedOption) {
+                    console.log('Destination option text:', selectedOption.text);
+                    console.log('Destination option value:', selectedOption.value);
+                }
                 reviewDestination.textContent = selectedOption && selectedOption.value ? selectedOption.text : '-';
             }
             
             // Update Date
             const reviewDate = document.getElementById('reviewDate');
             if (dateInput && reviewDate) {
+                console.log('Date input element:', dateInput);
+                console.log('Date input value:', dateInput.value);
                 if (dateInput.value) {
                     const date = new Date(dateInput.value);
                     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    console.log('Date selected:', dateInput.value);
+                    console.log('Formatted date:', date.toLocaleDateString('en-US', options));
                     reviewDate.textContent = date.toLocaleDateString('en-US', options);
                 } else {
                     reviewDate.textContent = '-';
@@ -2656,6 +2695,7 @@ try {
             const reviewGuests = document.getElementById('reviewGuests');
             if (guestCountInput && reviewGuests) {
                 const guests = guestCountInput.value;
+                console.log('Guests count:', guests);
                 reviewGuests.textContent = guests ? `${guests} ${guests == 1 ? 'guest' : 'guests'}` : '-';
             }
             
@@ -2664,19 +2704,28 @@ try {
             const emailInput = document.getElementById('email');
             const contactInput = document.getElementById('contactNumber');
             
+            console.log('Personal info elements:', {
+                fullNameInput: !!fullNameInput,
+                emailInput: !!emailInput,
+                contactInput: !!contactInput
+            });
+            
             const reviewFullName = document.getElementById('reviewFullName');
             const reviewEmail = document.getElementById('reviewEmail');
             const reviewContact = document.getElementById('reviewContact');
             
             if (fullNameInput && reviewFullName) {
+                console.log('Full name:', fullNameInput.value);
                 reviewFullName.textContent = fullNameInput.value || '-';
             }
             
             if (emailInput && reviewEmail) {
+                console.log('Email:', emailInput.value);
                 reviewEmail.textContent = emailInput.value || '-';
             }
             
             if (contactInput && reviewContact) {
+                console.log('Contact:', contactInput.value);
                 reviewContact.textContent = contactInput.value || '-';
             }
             
@@ -2900,9 +2949,140 @@ try {
             updatePriceCalculation();
         }
 
-        // Initialize profile dropdown when page loads
+        // Add a debug function to manually test the review section
+        function debugReviewSection() {
+            console.log('=== DEBUG REVIEW SECTION ===');
+            
+            // Force update review section
+            updateReviewSection();
+            
+            // Check all form elements manually
+            const allElements = {
+                'selectedGuide': document.getElementById('selectedGuide'),
+                'destination': document.getElementById('destination'),
+                'checkInDate': document.getElementById('checkInDate'),
+                'guestCount': document.getElementById('guestCount'),
+                'fullName': document.getElementById('fullName'),
+                'email': document.getElementById('email'),
+                'contactNumber': document.getElementById('contactNumber'),
+                'reviewGuideName': document.getElementById('reviewGuideName'),
+                'reviewDestination': document.getElementById('reviewDestination'),
+                'reviewDate': document.getElementById('reviewDate'),
+                'reviewGuests': document.getElementById('reviewGuests'),
+                'reviewFullName': document.getElementById('reviewFullName'),
+                'reviewEmail': document.getElementById('reviewEmail'),
+                'reviewContact': document.getElementById('reviewContact')
+            };
+            
+            console.log('All elements status:');
+            Object.keys(allElements).forEach(key => {
+                const element = allElements[key];
+                console.log(`${key}:`, {
+                    exists: !!element,
+                    value: element ? (element.value || element.textContent) : 'N/A',
+                    type: element ? element.tagName : 'N/A'
+                });
+            });
+            
+            // Try to manually set values for testing
+            console.log('=== MANUALLY SETTING VALUES ===');
+            if (allElements.reviewDestination) {
+                allElements.reviewDestination.textContent = 'Test Destination';
+                console.log('Manually set destination to: Test Destination');
+            }
+            
+            if (allElements.reviewDate) {
+                allElements.reviewDate.textContent = 'Test Date';
+                console.log('Manually set date to: Test Date');
+            }
+            
+            if (allElements.reviewFullName) {
+                allElements.reviewFullName.textContent = 'Test Name';
+                console.log('Manually set name to: Test Name');
+            }
+            
+            if (allElements.reviewEmail) {
+                allElements.reviewEmail.textContent = 'test@email.com';
+                console.log('Manually set email to: test@email.com');
+            }
+            
+            if (allElements.reviewContact) {
+                allElements.reviewContact.textContent = 'Test Contact';
+                console.log('Manually set contact to: Test Contact');
+            }
+        }
+
+        // Initialize guest count listeners and profile dropdown when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initUserProfileDropdown();
+            initGuideSelection();
+            
+            // Initialize total guest count display
+            updateTotalGuestCount();
+            
+            // Add event listeners to form fields for real-time review updates
+            const guideSelect = document.getElementById('selectedGuide');
+            const destinationSelect = document.getElementById('destination');
+            const guestCountInput = document.getElementById('guestCount');
+            const fullNameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('email');
+            const contactInput = document.getElementById('contactNumber');
+            
+            if (guideSelect) {
+                guideSelect.addEventListener('change', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            if (destinationSelect) {
+                destinationSelect.addEventListener('change', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            if (guestCountInput) {
+                guestCountInput.addEventListener('input', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            if (fullNameInput) {
+                fullNameInput.addEventListener('input', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            if (emailInput) {
+                emailInput.addEventListener('input', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            if (contactInput) {
+                contactInput.addEventListener('input', () => {
+                    if (document.querySelector('.booking-step.active').id === 'step-3') {
+                        updateReviewSection();
+                    }
+                });
+            }
+            
+            // Update review section when page loads in case user is returning to review step
+            setTimeout(() => {
+                const currentStep = document.querySelector('.booking-step.active');
+                if (currentStep && currentStep.id === 'step-3') {
+                    updateReviewSection();
+                }
+            }, 100);
         });
     </script>
 </body>

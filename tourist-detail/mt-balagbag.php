@@ -661,10 +661,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     <button class="btn-primary" onclick="checkAuth('Mt. Balagbag')">
                         Book Sunrise Hike
                     </button>
-                    <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
-                        Find Mountain Guide
+                    <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-guides-page.php'">
+                        Book a Tour Guide
                     </button>
-                <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/tourist-spots.php'">
+                <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-tourist-spots.php'">
                         <span class="material-icons-outlined">place</span>
                         View All Destinations
                     </button></div>

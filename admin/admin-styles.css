@@ -1742,6 +1742,66 @@ body {
 
 
 
+.btn-danger {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger .material-icons-outlined {
+    font-size: 18px;
+    margin-right: 6px;
+}
+
+/* Delete Modal Styles */
+.delete-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.delete-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 50%;
+}
+
+.delete-message h3 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.delete-message p {
+    margin: 4px 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.delete-message p strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
 /* Pagination */
 
 .pagination {
@@ -5039,7 +5099,11 @@ body .modal.show .modal-content {
     animation: iconPulse 2s infinite;
 }
 
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+@keyframes clearRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.search-bar .btn-secondary:active {
+    transform: translateY(0);
 }

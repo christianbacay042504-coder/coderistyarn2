@@ -425,14 +425,19 @@ $queryValues = [
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1) ?: 'A'); ?></div>
-                    <span><?php echo $logoText; ?></span>
-                </div>
-            </div>
+       <aside class="sidebar">
 
+            <div class="sidebar-header">
+
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+
+                    <span>SJDM ADMIN</span>
+
+                </div>
+
+            </div>
             <nav class="sidebar-nav">
                 <?php foreach ($menuItems as $item):
                     // Skip hotels, settings, and reports menu items

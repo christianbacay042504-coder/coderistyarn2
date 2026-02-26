@@ -1398,7 +1398,7 @@ if ($conn) {
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="book.php" class="nav-link">
+                    <a href="booka.php" class="nav-link">
                         <span class="material-icons-outlined">event</span>
                         <span>Book Now</span>
                     </a>
@@ -1456,7 +1456,7 @@ if ($conn) {
                         </div>
                     <?php else: ?>
                         <!-- Sign In Button for Guests -->
-                        <button class="btn-signin" onclick="window.location.href='/log-in.php'">Sign in/register</button>
+                        <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1559,10 +1559,6 @@ if ($conn) {
                         <button class="btn-view-profile" onclick="openGuideModal(<?php echo $guideId; ?>)">
                             <span class="material-icons-outlined">person</span>
                             View Profile
-                        </button>
-                        <button class="btn-book-guide" onclick="bookGuide(<?php echo $guideId; ?>)">
-                            <span class="material-icons-outlined">calendar_today</span>
-                            Book Now
                         </button>
                     </div>
                 </div>

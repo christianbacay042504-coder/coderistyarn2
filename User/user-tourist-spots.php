@@ -1,7 +1,41 @@
 <?php
-// Include database connection and authentication
+// Include database connection first
 require_once '../config/database.php';
-require_once '../config/auth.php';
+
+// Start session manually before including auth
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Include auth functions (but wrap to avoid PHPMailer issues)
+try {
+    // Check if PHPMailer exists before including auth
+    $phpmailerPath = '../PHPMailer-6.9.1/src/PHPMailer.php';
+    if (!file_exists($phpmailerPath)) {
+        // Create a dummy PHPMailer class if it doesn't exist
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            class PHPMailer {
+                public function __construct() {}
+            }
+        }
+    }
+    
+    require_once '../config/auth.php';
+} catch (Exception $e) {
+    // If auth.php fails, continue without it
+    error_log("Auth.php loading failed: " . $e->getMessage());
+    // Define basic functions if auth.php failed
+    if (!function_exists('isLoggedIn')) {
+        function isLoggedIn() {
+            return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+        }
+    }
+    if (!function_exists('getCurrentUserId')) {
+        function getCurrentUserId() {
+            return isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+        }
+    }
+}
 
 // OpenWeatherMap API configuration
 $apiKey = '6c21a0d2aaf514cb8d21d56814312b19';
@@ -120,8 +154,6 @@ if ($conn && $isLoggedIn) {
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         /* Hero Section */
@@ -241,6 +273,7 @@ if ($conn && $isLoggedIn) {
         .main-content.full-width {
             margin-left: 0;
             max-width: 100%;
+            display: block;
         }
 
         .main-content.full-width .main-header {
@@ -444,6 +477,7 @@ if ($conn && $isLoggedIn) {
             padding: 40px;
             max-width: 1400px;
             margin: 0 auto;
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -1448,6 +1482,7 @@ if ($conn && $isLoggedIn) {
                 padding-top: 0;
             }
         }
+    </style>
 </head>
 <body>
     <!-- MAIN CONTENT -->
@@ -1550,51 +1585,7 @@ if ($conn && $isLoggedIn) {
                     <div class="weather-label"><?php echo $weatherLabel; ?></div>
                 </div>
             </div>
-            
-            <!-- Enhanced Filter Section -->
-            <div class="filter-section">
-                <div class="filter-container">
-                    <div class="filter-group">
-                        <label>Category</label>
-                        <select class="filter-select" id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <?php
-                            // Fetch unique categories from database
-                            $conn = getDatabaseConnection();
-                            if ($conn) {
-                                $query = "SELECT DISTINCT category FROM tourist_spots WHERE status = 'active'";
-                                $result = $conn->query($query);
-                                if ($result && $result->num_rows > 0) {
-                                    while ($category = $result->fetch_assoc()) {
-                                        echo '<option value="' . $category['category'] . '">' . ucfirst($category['category']) . '</option>';
-                                    }
-                                }
-                                closeDatabaseConnection($conn);
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Activity Level</label>
-                        <select class="filter-select" id="activityFilter">
-                            <option value="all">All Levels</option>
-                            <option value="easy">Easy</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="difficult">Difficult</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Duration</label>
-                        <select class="filter-select" id="durationFilter">
-                            <option value="all">All Durations</option>
-                            <option value="1-2">1-2 hours</option>
-                            <option value="2-4">2-4 hours</option>
-                            <option value="4+">4+ hours</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
+
             <!-- Tourist Spots Grid -->
             <div class="calendar-header">
                 <div class="date-display">

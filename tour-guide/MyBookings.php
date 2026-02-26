@@ -27,54 +27,86 @@ $page = $_GET['page'] ?? 1;
 $perPage = 10;
 $offset = ($page - 1) * $perPage;
 
-// Mock booking data for demonstration (replace with actual database queries)
-$bookings = [
-    [
-        'id' => 1,
-        'tourist_name' => 'Juan Dela Cruz',
-        'tourist_email' => 'juan@example.com',
-        'destination' => 'Kaytitinga Falls',
-        'tour_date' => '2026-02-15',
-        'start_time' => '09:00:00',
-        'end_time' => '12:00:00',
-        'status' => 'confirmed',
-        'total_amount' => 1500.00,
-        'special_requests' => 'Bring extra water bottles',
-        'created_at' => '2026-02-10 10:30:00'
-    ],
-    [
-        'id' => 2,
-        'tourist_name' => 'Maria Santos',
-        'tourist_email' => 'maria@example.com',
-        'destination' => 'Burong Falls',
-        'tour_date' => '2026-02-18',
-        'start_time' => '14:00:00',
-        'end_time' => '17:00:00',
-        'status' => 'pending',
-        'total_amount' => 1200.00,
-        'special_requests' => 'Family tour with children',
-        'created_at' => '2026-02-09 15:45:00'
-    ],
-    [
-        'id' => 3,
-        'tourist_name' => 'Jose Reyes',
-        'tourist_email' => 'jose@example.com',
-        'destination' => "City Oval's People's Park",
-        'tour_date' => '2026-02-20',
-        'start_time' => '08:00:00',
-        'end_time' => '11:00:00',
-        'status' => 'completed',
-        'total_amount' => 800.00,
-        'special_requests' => '',
-        'created_at' => '2026-02-08 09:20:00'
-    ]
-];
+// Get actual bookings from database
+$bookings = [];
+$conn = getDatabaseConnection();
 
-// Filter bookings by status
-if ($status !== 'all') {
-    $bookings = array_filter($bookings, function($booking) use ($status) {
-        return $booking['status'] === $status;
-    });
+if ($conn) {
+    // Get current tour guide ID from tour_guides table
+    $tourGuideId = $userId;
+    
+    // Get the tour guide record ID from tour_guides table
+    $guideQuery = "SELECT id FROM tour_guides WHERE user_id = ?";
+    $guideStmt = $conn->prepare($guideQuery);
+    $guideRecordId = null;
+    
+    if ($guideStmt) {
+        $guideStmt->bind_param('i', $tourGuideId);
+        $guideStmt->execute();
+        $guideResult = $guideStmt->get_result();
+        if ($guideResult->num_rows > 0) {
+            $guideRecordId = $guideResult->fetch_assoc()['id'];
+        }
+        $guideStmt->close();
+    }
+    
+    // Build base query - filter by guide_id
+    $whereClause = "WHERE b.guide_id = ?";
+    $params = [$guideRecordId];
+    $types = "i";
+    
+    // Add status filter if not 'all'
+    if ($status !== 'all') {
+        $whereClause .= " AND b.status = ?";
+        $params[] = $status;
+        $types .= "s";
+    }
+    
+    // Get total count for pagination
+    $countQuery = "SELECT COUNT(*) as total FROM bookings b $whereClause";
+    $countStmt = $conn->prepare($countQuery);
+    if ($countStmt) {
+        $countStmt->bind_param($types, ...$params);
+        $countStmt->execute();
+        $totalCount = $countStmt->get_result()->fetch_assoc()['total'];
+        $countStmt->close();
+    }
+    
+    // Get bookings with user details
+    $query = "SELECT b.*, u.first_name, u.last_name, u.email as user_email
+              FROM bookings b 
+              LEFT JOIN users u ON b.user_id = u.id 
+              $whereClause 
+              ORDER BY b.created_at DESC 
+              LIMIT ? OFFSET ?";
+    
+    $params[] = $perPage;
+    $params[] = $offset;
+    $types .= "ii";
+    
+    $stmt = $conn->prepare($query);
+    if ($stmt) {
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        while ($row = $result->fetch_assoc()) {
+            $bookings[] = [
+                'id' => $row['id'],
+                'tourist_name' => $row['first_name'] . ' ' . $row['last_name'],
+                'tourist_email' => $row['user_email'],
+                'destination' => $row['tour_name'] ?? 'Unknown Tour',
+                'tour_date' => $row['booking_date'],
+                'start_time' => '09:00:00', // Default time since not in table
+                'end_time' => '12:00:00', // Default time since not in table
+                'status' => $row['status'],
+                'total_amount' => $row['total_amount'],
+                'special_requests' => $row['special_requests'] ?? '',
+                'created_at' => $row['created_at']
+            ];
+        }
+        $stmt->close();
+    }
 }
 
 // Handle booking actions
@@ -638,6 +670,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--text-primary);
         }
 
+        .availability-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .availability-badge.available { background: var(--primary-light); color: var(--primary-dark); }
+        .availability-badge.busy { background: #fef2f2; color: #dc2626; }
+        .availability-badge.offline { background: var(--gray-100); color: var(--text-secondary); }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .mobile-menu-toggle {
@@ -701,37 +746,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span class="material-icons-outlined">dashboard</span>
                 <span>Dashboard</span>
             </a>
-            <a class="nav-item" href="register.php">
-                <span class="material-icons-outlined">person_add</span>
-                <span>Complete Profile</span>
-            </a>
             <a class="nav-item active" href="MyBookings.php">
                 <span class="material-icons-outlined">calendar_today</span>
                 <span>My Bookings</span>
             </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">message</span>
-                <span>Messages</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">analytics</span>
-                <span>Analytics</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">settings</span>
-                <span>Settings</span>
-            </a>
+
         </nav>
     </aside>
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <header class="main-header">
-            <h1>My Bookings</h1>
+            <h1>Tour Guide Dashboard</h1>
             <div class="header-actions">
-                <a href="dashboard.php" class="icon-button" title="Back to Dashboard">
-                    <span class="material-icons-outlined">arrow_back</span>
-                </a>
+                <span class="availability-badge <?php echo $profile['availability_status']; ?>">
+                    <span class="material-icons-outlined" style="font-size: 16px;">circle</span>
+                    <?php echo ucfirst($profile['availability_status']); ?>
+                </span>
                 <a href="../logout.php" class="icon-button" title="Logout">
                     <span class="material-icons-outlined">logout</span>
                 </a>

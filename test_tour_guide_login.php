@@ -46,7 +46,7 @@ while ($row = $result2->fetch_assoc()) {
     echo "<td>{$row['user_id']}</td>";
     echo "<td>{$row['first_name']} {$row['last_name']}</td>";
     echo "<td>{$row['email']}</td>";
-    echo "<td>{$row['license_number']}</td>";
+    echo "<td>" . (isset($row['person_name']) ? $row['person_name'] : (isset($row['license_number']) ? $row['license_number'] : 'N/A')) . "</td>";
     echo "<td>{$row['specialization']}</td>";
     echo "</tr>";
 }

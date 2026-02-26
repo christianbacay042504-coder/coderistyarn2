@@ -1,0 +1,669 @@
+    <script>
+        // ─────────────────────────────────────────────
+        // STATE  (declared ONCE – no duplicates)
+        // ─────────────────────────────────────────────
+        const tourGuides = <?php echo json_encode($tourGuides); ?>;
+
+        let selectedDate          = null;
+        let dateAvailability      = {};          // keyed by 'YYYY-MM-DD'
+        let guideAvailabilityData = {};          // keyed by 'YYYY-MM-DD', filled from API
+        let currentCalendarMonth  = new Date().getMonth();
+        let currentCalendarYear   = new Date().getFullYear();
+
+        // ─────────────────────────────────────────────
+        // CALENDAR  – open modal
+        // ─────────────────────────────────────────────
+        function showCalendarAvailability() {
+            const modal = document.getElementById('calendarModal');
+            if (!modal) return;
+
+            const guideId = document.getElementById('selectedGuide')?.value;
+            if (!guideId) {
+                alert('Please select a tour guide first to check availability.');
+                return;
+            }
+
+            // Reset to current month on fresh open
+            currentCalendarMonth  = new Date().getMonth();
+            currentCalendarYear   = new Date().getFullYear();
+            guideAvailabilityData = {};
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // Show spinner, then fetch
+            showCalendarLoading();
+            fetchAndRender(guideId);
+        }
+
+        function showCalendarLoading() {
+            const grid = document.getElementById('calendarGrid');
+            if (grid) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#4b5563;">
+                        <div style="font-size:2rem;margin-bottom:10px;">⏳</div>
+                        <p style="font-weight:500;">Loading guide availability…</p>
+                    </div>`;
+            }
+        }
+
+        function closeCalendarModal() {
+            const modal = document.getElementById('calendarModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // FETCH real data from get-guide-availability.php
+        // (which reads the guide_availability table set in dashboard.php)
+        // ─────────────────────────────────────────────
+        function fetchAndRender(guideId) {
+            guideAvailabilityData = {};
+            const url = `api/get-guide-availability.php?guide_id=${guideId}&year=${currentCalendarYear}&month=${currentCalendarMonth + 1}`;
+
+            return fetch(url)
+                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(data => {
+                    if (data.success && Array.isArray(data.availability)) {
+                        data.availability.forEach(item => {
+                            guideAvailabilityData[item.date] = {
+                                status:     item.status,
+                                message:    item.message,
+                                time_slots: item.time_slots || []
+                            };
+                        });
+                    }
+                    buildCalendar();
+                })
+                .catch(err => {
+                    console.error('Availability fetch error:', err);
+                    buildCalendar(); // render anyway (all days show as "not set")
+                    showNotice('Could not load availability. Please try again or contact the guide.', 'warn');
+                });
+        }
+
+        // ─────────────────────────────────────────────
+        // BUILD calendar grid from fetched data
+        // ─────────────────────────────────────────────
+        function buildCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+
+            const todayMid     = new Date(); todayMid.setHours(0,0,0,0);
+            const firstDay     = new Date(currentCalendarYear, currentCalendarMonth, 1);
+            const daysInMonth  = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
+            const startWeekday = firstDay.getDay();
+
+            grid.innerHTML = '';
+
+            // ── Navigation row ──
+            const nav = document.createElement('div');
+            nav.className = 'calendar-navigation';
+            nav.innerHTML = `
+                <button class="calendar-nav-btn" onclick="calPrevMonth()">
+                    <span class="material-icons-outlined">chevron_left</span>
+                </button>
+                <div class="calendar-month-year">
+                    ${firstDay.toLocaleDateString('en-US',{month:'long',year:'numeric'})}
+                </div>
+                <button class="calendar-nav-btn" onclick="calNextMonth()">
+                    <span class="material-icons-outlined">chevron_right</span>
+                </button>`;
+            grid.appendChild(nav);
+
+            // ── Day headers ──
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+                const h = document.createElement('div');
+                h.className = 'calendar-day-header';
+                h.textContent = d;
+                grid.appendChild(h);
+            });
+
+            // ── Empty cells ──
+            for (let i = 0; i < startWeekday; i++) {
+                grid.appendChild(document.createElement('div'));
+            }
+
+            // ── Day cells ──
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cellDate  = new Date(currentCalendarYear, currentCalendarMonth, day);
+                const ds        = toDateString(cellDate);
+                const cell      = document.createElement('div');
+                cell.className  = 'calendar-day';
+                cell.textContent = day;
+
+                if (cellDate < todayMid) {
+                    // Past
+                    cell.classList.add('past');
+                    cell.title = 'Date has passed';
+
+                } else if (guideAvailabilityData[ds]) {
+                    // ✅ Guide set availability for this day (from dashboard.php)
+                    const info = guideAvailabilityData[ds];
+                    cell.classList.add(info.status);
+                    cell.title = info.message + (info.time_slots.length
+                        ? '\n' + info.time_slots.map(s => `${s.start}–${s.end} (${s.status})`).join('\n')
+                        : '');
+
+                    if (info.status !== 'unavailable') {
+                        cell.style.cursor = 'pointer';
+                        cell.addEventListener('click', () => onDatePicked(cellDate, cell, info));
+                    } else {
+                        cell.style.cursor = 'not-allowed';
+                    }
+                    dateAvailability[ds] = info;
+
+                } else {
+                    // ❌ Guide didn't set anything for this day
+                    cell.classList.add('no-slot');
+                    cell.style.cssText += 'opacity:.35;cursor:not-allowed;';
+                    cell.title = 'No availability set by guide for this date';
+                }
+
+                // Re-highlight already-selected date after re-render
+                if (selectedDate && ds === toDateString(selectedDate)) {
+                    cell.classList.add('selected');
+                }
+
+                grid.appendChild(cell);
+            }
+        }
+
+        // Month navigation
+        function calPrevMonth() {
+            currentCalendarMonth--;
+            if (currentCalendarMonth < 0) { currentCalendarMonth = 11; currentCalendarYear--; }
+            const gId = document.getElementById('selectedGuide')?.value;
+            showCalendarLoading();
+            if (gId) fetchAndRender(gId); else buildCalendar();
+        }
+        function calNextMonth() {
+            currentCalendarMonth++;
+            if (currentCalendarMonth > 11) { currentCalendarMonth = 0; currentCalendarYear++; }
+            const gId = document.getElementById('selectedGuide')?.value;
+            showCalendarLoading();
+            if (gId) fetchAndRender(gId); else buildCalendar();
+        }
+
+        // ─────────────────────────────────────────────
+        // DATE SELECTION
+        // ─────────────────────────────────────────────
+        function onDatePicked(date, cell, info) {
+            // Deselect previous
+            document.querySelectorAll('.calendar-day.selected')
+                .forEach(el => el.classList.remove('selected'));
+            cell.classList.add('selected');
+            selectedDate = date;
+
+            // Update hidden input + display text
+            const dateInput = document.getElementById('checkInDate');
+            if (dateInput) dateInput.value = toDateString(date);
+
+            const txt = document.getElementById('selectedDateText');
+            if (txt) txt.textContent = date.toLocaleDateString('en-US',
+                { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+            // Show availability badge + time slots
+            showAvailabilityBadge(info);
+            renderTimeSlotsPanel(info, date);
+
+            // Close modal
+            setTimeout(closeCalendarModal, 400);
+        }
+
+        // ─────────────────────────────────────────────
+        // AVAILABILITY STATUS BADGE  (below the date picker)
+        // ─────────────────────────────────────────────
+        function showAvailabilityBadge(info) {
+            const badge = document.getElementById('availabilityStatus');
+            if (!badge) return;
+
+            badge.style.display = 'block';
+
+            if (!info) {
+                badge.className = 'availability-status unavailable';
+                badge.innerHTML = '<span class="material-icons-outlined">block</span> No availability set for this date.';
+                disableNextButton(); return;
+            }
+
+            const iconMap = { available:'check_circle', limited:'warning', unavailable:'block' };
+            badge.className = `availability-status ${info.status}`;
+
+            if (info.status === 'available') {
+                badge.innerHTML = `<span class="material-icons-outlined">${iconMap.available}</span> ${info.message} — Tour guide available!`;
+                enableNextButton();
+            } else if (info.status === 'limited') {
+                badge.innerHTML = `<span class="material-icons-outlined">${iconMap.limited}</span> ${info.message} — Book soon!`;
+                enableNextButton();
+            } else {
+                badge.innerHTML = `<span class="material-icons-outlined">${iconMap.unavailable}</span> ${info.message} — Please choose another date.`;
+                disableNextButton();
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // TIME SLOTS PANEL  (injected below the badge)
+        // ─────────────────────────────────────────────
+        function renderTimeSlotsPanel(info, date) {
+            // Remove any old panel
+            document.getElementById('timeSlotsPanel')?.remove();
+            if (!info || !info.time_slots || !info.time_slots.length) return;
+
+            const badge = document.getElementById('availabilityStatus');
+            if (!badge) return;
+
+            const panel = document.createElement('div');
+            panel.id = 'timeSlotsPanel';
+            panel.style.cssText = `
+                margin-top:10px; padding:14px 16px;
+                background:#f0fdf4; border:1px solid #bbf7d0;
+                border-radius:10px; font-size:.875rem;`;
+
+            const heading = document.createElement('div');
+            heading.style.cssText = 'font-weight:600;color:#166534;margin-bottom:10px;';
+            heading.innerHTML = `🕐 Available time slots on ${date.toLocaleDateString('en-US',{month:'short',day:'numeric'})}:`;
+            panel.appendChild(heading);
+
+            const available = info.time_slots.filter(s => s.status === 'available');
+
+            if (!available.length) {
+                panel.innerHTML += '<p style="color:#991b1b;margin:0;">No available slots on this date.</p>';
+            } else {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+                available.forEach(s => {
+                    const chip = document.createElement('span');
+                    chip.style.cssText = `
+                        background:#16a34a;color:#fff;
+                        padding:4px 14px;border-radius:20px;
+                        font-size:.8rem;font-weight:600;`;
+                    chip.textContent = `${s.start} – ${s.end}`;
+                    row.appendChild(chip);
+                });
+                panel.appendChild(row);
+            }
+
+            badge.insertAdjacentElement('afterend', panel);
+        }
+
+        // ─────────────────────────────────────────────
+        // INLINE NOTICE in the calendar (error / warning)
+        // ─────────────────────────────────────────────
+        function showNotice(msg, type) {
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+            const n = document.createElement('div');
+            n.style.cssText = `
+                grid-column:1/-1;padding:10px 14px;border-radius:8px;
+                font-size:.85rem;margin-bottom:8px;
+                background:${type==='warn'?'#fef9c3':'#fee2e2'};
+                color:${type==='warn'?'#854d0e':'#991b1b'};`;
+            n.textContent = '⚠️ ' + msg;
+            grid.insertBefore(n, grid.firstChild);
+        }
+
+        // ─────────────────────────────────────────────
+        // WHEN GUIDE DROPDOWN CHANGES
+        // ─────────────────────────────────────────────
+        function initGuideSelection() {
+            const sel = document.getElementById('selectedGuide');
+            const btn = document.getElementById('guideDetailsBtn');
+            if (!sel) return;
+
+            sel.addEventListener('change', function () {
+                if (btn) btn.style.display = this.value ? 'inline-flex' : 'none';
+                updateGuideReview();
+                clearSelectedDate();          // wipe previous date + slots
+            });
+
+            if (sel.value && btn) btn.style.display = 'inline-flex';
+        }
+
+        function clearSelectedDate() {
+            const inp = document.getElementById('checkInDate');
+            if (inp) inp.value = '';
+
+            const txt = document.getElementById('selectedDateText');
+            if (txt) txt.textContent = 'Click to select date';
+
+            const badge = document.getElementById('availabilityStatus');
+            if (badge) { badge.style.display = 'none'; badge.className = 'availability-status'; }
+
+            document.getElementById('timeSlotsPanel')?.remove();
+
+            selectedDate          = null;
+            guideAvailabilityData = {};
+            dateAvailability      = {};
+        }
+
+        function updateGuideReview() {
+            const sel   = document.getElementById('selectedGuide');
+            const label = document.getElementById('reviewGuideName');
+            if (!sel || !label) return;
+            const opt = sel.options[sel.selectedIndex];
+            label.textContent = opt?.value ? opt.text : '-';
+        }
+
+        // ─────────────────────────────────────────────
+        // GUIDE PROFILE MODAL
+        // ─────────────────────────────────────────────
+        function showSelectedGuideDetails() {
+            const sel   = document.getElementById('selectedGuide');
+            const guide = tourGuides.find(g => g.id == sel?.value);
+            if (!guide) { alert('Guide information not found'); return; }
+            showGuideModal(guide);
+        }
+
+        function showGuideModal(g) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:480px;">
+                    <div class="modal-header">
+                        <h2>Guide Profile</h2>
+                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                            <span class="material-icons-outlined">close</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h3 style="margin-bottom:4px;">${g.name}</h3>
+                        <p style="color:#4b5563;margin-bottom:16px;">${g.specialty||'General Tours'}</p>
+                        <p style="margin-bottom:16px;">${g.description||'Experienced tour guide.'}</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.9rem;">
+                            <div><strong>Experience:</strong> ${g.experience||'5+ years'}</div>
+                            <div><strong>Languages:</strong> ${g.languages||'English, Tagalog'}</div>
+                            <div><strong>Max Group:</strong> ${g.max_group_size||'10'} guests</div>
+                            <div><strong>Gender:</strong> ${g.gender||'Not specified'}</div>
+                        </div>
+                        <div style="text-align:right;margin-top:20px;">
+                            <button onclick="this.closest('.modal-overlay').remove()"
+                                style="padding:10px 24px;background:#2c5f2d;color:#fff;border:none;
+                                       border-radius:8px;font-weight:600;cursor:pointer;">Close</button>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        // ─────────────────────────────────────────────
+        // NEXT / PREV STEP
+        // ─────────────────────────────────────────────
+        function nextStep() {
+            const current     = document.querySelector('.booking-step.active');
+            const stepNum     = parseInt(current.id.split('-')[1]);
+
+            // Step 1 validation
+            if (stepNum === 1) {
+                const guide  = document.getElementById('selectedGuide').value;
+                const dest   = document.getElementById('destination').value;
+                const date   = document.getElementById('checkInDate').value;
+                const badge  = document.getElementById('availabilityStatus');
+
+                if (!guide) { alert('Please select a tour guide.');   return; }
+                if (!dest)  { alert('Please select a destination.');  return; }
+                if (!date)  { alert('Please select a check-in date. Open the calendar and pick an available (green) day.'); return; }
+                if (badge?.classList.contains('unavailable')) {
+                    alert('The selected date is fully booked. Please pick another date from the calendar.');
+                    return;
+                }
+            }
+
+            if (stepNum < 4) {
+                current.classList.remove('active');
+                document.getElementById(`step-${stepNum + 1}`).classList.add('active');
+                updateProgressBar(stepNum + 1);
+                updateReviewSection();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevStep() {
+            const current = document.querySelector('.booking-step.active');
+            const stepNum = parseInt(current.id.split('-')[1]);
+            if (stepNum > 1) {
+                current.classList.remove('active');
+                document.getElementById(`step-${stepNum - 1}`).classList.add('active');
+                updateProgressBar(stepNum - 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function updateProgressBar(step) {
+            document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.progress-step[data-step="${step}"]`)?.classList.add('active');
+        }
+
+        function enableNextButton() {
+            const b = document.querySelector('.btn-next');
+            if (b) { b.disabled=false; b.style.opacity='1'; b.style.cursor='pointer'; }
+        }
+        function disableNextButton() {
+            const b = document.querySelector('.btn-next');
+            if (b) { b.disabled=true; b.style.opacity='0.5'; b.style.cursor='not-allowed'; }
+        }
+
+        // ─────────────────────────────────────────────
+        // REVIEW SECTION
+        // ─────────────────────────────────────────────
+        function updateReviewSection() {
+            const get = id => document.getElementById(id);
+            const set = (id, v) => { const el = get(id); if (el) el.textContent = v; };
+
+            const guideOpt = get('selectedGuide')?.options[get('selectedGuide').selectedIndex];
+            set('reviewGuideName', guideOpt?.value ? guideOpt.text : '-');
+
+            const destOpt = get('destination')?.options[get('destination').selectedIndex];
+            set('reviewDestination', destOpt?.value ? destOpt.text : '-');
+
+            const dv = get('checkInDate')?.value;
+            set('reviewDate', dv
+                ? new Date(dv).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+                : '-');
+
+            const g = get('guestCount')?.value;
+            set('reviewGuests', g ? `${g} ${+g===1?'guest':'guests'}` : '-');
+            set('reviewFullName',  get('fullName')?.value      || '-');
+            set('reviewEmail',     get('email')?.value         || '-');
+            set('reviewContact',   get('contactNumber')?.value || '-');
+
+            updatePriceCalculation();
+        }
+
+        function updatePriceCalculation() {
+            const g   = parseInt(document.getElementById('guestCount')?.value || 1);
+            const ent = 100 * g;
+            const tot = 2500 + ent + 200 + 100;
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('priceGuestCount',        g);
+            set('priceEntrance',          `₱${ent.toFixed(2)}`);
+            set('priceTotal',             `₱${tot.toFixed(2)}`);
+            set('confirmationGuestCount', g);
+            set('confirmationEntrance',   `₱${ent.toFixed(2)}`);
+            set('confirmationTotal',      `₱${tot.toFixed(2)}`);
+        }
+
+        // ─────────────────────────────────────────────
+        // GUEST COUNTER
+        // ─────────────────────────────────────────────
+        function updateGuestCount(category, change) {
+            const el  = document.getElementById(category + '-count');
+            let count = Math.max(0, (parseInt(el.textContent)||0) + change);
+            if (category === 'adults' && count < 1) count = 1;
+
+            const projTotal = getTotalGuests() - (parseInt(el.textContent)||0) + count;
+            if (projTotal > 30 && change > 0) return;
+
+            el.textContent = count;
+            el.previousElementSibling.disabled = (category==='adults') ? count<=1 : count<=0;
+            document.querySelectorAll('.counter-btn.plus')
+                .forEach(b => b.disabled = getTotalGuests() >= 30);
+            updateTotalGuestsDisplay();
+        }
+
+        function getTotalGuests() {
+            return ['adults','seniors','teenagers','toddlers']
+                .reduce((s,c) => s + (parseInt(document.getElementById(c+'-count')?.textContent)||0), 0);
+        }
+
+        function updateTotalGuestsDisplay() {
+            const a = parseInt(document.getElementById('adults-count').textContent)||0;
+            const s = parseInt(document.getElementById('seniors-count').textContent)||0;
+            const t = parseInt(document.getElementById('teenagers-count').textContent)||0;
+            const k = parseInt(document.getElementById('toddlers-count').textContent)||0;
+            const total = a+s+t+k;
+
+            const parts = [];
+            if (a) parts.push(`${a} Adult${a>1?'s':''}`);
+            if (s) parts.push(`${s} Senior${s>1?'s':''}`);
+            if (t) parts.push(`${t} Teenager${t>1?'s':''}`);
+            if (k) parts.push(`${k} Toddler${k>1?'s':''}`);
+            const txt = parts.length
+                ? parts.join(' • ') + ` • ${total} Traveler${total>1?'s':''}`
+                : '0 Travelers';
+
+            const disp = document.getElementById('total-guests-display');
+            if (disp) disp.textContent = txt;
+            const inp = document.getElementById('guestCount');
+            if (inp) inp.value = total;
+            updatePriceCalculation();
+        }
+
+        // ─────────────────────────────────────────────
+        // PROFILE DROPDOWN
+        // ─────────────────────────────────────────────
+        function initUserProfileDropdown() {
+            const wrap    = document.querySelector('.user-profile-dropdown');
+            const trigger = document.querySelector('.profile-trigger');
+            const menu    = document.querySelector('.dropdown-menu');
+            if (!wrap || !trigger || !menu) return;
+
+            trigger.addEventListener('click', e => {
+                e.preventDefault(); e.stopPropagation();
+                menu.classList.toggle('show');
+            });
+            document.addEventListener('click', e => {
+                if (!wrap.contains(e.target)) menu.classList.remove('show');
+            });
+        }
+
+        function confirmLogout() {
+            document.querySelector('.modal-overlay')?.remove();
+            window.location.href = '../log-in/logout.php';
+        }
+
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+            document.querySelector(`.payment-option[onclick*="${method}"]`)?.classList.add('active');
+            const r = document.querySelector(`input[value="${method}"]`);
+            if (r) r.checked = true;
+        }
+
+        // ─────────────────────────────────────────────
+        // BOOKING SUBMISSION
+        // ─────────────────────────────────────────────
+        function submitBooking() {
+            const g = id => document.getElementById(id);
+            const checks = [
+                [!g('destination')?.value,        'Please select a destination.'],
+                [!g('checkInDate')?.value,         'Please select a tour date.'],
+                [!(+g('guestCount')?.value > 0),   'Please enter number of guests.'],
+                [!g('fullName')?.value?.trim(),    'Please enter your full name.'],
+                [!g('email')?.value?.trim(),       'Please enter your email address.'],
+                [!g('contactNumber')?.value?.trim(),'Please enter your contact number.'],
+                [!g('termsAgreement')?.checked,    'Please agree to the Terms & Conditions.'],
+                [!g('cancellationPolicy')?.checked,'Please acknowledge the cancellation policy.'],
+            ];
+            for (const [cond, msg] of checks) { if (cond) { alert(msg); return; } }
+
+            if (g('availabilityStatus')?.classList.contains('unavailable')) {
+                alert('Please select an available date.'); return;
+            }
+
+            const fd = new FormData();
+            fd.append('guide_id',        g('selectedGuide')?.value  || '');
+            fd.append('destination',     g('destination').value);
+            fd.append('date',            g('checkInDate').value);
+            fd.append('guests',          g('guestCount').value);
+            fd.append('contact',         g('contactNumber').value);
+            fd.append('email',           g('email').value);
+            fd.append('special_requests',g('specialRequests')?.value || '');
+
+            const btn  = document.querySelector('.btn-confirm');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<span class="material-icons-outlined">hourglass_empty</span> Processing…';
+            btn.disabled  = true;
+
+            fetch('user-submit-booking.php', { method:'POST', body:fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        fillConfirmationPage(data);
+                        document.querySelector('.booking-step.active').classList.remove('active');
+                        document.getElementById('step-4').classList.add('active');
+                        updateProgressBar(4);
+                        window.scrollTo({ top:0, behavior:'smooth' });
+                    } else {
+                        alert('Booking failed: ' + data.message);
+                        btn.innerHTML = orig; btn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    alert('An error occurred. Please try again.');
+                    btn.innerHTML = orig; btn.disabled = false;
+                });
+        }
+
+        function fillConfirmationPage(d) {
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            const g   = id => document.getElementById(id);
+
+            set('confirmationBookingNumber', d.booking_reference);
+            set('detailBookingId',           d.booking_reference);
+
+            const dOpt = g('destination')?.options[g('destination').selectedIndex];
+            set('detailDestination', dOpt?.text || '-');
+
+            const dv = g('checkInDate')?.value;
+            if (dv) set('detailTourDate', new Date(dv).toLocaleDateString('en-US',
+                { weekday:'long', year:'numeric', month:'long', day:'numeric' }));
+
+            const gOpt = g('selectedGuide')?.options[g('selectedGuide').selectedIndex];
+            set('detailGuide',        gOpt?.value ? gOpt.text : 'No guide selected');
+            set('detailGuests',       g('guestCount')?.value     || '-');
+            set('detailGuestName',    g('fullName')?.value        || '-');
+            set('detailGuestEmail',   g('email')?.value           || '-');
+            set('detailGuestContact', g('contactNumber')?.value   || '-');
+            updatePriceCalculation();
+        }
+
+        function shareBooking() {
+            const ref = document.getElementById('confirmationBookingNumber')?.textContent || '';
+            if (navigator.share) {
+                navigator.share({ title:'My SJDM Tour Booking', text:`Booking ref: ${ref}` });
+            } else {
+                alert('Booking reference: ' + ref);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // UTILITIES
+        // ─────────────────────────────────────────────
+        function toDateString(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth()+1).padStart(2,'0');
+            const d = String(date.getDate()).padStart(2,'0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // ─────────────────────────────────────────────
+        // INIT
+        // ─────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            initUserProfileDropdown();
+            initGuideSelection();
+            updateTotalGuestsDisplay();
+        });
+    </script>

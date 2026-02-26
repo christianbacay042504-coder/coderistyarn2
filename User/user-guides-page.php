@@ -1557,10 +1557,6 @@ if ($conn) {
                             <span class="material-icons-outlined">person</span>
                             View Profile
                         </button>
-                        <button class="btn-book-guide" onclick="bookGuide(<?php echo $guideId; ?>)">
-                            <span class="material-icons-outlined">calendar_today</span>
-                            Book Now
-                        </button>
                     </div>
                 </div>
                 <?php

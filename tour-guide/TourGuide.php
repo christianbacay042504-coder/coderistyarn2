@@ -42,8 +42,8 @@ class TourGuide {
                 $profile['rating'] = $profile['rating'] ?? 4.5;
                 $profile['total_tours'] = $profile['total_tours'] ?? 0;
                 $profile['experience_years'] = $profile['experience_years'] ?? 1;
-                $profile['license_number'] = $profile['license_number'] ?? '';
-                $profile['specialization'] = $profile['specialization'] ?? 'General Tours';
+                $profile['person_name'] = $profile['name'] ?? $profile['license_number'] ?? '';
+                $profile['specialization'] = $profile['specialty'] ?? 'General Tours';
                 $profile['languages'] = $profile['languages'] ?? 'English, Filipino';
                 $profile['hourly_rate'] = $profile['hourly_rate'] ?? 500.00;
                 $profile['contact_number'] = $profile['contact_number'] ?? '';
@@ -79,23 +79,21 @@ class TourGuide {
                 // Update existing profile
                 $stmt = $this->conn->prepare("
                     UPDATE tour_guides SET 
-                        license_number = ?, 
-                        specialization = ?, 
+                        name = ?, 
+                        specialty = ?, 
                         experience_years = ?, 
                         languages = ?, 
-                        hourly_rate = ?, 
                         contact_number = ?, 
                         bio = ?,
                         updated_at = NOW()
                     WHERE user_id = ?
                 ");
                 $stmt->bind_param(
-                    "ssisdssi", 
-                    $data['license_number'],
+                    "ssisssi", 
+                    $data['person_name'],
                     $data['specialization'], 
                     $data['experience_years'],
                     $data['languages'],
-                    $data['hourly_rate'],
                     $data['contact_number'],
                     $data['bio'],
                     $this->userId
@@ -104,21 +102,23 @@ class TourGuide {
                 // Create new profile
                 $stmt = $this->conn->prepare("
                     INSERT INTO tour_guides (
-                        user_id, license_number, specialization, experience_years, 
-                        languages, hourly_rate, contact_number, bio, 
+                        user_id, name, specialty, experience_years, 
+                        languages, contact_number, bio, 
                         rating, total_tours, availability_status, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 4.5, 0, 'available', NOW(), NOW())
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
                 ");
                 $stmt->bind_param(
-                    "issisds", 
+                    "issisdsii", 
                     $this->userId,
-                    $data['license_number'],
+                    $data['person_name'],
                     $data['specialization'], 
                     $data['experience_years'],
                     $data['languages'],
-                    $data['hourly_rate'],
                     $data['contact_number'],
-                    $data['bio']
+                    $data['bio'],
+                    4.5,
+                    0,
+                    'available'
                 );
             }
 
@@ -173,15 +173,28 @@ class TourGuide {
         }
 
         try {
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return [];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+
             $stmt = $this->conn->prepare("
-                SELECT r.*, u.first_name, u.last_name 
-                FROM reviews r 
-                JOIN users u ON r.user_id = u.id 
-                WHERE r.tour_guide_id = ? 
-                ORDER BY r.created_at DESC 
-                LIMIT 10
+                SELECT gr.*, u.first_name, u.last_name, b.tour_name, b.destination 
+                FROM guide_reviews gr 
+                JOIN users u ON gr.user_id = u.id 
+                LEFT JOIN bookings b ON gr.booking_id = b.id
+                WHERE gr.guide_id = ? 
+                ORDER BY gr.created_at DESC 
+                LIMIT 20
             ");
-            $stmt->bind_param("i", $this->userId);
+            $stmt->bind_param("i", $tourGuideId);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -190,41 +203,54 @@ class TourGuide {
                 $reviews[] = $row;
             }
             
-            // If no real reviews, return sample data
-            if (empty($reviews)) {
-                return [
-                    [
-                        'id' => 1,
-                        'first_name' => 'Juan',
-                        'last_name' => 'Dela Cruz',
-                        'rating' => 5,
-                        'review' => 'Excellent tour guide! Very knowledgeable and friendly. Made our trip to Kaytitinga Falls memorable.',
-                        'created_at' => '2026-02-08 10:30:00'
-                    ],
-                    [
-                        'id' => 2,
-                        'first_name' => 'Maria',
-                        'last_name' => 'Santos',
-                        'rating' => 4,
-                        'review' => 'Great experience! The guide was punctual and provided interesting information about the local attractions.',
-                        'created_at' => '2026-02-05 14:20:00'
-                    ],
-                    [
-                        'id' => 3,
-                        'first_name' => 'Jose',
-                        'last_name' => 'Reyes',
-                        'rating' => 5,
-                        'review' => 'Professional and accommodating. Highly recommend for anyone visiting San Jose del Monte!',
-                        'created_at' => '2026-02-02 09:15:00'
-                    ]
-                ];
-            }
-            
             return $reviews;
             
         } catch (Exception $e) {
             error_log("Error getting reviews: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Calculate average rating from guide_reviews
+     */
+    public function getAverageRating() {
+        if (!$this->conn) {
+            return 0;
+        }
+
+        try {
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return 0;
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+
+            $stmt = $this->conn->prepare("
+                SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews 
+                FROM guide_reviews 
+                WHERE guide_id = ?
+            ");
+            $stmt->bind_param("i", $tourGuideId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $data = $result->fetch_assoc();
+                return $data['avg_rating'] ? round($data['avg_rating'], 1) : 0;
+            }
+            
+            return 0;
+            
+        } catch (Exception $e) {
+            error_log("Error calculating average rating: " . $e->getMessage());
+            return 0;
         }
     }
 
@@ -237,13 +263,25 @@ class TourGuide {
         }
 
         try {
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return [];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+            
             $stmt = $this->conn->prepare("
                 SELECT * FROM tour_guide_availability 
                 WHERE tour_guide_id = ? 
                 AND available_date >= CURDATE() 
                 ORDER BY available_date ASC, start_time ASC
             ");
-            $stmt->bind_param("i", $this->userId);
+            $stmt->bind_param("i", $tourGuideId);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -252,38 +290,186 @@ class TourGuide {
                 $availability[] = $row;
             }
             
-            // If no real availability, return sample data
-            if (empty($availability)) {
-                return [
-                    [
-                        'id' => 1,
-                        'available_date' => '2026-02-15',
-                        'start_time' => '09:00:00',
-                        'end_time' => '12:00:00',
-                        'status' => 'available'
-                    ],
-                    [
-                        'id' => 2,
-                        'available_date' => '2026-02-16',
-                        'start_time' => '14:00:00',
-                        'end_time' => '17:00:00',
-                        'status' => 'available'
-                    ],
-                    [
-                        'id' => 3,
-                        'available_date' => '2026-02-18',
-                        'start_time' => '08:00:00',
-                        'end_time' => '11:00:00',
-                        'status' => 'booked'
-                    ]
-                ];
-            }
-            
             return $availability;
             
         } catch (Exception $e) {
             error_log("Error getting availability: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Add availability slot
+     */
+    public function addAvailability($date, $startTime, $endTime, $status = 'available') {
+        if (!$this->conn) {
+            error_log("Database connection failed in addAvailability");
+            return ['success' => false, 'message' => 'Database connection failed'];
+        }
+
+        try {
+            // Validate inputs
+            if (empty($date) || empty($startTime) || empty($endTime)) {
+                error_log("Invalid inputs: date=$date, startTime=$startTime, endTime=$endTime");
+                return ['success' => false, 'message' => 'All fields are required'];
+            }
+
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            if (!$guideIdStmt) {
+                error_log("Failed to prepare guide ID query: " . $this->conn->error);
+                return ['success' => false, 'message' => 'Database query preparation failed'];
+            }
+            
+            $guideIdStmt->bind_param("i", $this->userId);
+            if (!$guideIdStmt->execute()) {
+                error_log("Failed to execute guide ID query: " . $guideIdStmt->error);
+                return ['success' => false, 'message' => 'Failed to find tour guide profile'];
+            }
+            
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                error_log("No tour guide found for user_id: $this->userId");
+                return ['success' => false, 'message' => 'Tour guide profile not found'];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+            error_log("Found tour guide ID: $tourGuideId for user: $this->userId");
+            
+            // Check if availability already exists for this date and time
+            $checkStmt = $this->conn->prepare("
+                SELECT id FROM tour_guide_availability 
+                WHERE tour_guide_id = ? AND available_date = ? AND start_time = ? AND end_time = ?
+            ");
+            if (!$checkStmt) {
+                error_log("Failed to prepare check query: " . $this->conn->error);
+                return ['success' => false, 'message' => 'Database query preparation failed'];
+            }
+            
+            $checkStmt->bind_param("isss", $tourGuideId, $date, $startTime, $endTime);
+            if (!$checkStmt->execute()) {
+                error_log("Failed to execute check query: " . $checkStmt->error);
+                return ['success' => false, 'message' => 'Failed to check existing availability'];
+            }
+            
+            if ($checkStmt->get_result()->num_rows > 0) {
+                error_log("Availability already exists for guide: $tourGuideId, date: $date, time: $startTime-$endTime");
+                return ['success' => false, 'message' => 'Availability already exists for this time slot'];
+            }
+            
+            // Insert new availability
+            $stmt = $this->conn->prepare("
+                INSERT INTO tour_guide_availability 
+                (tour_guide_id, available_date, start_time, end_time, status, created_at) 
+                VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+            if (!$stmt) {
+                error_log("Failed to prepare insert query: " . $this->conn->error);
+                return ['success' => false, 'message' => 'Database query preparation failed'];
+            }
+            
+            $stmt->bind_param("issss", $tourGuideId, $date, $startTime, $endTime, $status);
+            
+            error_log("Attempting to insert: guide_id=$tourGuideId, date=$date, start=$startTime, end=$endTime, status=$status");
+            
+            $result = $stmt->execute();
+            
+            if ($result) {
+                $insertedId = $this->conn->insert_id;
+                error_log("Successfully inserted availability with ID: $insertedId");
+                return ['success' => true, 'message' => 'Availability added successfully!'];
+            } else {
+                error_log("Failed to insert availability: " . $stmt->error);
+                return ['success' => false, 'message' => 'Failed to add availability: ' . $stmt->error];
+            }
+            
+        } catch (Exception $e) {
+            error_log("Exception in addAvailability: " . $e->getMessage());
+            return ['success' => false, 'message' => 'An error occurred while adding availability: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Update availability slot
+     */
+    public function updateAvailabilitySlot($availabilityId, $status) {
+        if (!$this->conn) {
+            return ['success' => false, 'message' => 'Database connection failed'];
+        }
+
+        try {
+            // First get the tour guide ID to verify ownership
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return ['success' => false, 'message' => 'Tour guide profile not found'];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+            
+            // Update availability
+            $stmt = $this->conn->prepare("
+                UPDATE tour_guide_availability 
+                SET status = ?, updated_at = NOW() 
+                WHERE id = ? AND tour_guide_id = ?
+            ");
+            $stmt->bind_param("sii", $status, $availabilityId, $tourGuideId);
+            $result = $stmt->execute();
+            
+            if ($result && $stmt->affected_rows > 0) {
+                return ['success' => true, 'message' => 'Availability updated successfully!'];
+            } else {
+                return ['success' => false, 'message' => 'Availability not found or no changes made'];
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error updating availability: " . $e->getMessage());
+            return ['success' => false, 'message' => 'An error occurred while updating availability'];
+        }
+    }
+
+    /**
+     * Delete availability slot
+     */
+    public function deleteAvailability($availabilityId) {
+        if (!$this->conn) {
+            return ['success' => false, 'message' => 'Database connection failed'];
+        }
+
+        try {
+            // First get the tour guide ID to verify ownership
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return ['success' => false, 'message' => 'Tour guide profile not found'];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+            
+            // Delete availability
+            $stmt = $this->conn->prepare("
+                DELETE FROM tour_guide_availability 
+                WHERE id = ? AND tour_guide_id = ?
+            ");
+            $stmt->bind_param("ii", $availabilityId, $tourGuideId);
+            $result = $stmt->execute();
+            
+            if ($result && $stmt->affected_rows > 0) {
+                return ['success' => true, 'message' => 'Availability deleted successfully!'];
+            } else {
+                return ['success' => false, 'message' => 'Availability not found'];
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error deleting availability: " . $e->getMessage());
+            return ['success' => false, 'message' => 'An error occurred while deleting availability'];
         }
     }
 
@@ -296,6 +482,18 @@ class TourGuide {
         }
 
         try {
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return [];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+
             $sql = "
                 SELECT b.*, u.first_name, u.last_name, u.email as tourist_email,
                        ts.name as destination, ts.image_url
@@ -305,7 +503,7 @@ class TourGuide {
                 WHERE b.tour_guide_id = ?
             ";
             
-            $params = [$this->userId];
+            $params = [$tourGuideId];
             $types = "i";
             
             if ($status !== 'all') {
@@ -346,11 +544,23 @@ class TourGuide {
         }
 
         try {
+            // First get the tour guide ID to verify ownership
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return ['success' => false, 'message' => 'Tour guide profile not found'];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+
             $stmt = $this->conn->prepare("
                 UPDATE bookings SET status = ?, updated_at = NOW() 
                 WHERE id = ? AND tour_guide_id = ?
             ");
-            $stmt->bind_param("sii", $status, $bookingId, $this->userId);
+            $stmt->bind_param("sii", $status, $bookingId, $tourGuideId);
             $result = $stmt->execute();
             
             if ($result && $stmt->affected_rows > 0) {
@@ -381,6 +591,25 @@ class TourGuide {
         }
 
         try {
+            // First get the tour guide ID from the tour_guides table
+            $guideIdStmt = $this->conn->prepare("SELECT id FROM tour_guides WHERE user_id = ?");
+            $guideIdStmt->bind_param("i", $this->userId);
+            $guideIdStmt->execute();
+            $guideIdResult = $guideIdStmt->get_result();
+            
+            if ($guideIdResult->num_rows === 0) {
+                return [
+                    'total_bookings' => 0,
+                    'pending_bookings' => 0,
+                    'confirmed_bookings' => 0,
+                    'completed_bookings' => 0,
+                    'cancelled_bookings' => 0,
+                    'total_earnings' => 0
+                ];
+            }
+            
+            $tourGuideId = $guideIdResult->fetch_assoc()['id'];
+
             $stmt = $this->conn->prepare("
                 SELECT 
                     COUNT(*) as total_bookings,
@@ -392,7 +621,7 @@ class TourGuide {
                 FROM bookings 
                 WHERE tour_guide_id = ?
             ");
-            $stmt->bind_param("i", $this->userId);
+            $stmt->bind_param("i", $tourGuideId);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -428,3 +657,4 @@ class TourGuide {
         }
     }
 }
+?>

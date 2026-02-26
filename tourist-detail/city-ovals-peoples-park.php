@@ -620,13 +620,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     City Oval & People's Park offers something for everyone.
                 </p>
                 <div class="cta-buttons">
-                    <button class="btn-primary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
+                    <button class="btn-primary" onclick="location.href='/coderistyarn2/User/user-guides-page.php'">
                         Find City Guide
                     </button>
-                    <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/index.php#hotels'">
-                        Nearby Accommodations
-                    </button>
-                <button class="btn-secondary" onclick="location.href='/coderistyarn2/sjdm-user/tourist-spots.php'">
+                <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-tourist-spots.php'">
                         <span class="material-icons-outlined">place</span>
                         View All Destinations
                     </button></div>

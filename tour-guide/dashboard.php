@@ -24,12 +24,13 @@ if (!$profile) {
 // Get recent bookings, reviews, and availability
 $reviews = $tourGuide->getReviews();
 $availability = $tourGuide->getAvailability();
+$averageRating = $tourGuide->getAverageRating();
 
 // Handle profile update
 $updateMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $updateData = [
-        'license_number' => trim($_POST['license_number'] ?? ''),
+        'person_name' => trim($_POST['person_name'] ?? ''),
         'specialization' => trim($_POST['specialization'] ?? ''),
         'experience_years' => intval($_POST['experience_years'] ?? 0),
         'languages' => trim($_POST['languages'] ?? ''),
@@ -54,6 +55,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
     
     if ($result['success']) {
         $profile = $tourGuide->getProfile(); // Refresh profile data
+    }
+}
+
+// Handle add availability
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_availability'])) {
+    $date = $_POST['available_date'] ?? '';
+    $startTime = $_POST['start_time'] ?? '';
+    $endTime = $_POST['end_time'] ?? '';
+    $status = $_POST['status'] ?? 'available';
+    
+    $result = $tourGuide->addAvailability($date, $startTime, $endTime, $status);
+    $updateMessage = $result['message'];
+    
+    if ($result['success']) {
+        $availability = $tourGuide->getAvailability(); // Refresh availability data
+    }
+}
+
+// Handle update availability slot
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability_slot'])) {
+    $availabilityId = $_POST['availability_id'] ?? '';
+    $status = $_POST['slot_status'] ?? 'available';
+    
+    $result = $tourGuide->updateAvailabilitySlot($availabilityId, $status);
+    $updateMessage = $result['message'];
+    
+    if ($result['success']) {
+        $availability = $tourGuide->getAvailability(); // Refresh availability data
+    }
+}
+
+// Handle delete availability
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_availability'])) {
+    $availabilityId = $_POST['availability_id'] ?? '';
+    
+    $result = $tourGuide->deleteAvailability($availabilityId);
+    $updateMessage = $result['message'];
+    
+    if ($result['success']) {
+        $availability = $tourGuide->getAvailability(); // Refresh availability data
     }
 }
 ?>
@@ -471,6 +512,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
             gap: 12px;
         }
 
+        .quick-actions-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border: 2px solid;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            white-space: nowrap;
+        }
+
+        .quick-actions-btn .material-icons-outlined {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .quick-actions-btn.btn-outline-primary {
+            background: transparent;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .quick-actions-btn.btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(44, 95, 45, 0.2);
+        }
+
+        .quick-actions-btn.btn-outline-info {
+            background: transparent;
+            color: var(--info);
+            border-color: var(--info);
+        }
+
+        .quick-actions-btn.btn-outline-info:hover {
+            background: var(--info);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .quick-actions-btn.btn-outline-success {
+            background: transparent;
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .quick-actions-btn.btn-outline-success:hover {
+            background: var(--success);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .mobile-menu-toggle {
@@ -735,25 +836,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                 <span class="material-icons-outlined">dashboard</span>
                 <span>Dashboard</span>
             </a>
-            <a class="nav-item" href="register.php">
-                <span class="material-icons-outlined">person_add</span>
-                <span>Complete Profile</span>
-            </a>
             <a class="nav-item" href="MyBookings.php">
                 <span class="material-icons-outlined">calendar_today</span>
                 <span>My Bookings</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">message</span>
-                <span>Messages</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">analytics</span>
-                <span>Analytics</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="material-icons-outlined">settings</span>
-                <span>Settings</span>
             </a>
         </nav>
     </aside>
@@ -788,7 +873,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="material-icons-outlined">star</span>
-                    <h3><?php echo number_format($profile['rating'], 1); ?></h3>
+                    <h3><?php echo $averageRating > 0 ? number_format($averageRating, 1) : 'N/A'; ?></h3>
                     <p>Average Rating</p>
                 </div>
                 <div class="stat-card">
@@ -838,9 +923,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                                     <input type="hidden" name="update_profile" value="1">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                                         <div>
-                                            <label class="form-label">License Number</label>
-                                            <input type="text" class="form-control" name="license_number" 
-                                                   value="<?php echo htmlspecialchars($profile['license_number']); ?>">
+                                            <label class="form-label">Person Name</label>
+                                            <input type="text" class="form-control" name="person_name" 
+                                                   value="<?php echo htmlspecialchars($profile['person_name'] ?? $profile['license_number'] ?? ''); ?>">
                                         </div>
                                         <div>
                                             <label class="form-label">Contact Number</label>
@@ -903,8 +988,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                                 <!-- Schedule Management -->
                                 <div>
                                     <h5 style="margin-bottom: 16px;">Your Schedule</h5>
+                                    
+                                    <!-- Add Availability Form -->
+                                    <div style="margin-bottom: 24px; padding: 20px; background: var(--gray-50); border-radius: 8px;">
+                                        <h6 style="margin-bottom: 16px;">Add New Availability</h6>
+                                        <form method="POST" action="" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                            <input type="hidden" name="add_availability" value="1">
+                                            <div>
+                                                <label class="form-label">Date</label>
+                                                <input type="date" name="available_date" class="form-control" required min="<?php echo date('Y-m-d'); ?>">
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Start Time</label>
+                                                <input type="time" name="start_time" class="form-control" required>
+                                            </div>
+                                            <div>
+                                                <label class="form-label">End Time</label>
+                                                <input type="time" name="end_time" class="form-control" required>
+                                            </div>
+                                            <div>
+                                                <label class="form-label">Status</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="available">Available</option>
+                                                    <option value="booked">Booked</option>
+                                                    <option value="unavailable">Unavailable</option>
+                                                </select>
+                                            </div>
+                                            <div style="grid-column: 1 / -1;">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <span class="material-icons-outlined">add</span>
+                                                    Add Availability
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                    <?php if (!empty($updateMessage)): ?>
+                                        <div class="alert alert-<?php echo strpos($updateMessage, 'success') !== false ? 'success' : 'danger'; ?>" style="margin-bottom: 16px;">
+                                            <?php echo htmlspecialchars($updateMessage); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    
                                     <?php if (empty($availability)): ?>
-                                        <p style="color: var(--text-secondary);">No availability scheduled yet.</p>
+                                        <div style="text-align: center; padding: 40px; background: var(--gray-50); border-radius: 8px; border: 2px dashed var(--border);">
+                                            <span class="material-icons-outlined" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px; display: block;">calendar_today</span>
+                                            <h6 style="color: var(--text-primary); margin-bottom: 8px;">No Availability Scheduled</h6>
+                                            <p style="color: var(--text-secondary); margin-bottom: 16px;">Start adding your availability using the form above to let tourists book your tours!</p>
+                                            <small style="color: var(--text-secondary);">Add your available dates and time slots to begin receiving booking requests.</small>
+                                        </div>
                                     <?php else: ?>
                                         <div class="table-responsive">
                                             <table class="table">
@@ -914,6 +1045,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                                                         <th>Start Time</th>
                                                         <th>End Time</th>
                                                         <th>Status</th>
+                                                        <th>Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -930,6 +1062,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                                                                     <?php echo ucfirst($slot['status']); ?>
                                                                 </span>
                                                             </td>
+                                                            <td>
+                                                                <div style="display: flex; gap: 8px;">
+                                                                    <form method="POST" action="" style="display: inline;">
+                                                                        <input type="hidden" name="update_availability_slot" value="1">
+                                                                        <input type="hidden" name="availability_id" value="<?php echo $slot['id']; ?>">
+                                                                        <select name="slot_status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                                            <option value="available" <?php echo $slot['status'] === 'available' ? 'selected' : ''; ?>>Available</option>
+                                                                            <option value="booked" <?php echo $slot['status'] === 'booked' ? 'selected' : ''; ?>>Booked</option>
+                                                                            <option value="unavailable" <?php echo $slot['status'] === 'unavailable' ? 'selected' : ''; ?>>Unavailable</option>
+                                                                        </select>
+                                                                    </form>
+                                                                    <form method="POST" action="" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this availability?');">
+                                                                        <input type="hidden" name="delete_availability" value="1">
+                                                                        <input type="hidden" name="availability_id" value="<?php echo $slot['id']; ?>">
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                            <span class="material-icons-outlined">delete</span>
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -943,26 +1095,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                         <!-- Reviews Tab -->
                         <div id="reviews" class="tab-pane" style="display: none;">
                             <div class="profile-card">
-                                <h4>Customer Reviews</h4>
+                                <h4>Customer Reviews & Ratings</h4>
                                 <?php if (empty($reviews)): ?>
-                                    <p style="color: var(--text-secondary);">No reviews yet. Start giving amazing tours to get reviews!</p>
+                                    <div style="text-align: center; padding: 40px; background: var(--gray-50); border-radius: 8px; border: 2px dashed var(--border);">
+                                        <span class="material-icons-outlined" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 16px; display: block;">star_border</span>
+                                        <h6 style="color: var(--text-primary); margin-bottom: 8px;">No Reviews Yet</h6>
+                                        <p style="color: var(--text-secondary); margin-bottom: 16px;">Start giving amazing tours to get reviews and ratings from your customers!</p>
+                                        <small style="color: var(--text-secondary);">Customers can rate you and leave feedback when they modify their bookings.</small>
+                                    </div>
                                 <?php else: ?>
                                     <?php foreach ($reviews as $review): ?>
                                         <div class="review-card">
-                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                                                 <div>
                                                     <h6><?php echo htmlspecialchars($review['first_name'] . ' ' . $review['last_name']); ?></h6>
                                                     <div class="rating-stars">
                                                         <?php for ($i = 1; $i <= 5; $i++): ?>
                                                             <span class="material-icons-outlined"><?php echo $i <= $review['rating'] ? 'star' : 'star_border'; ?></span>
                                                         <?php endfor; ?>
+                                                        <span style="margin-left: 8px; color: var(--text-secondary); font-size: 14px;">
+                                                            (<?php echo $review['rating']; ?>/5)
+                                                        </span>
                                                     </div>
+                                                    <?php if (!empty($review['tour_name']) || !empty($review['destination'])): ?>
+                                                        <div style="margin-top: 4px;">
+                                                            <small style="color: var(--text-secondary);">
+                                                                <span class="material-icons-outlined" style="font-size: 14px; vertical-align: middle;">tour</span>
+                                                                <?php echo htmlspecialchars($review['tour_name'] ?: $review['destination'] ?: 'Tour Experience'); ?>
+                                                            </small>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <small style="color: var(--text-secondary);">
-                                                    <?php echo date('M d, Y', strtotime($review['created_at'])); ?>
+                                                    <?php echo date('M d, Y \a\t h:i A', strtotime($review['created_at'])); ?>
                                                 </small>
                                             </div>
-                                            <p><?php echo htmlspecialchars($review['review']); ?></p>
+                                            <?php if (!empty($review['review_text'])): ?>
+                                                <p style="margin: 8px 0 0 0; line-height: 1.6;"><?php echo htmlspecialchars($review['review_text']); ?></p>
+                                            <?php else: ?>
+                                                <p style="margin: 8px 0 0 0; font-style: italic; color: var(--text-secondary);">
+                                                    <em>No written review provided</em>
+                                                </p>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -973,18 +1147,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
 
                 <!-- Sidebar -->
                 <div>
-                    <div class="profile-card" style="margin-bottom: 24px;">
+                    <div class="profile-card" style="margin-bottom: 24px; padding: 40px 32px;">
                         <h5>Quick Actions</h5>
-                        <div class="d-grid">
-                            <a href="#" class="btn btn-outline-primary">
+                        <div class="d-grid" style="gap: 16px;">
+                            <a href="#" class="quick-actions-btn btn-outline-primary">
                                 <span class="material-icons-outlined">calendar_add</span>
                                 Add Availability
                             </a>
-                            <a href="#" class="btn btn-outline-info">
+                            <a href="#" class="quick-actions-btn btn-outline-info">
                                 <span class="material-icons-outlined">trending_up</span>
                                 View Statistics
                             </a>
-                            <a href="#" class="btn btn-outline-success">
+                            <a href="#" class="quick-actions-btn btn-outline-success">
                                 <span class="material-icons-outlined">mail</span>
                                 Messages
                             </a>
@@ -994,7 +1168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
                     <div class="profile-card">
                         <h5>Profile Summary</h5>
                         <div style="margin-bottom: 16px;">
-                            <strong>License:</strong> <?php echo htmlspecialchars($profile['license_number']); ?>
+                            <strong>Person Name:</strong> <?php echo htmlspecialchars($profile['person_name'] ?? $profile['license_number'] ?? 'Not specified'); ?>
                         </div>
                         <div style="margin-bottom: 16px;">
                             <strong>Specialization:</strong><br>

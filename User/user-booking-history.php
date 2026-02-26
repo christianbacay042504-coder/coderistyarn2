@@ -99,6 +99,138 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// Handle modify booking request (DB)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'modify_booking') {
+    header('Content-Type: application/json');
+
+    $bookingId = intval($_POST['booking_id'] ?? 0);
+    $newDate = $_POST['new_date'] ?? '';
+    $newGuests = intval($_POST['new_guests'] ?? 0);
+    $guideRating = intval($_POST['guide_rating'] ?? 0);
+    $guideReview = $_POST['guide_review'] ?? '';
+
+    // Validate inputs
+    if ($bookingId < 1) {
+        echo json_encode(['success' => false, 'message' => 'Invalid booking ID']);
+        closeDatabaseConnection($conn);
+        exit;
+    }
+
+    if (empty($newDate) || $newGuests < 1 || $newGuests > 30) {
+        echo json_encode(['success' => false, 'message' => 'Invalid date or guest count']);
+        closeDatabaseConnection($conn);
+        exit;
+    }
+
+    // Require rating for booking modification
+    if ($guideRating < 1 || $guideRating > 5) {
+        echo json_encode(['success' => false, 'message' => 'Please provide a rating for the tour guide (1-5 stars)']);
+        closeDatabaseConnection($conn);
+        exit;
+    }
+
+    try {
+        // Check if booking exists and belongs to user (more flexible status check)
+        $checkStmt = $conn->prepare("SELECT id, status FROM bookings WHERE id = ? AND user_id = ?");
+        $checkStmt->bind_param('ii', $bookingId, $_SESSION['user_id']);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows === 0) {
+            echo json_encode(['success' => false, 'message' => 'Booking not found or does not belong to your account']);
+            $checkStmt->close();
+            closeDatabaseConnection($conn);
+            exit;
+        }
+        
+        $bookingData = $checkResult->fetch_assoc();
+        $currentStatus = $bookingData['status'];
+        $checkStmt->close();
+        
+        // Only allow modification for confirmed bookings (or add other statuses as needed)
+        $allowedStatuses = ['confirmed', 'pending'];
+        if (!in_array($currentStatus, $allowedStatuses)) {
+            echo json_encode(['success' => false, 'message' => 'Booking cannot be modified. Current status: ' . $currentStatus]);
+            closeDatabaseConnection($conn);
+            exit;
+        }
+
+        // Calculate new total
+        $guideFee = 2500;
+        $entranceFee = $newGuests * 100;
+        $platformFee = 100;
+        $newTotal = $guideFee + $entranceFee + $platformFee;
+
+        // Update booking (removed status requirement)
+        $updateStmt = $conn->prepare("UPDATE bookings SET booking_date = ?, number_of_people = ?, total_amount = ? WHERE id = ? AND user_id = ?");
+        $updateStmt->bind_param('sidii', $newDate, $newGuests, $newTotal, $bookingId, $_SESSION['user_id']);
+        $updateStmt->execute();
+
+        // Check if update was successful or if data was the same
+        if ($updateStmt->affected_rows > 0) {
+            // Data was actually changed
+            if ($guideRating > 0) {
+                try {
+                    $reviewStmt = $conn->prepare("INSERT INTO guide_reviews (booking_id, user_id, guide_id, rating, review_text, created_at) VALUES (?, ?, (SELECT guide_id FROM bookings WHERE id = ?), ?, ?, NOW())");
+                    if ($reviewStmt) {
+                        $reviewStmt->bind_param('iiisi', $bookingId, $_SESSION['user_id'], $bookingId, $guideRating, $guideReview);
+                        $reviewStmt->execute();
+                        $reviewStmt->close();
+                    }
+                } catch (Exception $reviewEx) {
+                    // Log error but don't fail the main booking update
+                    error_log("Review save error: " . $reviewEx->getMessage());
+                }
+            }
+            
+            echo json_encode(['success' => true, 'message' => 'Booking modification request submitted successfully']);
+        } else {
+            // Check if the booking exists with the same data (no changes needed)
+            $currentDataStmt = $conn->prepare("SELECT booking_date, number_of_people, total_amount FROM bookings WHERE id = ? AND user_id = ?");
+            $currentDataStmt->bind_param('ii', $bookingId, $_SESSION['user_id']);
+            $currentDataStmt->execute();
+            $currentResult = $currentDataStmt->get_result();
+            
+            if ($currentResult->num_rows > 0) {
+                $currentData = $currentResult->fetch_assoc();
+                $currentDataStmt->close();
+                
+                // Check if the data is actually the same
+                if ($currentData['booking_date'] === $newDate && 
+                    $currentData['number_of_people'] == $newGuests && 
+                    $currentData['total_amount'] == $newTotal) {
+                    
+                    // Save review even if no booking changes
+                    if ($guideRating > 0) {
+                        try {
+                            $reviewStmt = $conn->prepare("INSERT INTO guide_reviews (booking_id, user_id, guide_id, rating, review_text, created_at) VALUES (?, ?, (SELECT guide_id FROM bookings WHERE id = ?), ?, ?, NOW())");
+                            if ($reviewStmt) {
+                                $reviewStmt->bind_param('iiisi', $bookingId, $_SESSION['user_id'], $bookingId, $guideRating, $guideReview);
+                                $reviewStmt->execute();
+                                $reviewStmt->close();
+                            }
+                        } catch (Exception $reviewEx) {
+                            error_log("Review save error: " . $reviewEx->getMessage());
+                        }
+                    }
+                    
+                    echo json_encode(['success' => true, 'message' => 'No changes needed - booking already has the requested details']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Unable to update booking. Please try again.']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Booking not found']);
+            }
+        }
+        $updateStmt->close();
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Error modifying booking: ' . $e->getMessage()]);
+    }
+
+    closeDatabaseConnection($conn);
+    exit;
+}
+
 // Fetch bookings for this user
 $userBookings = [];
 if ($conn) {
@@ -568,10 +700,6 @@ if ($conn) {
             .modal-body {
                 padding: 24px;
             }
-            
-            .booking-details-content {
-                gap: 16px;
-            }
         }
 
         /* Logout Modal Styles */
@@ -602,14 +730,9 @@ if ($conn) {
             margin-bottom: 24px;
         }
 
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn-cancel,
-        .btn-confirm-logout {
+        /* Override logout modal specific button styles */
+        .logout-modal .btn-cancel,
+        .logout-modal .btn-confirm-logout {
             padding: 12px 24px;
             border: none;
             border-radius: 8px;
@@ -619,6 +742,335 @@ if ($conn) {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .logout-modal .btn-cancel {
+            background: var(--gray-100);
+            color: var(--text-secondary);
+        }
+
+        .logout-modal .btn-cancel:hover {
+            background: var(--gray-200);
+        }
+
+        .logout-modal .btn-confirm-logout {
+            background: var(--danger);
+            color: white;
+        }
+
+        .logout-modal .btn-confirm-logout:hover {
+            background: #dc2626;
+        }
+
+        .modify-booking-modal .booking-summary h4 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .modify-booking-modal .summary-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .modify-booking-modal .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .modify-booking-modal .summary-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .modify-booking-modal .summary-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .modify-booking-modal .modify-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .modify-booking-modal .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .modify-booking-modal .form-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modify-booking-modal .form-group input,
+        .modify-booking-modal .form-group textarea {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .modify-booking-modal .form-group input:focus,
+        .modify-booking-modal .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modify-booking-modal .price-estimate {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .modify-booking-modal .estimate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .modify-booking-modal .estimate-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 12px 0;
+        }
+
+        .modify-booking-modal .estimate-item.total {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Guide Review Section in Modify Booking Modal */
+        .modify-booking-modal .guide-review-section {
+            background: var(--gray-50);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .modify-booking-modal .rating-section {
+            margin-bottom: 16px;
+        }
+
+        .modify-booking-modal .rating-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modify-booking-modal #modifyRatingStars {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .modify-booking-modal #modifyRatingStars .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modify-booking-modal #modifyRatingStars .star-btn:hover {
+            background: var(--gray-100);
+        }
+
+        .modify-booking-modal #modifyRatingStars .star-btn .material-icons-outlined {
+            font-size: 28px;
+            color: var(--gray-300);
+            transition: color 0.2s;
+        }
+
+        .modify-booking-modal #modifyRatingStars .star-btn.active .material-icons-outlined {
+            color: #ffc107;
+        }
+
+        .modify-booking-modal .review-text-section textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modify-booking-modal .review-text-section textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .review-modal .booking-info-review h4 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .review-modal .review-booking-details {
+            display: grid;
+            gap: 8px;
+        }
+
+        .review-modal .review-booking-details .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+        }
+
+        .review-modal .review-booking-details .material-icons-outlined {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .review-modal .review-form-content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .review-modal .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .review-modal .form-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .review-modal .form-group input,
+        .review-modal .form-group textarea {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .review-modal .form-group input:focus,
+        .review-modal .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .review-modal .rating-stars {
+            display: flex;
+            gap: 8px;
+        }
+
+        .review-modal .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .review-modal .star-btn:hover {
+            background: var(--gray-100);
+        }
+
+        .review-modal .star-btn .material-icons-outlined {
+            font-size: 32px;
+            color: var(--gray-300);
+            transition: color 0.2s;
+        }
+
+        .review-modal .star-btn.active .material-icons-outlined {
+            color: #ffc107;
+        }
+
+        .review-modal .recommend-options {
+            display: flex;
+            gap: 16px;
+        }
+
+        .review-modal .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .review-modal .radio-label:hover {
+            border-color: var(--primary);
+        }
+
+        .review-modal .radio-label input[type="radio"] {
+            display: none;
+        }
+
+        .review-modal .radio-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .review-modal .radio-label input[type="radio"]:checked + .radio-check {
+            border-color: var(--primary);
+        }
+
+        .review-modal .radio-label input[type="radio"]:checked + .radio-check::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .review-modal .radio-label input[type="radio"]:checked ~ span {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Modal Actions Styles */
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+            width: 100%;
+        }
+
+        .btn-cancel,
+        .btn-confirm {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            white-space: nowrap;
         }
 
         .btn-cancel {
@@ -630,13 +1082,29 @@ if ($conn) {
             background: var(--gray-200);
         }
 
-        .btn-confirm-logout {
-            background: var(--danger);
+        .btn-confirm {
+            background: var(--primary);
             color: white;
         }
 
-        .btn-confirm-logout:hover {
-            background: #dc2626;
+        .btn-confirm:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Specific styles for different modal types */
+        .logout-modal .modal-actions {
+            justify-content: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .modify-booking-modal .modal-actions,
+        .review-modal .modal-actions {
+            justify-content: flex-end;
+            margin-top: 16px;
+            padding-top: 0;
+            border-top: none;
         }
     </style>
 </head>
@@ -1032,13 +1500,13 @@ if ($conn) {
                         ` : ''}
                         
                         ${booking.status === 'completed' ? `
-                            <button class="btn-action btn-review" onclick="window.location.href='index.php#guides'">
+                            <button class="btn-action btn-review" onclick="showReviewModal(${booking.id})">
                                 <span class="material-icons-outlined">rate_review</span>
                                 <span>Write a Review</span>
                             </button>
                         ` : ''}
                         ${booking.status === 'confirmed' ? `
-                            <button class="btn-action btn-modify" onclick="modifyBooking('${booking.bookingNumber}')">
+                            <button class="btn-action btn-modify" onclick="modifyBooking(${booking.id})">
                                 <span class="material-icons-outlined">edit</span>
                                 <span>Modify Booking</span>
                             </button>
@@ -1098,8 +1566,279 @@ if ($conn) {
                 });
         }
 
-        function modifyBooking(bookingNumber) {
-            showNotification('Modify booking feature coming soon!', 'info');
+        function modifyBooking(bookingId) {
+            const booking = userBookings.find(b => String(b.id) === String(bookingId));
+            
+            if (!booking) return;
+            
+            const content = `
+                <div class="modify-booking-form">
+                    <div class="booking-summary">
+                        <h4>Current Booking Details</h4>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="summary-label">Reference:</span>
+                                <span class="summary-value">${booking.booking_reference || ('#' + booking.id)}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Guide:</span>
+                                <span class="summary-value">${booking.guide_name || 'Tour Guide'}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Destination:</span>
+                                <span class="summary-value">${booking.destination || booking.tour_name}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="modifyBookingForm" class="modify-form">
+                        <input type="hidden" name="booking_id" value="${booking.id}">
+                        <div class="form-group">
+                            <label for="modifyDate">New Tour Date *</label>
+                            <input type="date" id="modifyDate" name="new_date" required 
+                                   min="${new Date().toISOString().split('T')[0]}"
+                                   value="${booking.booking_date}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="modifyGuests">Number of Guests *</label>
+                            <input type="number" id="modifyGuests" name="new_guests" 
+                                   min="1" max="30" required value="${booking.number_of_people}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Review for the Tour Guide <span style="color: var(--danger);">*</span></label>
+                            <div class="guide-review-section">
+                                <div class="rating-section">
+                                    <label class="rating-label">How was your experience with ${booking.guide_name || 'this guide'}? <span style="color: var(--danger);">*</span></label>
+                                    <div class="rating-stars" id="modifyRatingStars">
+                                        ${[1,2,3,4,5].map(star => `
+                                            <button type="button" class="star-btn" data-rating="${star}" onclick="setModifyRating(${star})">
+                                                <span class="material-icons-outlined">star_border</span>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    <input type="hidden" id="modifyRatingValue" name="guide_rating" value="0">
+                                </div>
+                                <div class="review-text-section">
+                                    <textarea id="modifyReviewText" name="guide_review" rows="3" 
+                                              placeholder="Share your experience with this tour guide (optional)..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="price-estimate">
+                            <div class="estimate-item">
+                                <span>Guide Fee:</span>
+                                <span>₱2,500.00</span>
+                            </div>
+                            <div class="estimate-item">
+                                <span>Entrance Fees:</span>
+                                <span id="entranceEstimate">₱${Number(booking.number_of_people * 100).toLocaleString()}.00</span>
+                            </div>
+                            <div class="estimate-item">
+                                <span>Platform Fee:</span>
+                                <span>₱100.00</span>
+                            </div>
+                            <div class="estimate-divider"></div>
+                            <div class="estimate-item total">
+                                <strong>Estimated Total:</strong>
+                                <strong id="totalEstimate">₱${Number(booking.total_amount).toLocaleString()}.00</strong>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            createModal('modifyBookingModal', 'Modify Booking', content, 'modify-booking-modal');
+            
+            // Update price estimate when guest count changes
+            setTimeout(() => {
+                const guestsInput = document.getElementById('modifyGuests');
+                if (guestsInput) {
+                    guestsInput.addEventListener('input', updatePriceEstimate);
+                }
+            }, 100);
+        }
+        
+        function updatePriceEstimate() {
+            const guests = parseInt(document.getElementById('modifyGuests').value) || 1;
+            const entranceFee = guests * 100;
+            const total = 2500 + entranceFee + 100;
+            
+            const entranceEl = document.getElementById('entranceEstimate');
+            const totalEl = document.getElementById('totalEstimate');
+            
+            if (entranceEl) entranceEl.textContent = `₱${entranceFee.toLocaleString()}.00`;
+            if (totalEl) totalEl.textContent = `₱${total.toLocaleString()}.00`;
+        }
+        
+        function showReviewModal(bookingId) {
+            const booking = userBookings.find(b => String(b.id) === String(bookingId));
+            
+            if (!booking) return;
+            
+            const content = `
+                <div class="review-form">
+                    <div class="booking-info-review">
+                        <h4>Tour Experience</h4>
+                        <div class="review-booking-details">
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">tour</span>
+                                <span>${booking.guide_name || 'Tour Guide'} - ${booking.destination || booking.tour_name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="material-icons-outlined">event</span>
+                                <span>${formatDate(booking.booking_date)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="reviewForm" class="review-form-content">
+                        <div class="form-group">
+                            <label>Overall Rating *</label>
+                            <div class="rating-stars" id="ratingStars">
+                                ${[1,2,3,4,5].map(star => `
+                                    <button type="button" class="star-btn" data-rating="${star}" onclick="setRating(${star})">
+                                        <span class="material-icons-outlined">star</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <input type="hidden" id="ratingValue" name="rating" value="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reviewTitle">Review Title *</label>
+                            <input type="text" id="reviewTitle" name="review_title" required 
+                                   placeholder="Summarize your experience in a few words">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reviewText">Your Review *</label>
+                            <textarea id="reviewText" name="review_text" rows="4" required 
+                                      placeholder="Share your experience with this tour guide... What did you like? What could be improved?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Would you recommend this guide?</label>
+                            <div class="recommend-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="recommend" value="yes" required>
+                                    <span class="radio-check"></span>
+                                    <span>Yes, I would recommend</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="recommend" value="no" required>
+                                    <span class="radio-check"></span>
+                                    <span>No, I would not recommend</span>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            createModal('reviewModal', 'Write a Review', content, 'review-modal');
+        }
+        
+        function setRating(rating) {
+            const stars = document.querySelectorAll('.star-btn');
+            const ratingInput = document.getElementById('ratingValue');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.querySelector('.material-icons-outlined').textContent = 'star';
+                } else {
+                    star.classList.remove('active');
+                    star.querySelector('.material-icons-outlined').textContent = 'star_border';
+                }
+            });
+            
+            ratingInput.value = rating;
+        }
+        
+        function setModifyRating(rating) {
+            const stars = document.querySelectorAll('#modifyRatingStars .star-btn');
+            const ratingInput = document.getElementById('modifyRatingValue');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.querySelector('.material-icons-outlined').textContent = 'star';
+                } else {
+                    star.classList.remove('active');
+                    star.querySelector('.material-icons-outlined').textContent = 'star_border';
+                }
+            });
+            
+            ratingInput.value = rating;
+        }
+        
+        function submitReview() {
+            const form = document.getElementById('reviewForm');
+            if (!form) return;
+            
+            const rating = document.getElementById('ratingValue').value;
+            if (rating === '0') {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            formData.append('action', 'submit_review');
+            formData.append('booking_id', userBookings.find(b => b.id === parseInt(formData.get('booking_id')))?.id);
+            
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Review submitted successfully! Thank you for your feedback.', 'success');
+                    document.querySelector('.modal-overlay').remove();
+                } else {
+                    showNotification(data.message || 'Failed to submit review', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Error submitting review', 'error');
+            });
+        }
+
+        function submitModifyBooking() {
+            const form = document.getElementById('modifyBookingForm');
+            if (!form) return;
+            
+            // Validate rating is selected
+            const rating = document.getElementById('modifyRatingValue').value;
+            if (rating < 1 || rating > 5) {
+                showNotification('Please provide a rating for the tour guide (1-5 stars)', 'error');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            formData.append('action', 'modify_booking');
+            
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    document.querySelector('.modal-overlay').remove();
+                    // Refresh bookings list
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showNotification(data.message || 'Failed to submit modification request', 'error');
+                }
+            })
+            .catch(() => {
+                showNotification('Error submitting modification request', 'error');
+            });
         }
 
         function viewBookingDetails(bookingId) {
@@ -1135,19 +1874,73 @@ if ($conn) {
         function createModal(modalId, title, content, modalClass = '') {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content ${modalClass}">
-                    <div class="modal-header">
-                        <h2>${title}</h2>
-                        <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
-                            <span class="material-icons-outlined">close</span>
-                        </button>
+            
+            // For modify booking modal, we need to place buttons inside the price estimate section
+            if (modalClass === 'modify-booking-modal') {
+                // Find the price estimate section and insert buttons before its closing div
+                const modifiedContent = content.replace(
+                    /(<\/div>\s*<\/form>\s*<\/div>)/,
+                    `</div>
+                        <div class="modal-actions">
+                            <button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                                Cancel
+                            </button>
+                            <button class="btn-confirm" onclick="submitModifyBooking()">
+                                <span class="material-icons-outlined">send</span>
+                                Submit Request
+                            </button>
+                        </div>
+                    $1`
+                );
+                
+                modal.innerHTML = `
+                    <div class="modal-content ${modalClass}">
+                        <div class="modal-header">
+                            <h2>${title}</h2>
+                            <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${modifiedContent}
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        ${content}
+                `;
+            } else {
+                // Handle other modals normally
+                let actionButtons = '';
+                if (modalClass === 'review-modal') {
+                    actionButtons = `
+                        <div class="modal-actions">
+                            <button class="btn-cancel" onclick="this.closest('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                                Cancel
+                            </button>
+                            <button class="btn-confirm" onclick="submitReview()">
+                                <span class="material-icons-outlined">rate_review</span>
+                                Submit Review
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                modal.innerHTML = `
+                    <div class="modal-content ${modalClass}">
+                        <div class="modal-header">
+                            <h2>${title}</h2>
+                            <button class="close-modal" onclick="this.closest('.modal-overlay').remove()">
+                                <span class="material-icons-outlined">close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${content}
+                            ${actionButtons}
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            
             document.body.appendChild(modal);
             setTimeout(() => modal.classList.add('show'), 10);
             

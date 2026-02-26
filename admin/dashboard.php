@@ -238,11 +238,6 @@ if ($conn) {
 
                     <span>User Management</span>
 
-                    <?php if ($totalUsers > 0): ?>
-
-                        <span class="badge"><?php echo $totalUsers; ?></span>
-
-                    <?php endif; ?>
 
                 </a>
 
@@ -364,19 +359,7 @@ if ($conn) {
 
                 </div>
 
-                
-
                 <div class="top-bar-actions">
-
-                    <button class="icon-btn" title="Notifications">
-
-                        <span class="material-icons-outlined">notifications</span>
-
-                        <span class="badge"><?php echo $totalBookings > 0 ? $totalBookings : ''; ?></span>
-
-                    </button>
-
-                    
 
                     <!-- Admin Profile Dropdown -->
 
@@ -436,7 +419,7 @@ if ($conn) {
 
                             </a>
 
-                            <a href="logout.php" class="dropdown-item" id="adminSignoutLink">
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink" onclick="openSignOutModal()">
 
                                 <span class="material-icons-outlined">logout</span>
 
@@ -816,39 +799,50 @@ if ($conn) {
         </div>
     </div>
 
-    <!-- Sign Out Confirmation Modal -->
-    <div id="signOutModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Sign Out</h2>
-                <button class="modal-close" onclick="closeSignOutModal()">
-                    <span class="material-icons-outlined">close</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="signout-content">
-                    <div class="signout-icon">
-                        <span class="material-icons-outlined">logout</span>
-                    </div>
-                    <div class="signout-message">
-                        <h3>Are you sure you want to sign out?</h3>
-                        <p>You will be logged out of the admin panel and redirected to the login page.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeSignOutModal()">Cancel</button>
-                <button type="button" class="btn-primary" onclick="confirmSignOut()">Sign Out</button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- JavaScript -->
-
     <script src="admin-script.js"></script>
 
     <script src="admin-profile-dropdown.js"></script>
+
+    <script>
+        // Sign Out Modal Functions
+        function openSignOutModal() {
+            const modal = document.getElementById('signOutModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+
+        function closeSignOutModal() {
+            const modal = document.getElementById('signOutModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+                document.body.style.overflow = 'auto'; // Restore background scrolling
+            }
+        }
+
+        function confirmSignOut() {
+            // Redirect to logout page
+            window.location.href = 'logout.php';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('signOutModal');
+            if (event.target == modal) {
+                closeSignOutModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSignOutModal();
+            }
+        });
+    </script>
 
     <style>
         /* Enhanced Stats Cards */
@@ -1142,6 +1136,128 @@ if ($conn) {
             .signout-message p {
                 font-size: 13px;
             }
+        }
+    </style>
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .modal-footer {
+            padding: 24px 32px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
     </style>
     <style>

@@ -3,6 +3,14 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
+// Load SMTP configuration FIRST
+require_once __DIR__ . '/config/smtp.php';
+
+// Force environment variables to be reloaded
+putenv('SMTP_USERNAME=jeanmarcaguilar829@gmail.com');
+putenv('SMTP_PASSWORD=rqulwmjxdtzmxfli');
+putenv('SMTP_FROM_EMAIL=jeanmarcaguilar829@gmail.com');
+
 // Get logo file content and convert to base64
 $logoPath = __DIR__ . '/lgo.png';
 $logoData = file_get_contents($logoPath);
@@ -36,9 +44,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // Store OTP in database
                 $storeResult = storeOtpCode($result['user_id'] ?? getCurrentUserId(), $email, $otpCode, 'login');
                 
+                // Debug logging
+                error_log("Login Debug: User ID = " . ($result['user_id'] ?? 'null'));
+                error_log("Login Debug: OTP Storage Result = " . print_r($storeResult, true));
+                error_log("Login Debug: SMTP Username = jeanmarcaguilar829@gmail.com (hardcoded)");
+                error_log("Login Debug: SMTP Password Length = 16 (hardcoded)");
+                
                 if ($storeResult['success']) {
                     // Send OTP email
                     $emailResult = sendLoginOtpEmail($email, $otpCode);
+                    
+                    // Debug logging
+                    error_log("Login Debug: Email Result = " . print_r($emailResult, true));
                     
                     if ($emailResult['success']) {
                         header('Content-Type: application/json');

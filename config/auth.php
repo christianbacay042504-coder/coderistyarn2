@@ -1355,7 +1355,7 @@ function requireTourGuide() {
 
 
 
-function registerTourGuide($firstName, $lastName, $email, $password, $licenseNumber, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio) {
+function registerTourGuide($firstName, $lastName, $email, $password, $personName, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio) {
 
 
 
@@ -1519,11 +1519,11 @@ function registerTourGuide($firstName, $lastName, $email, $password, $licenseNum
 
 
 
-        $guideStmt = $conn->prepare("INSERT INTO tour_guides (user_id, license_number, specialization, experience_years, languages, hourly_rate, contact_number, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $guideStmt = $conn->prepare("INSERT INTO tour_guides (user_id, person_name, specialization, experience_years, languages, hourly_rate, contact_number, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
 
 
-        $guideStmt->bind_param("issisids", $userId, $licenseNumber, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio);
+        $guideStmt->bind_param("issisids", $userId, $personName, $specialization, $experienceYears, $languages, $hourlyRate, $contactNumber, $bio);
 
 
 
@@ -1734,15 +1734,15 @@ function sendLoginOtpEmail($toEmail, $code) {
         require_once __DIR__ . '/smtp.php';
         
         $mail->isSMTP();
-        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
-        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
-        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
-        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Username = 'jeanmarcaguilar829@gmail.com';
+        $mail->Password = 'rqulwmjxdtzmxfli';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = getenv('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         
         // Email content
-        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'jeanmarcaguilar829@gmail.com', getenv('SMTP_FROM_NAME') ?: 'SJDM Tours');
         $mail->addAddress($toEmail);
         $mail->isHTML(true);
         $mail->Subject = 'Your SJDM Tours Login Verification Code';
@@ -2038,15 +2038,15 @@ function sendBookingStatusUpdateEmail($toEmail, $bookingData, $status) {
         require_once __DIR__ . '/smtp.php';
         
         $mail->isSMTP();
-        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
-        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
-        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
-        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Username = 'jeanmarcaguilar829@gmail.com';
+        $mail->Password = 'rqulwmjxdtzmxfli';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = getenv('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         
         // Email content
-        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'jeanmarcaguilar829@gmail.com', getenv('SMTP_FROM_NAME') ?: 'SJDM Tours');
         $mail->addAddress($toEmail);
         $mail->isHTML(true);
         
@@ -2193,15 +2193,15 @@ function sendBookingRejectionEmail($toEmail, $bookingData, $rejectionReason) {
         require_once __DIR__ . '/smtp.php';
         
         $mail->isSMTP();
-        $mail->Host = readEnvValue('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = readEnvValue('SMTP_USERNAME') ?: 'sjdmbulacanlgu@gmail.com';
-        $mail->Password = readEnvValue('SMTP_PASSWORD') ?: 'hdzszfxiqekenxlb';
-        $mail->Port = readEnvValue('SMTP_PORT') ?: 587;
-        $mail->SMTPSecure = readEnvValue('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Username = 'jeanmarcaguilar829@gmail.com';
+        $mail->Password = 'rqulwmjxdtzmxfli';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = getenv('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         
         // Email content
-        $mail->setFrom(readEnvValue('SMTP_FROM_EMAIL') ?: 'sjdmbulacanlgu@gmail.com', readEnvValue('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'jeanmarcaguilar829@gmail.com', getenv('SMTP_FROM_NAME') ?: 'SJDM Tours');
         $mail->addAddress($toEmail);
         $mail->isHTML(true);
         

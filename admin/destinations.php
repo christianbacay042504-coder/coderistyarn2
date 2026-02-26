@@ -914,6 +914,35 @@ if ($result) {
 
 }
 
+// Group spots by category and get unique categories for filtering
+
+$categories = array_unique(array_column($spots, 'category'));
+
+sort($categories);
+
+// Helper function to get category icons
+
+function getCategoryIcon($category) {
+
+    $icons = [
+
+        'nature' => 'forest',
+
+        'historical' => 'account_balance',
+
+        'religious' => 'church',
+
+        'farm' => 'agriculture',
+
+        'park' => 'park',
+
+        'urban' => 'location_city'
+
+    ];
+
+    return $icons[strtolower($category)] ?? 'place';
+
+}
 
 
 // Create pagination data for display
@@ -1023,16 +1052,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="admin-container">
 
         <!-- Sidebar -->
-
-        <aside class="sidebar">
+       <aside class="sidebar">
 
             <div class="sidebar-header">
 
-                <div class="logo">
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
 
-                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1) ?: 'A'); ?></div>
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
 
-                    <span><?php echo $logoText; ?></span>
+                    <span>SJDM ADMIN</span>
 
                 </div>
 
@@ -1272,7 +1300,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </div>
 
+                
 
+                <!-- Category Filter Buttons -->
+
+                <div class="category-filters">
+
+                    <button class="category-btn active" onclick="showCategory('all')" data-category="all">
+
+                        <span class="material-icons-outlined">apps</span>
+
+                        All Destinations
+
+                        <span class="category-count"><?php echo count($spots); ?></span>
+
+                    </button>
+
+                    <?php foreach ($categories as $category): ?>
+
+                        <button class="category-btn" onclick="showCategory('<?php echo strtolower($category); ?>')" data-category="<?php echo strtolower($category); ?>">
+
+                            <span class="material-icons-outlined"><?php echo getCategoryIcon($category); ?></span>
+
+                            <?php echo ucfirst($category); ?>
+
+                            <span class="category-count"><?php echo count(array_filter($spots, fn($s) => strtolower($s['category']) === strtolower($category))); ?></span>
+
+                        </button>
+
+                    <?php endforeach; ?>
+
+                </div>
 
                 <!-- Destinations Table -->
 
@@ -1308,7 +1366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             <?php foreach ($spots as $spot): ?>
 
-                                <tr>
+                                <tr data-category="<?php echo strtolower($spot['category']); ?>">
 
                                     <td>
 
@@ -2792,45 +2850,153 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
 
+        .category-filters {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-bottom: 24px;
+
+            flex-wrap: wrap;
+
+            align-items: center;
+
+        }
+
+        .category-btn {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 10px 16px;
+
+            border: 2px solid var(--border-color);
+
+            background: white;
+
+            border-radius: 12px;
+
+            cursor: pointer;
+
+            transition: all 0.2s ease;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: var(--text-secondary);
+
+        }
+
+        .category-btn:hover {
+
+            border-color: var(--primary);
+
+            background: rgba(59, 130, 246, 0.05);
+
+            color: var(--primary);
+
+        }
+
+        .category-btn.active {
+
+            background: var(--primary);
+
+            border-color: var(--primary);
+
+            color: white;
+
+        }
+
+        .category-btn .material-icons-outlined {
+
+            font-size: 18px;
+
+        }
+
+        .category-count {
+
+            background: rgba(0, 0, 0, 0.1);
+
+            color: var(--text-secondary);
+
+            padding: 2px 6px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            min-width: 20px;
+
+            text-align: center;
+
+        }
+
+        .category-btn.active .category-count {
+
+            background: rgba(255, 255, 255, 0.2);
+
+            color: white;
+
+        }
+
+        tr[data-category].hidden {
+
+            display: none;
+
+        }
+
     </style>
 
     <script>
 
-        function searchDestinations() {
-
-            const searchValue = document.getElementById('searchInput').value;
-
-            window.location.href = `?search=${encodeURIComponent(searchValue)}`;
-
+        function showCategory(category) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            document.querySelector(`[data-category="${category}"]`).classList.add('active');
+            
+            // Show/hide rows based on category
+            document.querySelectorAll('tr[data-category]').forEach(row => {
+                if (category === 'all') {
+                    row.classList.remove('hidden');
+                } else {
+                    const rowCategory = row.getAttribute('data-category');
+                    if (rowCategory === category) {
+                        row.classList.remove('hidden');
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                }
+            });
         }
 
-
+        function searchDestinations() {
+            const searchValue = document.getElementById('searchInput').value;
+            window.location.href = `?search=${encodeURIComponent(searchValue)}`;
+        }
 
         function clearSearch() {
-
             document.getElementById('searchInput').value = '';
-
             window.location.href = '?';
-
         }
-
-
 
         function goToPage(page) {
-
             const searchValue = document.getElementById('searchInput').value;
-
             const url = searchValue ? `?page=${page}&search=${encodeURIComponent(searchValue)}` : `?page=${page}`;
-
             window.location.href = url;
-
         }
 
-
-
         let currentViewSpotId = null;
-
-
 
         function showSuccessAnimation(title, message) {
 

@@ -109,7 +109,7 @@ function getRegistrationsList($conn, $page = 1, $limit = 15, $search = '')
     $search = $conn->real_escape_string($search);
 
     // Get registrations with pagination
-    $registrationsQuery = "SELECT * FROM registration_tour_guide WHERE 1=1";
+    $registrationsQuery = "SELECT r.*, u.id as user_id, tg.name as guide_name, tg.specialty as guide_specialty, tg.experience_years as guide_experience, tg.contact_number as guide_contact, tg.bio as guide_bio FROM registration_tour_guide r LEFT JOIN users u ON r.email COLLATE utf8mb4_unicode_ci = u.email COLLATE utf8mb4_unicode_ci LEFT JOIN tour_guides tg ON u.id = tg.user_id WHERE 1=1";
     
     if ($search) {
         $registrationsQuery .= " AND (last_name LIKE '%$search%' OR first_name LIKE '%$search%' OR email LIKE '%$search%' OR specialization LIKE '%$search%')";
@@ -663,12 +663,18 @@ $queryValues = [
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+       <aside class="sidebar">
+
             <div class="sidebar-header">
-                <div class="logo">
-                    <div class="mark-icon"><?php echo strtoupper(substr($logoText, 0, 1)) ?: 'A'; ?></div>
-                    <span><?php echo $logoText; ?></span>
+
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+
+                    <span>SJDM ADMIN</span>
+
                 </div>
+
             </div>
             
             <nav class="sidebar-nav">
@@ -815,7 +821,15 @@ $queryValues = [
                             <?php foreach ($registrations as $registration): ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($registration['last_name'] . ', ' . $registration['first_name'] . ' ' . $registration['middle_initial']); ?></strong>
+                                        <strong>
+                                            <?php 
+                                            if (!empty($registration['guide_name'])):
+                                                echo htmlspecialchars($registration['guide_name']);
+                                            else:
+                                                echo htmlspecialchars($registration['last_name'] . ', ' . $registration['first_name'] . ' ' . $registration['middle_initial']);
+                                            endif;
+                                            ?>
+                                        </strong>
                                     </td>
                                     <td>
                                         <?php echo htmlspecialchars($registration['gender']); ?>
@@ -827,7 +841,13 @@ $queryValues = [
                                         <?php echo htmlspecialchars($registration['primary_phone']); ?>
                                     </td>
                                     <td>
-                                        <?php echo htmlspecialchars($registration['specialization']); ?>
+                                        <?php 
+                                        if (!empty($registration['guide_specialty'])):
+                                            echo htmlspecialchars($registration['guide_specialty']);
+                                        else:
+                                            echo htmlspecialchars($registration['specialization']);
+                                        endif;
+                                        ?>
                                     </td>
                                     <td>
                                         <span class="status-badge status-<?php echo $registration['status']; ?>">
@@ -1272,7 +1292,7 @@ $queryValues = [
                     <div style="margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
                         <div style="display: flex; align-items: center; margin-bottom: 20px;">
                             <div style="width: 80px; height: 80px; margin: 0 auto; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">
-                                ${(registration.first_name || '') + (registration.last_name || '') ? (registration.first_name || '').charAt(0) + (registration.last_name || '').charAt(0) : '?'}
+                                ${(registration.guide_name || registration.first_name || '') ? (registration.guide_name || (registration.first_name || '') + ' ' + (registration.last_name || '')).charAt(0) : '?'}
                             </div>
                         </div>
                         
@@ -1280,7 +1300,7 @@ $queryValues = [
                         <h4 style="margin: 20px 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px;">Personal Information</h4>
                         <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                             <span style="font-weight: 700; color: #495057;">Full Name:</span>
-                            <span style="font-weight: 500; color: #212529;">${(registration.last_name || '') + ', ' + (registration.first_name || '') + ' ' + (registration.middle_initial || '')}</span>
+                            <span style="font-weight: 500; color: #212529;">${registration.guide_name || (registration.last_name || '') + ', ' + (registration.first_name || '') + ' ' + (registration.middle_initial || '')}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                             <span style="font-weight: 700; color: #495057;">Preferred Name:</span>
@@ -1341,7 +1361,7 @@ $queryValues = [
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                             <span style="font-weight: 700; color: #495057;">Specialization:</span>
-                            <span style="font-weight: 500; color: #212529;">${registration.specialization || 'Not provided'}</span>
+                            <span style="font-weight: 500; color: #212529;">${registration.guide_specialty || registration.specialization || 'Not provided'}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #e9ecef;">
                             <span style="font-weight: 700; color: #495057;">Years of Experience:</span>

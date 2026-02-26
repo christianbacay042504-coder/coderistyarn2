@@ -440,6 +440,56 @@ class AdminDashboard {
 
 
 
+    populateModal(modalId, data) {
+
+        if (modalId === 'editUserModal') {
+
+            document.getElementById('editUserId').value = data.id;
+
+            document.getElementById('editFirstName').value = data.first_name;
+
+            document.getElementById('editLastName').value = data.last_name;
+
+            document.getElementById('editEmail').value = data.email;
+
+            document.getElementById('editStatus').value = data.status;
+
+        } else if (modalId === 'viewUserModal') {
+
+            document.getElementById('viewUserName').textContent = `${data.first_name} ${data.last_name}`;
+
+            document.getElementById('viewUserEmail').textContent = data.email;
+
+            document.getElementById('viewUserStatus').textContent = data.status;
+
+            document.getElementById('viewUserStatus').className = `status-badge status-${data.status}`;
+
+            document.getElementById('viewUserId').textContent = data.id;
+
+            document.getElementById('viewUserFirstName').textContent = data.first_name;
+
+            document.getElementById('viewUserLastName').textContent = data.last_name;
+
+            document.getElementById('viewUserEmailDetail').textContent = data.email;
+
+            document.getElementById('viewUserStatusDetail').textContent = data.status;
+
+            document.getElementById('viewUserType').textContent = data.user_type || 'user';
+
+            document.getElementById('viewUserBookings').textContent = data.total_bookings || 0;
+
+            document.getElementById('viewUserSpent').textContent = `₱${number_format(data.total_spent || 0, 2)}`;
+
+            document.getElementById('viewUserJoined').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString() : '-';
+
+            document.getElementById('viewUserLastLogin').textContent = data.last_login ? new Date(data.last_login).toLocaleString() : '-';
+
+        }
+
+    }
+
+
+
     setupForms() {
 
         // Add User Form
