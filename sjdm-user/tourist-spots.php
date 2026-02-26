@@ -1470,17 +1470,9 @@ if ($conn && $isLoggedIn) {
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="book.php" class="nav-link">
-                        <span class="material-icons-outlined">event</span>
-                        <span>Book Now</span>
-                    </a>
                     <a href="javascript:void(0)" class="nav-link active">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
-                    </a>
-                    <a href="booking-history.php" class="nav-link">
-                        <span class="material-icons-outlined">history</span>
-                        <span>Booking History</span>
                     </a>
                     <a href="local-culture.php" class="nav-link">
                         <span class="material-icons-outlined">theater_comedy</span>
@@ -1512,10 +1504,6 @@ if ($conn && $isLoggedIn) {
                                 <span class="material-icons-outlined">dashboard</span>
                                 <span>Dashboard</span>
                             </a>
-                            <a href="javascript:void(0)" class="dropdown-item" onclick="showBookingHistoryModal()">
-                                <span class="material-icons-outlined">history</span>
-                                <span>Booking History</span>
-                            </a>
                             <a href="saved-tours.php" class="dropdown-item">
                                 <span class="material-icons-outlined">favorite</span>
                                 <span>Saved Tours</span>
@@ -1528,7 +1516,7 @@ if ($conn && $isLoggedIn) {
                         </div>
                     </div>
                     <?php else: ?>
-                    <button class="btn-signin" onclick="window.location.href='../log-in/log-in.php'">Sign in/register</button>
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                     <?php endif; ?>
                 </div>
             </div>

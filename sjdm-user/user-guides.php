@@ -1398,14 +1398,6 @@ if ($conn) {
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="booka.php" class="nav-link">
-                        <span class="material-icons-outlined">event</span>
-                        <span>Book Now</span>
-                    </a>
-                    <a href="booking-history.php" class="nav-link">
-                        <span class="material-icons-outlined">history</span>
-                        <span>Booking History</span>
-                    </a>
                     <a href="tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
@@ -1438,10 +1430,6 @@ if ($conn) {
                                 <a href="index.php" class="dropdown-item">
                                     <span class="material-icons-outlined">dashboard</span>
                                     <span>Dashboard</span>
-                                </a>
-                                <a href="#" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
-                                    <span class="material-icons-outlined">history</span>
-                                    <span>Booking History</span>
                                 </a>
                                 <a href="saved-tours.php" class="dropdown-item">
                                     <span class="material-icons-outlined">favorite</span>

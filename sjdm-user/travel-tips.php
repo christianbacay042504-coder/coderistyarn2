@@ -8,23 +8,13 @@ require_once '../config/auth.php';
 
 
 
-// Check if user is logged in
+// Get current user data (optional - for logged in users)
 
-if (!isset($_SESSION['user_id'])) {
-
-    header('Location: ../log-in/log-in.php');
-
-    exit();
-
-}
-
-
-
-// Get current user data
+$currentUser = [];
 
 $conn = getDatabaseConnection();
 
-if ($conn) {
+if ($conn && isset($_SESSION['user_id'])) {
 
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
 
@@ -1026,21 +1016,6 @@ if ($conn) {
 
             </div>
 
-            <div class="header-right">
-
-                <nav class="header-nav">
-
-                    <a href="../index.php" class="nav-link active">
-
-                        <span class="material-icons-outlined">home</span>
-
-                        <span>Home</span>
-
-                    </a>
-
-                </nav>
-
-            </div>
 
             <div class="header-right">
 
@@ -1096,40 +1071,8 @@ if ($conn) {
 
                 </nav>
               <div class="header-actions">
-                    <div class="user-profile-dropdown">
-                        <button class="profile-trigger">
-                            <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
-                            <span class="profile-name"><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest'; ?></span>
-                            <span class="material-icons-outlined">expand_more</span>
-                        </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-header">
-                                <div class="profile-avatar large"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
-                                <div class="profile-details">
-                                    <h4><?php echo isset($currentUser['name']) ? htmlspecialchars($currentUser['name']) : 'Guest'; ?></h4>
-                                    <p><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'guest@example.com'; ?></p>
-                                </div>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <a href="index.php" class="dropdown-item">
-                                <span class="material-icons-outlined">dashboard</span>
-                                <span>Dashboard</span>
-                            </a>
-                            <a href="booking-history.php" class="dropdown-item">
-                                <span class="material-icons-outlined">history</span>
-                                <span>Booking History</span>
-                            </a>
-                            <a href="saved-tours.php" class="dropdown-item">
-                                <span class="material-icons-outlined">favorite</span>
-                                <span>Saved Tours</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="logout.php" class="dropdown-item">
-                                <span class="material-icons-outlined">logout</span>
-                                <span>Sign Out</span>
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Sign In Button for Guests -->
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                 </div>
             </div>
         </header>

@@ -1904,14 +1904,6 @@ $logoMime = 'image/png';
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
                     </a>
-                    <a href="book.php" class="nav-link">
-                        <span class="material-icons-outlined">event</span>
-                        <span>Book Now</span>
-                    </a>
-                    <a href="booking-history.php" class="nav-link">
-                        <span class="material-icons-outlined">history</span>
-                        <span>Booking History</span>
-                    </a>
                     <a href="tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
@@ -1926,44 +1918,8 @@ $logoMime = 'image/png';
                     </a>
                 </nav>
                 <div class="header-actions">
-                    <?php if ($isLoggedIn): ?>
-                        <div class="user-profile-dropdown">
-                            <button class="profile-trigger" onclick="toggleDropdown(this)">
-                                <div class="profile-avatar"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
-                                <span class="profile-name"><?php echo htmlspecialchars($currentUser['name']); ?></span>
-                                <span class="material-icons-outlined">arrow_drop_down</span>
-                            </button>
-                            
-                            <div class="dropdown-menu">
-                                <div class="dropdown-header">
-                                    <div class="profile-avatar-large"><?php echo isset($currentUser['name']) ? strtoupper(substr($currentUser['name'], 0, 1)) : 'U'; ?></div>
-                                    <h4><?php echo htmlspecialchars($currentUser['name']); ?></h4>
-                                    <p><?php echo htmlspecialchars($currentUser['email']); ?></p>
-                                </div>
-                                <div class="dropdown-divider"></div>
-                                <a href="index.php" class="dropdown-item">
-                                    <span class="material-icons-outlined">dashboard</span>
-                                    <span>Dashboard</span>
-                                </a>
-                                <a href="#" class="dropdown-item" onclick="openBookingHistoryModal(); return false;">
-                                    <span class="material-icons-outlined">history</span>
-                                    <span>Booking History</span>
-                                </a>
-                                <a href="saved-tours.php" class="dropdown-item">
-                                    <span class="material-icons-outlined">favorite</span>
-                                    <span>Saved Tours</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="logout.php" class="dropdown-item">
-                                    <span class="material-icons-outlined">logout</span>
-                                    <span>Sign Out</span>
-                                </a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <!-- Sign In Button for Guests -->
-                        <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
-                    <?php endif; ?>
+                    <!-- Sign In Button for Guests -->
+                    <button class="btn-signin" onclick="window.location.href='../log-in.php'">Sign in/register</button>
                 </div>
             </div>
         </header>

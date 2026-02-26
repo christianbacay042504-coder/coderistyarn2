@@ -300,14 +300,6 @@ if ($conn && isset($_SESSION['user_id'])) {
             </div>
             <div class="header-right">
                 <nav class="header-nav">
-                    <a href="../index.php" class="nav-link active">
-                        <span class="material-icons-outlined">home</span>
-                        <span>Home</span>
-                    </a>
-                </nav>
-            </div>
-            <div class="header-right">
-                <nav class="header-nav">
                     <a href="index.php" class="nav-link">
                         <span class="material-icons-outlined">dashboard</span>
                         <span>Dashboard</span>
@@ -315,10 +307,6 @@ if ($conn && isset($_SESSION['user_id'])) {
                     <a href="user-guides.php" class="nav-link">
                         <span class="material-icons-outlined">people</span>
                         <span>Tour Guides</span>
-                    </a>
-                    <a href="book.php" class="nav-link">
-                        <span class="material-icons-outlined">event</span>
-                        <span>Book Now</span>
                     </a>
                     <a href="tourist-spots.php" class="nav-link">
                         <span class="material-icons-outlined">place</span>
