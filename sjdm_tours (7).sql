@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 25, 2026 at 02:33 AM
+-- Generation Time: Feb 26, 2026 at 05:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,18 +45,8 @@ CREATE TABLE `admin_activity` (
 INSERT INTO `admin_activity` (`id`, `admin_id`, `action`, `module`, `description`, `ip_address`, `user_agent`, `created_at`) VALUES
 (1, 1, 'LOGIN', 'auth', 'Super admin logged in', '192.168.1.1', NULL, '2026-02-05 00:00:00'),
 (2, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '192.168.1.1', NULL, '2026-02-05 00:05:00'),
-(3, 6, 'LOGIN', 'auth', 'Dashboard admin logged in', '192.168.1.2', NULL, '2026-02-05 01:00:00'),
-(4, 6, 'CREATE', 'users', 'Created new user account', '192.168.1.2', NULL, '2026-02-05 01:30:00'),
-(5, 7, 'LOGIN', 'auth', 'User admin logged in', '192.168.1.3', NULL, '2026-02-05 02:00:00'),
-(6, 7, 'UPDATE', 'bookings', 'Updated booking status', '192.168.1.3', NULL, '2026-02-05 02:15:00'),
 (7, 1, 'LOGOUT', 'auth', 'Super admin logged out', '192.168.1.1', NULL, '2026-02-05 09:00:00'),
-(8, 6, 'LOGOUT', 'auth', 'Dashboard admin logged out', '192.168.1.2', NULL, '2026-02-05 09:30:00'),
-(9, 8, 'LOGIN', 'auth', 'Content admin logged in', '192.168.1.4', NULL, '2026-02-05 03:00:00'),
-(10, 8, 'ACCESS', 'content', 'Content admin accessed dashboard', '192.168.1.4', NULL, '2026-02-05 03:05:00'),
-(11, 8, 'UPDATE', 'destinations', 'Updated destination content', '192.168.1.4', NULL, '2026-02-05 06:00:00'),
-(12, 8, 'UPDATE', 'hotels', 'Updated hotel information', '192.168.1.4', NULL, '2026-02-05 07:30:00'),
 (13, 1, 'LOGOUT', 'auth', 'Super admin logged out', '192.168.1.1', NULL, '2026-02-05 10:00:00'),
-(14, 8, 'LOGOUT', 'auth', 'Content admin logged out', '192.168.1.4', NULL, '2026-02-05 10:30:00'),
 (15, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 08:24:49'),
 (16, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 09:38:48'),
 (17, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-06 12:00:24'),
@@ -197,7 +187,70 @@ INSERT INTO `admin_activity` (`id`, `admin_id`, `action`, `module`, `description
 (152, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-23 21:32:43'),
 (153, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-24 01:36:57'),
 (154, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-24 02:41:45'),
-(155, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-24 04:13:47');
+(155, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-24 04:13:47'),
+(156, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:22:09'),
+(157, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:32:14'),
+(158, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:32:18'),
+(159, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:32:22'),
+(160, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:34:18'),
+(161, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 02:56:50'),
+(162, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 03:01:10'),
+(163, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 12:11:18'),
+(164, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:26:58'),
+(165, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:27:09'),
+(166, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:28:36'),
+(167, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:28:37'),
+(168, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:29:56'),
+(169, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:30:27'),
+(170, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:31:54'),
+(171, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:32:00'),
+(172, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:32:59'),
+(173, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:33:08'),
+(174, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:37:58'),
+(175, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:38:03'),
+(176, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:39:37'),
+(177, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:47:09'),
+(178, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:47:15'),
+(179, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:47:30'),
+(180, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:52:08'),
+(181, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:52:24'),
+(182, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:52:28'),
+(183, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:52:52'),
+(184, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 14:53:23'),
+(185, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:05:55'),
+(186, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:06:29'),
+(187, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:06:41'),
+(188, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:06:43'),
+(189, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:06:43'),
+(190, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:19:48'),
+(191, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:22:53'),
+(192, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:25:09'),
+(193, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:38:56'),
+(194, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:39:29'),
+(195, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:42:52'),
+(196, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:42:59'),
+(197, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:44:35'),
+(198, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:44:57'),
+(199, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:46:50'),
+(200, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:52:20'),
+(201, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:54:57'),
+(202, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:55:25'),
+(203, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:55:28'),
+(204, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 15:59:19'),
+(205, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 16:00:54'),
+(206, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 16:09:09'),
+(207, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 16:09:22'),
+(208, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 17:44:25'),
+(209, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 18:08:11'),
+(210, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 18:11:09'),
+(211, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-25 18:11:10'),
+(212, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 11:01:29'),
+(213, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 11:01:35'),
+(214, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 11:01:42'),
+(215, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 15:22:33'),
+(216, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 15:22:53'),
+(217, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 15:23:24'),
+(218, 1, 'ACCESS', 'dashboard', 'Admin accessed dashboard', '::1', NULL, '2026-02-26 15:27:54');
 
 -- --------------------------------------------------------
 
@@ -370,10 +423,7 @@ CREATE TABLE `admin_users` (
 --
 
 INSERT INTO `admin_users` (`id`, `user_id`, `admin_mark`, `role_title`, `permissions`, `created_at`, `updated_at`) VALUES
-(1, 1, 'ADMIN', 'Super Administrator', 'all', '2026-02-06 08:07:12', '2026-02-06 08:07:12'),
-(6, 6, 'ADMIN_DASH', 'Dashboard Administrator', 'dashboard,analytics,reports', '2026-02-06 08:07:12', '2026-02-06 08:07:12'),
-(7, 7, 'ADMIN_USER', 'User Administrator', 'users,bookings,guides', '2026-02-06 08:07:12', '2026-02-06 08:07:12'),
-(8, 8, 'ADMIN_CONT', 'Content Administrator', 'destinations,hotels,content', '2026-02-06 08:07:12', '2026-02-06 08:07:12');
+(1, 1, 'ADMIN', 'Super Administrator', 'all', '2026-02-06 08:07:12', '2026-02-06 08:07:12');
 
 -- --------------------------------------------------------
 
@@ -431,7 +481,8 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `guide_id`, `tour_name`, `destination`, `booking_date`, `check_in_date`, `check_out_date`, `number_of_people`, `contact_number`, `email`, `special_requests`, `rejection_notes`, `total_amount`, `payment_method`, `status`, `booking_reference`, `created_at`, `updated_at`) VALUES
-(47, 40, 17, 'Tungtong Falls', 'Tungtong Falls', '2026-02-27', NULL, NULL, 13, '09705667137', 'jeanmarcaguilar829@gmail.com', 'Special', NULL, 4100.00, 'pay_later', 'pending', 'SJDM-71953583', '2026-02-24 17:19:43', '2026-02-24 17:19:43');
+(48, 40, 27, 'Tungtong Falls', 'Tungtong Falls', '2026-02-27', NULL, NULL, 7, '09705667137', 'jeanmarcaguilar829@gmail.com', 'Special', NULL, 3300.00, 'pay_later', 'confirmed', 'SJDM-72119657', '2026-02-26 15:27:37', '2026-02-26 16:15:00'),
+(49, 40, 27, 'The Rising Heart', 'The Rising Heart', '2026-02-28', NULL, NULL, 1, '24234234234242', 'jeanmarcaguilar829@gmail.com', 'special', NULL, 2900.00, 'pay_later', 'cancelled', 'SJDM-72120813', '2026-02-26 15:46:53', '2026-02-26 15:51:17');
 
 -- --------------------------------------------------------
 
@@ -491,6 +542,30 @@ CREATE TABLE `guide_destinations` (
   `destination_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `guide_reviews`
+--
+
+CREATE TABLE `guide_reviews` (
+  `id` int(11) NOT NULL,
+  `booking_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `guide_id` int(11) NOT NULL,
+  `rating` int(11) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `review_text` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `guide_reviews`
+--
+
+INSERT INTO `guide_reviews` (`id`, `booking_id`, `user_id`, `guide_id`, `rating`, `review_text`, `created_at`, `updated_at`) VALUES
+(1, 48, 40, 27, 5, '0', '2026-02-26 16:20:04', '2026-02-26 16:20:04');
 
 -- --------------------------------------------------------
 
@@ -645,124 +720,23 @@ CREATE TABLE `login_activity` (
 --
 
 INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user_agent`, `status`) VALUES
-(0, 4, '2026-02-06 08:23:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(1, 4, '2026-02-05 01:00:00', '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'success'),
-(2, 5, '2026-02-05 02:30:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success'),
 (3, 1, '2026-02-05 03:15:00', '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15', 'success'),
-(4, 4, '2026-02-05 06:20:00', '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'success'),
-(5, 5, '2026-02-05 08:45:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success'),
 (6, 1, '2026-02-04 00:00:00', '192.168.1.102', 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15', 'success'),
-(7, 4, '2026-02-04 07:30:00', '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', 'failed'),
-(8, 5, '2026-02-03 04:00:00', '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36', 'success'),
-(9, 11, '2026-02-08 19:39:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(10, 11, '2026-02-08 19:39:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(11, 12, '2026-02-08 19:40:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(12, 11, '2026-02-08 19:40:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(13, 11, '2026-02-08 19:41:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(14, 11, '2026-02-08 19:43:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(15, 11, '2026-02-08 19:43:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(16, 11, '2026-02-08 19:57:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(17, 11, '2026-02-08 20:12:09', 'Unknown', 'Unknown', 'failed'),
-(18, 11, '2026-02-08 20:13:13', 'Unknown', 'Unknown', 'failed'),
-(19, 11, '2026-02-08 20:15:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(20, 11, '2026-02-08 20:17:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(21, 11, '2026-02-08 20:24:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(22, 11, '2026-02-08 20:24:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(23, 11, '2026-02-08 21:03:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(24, 11, '2026-02-08 21:20:58', 'Unknown', 'Unknown', 'success'),
-(25, 11, '2026-02-08 21:22:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(26, 11, '2026-02-08 21:23:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(27, 11, '2026-02-08 21:23:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(28, 13, '2026-02-08 21:25:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (29, 1, '2026-02-08 21:28:27', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(30, 4, '2026-02-08 21:35:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (31, 1, '2026-02-08 21:36:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(32, 13, '2026-02-08 21:43:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (33, 1, '2026-02-08 22:39:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(34, 13, '2026-02-08 22:42:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (35, 1, '2026-02-08 22:48:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(36, 13, '2026-02-08 22:49:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (37, 1, '2026-02-08 22:50:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(38, 13, '2026-02-08 22:50:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (39, 1, '2026-02-08 22:51:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(40, 13, '2026-02-08 22:51:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(41, 11, '2026-02-08 22:52:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(42, 11, '2026-02-08 22:53:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(43, 13, '2026-02-08 22:53:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(44, 13, '2026-02-09 01:16:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(45, 11, '2026-02-09 02:00:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(46, 11, '2026-02-09 02:03:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(47, 11, '2026-02-09 02:03:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(48, 11, '2026-02-09 02:04:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(49, 11, '2026-02-09 02:04:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(50, 11, '2026-02-09 02:04:30', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(51, 11, '2026-02-09 02:05:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(52, 11, '2026-02-09 02:05:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(53, 11, '2026-02-09 02:08:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(54, 11, '2026-02-09 02:09:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(55, 11, '2026-02-09 02:21:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(56, 11, '2026-02-09 02:22:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(57, 11, '2026-02-09 02:23:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(58, 11, '2026-02-09 02:23:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(59, 11, '2026-02-09 02:23:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(60, 11, '2026-02-09 02:29:53', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(61, 11, '2026-02-09 02:29:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(62, 11, '2026-02-09 02:31:08', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(63, 11, '2026-02-09 02:31:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(64, 11, '2026-02-09 02:31:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(65, 11, '2026-02-09 02:31:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(66, 11, '2026-02-09 02:32:49', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(67, 11, '2026-02-09 02:33:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(68, 11, '2026-02-09 02:33:53', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(69, 11, '2026-02-09 02:34:05', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(70, 11, '2026-02-09 02:35:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(71, 11, '2026-02-09 02:35:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(72, 11, '2026-02-09 02:37:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(73, 11, '2026-02-09 02:39:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(74, 11, '2026-02-09 02:41:51', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(75, 11, '2026-02-09 02:42:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(76, 11, '2026-02-09 02:43:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(77, 11, '2026-02-09 02:43:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(78, 11, '2026-02-09 02:44:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(79, 11, '2026-02-09 02:44:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(80, 11, '2026-02-09 02:44:25', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(81, 11, '2026-02-09 02:44:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(82, 11, '2026-02-09 02:46:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(83, 11, '2026-02-09 02:46:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(84, 11, '2026-02-09 02:47:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(85, 11, '2026-02-09 02:47:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(86, 11, '2026-02-09 02:48:05', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(87, 13, '2026-02-09 05:50:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(88, 13, '2026-02-10 06:07:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(89, 12, '2026-02-10 06:11:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(90, 12, '2026-02-10 06:15:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(91, 13, '2026-02-10 06:15:46', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(92, 14, '2026-02-10 06:19:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(93, 14, '2026-02-10 06:19:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(94, 15, '2026-02-10 06:22:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(95, 12, '2026-02-10 06:37:59', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(96, 12, '2026-02-10 06:38:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(97, 11, '2026-02-10 06:38:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(98, 11, '2026-02-10 07:39:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (99, 1, '2026-02-10 07:49:38', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(100, 13, '2026-02-10 08:13:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (101, 1, '2026-02-10 08:21:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (102, 1, '2026-02-10 12:47:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
 (103, 1, '2026-02-10 12:47:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(104, 13, '2026-02-10 13:12:47', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
-(105, 13, '2026-02-10 15:43:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(106, 13, '2026-02-10 18:37:29', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(107, 4, '2026-02-10 18:38:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(108, 13, '2026-02-10 21:36:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (109, 1, '2026-02-10 22:24:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (110, 1, '2026-02-10 22:41:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(111, 13, '2026-02-10 22:56:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(112, 13, '2026-02-10 23:13:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(113, 13, '2026-02-10 23:14:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (114, 1, '2026-02-11 00:40:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (115, 1, '2026-02-11 00:49:43', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (116, 1, '2026-02-11 00:55:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(117, 13, '2026-02-11 01:03:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (118, 1, '2026-02-11 01:03:36', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (119, 1, '2026-02-11 01:04:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (120, 1, '2026-02-11 01:17:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
@@ -772,35 +746,16 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (124, 1, '2026-02-11 01:40:02', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (125, 1, '2026-02-11 01:45:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (126, 1, '2026-02-11 01:45:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(127, 13, '2026-02-11 01:45:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(128, 13, '2026-02-11 01:53:14', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(129, 13, '2026-02-11 01:55:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(130, 13, '2026-02-11 01:55:33', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(131, 13, '2026-02-11 01:55:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(132, 13, '2026-02-11 01:56:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (133, 1, '2026-02-11 02:01:22', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (134, 1, '2026-02-11 02:19:58', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(135, 13, '2026-02-11 02:30:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'failed'),
-(136, 13, '2026-02-11 02:30:52', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (137, 1, '2026-02-11 02:39:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(138, 13, '2026-02-11 02:40:03', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (139, 1, '2026-02-11 02:54:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(140, 13, '2026-02-11 02:54:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (141, 1, '2026-02-11 02:55:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(142, 13, '2026-02-11 03:03:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (143, 1, '2026-02-11 03:05:27', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (144, 1, '2026-02-11 03:21:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(145, 13, '2026-02-11 03:21:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(146, 4, '2026-02-15 02:02:35', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(147, 4, '2026-02-15 02:10:58', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(148, 4, '2026-02-15 12:31:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(156, 4, '2026-02-15 12:51:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (161, 1, '2026-02-15 14:27:45', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
 (165, 1, '2026-02-15 15:55:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
 (167, 1, '2026-02-15 18:54:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0', 'success'),
-(168, 4, '2026-02-15 19:36:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
-(173, 33, '2026-02-15 20:06:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', ''),
-(174, 4, '2026-02-15 20:08:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (175, 1, '2026-02-15 23:44:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'success'),
 (176, 1, '2026-02-16 05:13:39', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (177, 1, '2026-02-19 08:45:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
@@ -823,9 +778,7 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (199, 1, '2026-02-23 19:37:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (200, 1, '2026-02-23 20:17:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (201, 1, '2026-02-23 20:18:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(202, 8, '2026-02-23 20:20:01', 'Unknown', 'Unknown', 'failed'),
 (203, 1, '2026-02-23 20:21:24', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(204, 8, '2026-02-23 20:23:30', 'Unknown', 'Unknown', 'failed'),
 (205, 1, '2026-02-23 20:25:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (206, 40, '2026-02-23 20:25:32', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (207, 1, '2026-02-23 20:26:00', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
@@ -842,7 +795,6 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (218, 1, '2026-02-23 20:46:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (219, 1, '2026-02-23 20:52:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (220, 1, '2026-02-23 20:52:56', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(221, 4, '2026-02-23 20:58:29', 'Unknown', 'Unknown', 'failed'),
 (222, 1, '2026-02-23 20:59:48', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (223, 1, '2026-02-23 21:00:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (224, 1, '2026-02-23 21:01:20', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
@@ -858,16 +810,34 @@ INSERT INTO `login_activity` (`id`, `user_id`, `login_time`, `ip_address`, `user
 (234, 40, '2026-02-23 21:40:54', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (235, 1, '2026-02-24 01:35:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (236, 1, '2026-02-24 02:41:18', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(237, 43, '2026-02-24 02:43:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
-(238, 43, '2026-02-24 02:45:02', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', ''),
-(239, 43, '2026-02-24 02:47:06', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'failed'),
-(240, 43, '2026-02-24 02:47:12', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'failed'),
-(241, 43, '2026-02-24 02:47:23', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
-(242, 43, '2026-02-24 02:48:19', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', ''),
 (243, 40, '2026-02-24 02:48:40', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
 (244, 1, '2026-02-24 04:13:26', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
 (245, 40, '2026-02-24 12:28:34', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
-(246, 40, '2026-02-24 19:14:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success');
+(246, 40, '2026-02-24 19:14:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(247, 40, '2026-02-25 01:53:11', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(248, 1, '2026-02-25 02:21:42', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(249, 1, '2026-02-25 15:39:10', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(250, 1, '2026-02-25 15:44:44', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(251, 1, '2026-02-25 15:59:04', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(252, 44, '2026-02-25 16:01:15', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(253, 44, '2026-02-25 16:06:17', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', ''),
+(254, 40, '2026-02-25 16:06:27', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(255, 1, '2026-02-25 16:08:55', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(256, 40, '2026-02-25 16:09:36', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(257, 44, '2026-02-25 16:22:37', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(258, 44, '2026-02-25 16:23:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(259, 1, '2026-02-25 17:44:13', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(260, 40, '2026-02-25 17:46:31', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
+(261, 1, '2026-02-26 10:59:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(262, 1, '2026-02-26 11:01:08', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(263, 40, '2026-02-26 11:02:01', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(264, 44, '2026-02-26 11:03:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(265, 1, '2026-02-26 15:22:07', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(266, 1, '2026-02-26 15:23:09', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(267, 40, '2026-02-26 15:23:41', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'success'),
+(268, 44, '2026-02-26 15:28:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
+(269, 44, '2026-02-26 15:38:50', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', 'success'),
+(270, 44, '2026-02-26 16:44:16', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0', '');
 
 -- --------------------------------------------------------
 
@@ -891,15 +861,9 @@ CREATE TABLE `otp_codes` (
 --
 
 INSERT INTO `otp_codes` (`id`, `user_id`, `email`, `otp_code`, `expires_at`, `is_used`, `created_at`, `used_at`) VALUES
-(4, 13, 'amielchiang@gmail.com', '870094', '2026-02-10 19:00:55', 0, '2026-02-11 01:55:55', NULL),
-(6, 4, 'christianbacay042504@gmail.com', '363816', '2026-02-15 02:20:58', 0, '2026-02-15 02:10:58', NULL),
-(7, 4, 'christianbacay042504@gmail.com', '568135', '2026-02-15 12:41:11', 0, '2026-02-15 12:31:11', NULL),
-(14, 4, 'christianbacay042504@gmail.com', '489548', '2026-02-15 12:51:44', 1, '2026-02-15 12:51:10', '2026-02-15 12:51:44'),
 (19, 1, 'Jeanmarcaguilar829@gmail.com', '153762', '2026-02-15 14:28:04', 1, '2026-02-15 14:27:45', '2026-02-15 14:28:04'),
 (22, 1, 'jeanmarcaguilar829@gmail.com', '292283', '2026-02-15 15:55:32', 1, '2026-02-15 15:55:20', '2026-02-15 15:55:32'),
 (24, 1, 'jeanmarcaguilar829@gmail.com', '860688', '2026-02-15 18:54:18', 1, '2026-02-15 18:54:01', '2026-02-15 18:54:18'),
-(25, 4, 'christianbacay042504@gmail.com', '864876', '2026-02-15 19:37:13', 1, '2026-02-15 19:36:55', '2026-02-15 19:37:13'),
-(30, 4, 'christianbacay042504@gmail.com', '623664', '2026-02-15 20:09:13', 1, '2026-02-15 20:08:48', '2026-02-15 20:09:13'),
 (31, 1, 'jeanmarcaguilar829@gmail.com', '375726', '2026-02-15 23:44:22', 1, '2026-02-15 23:44:07', '2026-02-15 23:44:22'),
 (32, 1, 'jeanmarcaguilar829@gmail.com', '949908', '2026-02-16 05:13:51', 1, '2026-02-16 05:13:39', '2026-02-16 05:13:51'),
 (33, 1, 'jeanmarcaguilar829@gmail.com', '833601', '2026-02-19 08:55:56', 0, '2026-02-19 08:45:56', NULL),
@@ -915,19 +879,35 @@ INSERT INTO `otp_codes` (`id`, `user_id`, `email`, `otp_code`, `expires_at`, `is
 (49, 40, 'jeanmarcaguilar829@gmail.com', '874474', '2026-02-23 17:46:38', 0, '2026-02-23 17:36:38', NULL),
 (50, 40, 'jeanmarcaguilar829@gmail.com', '849374', '2026-02-23 18:45:10', 1, '2026-02-23 18:44:38', '2026-02-23 18:45:10'),
 (53, 1, 'senchi2528@gmail.com', '599796', '2026-02-23 19:47:18', 0, '2026-02-23 19:37:18', NULL),
-(57, 8, 'admin_content@sjdm.com', '673104', '2026-02-23 20:30:22', 0, '2026-02-23 20:20:22', NULL),
 (60, 40, 'jeanmarcaguilar829@gmail.com', '693336', '2026-02-23 20:35:32', 0, '2026-02-23 20:25:32', NULL),
 (85, 1, 'senchi2528@gmail.com', '739183', '2026-02-23 21:32:08', 0, '2026-02-23 21:22:08', NULL),
 (86, 1, 'senchi2528@gmail.com', '266722', '2026-02-23 21:32:42', 1, '2026-02-23 21:32:16', '2026-02-23 21:32:42'),
 (87, 40, 'jeanmarcaguilar829@gmail.com', '368445', '2026-02-23 21:41:14', 1, '2026-02-23 21:40:54', '2026-02-23 21:41:14'),
 (88, 1, 'senchi2528@gmail.com', '507978', '2026-02-24 01:36:55', 1, '2026-02-24 01:35:55', '2026-02-24 01:36:55'),
 (89, 1, 'senchi2528@gmail.com', '288055', '2026-02-24 02:41:44', 1, '2026-02-24 02:41:18', '2026-02-24 02:41:44'),
-(90, 43, 'ianjovero2528@gmail.com', '189405', '2026-02-24 02:44:29', 1, '2026-02-24 02:43:55', '2026-02-24 02:44:29'),
-(91, 43, 'ianjovero2528@gmail.com', '271877', '2026-02-24 02:47:54', 1, '2026-02-24 02:47:23', '2026-02-24 02:47:54'),
 (92, 40, 'jeanmarcaguilar829@gmail.com', '373989', '2026-02-24 02:48:55', 1, '2026-02-24 02:48:40', '2026-02-24 02:48:55'),
 (93, 1, 'senchi2528@gmail.com', '846920', '2026-02-24 04:13:46', 1, '2026-02-24 04:13:26', '2026-02-24 04:13:46'),
 (94, 40, 'jeanmarcaguilar829@gmail.com', '952396', '2026-02-24 12:28:52', 1, '2026-02-24 12:28:34', '2026-02-24 12:28:52'),
-(95, 40, 'jeanmarcaguilar829@gmail.com', '184215', '2026-02-24 19:15:00', 1, '2026-02-24 19:14:41', '2026-02-24 19:15:00');
+(95, 40, 'jeanmarcaguilar829@gmail.com', '184215', '2026-02-24 19:15:00', 1, '2026-02-24 19:14:41', '2026-02-24 19:15:00'),
+(96, 40, 'jeanmarcaguilar829@gmail.com', '921880', '2026-02-25 01:53:23', 1, '2026-02-25 01:53:11', '2026-02-25 01:53:23'),
+(97, 1, 'senchi2528@gmail.com', '945789', '2026-02-25 02:22:08', 1, '2026-02-25 02:21:42', '2026-02-25 02:22:08'),
+(98, 1, 'senchi2528@gmail.com', '541164', '2026-02-25 15:39:27', 1, '2026-02-25 15:39:10', '2026-02-25 15:39:27'),
+(99, 1, 'senchi2528@gmail.com', '806480', '2026-02-25 15:44:56', 1, '2026-02-25 15:44:44', '2026-02-25 15:44:56'),
+(100, 1, 'senchi2528@gmail.com', '456693', '2026-02-25 15:59:18', 1, '2026-02-25 15:59:04', '2026-02-25 15:59:18'),
+(101, 44, 'christianbacay042504@gmail.com', '798813', '2026-02-25 16:01:36', 1, '2026-02-25 16:01:15', '2026-02-25 16:01:36'),
+(102, 40, 'jeanmarcaguilar829@gmail.com', '659688', '2026-02-25 16:07:11', 1, '2026-02-25 16:06:27', '2026-02-25 16:07:11'),
+(103, 1, 'senchi2528@gmail.com', '615455', '2026-02-25 16:09:08', 1, '2026-02-25 16:08:55', '2026-02-25 16:09:08'),
+(104, 40, 'jeanmarcaguilar829@gmail.com', '100305', '2026-02-25 16:09:58', 1, '2026-02-25 16:09:36', '2026-02-25 16:09:58'),
+(106, 44, 'christianbacay042504@gmail.com', '106219', '2026-02-25 16:23:53', 1, '2026-02-25 16:23:31', '2026-02-25 16:23:53'),
+(107, 1, 'senchi2528@gmail.com', '484212', '2026-02-25 17:44:24', 1, '2026-02-25 17:44:13', '2026-02-25 17:44:24'),
+(108, 40, 'jeanmarcaguilar829@gmail.com', '628804', '2026-02-25 17:47:16', 1, '2026-02-25 17:46:31', '2026-02-25 17:47:16'),
+(110, 1, 'senchi2528@gmail.com', '575950', '2026-02-26 11:01:28', 1, '2026-02-26 11:01:08', '2026-02-26 11:01:28'),
+(111, 40, 'jeanmarcaguilar829@gmail.com', '514402', '2026-02-26 11:02:22', 1, '2026-02-26 11:02:01', '2026-02-26 11:02:22'),
+(112, 44, 'christianbacay042504@gmail.com', '542725', '2026-02-26 11:04:38', 1, '2026-02-26 11:03:21', '2026-02-26 11:04:38'),
+(113, 1, 'senchi2528@gmail.com', '404123', '2026-02-26 15:22:32', 1, '2026-02-26 15:22:07', '2026-02-26 15:22:32'),
+(114, 1, 'senchi2528@gmail.com', '351351', '2026-02-26 15:23:23', 1, '2026-02-26 15:23:09', '2026-02-26 15:23:23'),
+(115, 40, 'jeanmarcaguilar829@gmail.com', '613588', '2026-02-26 15:23:53', 1, '2026-02-26 15:23:41', '2026-02-26 15:23:53'),
+(117, 44, 'christianbacay042504@gmail.com', '998517', '2026-02-26 15:39:30', 1, '2026-02-26 15:38:50', '2026-02-26 15:39:30');
 
 -- --------------------------------------------------------
 
@@ -977,9 +957,7 @@ CREATE TABLE `registration_tour_guide` (
 --
 
 INSERT INTO `registration_tour_guide` (`id`, `application_date`, `last_name`, `first_name`, `middle_initial`, `preferred_name`, `date_of_birth`, `gender`, `home_address`, `primary_phone`, `secondary_phone`, `email`, `emergency_contact_name`, `emergency_contact_relationship`, `emergency_contact_phone`, `dot_accreditation`, `accreditation_expiry`, `specialization`, `years_experience`, `first_aid_certified`, `first_aid_expiry`, `base_location`, `employment_type`, `has_vehicle`, `resume_file`, `dot_id_file`, `government_id_file`, `nbi_clearance_file`, `first_aid_certificate_file`, `id_photo_file`, `status`, `admin_notes`, `review_date`, `reviewed_by`) VALUES
-(2, '2026-02-16 04:24:36', 'Chiang', 'Luke', 'H', 'Lukas', '1990-01-01', 'male', 'tsora', '09123238686', '09232334343', 'amieljake929@gmail.com', 'Maria Labo', 'Friend', '09898974545', '22342424234', '2026-02-16', 'waterfall', 6, 'yes', '2026-02-16', 'TSOra', 'full-time', 'no', 'tour_guide_documents/69929c049b5de_resume.docx', 'tour_guide_documents/69929c049becb_dotId.jpg', 'tour_guide_documents/69929c049c7b2_governmentId.jpg', 'tour_guide_documents/69929c049cdff_nbiClearance.jpg', 'tour_guide_documents/69929c049d53c_firstAidCertificate.jpg', 'tour_guide_documents/69929c049dd11_idPhoto.jpg', 'approved', NULL, '2026-02-19 17:13:12', NULL),
-(7, '2026-02-19 13:29:48', 'Kurisuchan', 'Ian Jovero', 'C', 'Kurisuchan', '1990-01-01', 'male', 'Sauyo', '09648816402', '09705667137', 'senchi2528@gmail.com', '09636219345', 'Asawa', '098816402', '12312313213', '2026-02-25', 'cultural', 5, 'yes', '2026-02-28', 'Sasuyo', 'part-time', 'yes', 'tour_guide_documents/6997104c87dd1_resume.docx', 'tour_guide_documents/6997104c88ad8_dotId.jpg', 'tour_guide_documents/6997104c898d4_governmentId.jpg', 'tour_guide_documents/6997104c8a94b_nbiClearance.png', 'tour_guide_documents/6997104c8b935_firstAidCertificate.png', 'tour_guide_documents/6997104c8c64c_idPhoto.png', '', NULL, '2026-02-19 21:30:45', NULL),
-(8, '2026-02-24 02:41:10', 'Diaz', 'Robert', 'C.', 'Robert', '1998-08-13', 'male', 'Gaya Gaya Bulacan', '090993666143', '090993666143', 'ianjovero2528@gmail.com', 'Susan', 'Wife', '090993666143', '123123123', '2026-02-14', 'cultural', 3, 'no', NULL, 'Gaya Gaya', 'full-time', 'no', 'tour_guide_documents/699d0fc648bbd_resume.docx', 'tour_guide_documents/699d0fc6499cd_dotId.jpg', 'tour_guide_documents/699d0fc64a15a_governmentId.png', 'tour_guide_documents/699d0fc64a672_nbiClearance.png', 'tour_guide_documents/699d0fc64ae52_firstAidCertificate.jpg', 'tour_guide_documents/699d0fc64b93d_idPhoto.png', 'approved', NULL, '2026-02-24 10:42:42', NULL);
+(9, '2026-02-25 15:58:52', 'Bacay', 'Christian', 'J', 'Ian', '2026-04-25', 'male', 'Holy Spirit', '09705667137', '09636219345', 'christianbacay042504@gmail.com', 'Jean Marc Aguilar', 'Brother', '09636219345', '1231231313123', '2026-02-26', 'mountain', 5, 'yes', '2028-07-29', 'Sauyo', 'part-time', 'yes', 'tour_guide_documents/699f1c3c814f9_resume.docx', 'tour_guide_documents/699f1c3c821bb_dotId.png', 'tour_guide_documents/699f1c3c82e9c_governmentId.png', 'tour_guide_documents/699f1c3c83d8f_nbiClearance.png', 'tour_guide_documents/699f1c3c84b3d_firstAidCertificate.png', 'tour_guide_documents/699f1c3c8555c_idPhoto.png', 'approved', NULL, '2026-02-25 23:59:56', NULL);
 
 -- --------------------------------------------------------
 
@@ -1122,7 +1100,8 @@ INSERT INTO `tourist_spots` (`id`, `name`, `description`, `category`, `location`
 (18, 'Our Lady of Lourdes Grotto', 'The Our Lady of Lourdes Grotto is a renowned spiritual sanctuary in San Jose del Monte, \n                        established in 1958 as a replica of the famous Lourdes Grotto in France. This peaceful \n                        religious site attracts thousands of pilgrims and visitors seeking spiritual renewal, \n                        healing, and divine intervention.', 'religious', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:00 AM - 8:00 PM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Shed', '', '', 'https://tse2.mm.bing.net/th/id/OIP.3k2Pj5tL7rhVT-sDN2XSzwHaEK?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 22:41:27'),
 (20, 'Paradise Hill Farm', 'Paradise Hill Farm is a 25-hectare integrated sustainable farm that combines modern agricultural \n                        practices with eco-tourism experiences. Established in 2010, this farm utilizes organic farming \n                        methods, renewable energy, and water conservation techniques to create a model for sustainable \n                        agriculture in San Jose del Monte.', 'farm', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '8:00 AM - 5:00 PM', '₱200', 'moderate', '', 'All year round', 'Photography', 'Shed, Restaurant', '', '', 'https://tse3.mm.bing.net/th/id/OIP.K8xFcpCM-Frmj4yyT7jkmQHaE8?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:40:02'),
 (21, 'The Rising Heart Monument', 'Standing majestically at the entrance of San Jose del Monte City, The Rising Heart Monument \n                        is a 15-meter tall steel sculpture that has become the city\'s most recognizable landmark. \n                        Completed in 2018 to celebrate the city\'s conversion from municipality to component city, \n                        this monument symbolizes the city\'s rising prosperity, love for community, and resilient spirit.', 'park', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '5:30 AM - 6:30 AM', 'Free', 'moderate', '', 'All year round', 'Photography', 'Parking, Restroom, Shed', '', '', 'https://tse2.mm.bing.net/th/id/OIP.NoRJkeG3JRq1XuSygZRRNwHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 22:49:11'),
-(22, 'Tungtong Falls', 'Tungtong Falls is a spectacular 25-meter waterfall located within a dramatic canyon formation \n                        in San Jose del Monte. Named after the local term \"tungtong\" meaning \"to climb or ascend,\" \n                        this waterfall features a unique rock amphitheater that creates perfect acoustics and \n                        breathtaking visual effects when sunlight hits the cascading water.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 5:00 PM', '₱1', 'difficult', '', 'All year round', 'Hiking, Swimming', 'Parking', '', '', 'https://tse3.mm.bing.net/th/id/OIP.PGdvW97mFRf7-GQD84CukQHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:40:45');
+(22, 'Tungtong Falls', 'Tungtong Falls is a spectacular 25-meter waterfall located within a dramatic canyon formation \n                        in San Jose del Monte. Named after the local term \"tungtong\" meaning \"to climb or ascend,\" \n                        this waterfall features a unique rock amphitheater that creates perfect acoustics and \n                        breathtaking visual effects when sunlight hits the cascading water.', 'nature', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '7:00 AM - 5:00 PM', '₱1', 'difficult', '', 'All year round', 'Hiking, Swimming', 'Parking', '', '', 'https://tse3.mm.bing.net/th/id/OIP.PGdvW97mFRf7-GQD84CukQHaEc?pid=Api&P=0&h=220', NULL, NULL, 0.00, 0, 'active', '2026-02-06 09:40:50', '2026-02-08 21:40:45'),
+(23, 'Padre Pio Shrine', 'The Padre Pio Shrine in San Jose del Monte is a major Catholic pilgrimage site dedicated to Saint Padre Pio of Pietrelcina, known for his stigmata and miraculous healings. Established in 1998, this spiritual complex has become one of the most visited religious sites in Bulacan, attracting devotees seeking spiritual guidance, healing, and miracles. The shrine features a magnificent 800-seat main chapel with Italian-inspired architecture, a relic museum housing authentic relics of Saint Padre Pio, a serene prayer garden with life-size statues and Stations of the Cross, a healing water fountain, 12 confessionals, a retreat center, and comprehensive facilities for pilgrims.', 'religious', 'San Jose del Monte, Bulacan', 'San Jose del Monte, Bulacan', '6:00 AM - 9:00 PM', 'Free (Donations Welcome)', 'moderate', '2-3 hours', 'All year round', 'Prayer, Meditation, Religious Services, Photography, Spiritual Retreat', 'Main Chapel, Relic Museum, Prayer Garden, Healing Water Fountain, Confession Complex, Retreat Center, Bookstore & Gift Shop, Pilgrim Rest Area, Parking', '', '', 'https://images.unsplash.com/photo-1542766788-a2f588f447ee?q=80&w=2067&auto=format&fit=crop', NULL, NULL, 0.00, 0, 'active', '2026-02-25 01:34:58', '2026-02-25 01:34:58');
 
 -- --------------------------------------------------------
 
@@ -1135,7 +1114,7 @@ CREATE TABLE `tour_guides` (
   `user_id` int(11) DEFAULT NULL,
   `name` varchar(100) NOT NULL,
   `specialty` varchar(200) DEFAULT NULL,
-  `category` enum('mountain','city','farm','waterfall','historical','general') NOT NULL DEFAULT 'general',
+  `category` enum('mountain','city','farm','waterfall','historical','general','cultural','adventure','photography') NOT NULL DEFAULT 'general',
   `description` text DEFAULT NULL,
   `bio` text DEFAULT NULL,
   `areas_of_expertise` text DEFAULT NULL,
@@ -1164,16 +1143,7 @@ CREATE TABLE `tour_guides` (
 --
 
 INSERT INTO `tour_guides` (`id`, `user_id`, `name`, `specialty`, `category`, `description`, `bio`, `areas_of_expertise`, `rating`, `review_count`, `price_range`, `price_min`, `price_max`, `languages`, `contact_number`, `email`, `schedules`, `experience_years`, `group_size`, `verified`, `total_tours`, `photo_url`, `status`, `created_at`, `updated_at`, `resume`) VALUES
-(14, NULL, 'Ian Jaime', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09099366143', 'ianjaime@gmail.com', NULL, NULL, NULL, 0, 0, NULL, 'active', '2026-02-11 00:39:57', '2026-02-24 03:12:04', NULL),
-(15, NULL, 'jean marcc', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '092991156561', 'jeanmarcc@gmail.com', NULL, NULL, NULL, 0, 0, NULL, 'active', '2026-02-11 00:49:33', '2026-02-24 03:11:56', NULL),
-(16, NULL, 'amiel jake', 'waterfall', 'waterfall', 'Experienced tour guide specializing in Waterfall tours with 5+ years of experience showing visitors the beautiful waterfalls of San Jose del Monte.', '', '', 0.00, 0, '', NULL, NULL, 'English, Tagalog', '6514623333', 'amieljake@gmail.com', '', 5, '15 guests', 1, 0, '', 'active', '2026-02-11 00:55:44', '2026-02-15 13:25:17', NULL),
-(17, NULL, 'Jean Marc  Aguilar', 'mountain', '', 'Professional tour guide specializing in Mountain tours.', NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09705667137', 'jeanmarcaguilar829@gmail.com', NULL, NULL, NULL, 1, 0, NULL, 'active', '2026-02-11 01:29:34', '2026-02-15 13:35:01', 'C:\\xampp\\htdocs\\coderistyarn2\\log-in/../uploads/resumes/698bdb7ebb537_resume.pdf'),
-(18, 33, 'Luke Chiang', 'waterfall', 'waterfall', '', '', 'waterfall', 0.00, 0, '0', 0.00, 0.00, 'English, Filipino', '09123238585', NULL, '0', 0, '0', 0, 0, '', '', '2026-02-15 20:05:22', '2026-02-15 20:05:22', '699227024192b_resume.docx'),
-(20, 35, 'Luke Chiang', NULL, 'waterfall', NULL, NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09123238686', 'amieljake929@gmail.com', NULL, 6, NULL, 0, 0, NULL, 'active', '2026-02-19 09:13:12', '2026-02-19 09:13:12', NULL),
-(21, NULL, 'Ian Kurisuchan', 'cultural', '', 'Professional tour guide specializing in cultural tours.', 'Experienced tour guide with 5 years of experience. DOT accredited with license #12312313213. Based in Sasuyo.', 'cultural', 0.00, 0, NULL, NULL, NULL, 'filipino (fluent), english (fluent)', '09648816402', 'senchi2528@gmail.com', 'Available part-time', 5, NULL, 1, 0, NULL, 'active', '2026-02-19 09:24:45', '2026-02-24 03:07:13', NULL),
-(22, NULL, 'Jean Marc Aguilar', NULL, '', NULL, NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09705667137', 'jeanmarcaguilar829@gmail.com', NULL, 6, NULL, 0, 0, NULL, 'active', '2026-02-19 09:42:59', '2026-02-19 09:42:59', NULL),
-(25, NULL, 'Ian Jovero Kurisuchan', NULL, '', NULL, NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '09648816402', 'senchi2528@gmail.com', NULL, 5, NULL, 0, 0, NULL, 'active', '2026-02-19 13:30:45', '2026-02-19 13:30:45', NULL),
-(26, 43, 'Robert Diaz', NULL, '', NULL, NULL, NULL, 0.00, 0, NULL, NULL, NULL, NULL, '090993666143', 'ianjovero2528@gmail.com', NULL, 3, NULL, 1, 0, NULL, 'active', '2026-02-24 02:42:42', '2026-02-24 03:12:15', NULL);
+(27, 44, 'Christian Bacay', 'waterfall', 'mountain', NULL, 'ILOVEAJ', NULL, 0.00, 0, NULL, NULL, NULL, 'English, Filipino', '09123456789', 'christianbacay042504@gmail.com', NULL, 5, NULL, 1, 0, NULL, 'active', '2026-02-25 15:59:56', '2026-02-25 18:10:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -1190,6 +1160,14 @@ CREATE TABLE `tour_guide_availability` (
   `status` enum('available','booked','unavailable') DEFAULT 'available',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tour_guide_availability`
+--
+
+INSERT INTO `tour_guide_availability` (`id`, `tour_guide_id`, `available_date`, `start_time`, `end_time`, `status`, `created_at`) VALUES
+(4, 27, '2026-02-27', '07:36:00', '08:38:00', 'available', '2026-02-25 18:38:11'),
+(5, 27, '2026-02-28', '14:43:00', '17:43:00', 'available', '2026-02-26 15:40:55');
 
 -- --------------------------------------------------------
 
@@ -1209,11 +1187,8 @@ CREATE TABLE `tour_guide_languages` (
 --
 
 INSERT INTO `tour_guide_languages` (`id`, `registration_id`, `language`, `proficiency`) VALUES
-(3, 2, 'filipino', 'fluent'),
-(4, 2, 'english', 'fluent'),
-(11, 7, 'filipino', 'fluent'),
-(12, 7, 'english', 'fluent'),
-(13, 8, 'filipino', 'fluent');
+(14, 9, 'filipino', 'fluent'),
+(15, 9, 'english', 'fluent');
 
 -- --------------------------------------------------------
 
@@ -1237,14 +1212,6 @@ CREATE TABLE `tour_guide_profiles` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tour_guide_profiles`
---
-
-INSERT INTO `tour_guide_profiles` (`id`, `user_id`, `license_number`, `specialization`, `experience_years`, `languages`, `hourly_rate`, `availability_status`, `rating`, `total_tours`, `bio`, `contact_number`, `created_at`, `updated_at`) VALUES
-(1, 11, 'TG-001-2026', 'Historical Tours, Nature Walks', 5, 'English, Filipino, Basic Japanese', 1500.00, 'available', 0.00, 0, 'Experienced tour guide specializing in rich history and natural beauty of San Jose del Monte.', '09123456789', '2026-02-08 19:38:48', '2026-02-08 20:24:20'),
-(2, 12, 'TG-002-2026', 'Adventure Tours, Mountain Hiking', 3, 'English, Filipino', 1200.00, 'available', 0.00, 0, 'Adventure enthusiast with extensive knowledge of mountain trails and outdoor activities.', '09987654321', '2026-02-08 19:38:48', '2026-02-08 19:38:48');
 
 -- --------------------------------------------------------
 
@@ -1342,31 +1309,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `password`, `user_type`, `status`, `created_at`, `updated_at`, `last_login`, `preferences_set`) VALUES
-(1, 'Admin', 'SJDM', 'senchi2528@gmail.com', '$2y$10$6qLFC1Jeajfeb2yMht1BWOodAuVhSWGNBsh7lF6DVMn0Md.deNNkq', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-24 04:13:25', '2026-02-24 04:13:25', 0),
-(4, 'Ian', 'Jovero', 'christianbacay0425047@gmail.com', '$2y$10$g6BWxl4c3rJjU33kcsd/V.uhRTCV9Lsb96NRBRKkGQN5smel3TSBq', 'user', 'active', '2026-01-31 08:00:05', '2026-02-19 08:57:30', '2026-02-15 20:08:48', 1),
-(5, 'angel', 'hernandez', 'angelhernandez@gmail.com', '$2y$10$xeVhlC34UmXg8OwWTBkLzOdqtEkNImiY30qlNqan/1I1XkFToQ1F.', 'user', 'active', '2026-02-02 02:00:47', '2026-02-02 02:39:38', '2026-02-02 02:39:38', 0),
-(6, 'Admin', 'Dashboard', 'admin_dashboard@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
-(7, 'Admin', 'Users', 'admin_users@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
-(8, 'Admin', 'Content', 'admin_content@sjdm.com', '$2y$10$3DQxAUR/H3QdYWRerZKzMuqCvXoRwVpQDFuiE8SU6BvydNnM5CiBS', 'admin', 'active', '2026-02-05 01:00:00', '2026-02-05 01:00:00', NULL, 0),
-(11, 'Juan', 'Santos', 'juan.santos@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 07:39:11', '2026-02-10 07:39:11', 0),
-(12, 'Maria', 'Reyes', 'maria.reyes@tourguide.com', '$2y$10$th0oYWlqMx4jvSWwaRjxz.hAbX5WNxWGnkOadofI86xME.tybAs3i', 'tour_guide', 'active', '2026-02-09 00:00:00', '2026-02-10 06:37:59', '2026-02-10 06:37:59', 0),
-(13, 'Amiel', 'Chiang', 'amielchiang@gmail.com', '$2y$10$dgdmgYtRSk2u4Srn2AwtXuDqxM4aW24bcvhEOzIrWLy8nQhXkKHAe', 'user', 'active', '2026-02-08 21:25:16', '2026-02-11 03:21:34', '2026-02-11 03:21:34', 0),
-(14, 'angel', 'jaime', 'angeljaime@gmail.com', '$2y$10$q5qrN1zxR.hbYLZSMGBjBug2MCDuH0z1gCeIkF9JynGVcwSzD3tPy', 'user', 'active', '2026-02-10 06:16:48', '2026-02-10 06:19:19', '2026-02-10 06:19:19', 0),
-(15, 'emy', 'yes', 'amyyes@gmail.com', '$2y$10$erUHNgHJIhgUKNfPYuzsUuXBla/bhbLtsiyxKISjaeXRCpBUHvMAO', 'user', 'active', '2026-02-10 06:21:24', '2026-02-10 06:22:55', '2026-02-10 06:22:55', 0),
-(16, 'marc', 'aguilar', 'marcaguilar@gmail.com', '$2y$10$MDx6ItGazK7WDwn11I/T8eVelSoC2bybWCW8JNQkqwJfglJYX0MIG', 'user', 'active', '2026-02-10 06:31:48', '2026-02-10 06:31:58', NULL, 1),
-(17, 'elvie', 'jovero', 'elviejoveroo@gmail.com', '$2y$10$/X2rO64286/198CpuLJGBOaaBTwbhq6LfnXfYARr.wp0u2XqT.l3G', 'user', 'active', '2026-02-10 06:36:37', '2026-02-10 06:36:42', NULL, 1),
-(18, 'user', 'example', 'suer@gmail.com', '$2y$10$7HUQgKFOF4paxvtDzGAJ.ez8LSHiFCSBW0.WS3CbOPKtl7ETN8P36', 'user', 'active', '2026-02-10 07:36:37', '2026-02-10 07:36:49', NULL, 1),
-(19, 'ian', 'jovero', 'iankageyama25@gmail.com', '$2y$10$L/Trri3uiDIKHKmmDClSBOSV.7wpxTdPpH5kdoMmTQv1vlecsOSU.', 'user', 'active', '2026-02-10 08:26:02', '2026-02-10 08:26:24', NULL, 1),
-(21, 'ian ', 'jovero', 'ianjovero28', '$2y$10$CBO/1ILZgtGvgU/79kfS6elv86a89Q8QKdPaaMU3Ruo4FimGf86uW', '', 'active', '2026-02-10 22:41:10', '2026-02-10 22:41:10', NULL, 0),
-(22, 'ian', 'perdon', 'ianperdon@gmail.com', '$2y$10$nvUi8Z.9g5YQkstENwEvj.p4JHPBaFf1U72EJPkWqQ//WVo6319.W', 'user', 'active', '2026-02-10 22:44:26', '2026-02-10 22:44:31', NULL, 1),
-(25, 'Ian', 'Jaime', 'ianjaime@gmail.com', '$2y$10$V0AWwP9vNsr.XnL1r/xrKuH9ZrLiNvIXCktdnM8lpsaHBX/UG9DBS', '', 'active', '2026-02-11 00:39:57', '2026-02-11 00:39:57', NULL, 0),
-(26, 'jean', 'marcc', 'jeanmarcc@gmail.com', '$2y$10$kPH/pqQkouADBYR1xR3HkOybWXbtt0CguGBTGlfzUIlJvkB5T9etC', '', 'active', '2026-02-11 00:49:33', '2026-02-11 00:49:33', NULL, 0),
-(27, 'amiel', 'jake', 'amieljake@gmail.com', '$2y$10$FgrZJU5WOFa0ViJhNOBZsOC7kT48bqgM6RxoNJoCL7.8GWG247Wl2', '', 'active', '2026-02-11 00:55:44', '2026-02-11 00:55:44', NULL, 0),
-(33, 'Luke', 'Chiang', 'amieljake09@gmail.com', '$2y$10$59bWrLvvSh0eOfNQu6Fq..QqtnRgb.4FB2xjtJs.b0wMfC8/E4N0m', 'tour_guide', 'active', '2026-02-15 20:05:22', '2026-02-15 20:05:22', NULL, 0),
-(35, 'Luke', 'Chiang', 'amieljake929@gmail.com', '$2y$10$1yNIiyqDDBe8kZ1Y.PlnVemBEsJoxf3CxHVc9WaRj5JHvfWQWj/ru', 'tour_guide', 'active', '2026-02-19 09:13:12', '2026-02-19 09:13:12', NULL, 0),
-(40, 'Jean Marc', 'Aguilar', 'jeanmarcaguilar829@gmail.com', '$2y$10$HW.T2T7lI879YrHtzXZU2uPgvNMrrapQOTEliUZn.LC9Pjl/1MHpK', 'user', 'active', '2026-02-19 13:22:43', '2026-02-24 19:14:41', '2026-02-24 19:14:41', 1),
-(42, 'test@example.com', 'test123', 'Test', '$2y$10$.hzozDusL7tFiKuGzZatS.F/8N36BPTE20fb8e8luQtfnt.Vp3D5m', 'user', 'active', '2026-02-23 20:58:38', '2026-02-23 20:58:38', NULL, 0),
-(43, 'Robert', 'Diaz', 'ianjovero2528@gmail.com', '$2y$10$LjL0YcIA0mHqGhnEwY9R8.5Ezb4Qql5eHJLiVhGyVMaYEh1gsoF4K', 'tour_guide', 'active', '2026-02-24 02:42:42', '2026-02-24 02:47:23', '2026-02-24 02:47:23', 0);
+(1, 'Admin', 'SJDM', 'senchi2528@gmail.com', '$2y$10$6qLFC1Jeajfeb2yMht1BWOodAuVhSWGNBsh7lF6DVMn0Md.deNNkq', 'admin', 'active', '2026-01-30 07:02:22', '2026-02-26 15:23:09', '2026-02-26 15:23:09', 0),
+(40, 'Jean Marc', 'Aguilar', 'jeanmarcaguilar829@gmail.com', '$2y$10$HW.T2T7lI879YrHtzXZU2uPgvNMrrapQOTEliUZn.LC9Pjl/1MHpK', 'user', 'active', '2026-02-19 13:22:43', '2026-02-26 15:23:41', '2026-02-26 15:23:41', 1),
+(44, 'Christian', 'Bacay', 'christianbacay042504@gmail.com', '$2y$10$YgfuPd7kTP10ToBqpJJRoOHJmuk2K71mJ1mpCHxkwq2DZz6OBUuCW', 'tour_guide', 'active', '2026-02-25 15:59:56', '2026-02-26 15:38:50', '2026-02-26 15:38:50', 0);
 
 -- --------------------------------------------------------
 
@@ -1423,14 +1368,6 @@ CREATE TABLE `user_preferences` (
 --
 
 INSERT INTO `user_preferences` (`id`, `user_id`, `category`, `created_at`) VALUES
-(1, 16, 'nature', '2026-02-10 06:31:58'),
-(2, 17, 'nature', '2026-02-10 06:36:42'),
-(3, 18, 'nature', '2026-02-10 07:36:49'),
-(4, 18, 'religious', '2026-02-10 07:36:49'),
-(5, 19, 'nature', '2026-02-10 08:26:24'),
-(6, 19, 'religious', '2026-02-10 08:26:24'),
-(9, 22, 'nature', '2026-02-10 22:44:31'),
-(10, 22, 'religious', '2026-02-10 22:44:31'),
 (22, 40, 'nature', '2026-02-19 13:22:50'),
 (23, 40, 'farm', '2026-02-19 13:22:50'),
 (24, 40, 'park', '2026-02-19 13:22:50'),
@@ -1462,8 +1399,6 @@ CREATE TABLE `user_settings` (
 --
 
 INSERT INTO `user_settings` (`id`, `user_id`, `notifications`, `email_updates`, `share_history`, `public_profile`, `created_at`, `updated_at`) VALUES
-(1, 4, 1, 1, 0, 0, '2026-02-01 02:00:00', '2026-02-01 02:00:00'),
-(2, 5, 1, 0, 1, 0, '2026-02-02 03:00:00', '2026-02-02 03:00:00'),
 (3, 1, 0, 1, 0, 1, '2026-02-03 04:00:00', '2026-02-03 04:00:00');
 
 --
@@ -1565,6 +1500,16 @@ ALTER TABLE `guide_destinations`
   ADD UNIQUE KEY `unique_guide_destination` (`guide_id`,`destination_id`),
   ADD KEY `idx_guide_id` (`guide_id`),
   ADD KEY `idx_destination_id` (`destination_id`);
+
+--
+-- Indexes for table `guide_reviews`
+--
+ALTER TABLE `guide_reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_booking_review` (`booking_id`,`user_id`),
+  ADD KEY `idx_guide_reviews_guide_id` (`guide_id`),
+  ADD KEY `idx_guide_reviews_user_id` (`user_id`),
+  ADD KEY `idx_guide_reviews_created_at` (`created_at`);
 
 --
 -- Indexes for table `homepage_content`
@@ -1767,7 +1712,7 @@ ALTER TABLE `user_settings`
 -- AUTO_INCREMENT for table `admin_activity`
 --
 ALTER TABLE `admin_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=156;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
 
 --
 -- AUTO_INCREMENT for table `admin_dashboards`
@@ -1815,7 +1760,7 @@ ALTER TABLE `analytics_settings`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `booking_settings`
@@ -1834,6 +1779,12 @@ ALTER TABLE `destination_settings`
 --
 ALTER TABLE `guide_destinations`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `guide_reviews`
+--
+ALTER TABLE `guide_reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `homepage_content`
@@ -1863,19 +1814,19 @@ ALTER TABLE `local_culture`
 -- AUTO_INCREMENT for table `login_activity`
 --
 ALTER TABLE `login_activity`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=247;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=271;
 
 --
 -- AUTO_INCREMENT for table `otp_codes`
 --
 ALTER TABLE `otp_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=118;
 
 --
 -- AUTO_INCREMENT for table `registration_tour_guide`
 --
 ALTER TABLE `registration_tour_guide`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `report_settings`
@@ -1905,25 +1856,25 @@ ALTER TABLE `status_logs`
 -- AUTO_INCREMENT for table `tourist_spots`
 --
 ALTER TABLE `tourist_spots`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `tour_guides`
 --
 ALTER TABLE `tour_guides`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `tour_guide_availability`
 --
 ALTER TABLE `tour_guide_availability`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tour_guide_languages`
 --
 ALTER TABLE `tour_guide_languages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tour_guide_profiles`
@@ -1953,7 +1904,7 @@ ALTER TABLE `travel_tips`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `user_favorites`
@@ -2028,6 +1979,14 @@ ALTER TABLE `guide_destinations`
   ADD CONSTRAINT `fk_guide_destinations_guide` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `guide_reviews`
+--
+ALTER TABLE `guide_reviews`
+  ADD CONSTRAINT `guide_reviews_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `guide_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `guide_reviews_ibfk_3` FOREIGN KEY (`guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `login_activity`
 --
 ALTER TABLE `login_activity`
@@ -2055,7 +2014,7 @@ ALTER TABLE `tour_guides`
 -- Constraints for table `tour_guide_availability`
 --
 ALTER TABLE `tour_guide_availability`
-  ADD CONSTRAINT `tour_guide_availability_ibfk_1` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `tour_guide_availability_ibfk_1` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tour_guide_languages`
@@ -2073,8 +2032,8 @@ ALTER TABLE `tour_guide_profiles`
 -- Constraints for table `tour_guide_reviews`
 --
 ALTER TABLE `tour_guide_reviews`
-  ADD CONSTRAINT `tour_guide_reviews_ibfk_1` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guide_profiles` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `tour_guide_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `tour_guide_reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tour_guide_reviews_ibfk_3` FOREIGN KEY (`tour_guide_id`) REFERENCES `tour_guides` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_favorites`
