@@ -571,6 +571,10 @@ if ($conn) {
                                 <span class="material-icons-outlined">people</span>
                                 <span>Saved Guides</span>
                             </a>
+                            <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                <span class="material-icons-outlined">tune</span>
+                                <span>Preferences</span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a href="user-logout.php" class="dropdown-item">
                                 <span class="material-icons-outlined">logout</span>
@@ -856,5 +860,8 @@ if ($conn) {
             window.location.href = '../log-in/logout.php';
         }
     </script>
+
+    <!-- Preferences Modal -->
+    <?php include __DIR__ . '/../components/preferences-modal.php'; ?>
 </body>
 </html>

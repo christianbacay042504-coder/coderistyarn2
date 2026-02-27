@@ -30,8 +30,18 @@ function getDatabaseConnection() {
 
 // Close database connection
 function closeDatabaseConnection($conn) {
-    if ($conn) {
-        $conn->close();
+    if ($conn && $conn instanceof mysqli) {
+        try {
+            if (!$conn->connect_error) {
+                $conn->close();
+            }
+        } catch (Error $e) {
+            // Connection is already closed or invalid
+            error_log("Database connection already closed: " . $e->getMessage());
+        } catch (Exception $e) {
+            // Connection is already closed or invalid
+            error_log("Database connection already closed: " . $e->getMessage());
+        }
     }
 }
 

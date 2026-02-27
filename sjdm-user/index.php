@@ -30,7 +30,6 @@ if ($conn && $isLoggedIn) {
         while ($pref = $prefResult->fetch_assoc()) {
             $userPreferences[] = $pref['category'];
         }
-        $prefStmt->close();
     }
 }
 
@@ -1933,60 +1932,7 @@ $logoMime = 'image/png';
                 </button>
             </div>
 
-            <?php if (!empty($userPreferences)): ?>
-            <div class="user-preferences-section">
-                <h2 class="section-title">Your Interests</h2>
-                <div class="preferences-display">
-                    <?php 
-                    $categoryMap = [
-                        'nature' => 'Nature & Waterfalls',
-                        'farm' => 'Farms & Eco-Tourism', 
-                        'park' => 'Parks & Recreation',
-                        'adventure' => 'Adventure & Activities',
-                        'cultural' => 'Cultural & Historical',
-                        'religious' => 'Religious Sites',
-                        'entertainment' => 'Entertainment & Leisure',
-                        'food' => 'Food & Dining',
-                        'shopping' => 'Shopping & Markets',
-                        'wellness' => 'Wellness & Relaxation',
-                        'education' => 'Educational & Learning',
-                        'family' => 'Family-Friendly',
-                        'photography' => 'Photography Spots',
-                        'wildlife' => 'Wildlife & Nature',
-                        'outdoor' => 'Outdoor Activities'
-                    ];
-
-                    $iconMap = [
-                        'nature' => 'forest',
-                        'farm' => 'agriculture',
-                        'park' => 'park',
-                        'adventure' => 'hiking',
-                        'cultural' => 'museum',
-                        'religious' => 'church',
-                        'entertainment' => 'sports_esports',
-                        'food' => 'restaurant',
-                        'shopping' => 'shopping_cart',
-                        'wellness' => 'spa',
-                        'education' => 'school',
-                        'family' => 'family_restroom',
-                        'photography' => 'photo_camera',
-                        'wildlife' => 'pets',
-                        'outdoor' => 'terrain'
-                    ];
-                    
-                    foreach ($userPreferences as $preference): ?>
-                        <div class="preference-tag">
-                            <span class="material-icons-outlined">
-                                <?php echo $iconMap[$preference] ?? 'category'; ?>
-                            </span>
-                            <?php echo htmlspecialchars($categoryMap[$preference] ?? $preference); ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <h2 class="section-title">Featured Destinations for You</h2>
+            <h2 class="section-title">Featured Destinations</h2>
             <div class="destinations-grid">
                 <?php if (!empty($featuredSpots)): ?>
                     <?php foreach ($featuredSpots as $spot): ?>
@@ -2002,8 +1948,16 @@ $logoMime = 'image/png';
                                         <span class="material-icons-outlined">star</span>
                                         <?php echo number_format($spot['rating'], 1); ?>
                                     </span>
-                                    <span class="category"><?php echo ucfirst(htmlspecialchars($spot['category'])); ?></span>
+                                    <span class="category"><?php echo htmlspecialchars($spot['category']); ?></span>
                                 </div>
+                                <div class="destination-content">
+                                    <h3><?php echo htmlspecialchars($spot['name']); ?></h3>
+                                    <p><?php echo htmlspecialchars($spot['description']); ?></p>
+                                    <div class="destination-meta">
+                                        <span class="rating">
+                                            <span class="material-icons-outlined">star</span>
+                                            <?php echo number_format($spot['rating'], 1); ?>
+                                        </span>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -2013,8 +1967,6 @@ $logoMime = 'image/png';
                     </div>
                 <?php endif; ?>
             </div>
-
-            <h2 class="section-title"><?php echo htmlspecialchars($homepageContent['section_title']['why_visit'] ?? 'Why Visit San Jose del Monte?'); ?></h2>
             <div class="stats-grid">
                 <?php if (!empty($homepageContent['stat_title'])): ?>
                     <?php foreach ($homepageContent['stat_title'] as $key => $title): ?>

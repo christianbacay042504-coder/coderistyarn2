@@ -1435,6 +1435,10 @@ if ($conn) {
                                     <span class="material-icons-outlined">favorite</span>
                                     <span>Saved Tours</span>
                                 </a>
+                                <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                    <span class="material-icons-outlined">tune</span>
+                                    <span>Preferences</span>
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="logout.php" class="dropdown-item">
                                     <span class="material-icons-outlined">logout</span>
@@ -1561,89 +1565,6 @@ if ($conn) {
                 }
                 ?>
             </div>
-
-            <?php if (!empty($currentUser)): ?>
-            <div class="user-preferences-section">
-                <h2 class="section-title">Your Interests</h2>
-                <div class="preferences-display">
-                    <?php 
-                    // Get user preferences from database or use defaults
-                    $userPreferences = [];
-                    
-                    // Check if user_preferences table exists first
-                    $tableExists = false;
-                    if ($conn) {
-                        $checkTable = $conn->prepare("SHOW TABLES LIKE 'user_preferences'");
-                        $checkTable->execute();
-                        $tableExists = $checkTable->get_result()->num_rows > 0;
-                        $checkTable->close();
-                        
-                        if ($tableExists && isset($_SESSION['user_id'])) {
-                            $stmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
-                            if ($stmt) {
-                                $stmt->bind_param("i", $_SESSION['user_id']);
-                                $stmt->execute();
-                                $result = $stmt->get_result();
-                                while ($pref = $result->fetch_assoc()) {
-                                    $userPreferences[] = $pref['category'];
-                                }
-                                $stmt->close();
-                            }
-                        }
-                    }
-                    
-                    // Default preferences if none set or table doesn't exist
-                    if (empty($userPreferences)) {
-                        $userPreferences = ['nature', 'adventure', 'cultural'];
-                    }
-                    
-                    $categoryMap = [
-                        'nature' => 'Nature & Waterfalls',
-                        'farm' => 'Farms & Eco-Tourism', 
-                        'park' => 'Parks & Recreation',
-                        'adventure' => 'Adventure & Activities',
-                        'cultural' => 'Cultural & Historical',
-                        'religious' => 'Religious Sites',
-                        'entertainment' => 'Entertainment & Leisure',
-                        'food' => 'Food & Dining',
-                        'shopping' => 'Shopping & Markets',
-                        'wellness' => 'Wellness & Relaxation',
-                        'education' => 'Educational & Learning',
-                        'family' => 'Family-Friendly',
-                        'photography' => 'Photography Spots',
-                        'wildlife' => 'Wildlife & Nature',
-                        'outdoor' => 'Outdoor Activities'
-                    ];
-                    
-                    $iconMap = [
-                        'nature' => 'forest',
-                        'farm' => 'agriculture',
-                        'park' => 'park',
-                        'adventure' => 'hiking',
-                        'cultural' => 'museum',
-                        'religious' => 'church',
-                        'entertainment' => 'sports_esports',
-                        'food' => 'restaurant',
-                        'shopping' => 'shopping_cart',
-                        'wellness' => 'spa',
-                        'education' => 'school',
-                        'family' => 'family_restroom',
-                        'photography' => 'photo_camera',
-                        'wildlife' => 'pets',
-                        'outdoor' => 'terrain'
-                    ];
-                    
-                    foreach ($userPreferences as $preference): ?>
-                        <div class="preference-tag">
-                            <span class="material-icons-outlined">
-                                <?php echo $iconMap[$preference] ?? 'category'; ?>
-                            </span>
-                            <?php echo htmlspecialchars($categoryMap[$preference] ?? $preference); ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php endif; ?>
 
             <!-- Dynamic Guide Profile Modals -->
             <?php
@@ -1856,9 +1777,10 @@ if ($conn) {
 
         // bookGuide function is handled in script.js
 
-        // Close modal when clicking outside
+        // Close modal when clicking outside (but not on modal content)
         document.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal-overlay')) {
+            if (event.target.classList.contains('modal-overlay') && 
+                !event.target.closest('.modal-content')) {
                 const modalId = event.target.id;
                 if (modalId) {
                     closeModal(modalId);

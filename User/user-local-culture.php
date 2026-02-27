@@ -350,14 +350,15 @@ if ($conn && isset($_SESSION['user_id'])) {
                                     <span class="material-icons-outlined">person</span>
                                     My Profile
                                 </a>
-                                <a href="user-booking-history.php" class="dropdown-item">
-                                    <span class="material-icons-outlined">event</span>
-                                    My Bookings
+                                <a href="user-saved-tours.php" class="dropdown-item">
+                                    <span class="material-icons-outlined">favorite</span>
+                                    <span>Saved Tours</span>
                                 </a>
-                                <a href="#" class="dropdown-item">
-                                    <span class="material-icons-outlined">settings</span>
-                                    Settings
+                                <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                    <span class="material-icons-outlined">tune</span>
+                                    <span>Preferences</span>
                                 </a>
+                                <div class="dropdown-divider"></div>
                                 <a href="user-logout.php" class="dropdown-item">
                                     <span class="material-icons-outlined">logout</span>
                                     Logout
@@ -469,5 +470,8 @@ if ($conn && isset($_SESSION['user_id'])) {
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             <?php endif; ?>
         </script>
+
+    <!-- Preferences Modal -->
+    <?php include __DIR__ . '/../components/preferences-modal.php'; ?>
     </body>
 </html>

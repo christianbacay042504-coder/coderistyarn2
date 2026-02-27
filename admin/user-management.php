@@ -774,8 +774,7 @@ function getUsersList($conn, $page = 1, $limit = 15, $search = '', $userType = '
 
     // Get users with pagination
     $usersQuery = "SELECT u.*, a.admin_mark, tg.name as guide_name,
-                   (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) as total_bookings,
-                   (SELECT SUM(total_amount) FROM bookings WHERE user_id = u.id AND status = 'completed') as total_spent
+                   (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) as total_bookings
                    FROM users u 
                    LEFT JOIN admin_users a ON u.id = a.user_id
                    LEFT JOIN tour_guides tg ON u.id = tg.user_id WHERE 1=1";
@@ -1721,26 +1720,6 @@ $queryValues = [
 
 
 
-                    <button class="btn-primary" onclick="showAddUserModal()">
-
-
-
-                        <span class="material-icons-outlined">add</span>
-
-
-
-                        Add User
-
-
-
-                    </button>
-
-
-
-                    
-
-
-
                     <!-- Admin Profile Dropdown -->
 
 
@@ -2068,10 +2047,6 @@ $queryValues = [
 
 
 
-                                <th>Total Spent</th>
-
-
-
                                 <th>Joined</th>
 
 
@@ -2154,10 +2129,6 @@ $queryValues = [
 
 
                                     <td><?php echo $user['total_bookings']; ?></td>
-
-
-
-                                    <td>₱<?php echo number_format($user['total_spent'] ?? 0, 2); ?></td>
 
 
 
@@ -2455,14 +2426,6 @@ $queryValues = [
 
                     <div class="detail-item">
 
-                        <label>Total Spent:</label>
-
-                        <span id="viewUserSpent">-</span>
-
-                    </div>
-
-                    <div class="detail-item">
-
                         <label>Joined Date:</label>
 
                         <span id="viewUserJoined">-</span>
@@ -2731,10 +2694,6 @@ $queryValues = [
 
                 <div class="modal-footer">
 
-                    <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
-
-                    <button type="submit" class="btn-primary">Update User</button>
-
                 </div>
 
             </form>
@@ -2887,10 +2846,6 @@ $queryValues = [
 
             <div class="modal-footer">
 
-                <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
-
-                <button type="submit" class="btn-primary">Update User</button>
-
             </div>
 
         </form>
@@ -3040,7 +2995,6 @@ $queryValues = [
             document.getElementById('viewUserStatusDetail').className = `status-badge status-${data.data.status || 'inactive'}`;
             document.getElementById('viewUserType').textContent = data.data.user_type || 'user';
             document.getElementById('viewUserBookings').textContent = data.data.total_bookings || 0;
-            document.getElementById('viewUserSpent').textContent = `₱${(data.data.total_spent || 0).toFixed(2)}`;
             document.getElementById('viewUserJoined').textContent = data.data.created_at ? new Date(data.data.created_at).toLocaleDateString() : '-';
             document.getElementById('viewUserLastLogin').textContent = data.data.last_login ? new Date(data.data.last_login).toLocaleString() : '-';
 

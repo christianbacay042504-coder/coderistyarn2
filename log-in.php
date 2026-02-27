@@ -380,19 +380,7 @@ if (isset($_SESSION['logout_message'])) {
                             <span class="material-icons-outlined">arrow_forward</span>
                         </button>
                         
-                        <div class="social-login">
-                            <p>Or continue with</p>
-                            <div class="social-buttons">
-                                <button type="button" class="social-btn google">
-                                    <span class="material-icons-outlined">mail</span>
-                                    Google
-                                </button>
-                                <button type="button" class="social-btn facebook">
-                                    <span class="material-icons-outlined">facebook</span>
-                                    Facebook
-                                </button>
-                            </div>
-                        </div>
+                       
                         
                         <div class="register-link">
                             <p>Don't have an account? <a href="log-in/register-user.php">Register Now</a></p>

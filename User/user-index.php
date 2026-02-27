@@ -34,16 +34,30 @@ if ($conn && $isLoggedIn) {
     }
 }
 
-// Fetch featured destinations from admin database
+// Fetch featured destinations based on user preferences
 $featuredSpots = [];
 if ($conn) {
-    $query = "SELECT * FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 6";
-    $result = $conn->query($query);
+    if (!empty($userPreferences)) {
+        // Filter by user preferences
+        $placeholders = str_repeat('?,', count($userPreferences));
+        $placeholders = rtrim($placeholders, ',');
+        $query = "SELECT * FROM tourist_spots WHERE status = 'active' AND category IN ($placeholders) ORDER BY rating DESC, review_count DESC LIMIT 6";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param(str_repeat('s', count($userPreferences)), ...$userPreferences);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        // No preferences set, show all featured spots
+        $query = "SELECT * FROM tourist_spots WHERE status = 'active' ORDER BY rating DESC, review_count DESC LIMIT 6";
+        $result = $conn->query($query);
+    }
+    
     if ($result && $result->num_rows > 0) {
         while ($spot = $result->fetch_assoc()) {
             $featuredSpots[] = $spot;
         }
     }
+    if (isset($stmt)) $stmt->close();
 }
 
 // Handle login form submission
@@ -1941,6 +1955,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <span class="material-icons-outlined">favorite</span>
                                     <span>Saved Tours</span>
                                 </a>
+                                <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                    <span class="material-icons-outlined">tune</span>
+                                    <span>Preferences</span>
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="user-logout.php" class="dropdown-item">
                                     <span class="material-icons-outlined">logout</span>
@@ -2018,7 +2036,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <?php endif; ?>
 
-            <h2 class="section-title">Featured Destinations for You</h2>
+            <h2 class="section-title">
+                <?php if (!empty($userPreferences)): ?>
+                    Featured Destinations Based on Your Preferences
+                <?php else: ?>
+                    Featured Destinations
+                <?php endif; ?>
+            </h2>
             <div class="destinations-grid">
                 <?php if (!empty($featuredSpots)): ?>
                     <?php foreach ($featuredSpots as $spot): ?>
@@ -2041,7 +2065,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="no-destinations">
-                        <p>No featured destinations available at the moment.</p>
+                        <?php if (!empty($userPreferences)): ?>
+                            <p>No destinations found matching your preferences. Try selecting different categories!</p>
+                        <?php else: ?>
+                            <p>No featured destinations available at the moment.</p>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -2378,5 +2406,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             initUserProfileDropdown();
         });
     </script>
+
+    <!-- Preferences Modal -->
+    <?php include __DIR__ . '/../components/preferences-modal.php'; ?>
 </body>
 </html>

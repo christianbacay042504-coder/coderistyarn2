@@ -81,6 +81,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 // Get current user data (optional - for logged in users)
 $conn = getDatabaseConnection();
 $currentUser = [];
+$userPreferences = [];
 if ($conn && $isLoggedIn) {
     $stmt = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
@@ -92,6 +93,16 @@ if ($conn && $isLoggedIn) {
             'name' => $user['first_name'] . ' ' . $user['last_name'],
             'email' => $user['email']
         ];
+        
+        // Get user preferences for AI filtering
+        $prefStmt = $conn->prepare("SELECT category FROM user_preferences WHERE user_id = ?");
+        $prefStmt->bind_param("i", $_SESSION['user_id']);
+        $prefStmt->execute();
+        $prefResult = $prefStmt->get_result();
+        while ($pref = $prefResult->fetch_assoc()) {
+            $userPreferences[] = $pref['category'];
+        }
+        $prefStmt->close();
     }
     closeDatabaseConnection($conn);
 }
@@ -1556,6 +1567,14 @@ if ($conn && $isLoggedIn) {
                                 <span class="material-icons-outlined">favorite</span>
                                 <span>Saved Spots</span>
                             </a>
+                            <a href="user-saved-tours.php" class="dropdown-item">
+                                <span class="material-icons-outlined">favorite</span>
+                                <span>Saved Tours</span>
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                <span class="material-icons-outlined">tune</span>
+                                <span>Preferences</span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a href="user-logout.php" class="dropdown-item">
                                 <span class="material-icons-outlined">logout</span>
@@ -1598,6 +1617,66 @@ if ($conn && $isLoggedIn) {
                     <span class="weather-label"><?php echo htmlspecialchars($weatherLabel); ?></span>
                 </div>
             </div>
+
+            <!-- AI Preferences Display -->
+            <?php if (!empty($userPreferences)): ?>
+            <div class="ai-preferences-display" style="background: linear-gradient(135deg, rgba(44, 95, 45, 0.05), rgba(44, 95, 45, 0.02)); border: 1px solid rgba(44, 95, 45, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <h3 style="color: #2c5f2d; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span class="material-icons-outlined" style="color: #2c5f2d;">psychology</span>
+                    🤖 Your Selected Interests
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <?php 
+                    $categoryMap = [
+                        'nature' => 'Nature & Waterfalls',
+                        'farm' => 'Farms & Eco-Tourism', 
+                        'park' => 'Parks & Recreation',
+                        'adventure' => 'Adventure & Activities',
+                        'cultural' => 'Cultural & Historical',
+                        'religious' => 'Religious Sites',
+                        'entertainment' => 'Entertainment & Leisure',
+                        'food' => 'Food & Dining',
+                        'shopping' => 'Shopping & Markets',
+                        'wellness' => 'Wellness & Relaxation',
+                        'education' => 'Educational & Learning',
+                        'family' => 'Family-Friendly',
+                        'photography' => 'Photography Spots',
+                        'wildlife' => 'Wildlife & Nature',
+                        'outdoor' => 'Outdoor Activities'
+                    ];
+                    
+                    $iconMap = [
+                        'nature' => 'forest',
+                        'farm' => 'agriculture',
+                        'park' => 'park',
+                        'adventure' => 'hiking',
+                        'cultural' => 'museum',
+                        'religious' => 'church',
+                        'entertainment' => 'sports_esports',
+                        'food' => 'restaurant',
+                        'shopping' => 'shopping_cart',
+                        'wellness' => 'spa',
+                        'education' => 'school',
+                        'family' => 'family_restroom',
+                        'photography' => 'photo_camera',
+                        'wildlife' => 'pets',
+                        'outdoor' => 'terrain'
+                    ];
+                    
+                    foreach ($userPreferences as $preference): ?>
+                        <div style="background: rgba(44, 95, 45, 0.1); color: #2c5f2d; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <span class="material-icons-outlined" style="font-size: 14px;">
+                                <?php echo $iconMap[$preference] ?? 'category'; ?>
+                            </span>
+                            <?php echo htmlspecialchars($categoryMap[$preference] ?? $preference); ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <p style="color: #2c5f2d; font-size: 14px; margin-top: 12px; font-style: italic;">
+                    🎯 <strong>AI-Powered Results:</strong> Tourist spots below are filtered based on your selected interests!
+                </p>
+            </div>
+            <?php endif; ?>
 
             <!-- Filters -->
             <div class="travelry-filters">
@@ -1646,18 +1725,37 @@ if ($conn && $isLoggedIn) {
             <!-- Tourist Spots Grid -->
             <div class="travelry-grid" id="spotsGrid">
                 <?php
-                // Fetch tourist spots from database with assigned guides
+                // Fetch tourist spots from database with AI filtering
                 $conn = getDatabaseConnection();
                 if ($conn) {
-                    $query = "SELECT ts.*, 
-                             GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
-                             FROM tourist_spots ts 
-                             LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
-                             LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
-                             WHERE ts.status = 'active' 
-                             GROUP BY ts.id 
-                             ORDER BY ts.name";
-                    $result = $conn->query($query);
+                    if (!empty($userPreferences)) {
+                        // Filter by user preferences (AI-powered)
+                        $placeholders = str_repeat('?,', count($userPreferences));
+                        $placeholders = rtrim($placeholders, ',');
+                        $query = "SELECT ts.*, 
+                                 GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
+                                 FROM tourist_spots ts 
+                                 LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
+                                 LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
+                                 WHERE ts.status = 'active' AND ts.category IN ($placeholders)
+                                 GROUP BY ts.id 
+                                 ORDER BY ts.name";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param(str_repeat('s', count($userPreferences)), ...$userPreferences);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                    } else {
+                        // No preferences set, show all spots
+                        $query = "SELECT ts.*, 
+                                 GROUP_CONCAT(DISTINCT CONCAT(tg.id, ':', tg.name, ':', tg.specialty, ':', tg.rating, ':', tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info
+                                 FROM tourist_spots ts 
+                                 LEFT JOIN guide_destinations gd ON ts.id = gd.destination_id 
+                                 LEFT JOIN tour_guides tg ON gd.guide_id = tg.id AND tg.status = 'active'
+                                 WHERE ts.status = 'active' 
+                                 GROUP BY ts.id 
+                                 ORDER BY ts.name";
+                        $result = $conn->query($query);
+                    }
                     
                     if ($result && $result->num_rows > 0) {
                         while ($spot = $result->fetch_assoc()) {
@@ -2804,5 +2902,8 @@ if ($conn && $isLoggedIn) {
             initUserProfileDropdown();
         });
     </script>
+
+    <!-- Preferences Modal -->
+    <?php include __DIR__ . '/../components/preferences-modal.php'; ?>
 </body>
 </html>

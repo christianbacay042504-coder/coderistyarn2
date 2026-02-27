@@ -390,7 +390,7 @@ if (isLoggedIn()) {
                 if (data.success) {
                     showAlert('Account created successfully! Redirecting to preferences...', 'success');
                     setTimeout(() => {
-                        window.location.href = '../sjdm-user/user-preferences.php';
+                        window.location.href = '../User/user-preferences-page.php';
                     }, 1500);
                 } else {
                     showAlert(data.message, 'error');

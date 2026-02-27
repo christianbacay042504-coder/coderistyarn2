@@ -586,6 +586,10 @@ if ($conn) {
                                 <span class="material-icons-outlined">favorite</span>
                                 <span>Saved Tours</span>
                             </a>
+                            <a href="#" class="dropdown-item" onclick="openPreferencesModal(); return false;">
+                                <span class="material-icons-outlined">tune</span>
+                                <span>Preferences</span>
+                            </a>
                             <div class="dropdown-divider"></div>
                             <a href="logout.php" class="dropdown-item">
                                 <span class="material-icons-outlined">logout</span>
