@@ -574,7 +574,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         </p>
                     </div>
 
-                    <button class="btn-primary" onclick="checkAuth('Burong Falls')" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
+                    <button class="btn-primary" onclick="window.location.href='/coderistyarn2/User/user-book.php'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">hiking</span>
                         Book a Guide
                     </button>

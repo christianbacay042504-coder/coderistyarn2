@@ -758,7 +758,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         <li>Extra cash for farm products</li>
                     </ul>
 
-                    <button class="booking-btn glow-effect" onclick="checkAuth('Paradise Hill Farm')">
+                    <button class="booking-btn glow-effect" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
                         <span class="material-icons-outlined">agriculture</span>
                         BOOK FARM EXPERIENCE
                     </button>

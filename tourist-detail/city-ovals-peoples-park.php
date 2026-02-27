@@ -605,7 +605,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         </div>
                     </div>
 
-                    <button class="btn-secondary" onclick="checkAuth('City Ovals People\'s Park')" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
+                    <button class="btn-secondary" onclick="window.location.href='/coderistyarn2/User/user-book.php'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">tour</span>
                         Book City Tour Guide
                     </button>

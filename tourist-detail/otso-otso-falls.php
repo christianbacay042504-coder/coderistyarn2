@@ -1724,7 +1724,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
 
 
 
-                    <button class="booking-btn glow-effect" onclick="checkAuth('Otso-Otso Falls')">
+                    <button class="booking-btn glow-effect" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
 
                         <span class="material-icons-outlined">event_available</span>
 

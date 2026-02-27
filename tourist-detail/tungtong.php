@@ -790,7 +790,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         <li>Inform someone of your hiking plans</li>
                     </ul>
 
-                    <button class="booking-btn glow-effect" onclick="checkAuth('Tungtong Falls')">
+                    <button class="booking-btn glow-effect" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
                         Book a Guide
                     </button>
                 </div>

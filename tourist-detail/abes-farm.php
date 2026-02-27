@@ -539,7 +539,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         </div>
                     </div>
 
-                    <button class="btn-primary" onclick="checkAuth('Abes Farm')">
+                    <button class="btn-primary" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
                         Book Farm Tour
                     </button>
                 </div>
@@ -553,7 +553,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     and create lasting memories with your family and friends.
                 </p>
                 <div class="cta-buttons">
-                    <button class="btn-primary" onclick="checkAuth('Abes Farm')">
+                    <button class="btn-primary" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
                         Book Your Tour
                     </button>
                     <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-guides-page.php'">

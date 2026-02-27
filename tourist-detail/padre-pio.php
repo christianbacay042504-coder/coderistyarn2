@@ -720,7 +720,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         </div>
                     </div>
 
-                    <button class="booking-btn glow-effect" onclick="location.href='/coderistyarn2/sjdm-user/index.php#guides'">
+                    <button class="booking-btn glow-effect" onclick="window.location.href='/coderistyarn2/User/user-book.php'">
                         <span class="material-icons-outlined">tour</span>
                         BOOK SPIRITUAL TOUR
                     </button>
