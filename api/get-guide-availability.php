@@ -35,90 +35,70 @@ try {
     if (!$conn) {
         throw new Exception('Database connection failed');
     }
-
-    // Get availability slots for the specified month and year
-    $query = "SELECT 
-                DATE(available_date) as date,
-                start_time,
-                end_time,
-                status,
-                id as availability_id
-              FROM tour_guide_availability 
-              WHERE tour_guide_id = ? 
-                AND YEAR(available_date) = ? 
-                AND MONTH(available_date) = ?
-              ORDER BY available_date, start_time";
     
-    $stmt = $conn->prepare($query);
-    if (!$stmt) {
-        throw new Exception('Query preparation failed');
+    // Get existing bookings for this guide in the specified month/year
+    $bookedDates = [];
+    $bookingsQuery = "SELECT DISTINCT DATE(booking_date) as booked_date 
+                     FROM bookings 
+                     WHERE guide_id = ? 
+                       AND YEAR(booking_date) = ? 
+                       AND MONTH(booking_date) = ?
+                       AND status IN ('confirmed', 'pending')";
+    
+    $bookingsStmt = $conn->prepare($bookingsQuery);
+    $bookingsStmt->bind_param('iii', $guideId, $year, $month);
+    $bookingsStmt->execute();
+    $bookingsResult = $bookingsStmt->get_result();
+    
+    while ($row = $bookingsResult->fetch_assoc()) {
+        $bookedDates[] = $row['booked_date'];
     }
+    $bookingsStmt->close();
     
-    $stmt->bind_param('iii', $guideId, $year, $month);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    closeDatabaseConnection($conn);
     
-    // Group availability by date and calculate day-level status
-    $dateGroups = [];
-    while ($row = $result->fetch_assoc()) {
-        $date = $row['date'];
+    // Generate all days for the specified month and year
+    $availability = [];
+    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    
+    for ($day = 1; $day <= $daysInMonth; $day++) {
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
         
-        if (!isset($dateGroups[$date])) {
-            $dateGroups[$date] = [
+        // Skip past dates and today
+        $dateObj = new DateTime($date);
+        $today = new DateTime('today');
+        if ($dateObj <= $today) {
+            continue;
+        }
+        
+        // Check if this date is already booked
+        if (in_array($date, $bookedDates)) {
+            $availability[] = [
                 'date' => $date,
+                'status' => 'unavailable',
+                'message' => 'Fully booked',
                 'slots' => [],
                 'total_slots' => 0,
-                'available_slots' => 0,
-                'booked_slots' => 0,
-                'unavailable_slots' => 0
+                'available_slots' => 0
+            ];
+        } else {
+            // Date is available
+            $availability[] = [
+                'date' => $date,
+                'status' => 'available',
+                'message' => 'Available',
+                'slots' => [
+                    [
+                        'availability_id' => 0,
+                        'start_time' => '09:00:00',
+                        'end_time' => '17:00:00',
+                        'status' => 'available'
+                    ]
+                ],
+                'total_slots' => 1,
+                'available_slots' => 1
             ];
         }
-        
-        $dateGroups[$date]['slots'][] = [
-            'availability_id' => $row['availability_id'],
-            'start_time' => $row['start_time'],
-            'end_time' => $row['end_time'],
-            'status' => $row['status']
-        ];
-        
-        $dateGroups[$date]['total_slots']++;
-        
-        switch ($row['status']) {
-            case 'available':
-                $dateGroups[$date]['available_slots']++;
-                break;
-            case 'booked':
-                $dateGroups[$date]['booked_slots']++;
-                break;
-            case 'unavailable':
-                $dateGroups[$date]['unavailable_slots']++;
-                break;
-        }
-    }
-    
-    // Convert to final availability array with day-level status
-    $availability = [];
-    foreach ($dateGroups as $dateData) {
-        $dayStatus = 'available';
-        $message = 'Available';
-        
-        if ($dateData['booked_slots'] > 0 && $dateData['available_slots'] === 0) {
-            $dayStatus = 'unavailable';
-            $message = 'Fully booked';
-        } elseif ($dateData['booked_slots'] > 0 || $dateData['available_slots'] < $dateData['total_slots']) {
-            $dayStatus = 'limited';
-            $remainingSlots = $dateData['available_slots'];
-            $message = $remainingSlots > 0 ? "Only $remainingSlots slot" . ($remainingSlots > 1 ? 's' : '') . ' left' : 'Limited availability';
-        }
-        
-        $availability[] = [
-            'date' => $dateData['date'],
-            'status' => $dayStatus,
-            'message' => $message,
-            'slots' => $dateData['slots'],
-            'total_slots' => $dateData['total_slots'],
-            'available_slots' => $dateData['available_slots']
-        ];
     }
     
     echo json_encode([
@@ -128,9 +108,6 @@ try {
         'year' => $year,
         'month' => $month
     ]);
-    
-    $stmt->close();
-    closeDatabaseConnection($conn);
     
 } catch (Exception $e) {
     echo json_encode([

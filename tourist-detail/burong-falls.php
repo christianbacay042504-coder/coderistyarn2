@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../functions/tourist-detail-helpers.php';
+
+// Get assigned guide for this tourist spot
+$assignedGuide = initializeAssignedGuide('Burong Falls');
 
 // Function to handle booking button clicks
 function handleBookingClick($destination) {
@@ -424,6 +428,111 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                 text-align: center;
             }
         }
+    
+    /* Tour Guide Section Styles */
+    .tour-guide-section {
+        margin: 30px 0;
+        padding: 25px;
+        background: linear-gradient(135deg, rgba(44, 95, 45, 0.05), rgba(76, 140, 76, 0.1));
+        border-radius: 15px;
+        border: 1px solid rgba(44, 95, 45, 0.2);
+    }
+
+    .tour-guide-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .tour-guide-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        border: 3px solid white;
+        box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+    }
+
+    .tour-guide-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .tour-guide-info h4 {
+        margin: 0 0 5px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .tour-guide-specialty {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 5px;
+    }
+
+    .tour-guide-rating {
+        font-size: 0.85rem;
+        color: #ff9800;
+        font-weight: 600;
+    }
+
+    .tour-guide-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .tour-guide-contact-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: white;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        border: 1px solid rgba(44, 95, 45, 0.1);
+    }
+
+    .tour-guide-contact-item .material-icons-outlined {
+        color: var(--primary);
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .tour-guide-bio {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--text-light);
+        border: 1px solid rgba(44, 95, 45, 0.1);
+    }
+
+    .no-guide-assigned {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-light);
+        font-style: italic;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+    }
+
     </style>
 </head>
 <body>
@@ -574,6 +683,63 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                         </p>
                     </div>
 
+
+                    <!-- Tour Guide Section -->
+                    <div class="tour-guide-section">
+                        <h3 class="section-subtitle" style="margin-top: 0; color: var(--primary);">
+                            <span class="material-icons-outlined" style="vertical-align: middle; margin-right: 8px;">person</span>
+                            Assigned Tour Guide
+                        </h3>
+                        
+                        <?php if ($assignedGuide): ?>
+                            <div class="tour-guide-header">
+                                <div class="tour-guide-avatar">
+                                    <?php if ($assignedGuide['photo_url']): ?>
+                                        <img src="<?php echo htmlspecialchars($assignedGuide['photo_url']); ?>" alt="<?php echo htmlspecialchars($assignedGuide['name']); ?>">
+                                    <?php else: ?>
+                                        <?php echo strtoupper(substr($assignedGuide['name'], 0, 1)); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="tour-guide-info">
+                                    <h4><?php echo htmlspecialchars($assignedGuide['name']); ?></h4>
+                                    <div class="tour-guide-specialty"><?php echo formatGuideSpecialty($assignedGuide['specialty']); ?></div>
+                                    <div class="tour-guide-rating">
+                                        <?php echo formatGuideRating($assignedGuide['rating'], $assignedGuide['review_count']); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <?php if ($assignedGuide['bio']): ?>
+                                <div class="tour-guide-bio">
+                                    <strong>About your guide:</strong> <?php echo htmlspecialchars($assignedGuide['bio']); ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="tour-guide-details">
+                                <?php if ($assignedGuide['contact_number']): ?>
+                                <div class="tour-guide-contact-item">
+                                    <span class="material-icons-outlined">phone</span>
+                                    <span><?php echo htmlspecialchars($assignedGuide['contact_number']); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($assignedGuide['email']): ?>
+                                <div class="tour-guide-contact-item">
+                                    <span class="material-icons-outlined">email</span>
+                                    <span><?php echo htmlspecialchars($assignedGuide['email']); ?></span>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-guide-assigned">
+                                <span class="material-icons-outlined" style="font-size: 2rem; display: block; margin-bottom: 10px;">person_off</span>
+                                No tour guide assigned yet for this destination.<br>
+                                <small>Contact us for guided tour arrangements.</small>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+
                     <button class="btn-primary" onclick="window.location.href='/coderistyarn2/User/user-book.php'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">hiking</span>
                         Book a Guide
@@ -589,6 +755,63 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     a safe and memorable wilderness experience.
                 </p>
                 <div class="cta-buttons">
+
+                    <!-- Tour Guide Section -->
+                    <div class="tour-guide-section">
+                        <h3 class="section-subtitle" style="margin-top: 0; color: var(--primary);">
+                            <span class="material-icons-outlined" style="vertical-align: middle; margin-right: 8px;">person</span>
+                            Assigned Tour Guide
+                        </h3>
+                        
+                        <?php if ($assignedGuide): ?>
+                            <div class="tour-guide-header">
+                                <div class="tour-guide-avatar">
+                                    <?php if ($assignedGuide['photo_url']): ?>
+                                        <img src="<?php echo htmlspecialchars($assignedGuide['photo_url']); ?>" alt="<?php echo htmlspecialchars($assignedGuide['name']); ?>">
+                                    <?php else: ?>
+                                        <?php echo strtoupper(substr($assignedGuide['name'], 0, 1)); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="tour-guide-info">
+                                    <h4><?php echo htmlspecialchars($assignedGuide['name']); ?></h4>
+                                    <div class="tour-guide-specialty"><?php echo formatGuideSpecialty($assignedGuide['specialty']); ?></div>
+                                    <div class="tour-guide-rating">
+                                        <?php echo formatGuideRating($assignedGuide['rating'], $assignedGuide['review_count']); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <?php if ($assignedGuide['bio']): ?>
+                                <div class="tour-guide-bio">
+                                    <strong>About your guide:</strong> <?php echo htmlspecialchars($assignedGuide['bio']); ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="tour-guide-details">
+                                <?php if ($assignedGuide['contact_number']): ?>
+                                <div class="tour-guide-contact-item">
+                                    <span class="material-icons-outlined">phone</span>
+                                    <span><?php echo htmlspecialchars($assignedGuide['contact_number']); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($assignedGuide['email']): ?>
+                                <div class="tour-guide-contact-item">
+                                    <span class="material-icons-outlined">email</span>
+                                    <span><?php echo htmlspecialchars($assignedGuide['email']); ?></span>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-guide-assigned">
+                                <span class="material-icons-outlined" style="font-size: 2rem; display: block; margin-bottom: 10px;">person_off</span>
+                                No tour guide assigned yet for this destination.<br>
+                                <small>Contact us for guided tour arrangements.</small>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+
                     <button class="btn-primary" onclick="checkAuth('Burong Falls')">
                         Book Expedition
                     </button>

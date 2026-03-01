@@ -10,15 +10,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-
-
-
-
-
-
 require_once __DIR__ . '/../config/database.php';
-
 
 
 
@@ -1292,30 +1284,11 @@ function requireLogin() {
 
 
 function requireAdmin() {
-
-
-
     if (!isAdmin()) {
-
-
-
         header('Location: ../log-in.php');
-
-
-
         exit();
-
-
-
     }
-
-
-
 }
-
-
-
-
 
 
 
@@ -2401,6 +2374,144 @@ function verifyOtpCode($email, $code, $type = 'login') {
     }
 }
 
+// Send user deletion notification email
+function sendUserDeletionEmail($toEmail, $userData, $justification) {
+    // Check if PHPMailer is available
+    $phpMailerPath = __DIR__ . '/../PHPMailer-6.9.1/src/PHPMailer.php';
+    $exceptionPath = __DIR__ . '/../PHPMailer-6.9.1/src/Exception.php';
+    $smtpPath = __DIR__ . '/../PHPMailer-6.9.1/src/SMTP.php';
+    
+    if (!file_exists($phpMailerPath) || !file_exists($exceptionPath) || !file_exists($smtpPath)) {
+        error_log("PHPMailer files not found at: $phpMailerPath");
+        return [
+            'success' => false,
+            'message' => 'Email service not available'
+        ];
+    }
+    
+    try {
+        require_once $phpMailerPath;
+        require_once $exceptionPath;
+        require_once $smtpPath;
+        
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found after including files");
+            return [
+                'success' => false,
+                'message' => 'Email service not available'
+            ];
+        }
+        
+        $mail = new PHPMailer(true);
+        
+        // SMTP configuration - Use centralized SMTP config
+        require_once __DIR__ . '/smtp.php';
+        
+        $mail->isSMTP();
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'jeanmarcaguilar829@gmail.com';
+        $mail->Password = 'rqulwmjxdtzmxfli';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
+        $mail->SMTPSecure = getenv('SMTP_SECURE') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        
+        // Email content
+        $mail->setFrom(getenv('SMTP_FROM_EMAIL') ?: 'jeanmarcaguilar829@gmail.com', getenv('SMTP_FROM_NAME') ?: 'SJDM Tours');
+        $mail->addAddress($toEmail);
+        $mail->isHTML(true);
+        
+        $mail->Subject = 'Account Deletion Notice - SJDM Tours';
+        
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;'>
+                <div style='background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                    <h1 style='margin: 0; font-size: 28px;'>⚠️ Account Deletion Notice</h1>
+                    <p style='margin: 10px 0 0; font-size: 16px; opacity: 0.9;'>Your SJDM Tours account has been permanently deleted</p>
+                </div>
+                
+                <div style='background: white; padding: 30px; border-radius: 0 0 10px 10px;'>
+                    <h2 style='color: #dc2626; margin-top: 0;'>Account Information</h2>
+                    <div style='background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px;'>
+                        <p><strong>Name:</strong> " . htmlspecialchars($userData['first_name'] . ' ' . $userData['last_name']) . "</p>
+                        <p><strong>Email:</strong> " . htmlspecialchars($userData['email']) . "</p>
+                        <p><strong>User Type:</strong> " . ucfirst($userData['user_type']) . "</p>
+                        <p><strong>Status:</strong> <span style='color: #dc2626; font-weight: bold;'>DELETED</span></p>
+                    </div>
+                    
+                    <h2 style='color: #dc2626;'>Deletion Details</h2>
+                    <div style='background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px;'>
+                        <p><strong>Date of Deletion:</strong> " . date('F j, Y, g:i A') . "</p>
+                        <p><strong>Reason for Deletion:</strong></p>
+                        <div style='background: white; padding: 10px; border-left: 4px solid #dc2626; margin-top: 5px;'>
+                            " . nl2br(htmlspecialchars($justification)) . "
+                        </div>
+                    </div>
+                    
+                    <div style='background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 20px; margin-bottom: 20px;'>
+                        <h3 style='color: #92400e; margin-top: 0;'>⚠️ Important Information</h3>
+                        <ul style='color: #78716b; line-height: 1.6;'>
+                            <li>Your account and all associated data have been permanently deleted</li>
+                            <li>You will no longer be able to access SJDM Tours services</li>
+                            <li>All your booking history and preferences have been removed</li>
+                            <li>This action cannot be undone</li>
+                        </ul>
+                    </div>
+                    
+                    <div style='text-align: center; padding: 20px 0;'>
+                        <p style='color: #6b7280; font-size: 14px;'>If you believe this was done in error, please contact our support team immediately.</p>
+                        <p style='color: #6b7280; font-size: 14px;'>Email: <a href='mailto:support@sjdm-tours.com'>support@sjdm-tours.com</a></p>
+                    </div>
+                </div>
+                
+                <div style='background: #374151; color: white; text-align: center; padding: 20px; border-radius: 0 0 10px 10px; font-size: 12px;'>
+                    <p>© " . date('Y') . " SJDM Tours. All rights reserved.</p>
+                </div>
+            </div>
+        ";
+        
+        $mail->AltBody = "
+            ACCOUNT DELETION NOTICE - SJDM Tours
+            
+            Your SJDM Tours account has been permanently deleted.
+            
+            Account Information:
+            Name: " . $userData['first_name'] . ' ' . $userData['last_name'] . "
+            Email: " . $userData['email'] . "
+            User Type: " . ucfirst($userData['user_type']) . "
+            Status: DELETED
+            
+            Deletion Details:
+            Date: " . date('F j, Y, g:i A') . "
+            Reason: " . $justification . "
+            
+            Important Information:
+            - Your account and all associated data have been permanently deleted
+            - You will no longer be able to access SJDM Tours services
+            - All your booking history and preferences have been removed
+            - This action cannot be undone
+            
+            If you believe this was done in error, please contact our support team immediately.
+            Email: support@sjdm-tours.com
+            
+            © " . date('Y') . " SJDM Tours. All rights reserved.
+        ";
+        
+        $mail->send();
+        
+        return [
+            'success' => true,
+            'message' => 'User deletion notification email sent successfully'
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error sending user deletion email: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Failed to send deletion notification email: ' . $e->getMessage()
+        ];
+    }
+}
+
 // Helper function to read environment variables
 function readEnvValue($key) {
     $value = getenv($key);
@@ -2410,8 +2521,6 @@ function readEnvValue($key) {
     }
     return $value;
 }
-
-?>
 
 
 

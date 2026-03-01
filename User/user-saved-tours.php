@@ -542,10 +542,6 @@ if ($conn) {
                         <span class="material-icons-outlined">place</span>
                         <span>Tourist Spots</span>
                     </a>
-                    <a href="user-local-culture.php" class="nav-link">
-                        <span class="material-icons-outlined">theater_comedy</span>
-                        <span>Local Culture</span>
-                    </a>
                     <a href="user-travel-tips.php" class="nav-link">
                         <span class="material-icons-outlined">tips_and_updates</span>
                         <span>Travel Tips</span>

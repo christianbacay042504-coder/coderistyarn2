@@ -439,170 +439,98 @@ if ($conn) {
 
                 <div class="stats-grid">
                     <div class="stat-card" data-stat="totalUsers">
-                        <div class="stat-icon blue">
-                            <span class="material-icons-outlined">people</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">people</span> Total Users</div>
+                            <span class="stat-dot dot-blue"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalUsers; ?></h3>
-                            <p>Total Users</p>
-                            <div class="stat-meta">Registered users in system</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>12% growth</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill blue" style="width: 75%"></div>
-                            </div>
-                            <span class="progress-text">75% of target</span>
+                        <div class="stat-number"><?php echo $totalUsers; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>12%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="activeUsers">
-                        <div class="stat-icon green">
-                            <span class="material-icons-outlined">check_circle</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">check_circle</span> Active Users</div>
+                            <span class="stat-dot dot-yellow"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $activeUsers; ?></h3>
-                            <p>Active Users</p>
-                            <div class="stat-meta">Currently active accounts</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>8% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill green" style="width: 85%"></div>
-                            </div>
-                            <span class="progress-text">85% active rate</span>
+                        <div class="stat-number"><?php echo $activeUsers; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>8%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="totalBookings">
-                        <div class="stat-icon orange">
-                            <span class="material-icons-outlined">event</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">event</span> Total Bookings</div>
+                            <span class="stat-dot dot-green"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalBookings; ?></h3>
-                            <p>Total Bookings</p>
-                            <div class="stat-meta">All-time bookings</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>15% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill orange" style="width: 60%"></div>
-                            </div>
-                            <span class="progress-text">60% of monthly goal</span>
+                        <div class="stat-number"><?php echo $totalBookings; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>15%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="todayLogins">
-                        <div class="stat-icon purple">
-                            <span class="material-icons-outlined">login</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">login</span> Today's Logins</div>
+                            <span class="stat-dot dot-red"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $todayLogins; ?></h3>
-                            <p>Today's Logins</p>
-                            <div class="stat-meta">Successful login attempts</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>5% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill purple" style="width: 45%"></div>
-                            </div>
-                            <span class="progress-text">45% of daily average</span>
+                        <div class="stat-number"><?php echo $todayLogins; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>5%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="totalGuides">
-                        <div class="stat-icon teal">
-                            <span class="material-icons-outlined">tour</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">tour</span> Tour Guides</div>
+                            <span class="stat-dot dot-teal"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalGuides; ?></h3>
-                            <p>Tour Guides</p>
-                            <div class="stat-meta">Available tour guides</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>3% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill teal" style="width: 90%"></div>
-                            </div>
-                            <span class="progress-text">90% coverage</span>
+                        <div class="stat-number"><?php echo $totalGuides; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>3%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="totalDestinations">
-                        <div class="stat-icon pink">
-                            <span class="material-icons-outlined">landscape</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">landscape</span> Destinations</div>
+                            <span class="stat-dot dot-pink"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $totalDestinations; ?></h3>
-                            <p>Destinations</p>
-                            <div class="stat-meta">Tourist spots available</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>10% increase</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill pink" style="width: 70%"></div>
-                            </div>
-                            <span class="progress-text">70% explored</span>
+                        <div class="stat-number"><?php echo $totalDestinations; ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>10%</span>
                         </div>
                     </div>
                     
                     <div class="stat-card" data-stat="pendingBookings">
-                        <div class="stat-icon red">
-                            <span class="material-icons-outlined">pending_actions</span>
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">pending_actions</span> Pending</div>
+                            <span class="stat-dot dot-purple"></span>
                         </div>
-                        <div class="stat-details">
-                            <h3><?php echo $pendingBookings; ?></h3>
-                            <p>Pending Bookings</p>
-                            <div class="stat-meta">Awaiting confirmation</div>
-                            <div class="stat-trend <?php echo $pendingBookings > 0 ? 'negative' : 'positive'; ?>">
-                                <span class="material-icons-outlined"><?php echo $pendingBookings > 0 ? 'warning' : 'check_circle'; ?></span>
-                                <span><?php echo $pendingBookings > 0 ? 'Action needed' : 'All clear'; ?></span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill <?php echo $pendingBookings > 0 ? 'red' : 'green'; ?>" style="width: <?php echo $pendingBookings > 0 ? '25' : '100'; ?>%"></div>
-                            </div>
-                            <span class="progress-text"><?php echo $pendingBookings > 0 ? '25% processed' : '100% processed'; ?></span>
+                        <div class="stat-number"><?php echo $pendingBookings; ?></div>
+                        <div class="stat-trend <?php echo $pendingBookings > 0 ? 'negative' : 'positive'; ?>">
+                            <span class="material-icons-outlined"><?php echo $pendingBookings > 0 ? 'south_east' : 'north_east'; ?></span>
+                            <span><?php echo $pendingBookings > 0 ? 'Needs action' : 'All clear'; ?></span>
                         </div>
                     </div>
                     
-                    <div class="stat-card stat-card-warning" data-stat="monthlyRevenue">
-                        <div class="stat-icon">
-                            <span class="material-icons-outlined">payments</span>
+                    <div class="stat-card" data-stat="monthlyRevenue">
+                        <div class="stat-card-header">
+                            <div class="stat-card-label"><span class="material-icons-outlined">payments</span> Monthly Revenue</div>
+                            <span class="stat-dot dot-yellow"></span>
                         </div>
-                        <div class="stat-content">
-                            <h3>₱<?php echo number_format($monthlyRevenue, 2); ?></h3>
-                            <p>Monthly Revenue</p>
-                            <div class="stat-meta">This month's earnings</div>
-                            <div class="stat-trend positive">
-                                <span class="material-icons-outlined">trending_up</span>
-                                <span>8% growth</span>
-                            </div>
-                        </div>
-                        <div class="stat-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 80%"></div>
-                            </div>
-                            <span class="progress-text">80% of target</span>
+                        <div class="stat-number">₱<?php echo number_format($monthlyRevenue, 2); ?></div>
+                        <div class="stat-trend positive">
+                            <span class="material-icons-outlined">north_east</span>
+                            <span>8%</span>
                         </div>
                     </div>
                 </div>
@@ -845,103 +773,122 @@ if ($conn) {
     </script>
 
     <style>
-        /* Enhanced Stats Cards */
+        /* Compact Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
         }
 
         .stat-card {
             background: white;
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            min-height: 180px;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 24px;
+            gap: 0;
+            min-height: unset;
         }
 
         .stat-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-            border-color: rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
-        .stat-card:hover::before {
-            opacity: 1;
-        }
+        /* Colored top border accent per card type */
+        .stat-card[data-stat="totalUsers"]      { border-top: 3px solid #667eea; background: #fafbff; }
+        .stat-card[data-stat="activeUsers"]     { border-top: 3px solid #f59e0b; background: #fffdf5; }
+        .stat-card[data-stat="totalBookings"]   { border-top: 3px solid #10b981; background: #f5fdf9; }
+        .stat-card[data-stat="todayLogins"]     { border-top: 3px solid #ef4444; background: #fff5f5; }
+        .stat-card[data-stat="totalGuides"]     { border-top: 3px solid #14b8a6; background: #f5fdfc; }
+        .stat-card[data-stat="totalDestinations"]{ border-top: 3px solid #ec4899; background: #fff5fb; }
+        .stat-card[data-stat="pendingBookings"] { border-top: 3px solid #8b5cf6; background: #faf8ff; }
+        .stat-card[data-stat="monthlyRevenue"]  { border-top: 3px solid #f59e0b; background: #fffdf5; }
 
-        .stat-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
+        /* Card header row: label + dot */
+        .stat-card-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            justify-content: space-between;
+            margin-bottom: 10px;
         }
 
-        .stat-icon .material-icons-outlined {
-            font-size: 24px;
-            color: white;
-            z-index: 2;
-            position: relative;
-        }
-
-        .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .stat-icon.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-        .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
-        .stat-icon.teal { background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%); }
-        .stat-icon.pink { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); }
-        .stat-icon.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-
-        .stat-details {
-            flex: 1;
-            z-index: 2;
-            position: relative;
-        }
-
-        .stat-details h3 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 0 0 8px 0;
-            line-height: 1.1;
-            transition: all 0.3s ease;
-            color: #1a202c;
-        }
-
-        .stat-details p {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin: 0;
-            font-weight: 600;
+        .stat-card-label {
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            opacity: 0.8;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-card-label .material-icons-outlined {
+            font-size: 15px;
+            color: #9ca3af;
+        }
+
+        .stat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-blue   { background: #667eea; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green  { background: #10b981; }
+        .dot-red    { background: #ef4444; }
+        .dot-teal   { background: #14b8a6; }
+        .dot-pink   { background: #ec4899; }
+        .dot-purple { background: #8b5cf6; }
+
+        /* Big number */
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        /* Trend badge */
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            width: fit-content;
+            margin-top: 0;
+        }
+
+        .stat-trend.positive {
+            color: #059669;
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .stat-trend.negative {
+            color: #dc2626;
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        .stat-trend .material-icons-outlined {
+            font-size: 13px;
+        }
+
+        /* Hide old elements */
+        .stat-icon, .stat-details, .stat-progress, .stat-meta,
+        .progress-bar, .progress-fill, .progress-text, .progress-percentage {
+            display: none !important;
         }
 
         .stat-card-primary .stat-icon {
@@ -1075,35 +1022,23 @@ if ($conn) {
         .progress-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
 
         .progress-text {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #4a5568;
-            align-items: center;
-            gap: 24px;
-            padding: 24px 0;
-            text-align: center;
-        }
-
-        .signout-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--red);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
-        }
-
-        .signout-icon .material-icons-outlined {
-            font-size: 40px;
-        }
-
-        .signout-message h3 {
-            margin: 0 0 8px 0;
-            font-size: 20px;
             font-weight: 600;
-            color: var(--text-primary);
+            margin-top: 6px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-percentage {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #1a202c;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
         }
 
         .signout-message p {
