@@ -134,6 +134,38 @@ function getAdminStats($conn) {
     return $stats;
 }
 
+function getReportsData($conn) {
+    $reports = [];
+
+    // New users this month
+    $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE user_type='user' AND MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
+    $reports['newUsersThisMonth'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Suspended users
+    $result = $conn->query("SELECT COUNT(*) as total FROM users WHERE status='suspended'");
+    $reports['suspendedUsers'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Total bookings this month
+    $result = $conn->query("SELECT COUNT(*) as total FROM bookings WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
+    $reports['bookingsThisMonth'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Total login activity this week
+    $result = $conn->query("SELECT COUNT(*) as total FROM login_activity WHERE login_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND status='success'");
+    $reports['loginsThisWeek'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Recent user registrations (last 10)
+    $result = $conn->query("SELECT id, first_name, last_name, email, status, created_at, (SELECT COUNT(*) FROM bookings WHERE user_id=users.id) as total_bookings FROM users WHERE user_type='user' ORDER BY created_at DESC LIMIT 10");
+    $reports['recentRegistrations'] = [];
+    if ($result) while ($row = $result->fetch_assoc()) $reports['recentRegistrations'][] = $row;
+
+    // Top users by bookings (top 5)
+    $result = $conn->query("SELECT u.id, u.first_name, u.last_name, u.email, u.status, COUNT(b.id) as booking_count FROM users u LEFT JOIN bookings b ON u.id=b.user_id WHERE u.user_type='user' GROUP BY u.id ORDER BY booking_count DESC LIMIT 5");
+    $reports['topUsersByBookings'] = [];
+    if ($result) while ($row = $result->fetch_assoc()) $reports['topUsersByBookings'][] = $row;
+
+    return $reports;
+}
+
 $currentUser = initAdminAuth();
 $conn = getAdminConnection();
 
@@ -180,6 +212,7 @@ $usersData = getUsersList($conn, $page, $limit, $search, $userType);
 $users = $usersData['users'];
 $pagination = $usersData['pagination'];
 $stats = getAdminStats($conn);
+$reportsData = getReportsData($conn);
 
 $queryValues = ['totalUsers' => $stats['totalUsers'], 'totalBookings' => $stats['totalBookings']];
 ?>
@@ -308,6 +341,50 @@ $queryValues = ['totalUsers' => $stats['totalUsers'], 'totalBookings' => $stats[
     .details-grid { grid-template-columns: 1fr; }
     .search-bar { flex-direction: column; align-items: stretch; }
 }
+
+/* ── Reports Module ── */
+.reports-section { margin-top: 36px; }
+.reports-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.reports-section-title { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; color: #111827; }
+.reports-section-title .material-icons-outlined { font-size: 22px; color: #667eea; }
+.reports-divider { border: none; border-top: 1.5px solid #f3f4f6; margin-bottom: 20px; }
+
+.report-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.rsc { background: white; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
+.rsc:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.rsc[data-rstat="newUsers"]       { border-top: 3px solid #667eea; background: #fafbff; }
+.rsc[data-rstat="suspended"]      { border-top: 3px solid #ef4444; background: #fff5f5; }
+.rsc[data-rstat="bookingsMonth"]  { border-top: 3px solid #10b981; background: #f5fdf9; }
+.rsc[data-rstat="loginsWeek"]     { border-top: 3px solid #f59e0b; background: #fffdf5; }
+.rsc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rsc-label { display: flex; align-items: center; gap: 5px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; }
+.rsc-label .material-icons-outlined { font-size: 14px; color: #9ca3af; }
+.rsc-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.rsc-number { font-size: 2rem; font-weight: 800; color: #111827; line-height: 1; margin-bottom: 10px; }
+.rsc-badge { display: inline-flex; align-items: center; gap: 3px; font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; width: fit-content; }
+.rsc-badge.blue   { color: #4f46e5; background: rgba(102,126,234,.12); }
+.rsc-badge.red    { color: #dc2626; background: rgba(239,68,68,.12); }
+.rsc-badge.green  { color: #059669; background: rgba(16,185,129,.12); }
+.rsc-badge.yellow { color: #d97706; background: rgba(245,158,11,.12); }
+
+.report-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .report-tables-grid { grid-template-columns: 1fr; } }
+.report-table-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); overflow: hidden; }
+.report-table-card-header { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; background: #fafbff; }
+.report-table-card-header .material-icons-outlined { font-size: 18px; color: #667eea; }
+.report-table-card-header h3 { margin: 0; font-size: .9rem; font-weight: 700; color: #111827; }
+.report-table-card table { width: 100%; border-collapse: collapse; }
+.report-table-card th { padding: 10px 16px; text-align: left; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #9ca3af; background: #fafafa; border-bottom: 1px solid #f3f4f6; }
+.report-table-card td { padding: 10px 16px; font-size: .82rem; color: #374151; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
+.report-table-card tr:last-child td { border-bottom: none; }
+.report-table-card tr:hover td { background: #f9fafb; }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: .72rem; font-weight: 800; }
+.rank-1 { background: #fef9c3; color: #b45309; }
+.rank-2 { background: #f1f5f9; color: #475569; }
+.rank-3 { background: #fef3e9; color: #c2410c; }
+.rank-other { background: #f3f4f6; color: #6b7280; }
+.user-mini { display: flex; align-items: center; gap: 8px; }
+.user-mini-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#667eea,#764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -334,6 +411,10 @@ $badgeVal = isset($item['badge_query'])&&isset($queryValues[$item['badge_query']
 <?php if ($badgeVal>0): ?><span class="badge"><?php echo $badgeVal; ?></span><?php endif; ?>
 </a>
 <?php endforeach; ?>
+<a href="reports.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF'])=='reports.php'?'active':''; ?>">
+<span class="material-icons-outlined">assessment</span>
+<span>Reports</span>
+</a>
 </nav>
 <div class="sidebar-footer">
 <a href="javascript:void(0)" class="logout-btn" onclick="openModal('signOutModal')">
@@ -505,6 +586,150 @@ Next <span class="material-icons-outlined">chevron_right</span>
 <?php endif; ?>
 </div>
 <?php endif; ?>
+</div>
+
+<!-- ══════════════ REPORTS MODULE ══════════════ -->
+<div class="reports-section">
+<hr class="reports-divider">
+<div class="reports-section-header">
+<div class="reports-section-title">
+<span class="material-icons-outlined">assessment</span>
+User Reports Overview
+</div>
+<span style="font-size:.78rem;color:#9ca3af;font-weight:500;">Auto-generated · <?php echo date('M j, Y'); ?></span>
+</div>
+
+<!-- Report Summary Stats -->
+<div class="report-stats-grid">
+<div class="rsc" data-rstat="newUsers">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">person_add</span> New This Month</div>
+<span class="rsc-dot dot-blue"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['newUsersThisMonth']; ?></div>
+<div class="rsc-badge blue"><span class="material-icons-outlined" style="font-size:12px;">calendar_month</span><?php echo date('F'); ?></div>
+</div>
+
+<div class="rsc" data-rstat="suspended">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">block</span> Suspended</div>
+<span class="rsc-dot" style="background:#ef4444;"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['suspendedUsers']; ?></div>
+<div class="rsc-badge red"><span class="material-icons-outlined" style="font-size:12px;">warning</span>Needs review</div>
+</div>
+
+<div class="rsc" data-rstat="bookingsMonth">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">event</span> Bookings/Month</div>
+<span class="rsc-dot dot-green"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['bookingsThisMonth']; ?></div>
+<div class="rsc-badge green"><span class="material-icons-outlined" style="font-size:12px;">north_east</span><?php echo date('F'); ?></div>
+</div>
+
+<div class="rsc" data-rstat="loginsWeek">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">login</span> Logins/Week</div>
+<span class="rsc-dot dot-yellow"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['loginsThisWeek']; ?></div>
+<div class="rsc-badge yellow"><span class="material-icons-outlined" style="font-size:12px;">schedule</span>Last 7 days</div>
+</div>
+</div>
+
+<!-- Report Tables -->
+<div class="report-tables-grid">
+
+<!-- Recent Registrations -->
+<div class="report-table-card">
+<div class="report-table-card-header">
+<span class="material-icons-outlined">person_add_alt</span>
+<h3>Recent Registrations</h3>
+</div>
+<table>
+<thead>
+<tr>
+<th>User</th>
+<th>Status</th>
+<th>Bookings</th>
+<th>Joined</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($reportsData['recentRegistrations'] as $reg): ?>
+<tr>
+<td>
+<div class="user-mini">
+<div class="user-mini-avatar"><?php echo strtoupper(substr($reg['first_name'],0,1)); ?></div>
+<div>
+<div style="font-weight:600;color:#111827;font-size:.82rem;"><?php echo htmlspecialchars($reg['first_name'].' '.$reg['last_name']); ?></div>
+<div style="font-size:.72rem;color:#9ca3af;"><?php echo htmlspecialchars($reg['email']); ?></div>
+</div>
+</div>
+</td>
+<td><span class="status-badge status-<?php echo $reg['status']; ?>"><?php echo ucfirst($reg['status']); ?></span></td>
+<td style="font-weight:700;color:#667eea;"><?php echo $reg['total_bookings']; ?></td>
+<td style="color:#9ca3af;font-size:.78rem;"><?php echo date('M j, Y', strtotime($reg['created_at'])); ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($reportsData['recentRegistrations'])): ?>
+<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No registrations yet.</td></tr>
+<?php endif; ?>
+</tbody>
+</table>
+</div>
+
+<!-- Top Users by Bookings -->
+<div class="report-table-card">
+<div class="report-table-card-header">
+<span class="material-icons-outlined">emoji_events</span>
+<h3>Top Users by Bookings</h3>
+</div>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>User</th>
+<th>Status</th>
+<th>Bookings</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($reportsData['topUsersByBookings'] as $i => $topUser): ?>
+<tr>
+<td>
+<span class="rank-badge <?php echo $i===0?'rank-1':($i===1?'rank-2':($i===2?'rank-3':'rank-other')); ?>">
+<?php echo $i+1; ?>
+</span>
+</td>
+<td>
+<div class="user-mini">
+<div class="user-mini-avatar"><?php echo strtoupper(substr($topUser['first_name'],0,1)); ?></div>
+<div>
+<div style="font-weight:600;color:#111827;font-size:.82rem;"><?php echo htmlspecialchars($topUser['first_name'].' '.$topUser['last_name']); ?></div>
+<div style="font-size:.72rem;color:#9ca3af;"><?php echo htmlspecialchars($topUser['email']); ?></div>
+</div>
+</div>
+</td>
+<td><span class="status-badge status-<?php echo $topUser['status']; ?>"><?php echo ucfirst($topUser['status']); ?></span></td>
+<td>
+<span style="font-weight:800;font-size:1rem;color:<?php echo $i===0?'#b45309':($i===1?'#475569':($i===2?'#c2410c':'#667eea')); ?>;">
+<?php echo $topUser['booking_count']; ?>
+</span>
+</td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($reportsData['topUsersByBookings'])): ?>
+<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No booking data yet.</td></tr>
+<?php endif; ?>
+</tbody>
+</table>
+</div>
+
+</div><!-- end report-tables-grid -->
+</div><!-- end reports-section -->
+
 </div>
 </main>
 </div>

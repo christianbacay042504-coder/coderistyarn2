@@ -110,7 +110,26 @@ $menuItems = [];
 $result = $conn->query("SELECT * FROM admin_menu_items WHERE is_active = 1 ORDER BY display_order ASC");
 if ($result) { while ($row = $result->fetch_assoc()) { $menuItems[] = $row; } }
 
+
+function getAnalyticsReportsData($conn) {
+    $r = [];
+    $res = $conn->query("SELECT COUNT(*) as t FROM users WHERE user_type='user' AND MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
+    $r['newUsers'] = $res ? $res->fetch_assoc()['t'] : 0;
+    $res = $conn->query("SELECT COUNT(*) as t FROM bookings WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
+    $r['bookingsMonth'] = $res ? $res->fetch_assoc()['t'] : 0;
+    $res = $conn->query("SELECT COALESCE(SUM(total_amount),0) as t FROM bookings WHERE status='confirmed'");
+    $r['totalRevenue'] = $res ? $res->fetch_assoc()['t'] : 0;
+    $res = $conn->query("SELECT COUNT(DISTINCT user_id) as t FROM login_activity WHERE login_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND status='success'");
+    $r['activeWeek'] = $res ? $res->fetch_assoc()['t'] : 0;
+    $res = $conn->query("SELECT tour_name, COUNT(*) as cnt, SUM(total_amount) as revenue FROM bookings GROUP BY tour_name ORDER BY cnt DESC LIMIT 5");
+    $r['topTours'] = []; if ($res) while ($row=$res->fetch_assoc()) $r['topTours'][] = $row;
+    $res = $conn->query("SELECT ts.name, COUNT(b.id) as cnt FROM tourist_spots ts LEFT JOIN bookings b ON b.tour_name COLLATE utf8mb4_unicode_ci LIKE CONCAT('%', ts.name, '%') GROUP BY ts.id ORDER BY cnt DESC LIMIT 5");
+    $r['topDests'] = []; if ($res) while ($row=$res->fetch_assoc()) $r['topDests'][] = $row;
+    return $r;
+}
 $stats = getAdminStats($conn);
+$analyticsReports = getAnalyticsReportsData($conn);
+
 $bookingStats = getBookingStats($conn);
 $destinationsByMonth = getDestinationsByMonth($conn);
 
@@ -218,6 +237,47 @@ $queryValues = [
     .um-stats-grid { grid-template-columns: repeat(2,1fr); }
     .chart-wrapper { height: 220px; }
 }
+
+/* ── Reports Module ── */
+.reports-section { margin-top: 36px; }
+.reports-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.reports-section-title { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; color: #111827; }
+.reports-section-title .material-icons-outlined { font-size: 22px; color: #667eea; }
+.reports-divider { border: none; border-top: 1.5px solid #f3f4f6; margin-bottom: 20px; }
+.report-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.rsc { background: white; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
+.rsc:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.rsc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rsc-label { display: flex; align-items: center; gap: 5px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; }
+.rsc-label .material-icons-outlined { font-size: 14px; color: #9ca3af; }
+.rsc-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.rsc-number { font-size: 2rem; font-weight: 800; color: #111827; line-height: 1; margin-bottom: 10px; }
+.rsc-badge { display: inline-flex; align-items: center; gap: 3px; font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; width: fit-content; }
+.rsc-badge.pink   { color: #be185d; background: rgba(236,72,153,.12); }
+.rsc-badge.green  { color: #059669; background: rgba(16,185,129,.12); }
+.rsc-badge.blue   { color: #4f46e5; background: rgba(102,126,234,.12); }
+.rsc-badge.red    { color: #dc2626; background: rgba(239,68,68,.12); }
+.rsc-badge.yellow { color: #d97706; background: rgba(245,158,11,.12); }
+.rsc-badge.orange { color: #c2410c; background: rgba(249,115,22,.12); }
+.rsc-badge.teal   { color: #0f766e; background: rgba(20,184,166,.12); }
+.report-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
+@media (max-width: 900px) { .report-tables-grid { grid-template-columns: 1fr; } }
+.report-table-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); overflow: hidden; }
+.report-table-card-header { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; background: #fafbff; }
+.report-table-card-header .material-icons-outlined { font-size: 18px; color: #667eea; }
+.report-table-card-header h3 { margin: 0; font-size: .9rem; font-weight: 700; color: #111827; }
+.report-table-card table { width: 100%; border-collapse: collapse; }
+.report-table-card th { padding: 10px 16px; text-align: left; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #9ca3af; background: #fafafa; border-bottom: 1px solid #f3f4f6; }
+.report-table-card td { padding: 10px 16px; font-size: .82rem; color: #374151; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
+.report-table-card tr:last-child td { border-bottom: none; }
+.report-table-card tr:hover td { background: #f9fafb; }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: .72rem; font-weight: 800; }
+.rank-1 { background: #fef9c3; color: #b45309; }
+.rank-2 { background: #f1f5f9; color: #475569; }
+.rank-3 { background: #fef3e9; color: #c2410c; }
+.rank-other { background: #f3f4f6; color: #6b7280; }
+.mini-row { display: flex; align-items: center; gap: 8px; }
+.mini-avatar { width: 28px; height: 28px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -244,7 +304,12 @@ $badgeVal = isset($item['badge_query'])&&isset($queryValues[$item['badge_query']
 <?php if ($badgeVal>0): ?><span class="badge"><?php echo $badgeVal; ?></span><?php endif; ?>
 </a>
 <?php endforeach; ?>
+<a href="reports.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF'])=='reports.php'?'active':''; ?>">
+<span class="material-icons-outlined">assessment</span>
+<span>Reports</span>
+</a>
 </nav>
+
 <div class="sidebar-footer">
 <a href="javascript:void(0)" class="logout-btn" onclick="openModal('signOutModal')">
 <span class="material-icons-outlined">logout</span>
@@ -290,8 +355,16 @@ Export
 </div>
 </header>
 
+
+
 <div class="content-area">
 <!-- Compact Stats -->
+ <div class="reports-section">
+<hr class="reports-divider">
+<div class="reports-section-header">
+<div class="reports-section-title"><span class="material-icons-outlined">assessment</span>Analytics Reports Overview</div>
+<span style="font-size:.78rem;color:#9ca3af;font-weight:500;">Auto-generated · <?php echo date('M j, Y'); ?></span>
+</div>
 <div class="um-stats-grid">
 <div class="stat-card-compact" data-stat="users">
 <div class="scc-header">
@@ -326,6 +399,33 @@ Export
 <div class="scc-trend neutral"><span class="material-icons-outlined">apps</span><span>Available</span></div>
 </div>
 </div>
+
+<!-- ══════════════ REPORTS MODULE ══════════════ -->
+
+<div class="report-stats-grid">
+<div class="rsc" style="border-top:3px solid #667eea;background:#fafbff;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">person_add</span> New Users/Month</div><span class="rsc-dot" style="background:#667eea;"></span></div>
+<div class="rsc-number"><?php echo $analyticsReports['newUsers']; ?></div>
+<div class="rsc-badge blue"><span class="material-icons-outlined" style="font-size:12px;">calendar_month</span><?php echo date('F'); ?></div>
+</div>
+<div class="rsc" style="border-top:3px solid #10b981;background:#f5fdf9;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">book</span> Bookings/Month</div><span class="rsc-dot" style="background:#10b981;"></span></div>
+<div class="rsc-number"><?php echo $analyticsReports['bookingsMonth']; ?></div>
+<div class="rsc-badge green"><span class="material-icons-outlined" style="font-size:12px;">north_east</span><?php echo date('F'); ?></div>
+</div>
+<div class="rsc" style="border-top:3px solid #f59e0b;background:#fffdf5;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">payments</span> Total Revenue</div><span class="rsc-dot" style="background:#f59e0b;"></span></div>
+<div class="rsc-number">₱<?php echo number_format($analyticsReports['totalRevenue'],0); ?></div>
+<div class="rsc-badge yellow"><span class="material-icons-outlined" style="font-size:12px;">attach_money</span>Confirmed</div>
+</div>
+<div class="rsc" style="border-top:3px solid #ec4899;background:#fdf5fb;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">login</span> Active/Week</div><span class="rsc-dot" style="background:#ec4899;"></span></div>
+<div class="rsc-number"><?php echo $analyticsReports['activeWeek']; ?></div>
+<div class="rsc-badge pink"><span class="material-icons-outlined" style="font-size:12px;">schedule</span>Last 7 days</div>
+</div>
+</div>
+
+
 
 <!-- Charts Row 1 -->
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
@@ -362,7 +462,50 @@ Export
 </div>
 </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="report-tables-grid">
+<div class="report-table-card">
+<div class="report-table-card-header"><span class="material-icons-outlined">trending_up</span><h3>Top Tours by Bookings</h3></div>
+<table><thead><tr><th>Rank</th><th>Tour Name</th><th>Bookings</th><th>Revenue</th></tr></thead><tbody>
+<?php foreach ($analyticsReports['topTours'] as $i => $tt): ?>
+<tr>
+<td><span class="rank-badge <?php echo $i===0?'rank-1':($i===1?'rank-2':($i===2?'rank-3':'rank-other')); ?>"><?php echo $i+1; ?></span></td>
+<td style="font-weight:600;color:#111827;"><?php echo htmlspecialchars($tt['tour_name']); ?></td>
+<td style="font-weight:800;color:<?php echo $i===0?'#b45309':($i===1?'#475569':($i===2?'#c2410c':'#667eea')); ?>;"><?php echo $tt['cnt']; ?></td>
+<td style="font-weight:600;color:#10b981;">₱<?php echo number_format($tt['revenue'],0); ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($analyticsReports['topTours'])): ?><tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No data yet.</td></tr><?php endif; ?>
+</tbody></table>
 </div>
+<div class="report-table-card">
+<div class="report-table-card-header"><span class="material-icons-outlined">location_on</span><h3>Top Destinations</h3></div>
+<table><thead><tr><th>Rank</th><th>Destination</th><th>Bookings</th></tr></thead><tbody>
+<?php foreach ($analyticsReports['topDests'] as $i => $td): ?>
+<tr>
+<td><span class="rank-badge <?php echo $i===0?'rank-1':($i===1?'rank-2':($i===2?'rank-3':'rank-other')); ?>"><?php echo $i+1; ?></span></td>
+<td style="font-weight:600;color:#111827;"><?php echo htmlspecialchars($td['name']); ?></td>
+<td style="font-weight:800;color:<?php echo $i===0?'#b45309':($i===1?'#475569':($i===2?'#c2410c':'#667eea')); ?>;"><?php echo $td['cnt']; ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($analyticsReports['topDests'])): ?><tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">No data yet.</td></tr><?php endif; ?>
+</tbody></table>
+</div>
+</div>
+</div>
+</div>
+</div><!-- /content-area -->
 </main>
 </div>
 

@@ -440,6 +440,38 @@ function getAdminStats($conn)
     $stats['totalDestinations'] = $result->fetch_assoc()['total'];
     return $stats;
 }
+function getGuideReportsData($conn) {
+    $reports = [];
+
+    // New guides this month
+    $result = $conn->query("SELECT COUNT(*) as total FROM tour_guides WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
+    $reports['newGuidesThisMonth'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Unverified guides
+    $result = $conn->query("SELECT COUNT(*) as total FROM tour_guides WHERE verified = 0");
+    $reports['unverifiedGuides'] = $result ? $result->fetch_assoc()['total'] : 0;
+
+    // Average rating
+    $result = $conn->query("SELECT ROUND(AVG(rating),1) as avg_rating FROM tour_guides WHERE rating > 0");
+    $reports['avgRating'] = $result ? ($result->fetch_assoc()['avg_rating'] ?? 0) : 0;
+
+    // Total tours conducted
+    $result = $conn->query("SELECT SUM(total_tours) as total FROM tour_guides");
+    $reports['totalTours'] = $result ? ($result->fetch_assoc()['total'] ?? 0) : 0;
+
+    // Recent guide registrations (last 10)
+    $result = $conn->query("SELECT id, name, email, specialty, status, verified, rating, created_at FROM tour_guides ORDER BY created_at DESC LIMIT 10");
+    $reports['recentGuides'] = [];
+    if ($result) while ($row = $result->fetch_assoc()) $reports['recentGuides'][] = $row;
+
+    // Top guides by rating (top 5)
+    $result = $conn->query("SELECT id, name, email, specialty, rating, review_count, verified, total_tours FROM tour_guides WHERE rating > 0 ORDER BY rating DESC, review_count DESC LIMIT 5");
+    $reports['topGuidesByRating'] = [];
+    if ($result) while ($row = $result->fetch_assoc()) $reports['topGuidesByRating'][] = $row;
+
+    return $reports;
+}
+
 // Initialize admin authentication
 $currentUser = initAdminAuth();
 // Get database connection
@@ -533,6 +565,7 @@ $guides = $guidesData['guides'];
 $pagination = $guidesData['pagination'];
 // Get statistics
 $stats = getAdminStats($conn);
+$reportsData = getGuideReportsData($conn);
 // Map query keys to values for menu badges
 $queryValues = [
 'totalUsers' => $stats['totalUsers'],
@@ -769,6 +802,48 @@ transition: all 0.2s ease;
 .filter-tabs { width: 100%; }
 .search-bar { flex-wrap: wrap; }
 }
+
+/* ── Reports Module ── */
+.reports-section { margin-top: 36px; }
+.reports-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.reports-section-title { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; color: #111827; }
+.reports-section-title .material-icons-outlined { font-size: 22px; color: #667eea; }
+.reports-divider { border: none; border-top: 1.5px solid #f3f4f6; margin-bottom: 20px; }
+.report-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.rsc { background: white; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
+.rsc:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.rsc[data-rstat="newGuides"]     { border-top: 3px solid #14b8a6; background: #f5fdfc; }
+.rsc[data-rstat="unverified"]    { border-top: 3px solid #ef4444; background: #fff5f5; }
+.rsc[data-rstat="avgRating"]     { border-top: 3px solid #f59e0b; background: #fffdf5; }
+.rsc[data-rstat="totalTours"]    { border-top: 3px solid #667eea; background: #fafbff; }
+.rsc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rsc-label { display: flex; align-items: center; gap: 5px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; }
+.rsc-label .material-icons-outlined { font-size: 14px; color: #9ca3af; }
+.rsc-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.rsc-number { font-size: 2rem; font-weight: 800; color: #111827; line-height: 1; margin-bottom: 10px; }
+.rsc-badge { display: inline-flex; align-items: center; gap: 3px; font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; width: fit-content; }
+.rsc-badge.teal   { color: #0f766e; background: rgba(20,184,166,.12); }
+.rsc-badge.red    { color: #dc2626; background: rgba(239,68,68,.12); }
+.rsc-badge.yellow { color: #d97706; background: rgba(245,158,11,.12); }
+.rsc-badge.blue   { color: #4f46e5; background: rgba(102,126,234,.12); }
+.report-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) { .report-tables-grid { grid-template-columns: 1fr; } }
+.report-table-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); overflow: hidden; }
+.report-table-card-header { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; background: #fafbff; }
+.report-table-card-header .material-icons-outlined { font-size: 18px; color: #667eea; }
+.report-table-card-header h3 { margin: 0; font-size: .9rem; font-weight: 700; color: #111827; }
+.report-table-card table { width: 100%; border-collapse: collapse; }
+.report-table-card th { padding: 10px 16px; text-align: left; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #9ca3af; background: #fafafa; border-bottom: 1px solid #f3f4f6; }
+.report-table-card td { padding: 10px 16px; font-size: .82rem; color: #374151; border-bottom: 1px solid #f9fafb; vertical-align: middle; }
+.report-table-card tr:last-child td { border-bottom: none; }
+.report-table-card tr:hover td { background: #f9fafb; }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: .72rem; font-weight: 800; }
+.rank-1 { background: #fef9c3; color: #b45309; }
+.rank-2 { background: #f1f5f9; color: #475569; }
+.rank-3 { background: #fef3e9; color: #c2410c; }
+.rank-other { background: #f3f4f6; color: #6b7280; }
+.guide-mini { display: flex; align-items: center; gap: 8px; }
+.guide-mini-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#14b8a6,#0ea5e9); color: white; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -803,6 +878,10 @@ $badgeVal = $queryValues[$item['badge_query']];
 <?php endif; ?>
 </a>
 <?php endforeach; ?>
+<a href="reports.php" class="nav-item <?php echo basename($_SERVER['PHP_SELF'])=='reports.php'?'active':''; ?>">
+<span class="material-icons-outlined">assessment</span>
+<span>Reports</span>
+</a>
 </nav>
 <div class="sidebar-footer">
 <a href="logout.php" class="logout-btn">
@@ -1032,6 +1111,143 @@ Next
 <?php endif; ?>
 </div>
 <?php endif; ?>
+</div>
+
+<!-- ══════════════ REPORTS MODULE ══════════════ -->
+<div class="reports-section">
+<hr class="reports-divider">
+<div class="reports-section-header">
+<div class="reports-section-title">
+<span class="material-icons-outlined">assessment</span>
+Tour Guides Reports Overview
+</div>
+<span style="font-size:.78rem;color:#9ca3af;font-weight:500;">Auto-generated · <?php echo date('M j, Y'); ?></span>
+</div>
+
+<!-- Report Summary Stats -->
+<div class="report-stats-grid">
+<div class="rsc" data-rstat="newGuides">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">person_add</span> New This Month</div>
+<span class="rsc-dot dot-teal"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['newGuidesThisMonth']; ?></div>
+<div class="rsc-badge teal"><span class="material-icons-outlined" style="font-size:12px;">calendar_month</span><?php echo date('F'); ?></div>
+</div>
+
+<div class="rsc" data-rstat="unverified">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">gpp_bad</span> Unverified</div>
+<span class="rsc-dot dot-red"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['unverifiedGuides']; ?></div>
+<div class="rsc-badge red"><span class="material-icons-outlined" style="font-size:12px;">warning</span>Needs review</div>
+</div>
+
+<div class="rsc" data-rstat="avgRating">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">star</span> Avg. Rating</div>
+<span class="rsc-dot dot-yellow"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['avgRating'] ?: '—'; ?></div>
+<div class="rsc-badge yellow"><span class="material-icons-outlined" style="font-size:12px;">star_rate</span>Out of 5.0</div>
+</div>
+
+<div class="rsc" data-rstat="totalTours">
+<div class="rsc-header">
+<div class="rsc-label"><span class="material-icons-outlined">tour</span> Total Tours</div>
+<span class="rsc-dot dot-blue"></span>
+</div>
+<div class="rsc-number"><?php echo $reportsData['totalTours'] ?: 0; ?></div>
+<div class="rsc-badge blue"><span class="material-icons-outlined" style="font-size:12px;">north_east</span>Conducted</div>
+</div>
+</div>
+
+<!-- Report Tables -->
+<div class="report-tables-grid">
+
+<!-- Recent Guide Registrations -->
+<div class="report-table-card">
+<div class="report-table-card-header">
+<span class="material-icons-outlined">person_add_alt</span>
+<h3>Recent Registrations</h3>
+</div>
+<table>
+<thead>
+<tr><th>Guide</th><th>Specialty</th><th>Status</th><th>Joined</th></tr>
+</thead>
+<tbody>
+<?php foreach ($reportsData['recentGuides'] as $rg): ?>
+<tr>
+<td>
+<div class="guide-mini">
+<div class="guide-mini-avatar"><?php echo strtoupper(substr($rg['name'],0,1)); ?></div>
+<div>
+<div style="font-weight:600;color:#111827;font-size:.82rem;"><?php echo htmlspecialchars($rg['name']); ?></div>
+<div style="font-size:.72rem;color:#9ca3af;"><?php echo htmlspecialchars($rg['email']); ?></div>
+</div>
+</div>
+</td>
+<td style="font-size:.78rem;color:#6b7280;"><?php echo htmlspecialchars($rg['specialty'] ?: '—'); ?></td>
+<td>
+<span class="status-badge status-<?php echo $rg['status']; ?>"><?php echo ucfirst($rg['status']); ?></span>
+</td>
+<td style="color:#9ca3af;font-size:.78rem;"><?php echo date('M j, Y', strtotime($rg['created_at'])); ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($reportsData['recentGuides'])): ?>
+<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No guides yet.</td></tr>
+<?php endif; ?>
+</tbody>
+</table>
+</div>
+
+<!-- Top Guides by Rating -->
+<div class="report-table-card">
+<div class="report-table-card-header">
+<span class="material-icons-outlined">emoji_events</span>
+<h3>Top Guides by Rating</h3>
+</div>
+<table>
+<thead>
+<tr><th>Rank</th><th>Guide</th><th>Rating</th><th>Tours</th></tr>
+</thead>
+<tbody>
+<?php foreach ($reportsData['topGuidesByRating'] as $i => $tg): ?>
+<tr>
+<td>
+<span class="rank-badge <?php echo $i===0?'rank-1':($i===1?'rank-2':($i===2?'rank-3':'rank-other')); ?>">
+<?php echo $i+1; ?>
+</span>
+</td>
+<td>
+<div class="guide-mini">
+<div class="guide-mini-avatar"><?php echo strtoupper(substr($tg['name'],0,1)); ?></div>
+<div>
+<div style="font-weight:600;color:#111827;font-size:.82rem;"><?php echo htmlspecialchars($tg['name']); ?></div>
+<div style="font-size:.72rem;color:#9ca3af;"><?php echo htmlspecialchars($tg['specialty'] ?: '—'); ?></div>
+</div>
+</div>
+</td>
+<td>
+<span style="font-weight:800;font-size:.95rem;color:<?php echo $i===0?'#b45309':($i===1?'#475569':($i===2?'#c2410c':'#667eea')); ?>;">
+<?php echo number_format($tg['rating'],1); ?> ⭐
+</span>
+<div style="font-size:.72rem;color:#9ca3af;"><?php echo $tg['review_count']; ?> reviews</div>
+</td>
+<td style="font-weight:700;color:#14b8a6;"><?php echo $tg['total_tours'] ?: 0; ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($reportsData['topGuidesByRating'])): ?>
+<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">No rating data yet.</td></tr>
+<?php endif; ?>
+</tbody>
+</table>
+</div>
+
+</div><!-- end report-tables-grid -->
+</div><!-- end reports-section -->
+
 </div>
 </main>
 </div>
