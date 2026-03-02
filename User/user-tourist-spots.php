@@ -1273,13 +1273,31 @@ if ($conn && $isLoggedIn) {
                 if ($conn) {
                     if (!empty($userPreferences)) {
                         $placeholders = rtrim(str_repeat('?,', count($userPreferences)), ',');
-                        $query = "SELECT ts.*, GROUP_CONCAT(DISTINCT CONCAT(tg.id,':',tg.name,':',tg.specialty,':',tg.rating,':',tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info FROM tourist_spots ts LEFT JOIN guide_destinations gd ON ts.id=gd.destination_id LEFT JOIN tour_guides tg ON gd.guide_id=tg.id AND tg.status='active' WHERE ts.status='active' AND ts.category IN ($placeholders) GROUP BY ts.id ORDER BY ts.name";
+                        // Uses assigned_guide column from tourist_spots (set by admin in destinations.php)
+                        $query = "SELECT ts.*, 
+                                    CASE WHEN tg.id IS NOT NULL 
+                                         THEN CONCAT(tg.id,':',tg.name,':',COALESCE(tg.specialty,'General Guide'),':',COALESCE(tg.rating,0),':',COALESCE(tg.verified,0))
+                                         ELSE NULL 
+                                    END as guides_info
+                                  FROM tourist_spots ts 
+                                  LEFT JOIN tour_guides tg ON ts.assigned_guide = tg.id AND (tg.status='active' OR tg.status='approved' OR tg.status='verified')
+                                  WHERE ts.status='active' AND ts.category IN ($placeholders) 
+                                  ORDER BY ts.name";
                         $stmt = $conn->prepare($query);
                         $stmt->bind_param(str_repeat('s', count($userPreferences)), ...$userPreferences);
                         $stmt->execute();
                         $result = $stmt->get_result();
                     } else {
-                        $query = "SELECT ts.*, GROUP_CONCAT(DISTINCT CONCAT(tg.id,':',tg.name,':',tg.specialty,':',tg.rating,':',tg.verified) ORDER BY tg.rating DESC SEPARATOR '|') as guides_info FROM tourist_spots ts LEFT JOIN guide_destinations gd ON ts.id=gd.destination_id LEFT JOIN tour_guides tg ON gd.guide_id=tg.id AND tg.status='active' WHERE ts.status='active' GROUP BY ts.id ORDER BY ts.name";
+                        // Uses assigned_guide column from tourist_spots (set by admin in destinations.php)
+                        $query = "SELECT ts.*, 
+                                    CASE WHEN tg.id IS NOT NULL 
+                                         THEN CONCAT(tg.id,':',tg.name,':',COALESCE(tg.specialty,'General Guide'),':',COALESCE(tg.rating,0),':',COALESCE(tg.verified,0))
+                                         ELSE NULL 
+                                    END as guides_info
+                                  FROM tourist_spots ts 
+                                  LEFT JOIN tour_guides tg ON ts.assigned_guide = tg.id AND (tg.status='active' OR tg.status='approved' OR tg.status='verified')
+                                  WHERE ts.status='active' 
+                                  ORDER BY ts.name";
                         $result = $conn->query($query);
                     }
 
@@ -1308,9 +1326,9 @@ if ($conn && $isLoggedIn) {
 
                             $guides = [];
                             if (!empty($spot['guides_info'])) {
-                                foreach (explode('|', $spot['guides_info']) as $guide) {
-                                    $p = explode(':', $guide);
-                                    if (count($p) >= 5) $guides[] = ['id'=>$p[0],'name'=>$p[1],'specialty'=>$p[2],'rating'=>$p[3],'verified'=>$p[4]];
+                                $p = explode(':', $spot['guides_info']);
+                                if (count($p) >= 5) {
+                                    $guides[] = ['id'=>$p[0],'name'=>$p[1],'specialty'=>$p[2],'rating'=>$p[3],'verified'=>$p[4]];
                                 }
                             }
 

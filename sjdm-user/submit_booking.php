@@ -4,6 +4,7 @@ session_start();
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../functions/tour_guide_assignment.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -32,6 +33,9 @@ if ($destination === '' || $tourDate === '' || $guests < 1) {
 $bookingReference = 'SJDM-' . substr((string)time(), -8);
 $tourName = $destination;
 
+// Automatically assign tour guide based on destination
+$tourGuideId = assignTourGuideByDestination($destination);
+
 $guideFee = 2500;
 $entranceFee = 100 * $guests;
 $serviceFee = 300;
@@ -45,8 +49,8 @@ if (!$conn) {
 }
 
 try {
-    // Simple INSERT statement matching the actual database structure
-    $sql = "INSERT INTO bookings (user_id, tour_name, booking_date, number_of_people, total_amount, status) VALUES (?, ?, ?, ?, ?, 'pending')";
+    // INSERT statement with tour guide assignment
+    $sql = "INSERT INTO bookings (user_id, tour_name, booking_date, number_of_people, total_amount, tour_guide_id, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -54,12 +58,13 @@ try {
     }
 
     $stmt->bind_param(
-        'isidi',
+        'isidii',
         $userId,
         $tourName,
         $tourDate,
         $guests,
-        $totalAmount
+        $totalAmount,
+        $tourGuideId
     );
 
     if (!$stmt->execute()) {
@@ -69,11 +74,18 @@ try {
     $bookingId = $stmt->insert_id;
     $stmt->close();
 
+    // Get assigned tour guide information for response
+    $tourGuideInfo = null;
+    if ($tourGuideId) {
+        $tourGuideInfo = getTourGuideInfo($tourGuideId);
+    }
+
     echo json_encode([
         'success' => true,
         'message' => 'Booking submitted successfully',
         'booking_id' => $bookingId,
-        'booking_reference' => $bookingReference
+        'booking_reference' => $bookingReference,
+        'tour_guide' => $tourGuideInfo
     ]);
 } catch (Exception $e) {
     http_response_code(500);

@@ -740,7 +740,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     </div>
 
 
-                    <button class="btn-primary" onclick="window.location.href='/coderistyarn2/User/user-book.php'" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
+                    <button class="btn-primary" onclick="checkAuth('Burong Falls'<?php if ($assignedGuide): ?>, '<?php echo $assignedGuide['id']; ?>'<?php endif; ?>)" style="width: 100%; margin-top: 25px; color: var(--secondary); background-color: var(--primary);">
                         <span class="material-icons-outlined">hiking</span>
                         Book a Guide
                     </button>
@@ -812,7 +812,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
                     </div>
 
 
-                    <button class="btn-primary" onclick="checkAuth('Burong Falls')">
+                    <button class="btn-primary" onclick="checkAuth('Burong Falls'<?php if ($assignedGuide): ?>, '<?php echo $assignedGuide['id']; ?>'<?php endif; ?>)">
                         Book Expedition
                     </button>
                     <button class="btn-secondary" onclick="location.href='/coderistyarn2/User/user-guides-page.php'">
@@ -836,10 +836,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'book') {
 
     <script>
         // Function to check authentication before booking
-        function checkAuth(destination) {
+        function checkAuth(destination, guideId = null) {
             <?php if (isLoggedIn()): ?>
-                // User is logged in, redirect to booking
-                window.location.href = '/coderistyarn2/sjdm-user/book.php?destination=' + encodeURIComponent(destination);
+                // User is logged in, redirect to booking with destination and guide
+                let url = '/coderistyarn2/User/user-book.php?destination=' + encodeURIComponent(destination);
+                if (guideId) {
+                    url += '&guide=' + encodeURIComponent(guideId);
+                }
+                window.location.href = url;
             <?php else: ?>
                 // User not logged in, redirect to login
                 window.location.href = '../log-in.php';

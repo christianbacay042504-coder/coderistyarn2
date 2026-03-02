@@ -1,4 +1,4 @@
-    <?php
+<?php
 // Destinations Management Module
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
@@ -9,16 +9,22 @@ function closeAdminConnection($conn) { closeDatabaseConnection($conn); }
 
 function addTouristSpot($conn, $data) {
     try {
+        // Convert empty assigned_guide to NULL so the foreign key is clean
+        $assignedGuide = (!empty($data['assigned_guide']) && is_numeric($data['assigned_guide']))
+            ? (int)$data['assigned_guide'] : null;
         $stmt = $conn->prepare("INSERT INTO tourist_spots (name, description, category, location, address, operating_hours, entrance_fee, duration, best_time_to_visit, activities, amenities, contact_info, website, image_url, rating, review_count, assigned_guide, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
-        $stmt->bind_param("ssssssssssssssdisi", $data['name'], $data['description'], $data['category'], $data['location'], $data['address'], $data['operating_hours'], $data['entrance_fee'], $data['duration'], $data['best_time_to_visit'], $data['activities'], $data['amenities'], $data['contact_info'], $data['website'], $data['image_url'], $data['rating'], $data['review_count'], $data['assigned_guide']);
+        $stmt->bind_param("ssssssssssssssdii", $data['name'], $data['description'], $data['category'], $data['location'], $data['address'], $data['operating_hours'], $data['entrance_fee'], $data['duration'], $data['best_time_to_visit'], $data['activities'], $data['amenities'], $data['contact_info'], $data['website'], $data['image_url'], $data['rating'], $data['review_count'], $assignedGuide);
         return $stmt->execute() ? ['success' => true, 'message' => 'Tourist spot added successfully'] : ['success' => false, 'message' => 'Failed to add tourist spot'];
     } catch (Exception $e) { return ['success' => false, 'message' => 'Error: ' . $e->getMessage()]; }
 }
 
 function editTouristSpot($conn, $data) {
     try {
+        // Convert empty assigned_guide to NULL so the foreign key is clean
+        $assignedGuide = (!empty($data['assigned_guide']) && is_numeric($data['assigned_guide']))
+            ? (int)$data['assigned_guide'] : null;
         $stmt = $conn->prepare("UPDATE tourist_spots SET name=?, description=?, category=?, location=?, address=?, operating_hours=?, entrance_fee=?, duration=?, best_time_to_visit=?, activities=?, amenities=?, contact_info=?, website=?, image_url=?, rating=?, review_count=?, assigned_guide=?, status=? WHERE id=?");
-        $stmt->bind_param("ssssssssssssssdisisi", $data['name'], $data['description'], $data['category'], $data['location'], $data['address'], $data['operating_hours'], $data['entrance_fee'], $data['duration'], $data['best_time_to_visit'], $data['activities'], $data['amenities'], $data['contact_info'], $data['website'], $data['image_url'], $data['rating'], $data['review_count'], $data['assigned_guide'], $data['status'], $data['spot_id']);
+        $stmt->bind_param("ssssssssssssssdissi", $data['name'], $data['description'], $data['category'], $data['location'], $data['address'], $data['operating_hours'], $data['entrance_fee'], $data['duration'], $data['best_time_to_visit'], $data['activities'], $data['amenities'], $data['contact_info'], $data['website'], $data['image_url'], $data['rating'], $data['review_count'], $assignedGuide, $data['status'], $data['spot_id']);
         return $stmt->execute() ? ['success' => true, 'message' => 'Tourist spot updated successfully'] : ['success' => false, 'message' => 'Failed to update tourist spot'];
     } catch (Exception $e) { return ['success' => false, 'message' => 'Error: ' . $e->getMessage()]; }
 }

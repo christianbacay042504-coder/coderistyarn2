@@ -273,6 +273,14 @@ if ($conn) {
 
                 </a>
 
+                <a href="reports.php" class="nav-item">
+
+                    <span class="material-icons-outlined">assessment</span>
+
+                    <span>Reports</span>
+
+                </a>
+
             </nav>
 
             

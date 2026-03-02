@@ -3222,9 +3222,43 @@ if ($conn) {
             });
         }
         
+        // Initialize preselected values from URL parameters
+        function initializePreselectedValues() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedGuide = urlParams.get('guide');
+            const preselectedDestination = urlParams.get('destination');
+            
+            // Set preselected destination
+            if (preselectedDestination) {
+                const destinationSelect = document.getElementById('destination');
+                if (destinationSelect) {
+                    destinationSelect.value = preselectedDestination;
+                }
+            }
+            
+            // Set preselected guide and show guide details button
+            if (preselectedGuide) {
+                const guideSelect = document.getElementById('selectedGuide');
+                const guideDetailsBtn = document.getElementById('guideDetailsBtn');
+                
+                if (guideSelect) {
+                    guideSelect.value = preselectedGuide;
+                    
+                    // Show guide details button if guide is selected
+                    if (guideDetailsBtn && preselectedGuide) {
+                        guideDetailsBtn.style.display = 'inline-flex';
+                    }
+                    
+                    // Update guide review section
+                    updateGuideReview();
+                }
+            }
+        }
+        
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             initUserProfileDropdown();
+            initializePreselectedValues();
             initGuideSelection();
             updateTotalGuestsDisplay();
         });
