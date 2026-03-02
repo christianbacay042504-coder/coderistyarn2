@@ -450,7 +450,7 @@ $destReports = getDestReportsData($conn);
 .rsc-badge.yellow { color: #d97706; background: rgba(245,158,11,.12); }
 .rsc-badge.orange { color: #c2410c; background: rgba(249,115,22,.12); }
 .rsc-badge.teal   { color: #0f766e; background: rgba(20,184,166,.12); }
-.report-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.report-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
 @media (max-width: 900px) { .report-tables-grid { grid-template-columns: 1fr; } }
 .report-table-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.07); border: 1px solid rgba(0,0,0,.06); overflow: hidden; }
 .report-table-card-header { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid #f3f4f6; background: #fafbff; }
@@ -549,6 +549,35 @@ $destReports = getDestReportsData($conn);
             <div class="content-area">
 
                 <!-- Compact Stats -->
+                 <!-- ══════════════ REPORTS MODULE ══════════════ -->
+<div class="reports-section">
+<hr class="reports-divider">
+<div class="reports-section-header">
+<div class="reports-section-title"><span class="material-icons-outlined">assessment</span>Destinations Reports Overview</div>
+<span style="font-size:.78rem;color:#9ca3af;font-weight:500;">Auto-generated · <?php echo date('M j, Y'); ?></span>
+</div>
+<div class="report-stats-grid">
+<div class="rsc" style="border-top:3px solid #ec4899;background:#fdf5fb;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">add_location</span> New This Month</div><span class="rsc-dot" style="background:#ec4899;"></span></div>
+<div class="rsc-number"><?php echo $destReports['newThisMonth']; ?></div>
+<div class="rsc-badge pink"><span class="material-icons-outlined" style="font-size:12px;">calendar_month</span><?php echo date('F'); ?></div>
+</div>
+<div class="rsc" style="border-top:3px solid #ef4444;background:#fff5f5;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">block</span> Inactive</div><span class="rsc-dot" style="background:#ef4444;"></span></div>
+<div class="rsc-number"><?php echo $destReports['inactive']; ?></div>
+<div class="rsc-badge red"><span class="material-icons-outlined" style="font-size:12px;">warning</span>Needs review</div>
+</div>
+<div class="rsc" style="border-top:3px solid #667eea;background:#fafbff;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">category</span> Categories</div><span class="rsc-dot" style="background:#667eea;"></span></div>
+<div class="rsc-number"><?php echo $destReports['categories']; ?></div>
+<div class="rsc-badge blue"><span class="material-icons-outlined" style="font-size:12px;">apps</span>Types</div>
+</div>
+<div class="rsc" style="border-top:3px solid #10b981;background:#f5fdf9;">
+<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">tour</span> With Guide</div><span class="rsc-dot" style="background:#10b981;"></span></div>
+<div class="rsc-number"><?php echo $destReports['withGuide']; ?></div>
+<div class="rsc-badge green"><span class="material-icons-outlined" style="font-size:12px;">check</span>Assigned</div>
+</div>
+</div>
                 <div class="um-stats-grid">
                     <div class="stat-card-compact" data-stat="total">
                         <div class="scc-header">
@@ -684,35 +713,10 @@ $destReports = getDestReportsData($conn);
                 </div>
 
             
-<!-- ══════════════ REPORTS MODULE ══════════════ -->
-<div class="reports-section">
-<hr class="reports-divider">
-<div class="reports-section-header">
-<div class="reports-section-title"><span class="material-icons-outlined">assessment</span>Destinations Reports Overview</div>
-<span style="font-size:.78rem;color:#9ca3af;font-weight:500;">Auto-generated · <?php echo date('M j, Y'); ?></span>
-</div>
-<div class="report-stats-grid">
-<div class="rsc" style="border-top:3px solid #ec4899;background:#fdf5fb;">
-<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">add_location</span> New This Month</div><span class="rsc-dot" style="background:#ec4899;"></span></div>
-<div class="rsc-number"><?php echo $destReports['newThisMonth']; ?></div>
-<div class="rsc-badge pink"><span class="material-icons-outlined" style="font-size:12px;">calendar_month</span><?php echo date('F'); ?></div>
-</div>
-<div class="rsc" style="border-top:3px solid #ef4444;background:#fff5f5;">
-<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">block</span> Inactive</div><span class="rsc-dot" style="background:#ef4444;"></span></div>
-<div class="rsc-number"><?php echo $destReports['inactive']; ?></div>
-<div class="rsc-badge red"><span class="material-icons-outlined" style="font-size:12px;">warning</span>Needs review</div>
-</div>
-<div class="rsc" style="border-top:3px solid #667eea;background:#fafbff;">
-<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">category</span> Categories</div><span class="rsc-dot" style="background:#667eea;"></span></div>
-<div class="rsc-number"><?php echo $destReports['categories']; ?></div>
-<div class="rsc-badge blue"><span class="material-icons-outlined" style="font-size:12px;">apps</span>Types</div>
-</div>
-<div class="rsc" style="border-top:3px solid #10b981;background:#f5fdf9;">
-<div class="rsc-header"><div class="rsc-label"><span class="material-icons-outlined">tour</span> With Guide</div><span class="rsc-dot" style="background:#10b981;"></span></div>
-<div class="rsc-number"><?php echo $destReports['withGuide']; ?></div>
-<div class="rsc-badge green"><span class="material-icons-outlined" style="font-size:12px;">check</span>Assigned</div>
-</div>
-</div>
+    
+
+
+                
 <div class="report-tables-grid">
 <div class="report-table-card">
 <div class="report-table-card-header"><span class="material-icons-outlined">add_location_alt</span><h3>Recent Destinations</h3></div>
