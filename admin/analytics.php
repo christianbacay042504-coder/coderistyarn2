@@ -41,6 +41,45 @@ function getBookingStats($conn) {
     return $stats;
 }
 
+function getDestinationsByMonth($conn) {
+    $destinations = [];
+    
+    // Get destination popularity by month for the last 12 months
+    for ($i = 11; $i >= 0; $i--) {
+        $month = date('Y-m', strtotime("-$i months"));
+        $monthName = date('M Y', strtotime($month));
+        
+        $query = "SELECT b.destination, COUNT(*) as booking_count, ts.category 
+                 FROM bookings b 
+                 LEFT JOIN tourist_spots ts ON b.destination COLLATE utf8mb4_unicode_ci = ts.name COLLATE utf8mb4_unicode_ci
+                 WHERE DATE_FORMAT(b.created_at, '%Y-%m') = '$month' 
+                 AND b.destination IS NOT NULL AND b.destination != ''
+                 GROUP BY b.destination, ts.category 
+                 ORDER BY booking_count DESC 
+                 LIMIT 10";
+        
+        $result = $conn->query($query);
+        $monthData = [];
+        
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $monthData[] = [
+                    'destination' => $row['destination'],
+                    'category' => $row['category'] ?? 'unknown',
+                    'count' => $row['booking_count']
+                ];
+            }
+        }
+        
+        $destinations[] = [
+            'month' => $monthName,
+            'top_destinations' => $monthData
+        ];
+    }
+    
+    return $destinations;
+}
+
 // Initialize
 $currentUser = initAdminAuth();
 $conn = getAdminConnection();
@@ -73,6 +112,7 @@ if ($result) { while ($row = $result->fetch_assoc()) { $menuItems[] = $row; } }
 
 $stats = getAdminStats($conn);
 $bookingStats = getBookingStats($conn);
+$destinationsByMonth = getDestinationsByMonth($conn);
 
 // Monthly revenue (last 6 months)
 $monthlyRevenue = [];
@@ -306,12 +346,19 @@ Export
 </div>
 
 <!-- Charts Row 2 -->
-<div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
 <!-- User Registration Trend -->
 <div class="chart-container">
 <h3><span class="material-icons-outlined">person_add</span> User Registration Trend</h3>
 <div class="chart-wrapper">
 <canvas id="userTrendChart"></canvas>
+</div>
+</div>
+<!-- Destinations Per Month -->
+<div class="chart-container">
+<h3><span class="material-icons-outlined">location_on</span> Popular Destinations by Month</h3>
+<div class="chart-wrapper">
+<canvas id="destinationsChart"></canvas>
 </div>
 </div>
 </div>
@@ -537,6 +584,108 @@ const userTrendChart = new Chart(userTrendCtx, {
                 beginAtZero: true,
                 grid: { color: 'rgba(0, 0, 0, 0.05)', borderDash: [5, 5] },
                 ticks: { color: '#64748b', font: { size: 11, weight: '500' }, callback: function(value) { return value.toLocaleString(); } }
+            }
+        },
+        animation: { duration: 2000, easing: 'easeInOutQuart' }
+    }
+});
+
+/* ── Destinations Per Month Chart ── */
+const destinationsCtx = document.getElementById('destinationsChart').getContext('2d');
+
+// Process destinations data for chart
+const destinationsData = <?php echo json_encode($destinationsByMonth); ?>;
+const months = destinationsData.map(d => d.month);
+const destinationLabels = [];
+const destinationDatasets = [];
+
+// Get unique destinations and create datasets
+const allDestinations = new Set();
+destinationsData.forEach(monthData => {
+    monthData.top_destinations.forEach(dest => {
+        allDestinations.add(dest.destination);
+    });
+});
+
+const destinationArray = Array.from(allDestinations); // Show all destinations
+const colors = [
+    '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', 
+    '#06b6d4', '#84cc16', '#f97316', '#14b8a6', '#6366f1', '#a855f7',
+    '#0ea5e9', '#22c55e', '#eab308', '#dc2626', '#ea580c', '#059669',
+    '#2563eb', '#7c3aed', '#db2777', '#0891b2', '#16a34a', '#ca8a04'
+];
+
+destinationArray.forEach((destName, index) => {
+    const data = destinationsData.map(monthData => {
+        const dest = monthData.top_destinations.find(d => d.destination === destName);
+        return dest ? dest.count : 0;
+    });
+    
+    destinationDatasets.push({
+        label: destName,
+        data: data,
+        borderColor: colors[index % colors.length],
+        backgroundColor: colors[index % colors.length] + '20',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: false,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: colors[index % colors.length],
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2
+    });
+});
+
+const destinationsChart = new Chart(destinationsCtx, {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: destinationDatasets
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: { 
+                    usePointStyle: true, 
+                    padding: 15, 
+                    font: { size: 11, weight: '600' }, 
+                    color: '#64748b',
+                    boxWidth: 8
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                padding: 12,
+                cornerRadius: 12,
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) label += ': ';
+                        if (context.parsed.y !== null) { 
+                            label += context.parsed.y.toLocaleString() + ' bookings'; 
+                        }
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: { 
+                grid: { display: false }, 
+                ticks: { color: '#64748b', font: { size: 10, weight: '500' } }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0, 0, 0, 0.05)', borderDash: [5, 5] },
+                ticks: { color: '#64748b', font: { size: 10, weight: '500' }, callback: function(value) { return value.toLocaleString(); } }
             }
         },
         animation: { duration: 2000, easing: 'easeInOutQuart' }
