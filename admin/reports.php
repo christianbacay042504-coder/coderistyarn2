@@ -1,361 +1,226 @@
 <?php
-// Reports System - Comprehensive Transaction Reporting
-require_once __DIR__ . '/../config/database.php';
+/**
+ * Admin Reports Page - Comprehensive Transaction Reports with Filtering
+ * Created: March 3, 2026
+ * Enhanced for complete transaction analysis
+ */
+
 require_once __DIR__ . '/../config/auth.php';
 
-// Database connection functions
-function getReportsConnection() { return getDatabaseConnection(); }
-function initReportsAuth() { requireAdmin(); return getCurrentUser(); }
-function closeReportsConnection($conn) { closeDatabaseConnection($conn); }
+// Check if user is admin
+requireAdmin();
 
-// Report Functions
-function getBookingReports($conn, $filters = []) {
-    $where = [];
-    $params = [];
-    $types = '';
-    
-    // Date range filter
-    if (!empty($filters['start_date'])) {
-        $where[] = "DATE(b.created_at) >= ?";
-        $params[] = $filters['start_date'];
-        $types .= 's';
+$currentUser = getCurrentUser();
+
+// Get database connection
+$conn = getDatabaseConnection();
+
+// Initialize variables for filtering
+$startDate = $_GET['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
+$endDate = $_GET['end_date'] ?? date('Y-m-d');
+$transactionType = $_GET['transaction_type'] ?? 'all';
+$status = $_GET['status'] ?? 'all';
+$userId = $_GET['user_id'] ?? '';
+$guideId = $_GET['guide_id'] ?? '';
+$destinationId = $_GET['destination_id'] ?? '';
+$paymentMethod = $_GET['payment_method'] ?? 'all';
+$amountMin = $_GET['amount_min'] ?? '';
+$amountMax = $_GET['amount_max'] ?? '';
+
+// Build WHERE clause dynamically
+$whereConditions = [];
+$params = [];
+$types = '';
+
+// Base date filter for all transactions
+if ($startDate && $endDate) {
+    $whereConditions[] = "DATE(b.created_at) BETWEEN ? AND ?";
+    $params[] = $startDate;
+    $params[] = $endDate;
+    $types .= 'ss';
+} elseif ($startDate) {
+    $whereConditions[] = "DATE(b.created_at) >= ?";
+    $params[] = $startDate;
+    $types .= 's';
+} elseif ($endDate) {
+    $whereConditions[] = "DATE(b.created_at) <= ?";
+    $params[] = $endDate;
+    $types .= 's';
+}
+
+// Transaction type filter
+if ($transactionType !== 'all') {
+    switch ($transactionType) {
+        case 'bookings':
+            $whereConditions[] = "b.id IS NOT NULL";
+            break;
+        case 'payments':
+            $whereConditions[] = "b.payment_method != 'pay_later'";
+            break;
+        case 'refunds':
+            $whereConditions[] = "b.status = 'cancelled'";
+            break;
     }
-    if (!empty($filters['end_date'])) {
-        $where[] = "DATE(b.created_at) <= ?";
-        $params[] = $filters['end_date'];
-        $types .= 's';
-    }
-    
-    // Status filter
-    if (!empty($filters['status'])) {
-        $where[] = "b.status = ?";
-        $params[] = $filters['status'];
-        $types .= 's';
-    }
-    
-    // Tour category filter (if applicable)
-    if (!empty($filters['category'])) {
-        $where[] = "ts.category = ?";
-        $params[] = $filters['category'];
-        $types .= 's';
-    }
-    
-    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    
-    $query = "
-        SELECT 
-            b.id,
-            b.tour_name,
-            b.booking_date,
-            b.number_of_people,
-            b.total_amount,
-            b.status,
-            b.created_at,
-            CONCAT(u.first_name, ' ', u.last_name) as customer_name,
-            u.email as customer_email,
-            ts.category as tour_category
-        FROM bookings b
-        LEFT JOIN users u ON b.user_id = u.id
-        LEFT JOIN tourist_spots ts ON CONVERT(ts.name USING utf8mb4) = CONVERT(b.tour_name USING utf8mb4)
-        $whereClause
-        ORDER BY b.created_at DESC
-    ";
-    
+}
+
+// Status filter
+if ($status !== 'all') {
+    $whereConditions[] = "b.status = ?";
+    $params[] = $status;
+    $types .= 's';
+}
+
+// User filter
+if (!empty($userId)) {
+    $whereConditions[] = "b.user_id = ?";
+    $params[] = $userId;
+    $types .= 'i';
+}
+
+// Guide filter
+if (!empty($guideId)) {
+    $whereConditions[] = "b.guide_id = ?";
+    $params[] = $guideId;
+    $types .= 'i';
+}
+
+// Destination filter (text-based search)
+if (!empty($destinationId)) {
+    $whereConditions[] = "b.destination = ?";
+    $params[] = $destinationId;
+    $types .= 's';
+}
+
+// Payment method filter
+if ($paymentMethod !== 'all') {
+    $whereConditions[] = "b.payment_method = ?";
+    $params[] = $paymentMethod;
+    $types .= 's';
+}
+
+// Amount range filter
+if (!empty($amountMin)) {
+    $whereConditions[] = "b.total_amount >= ?";
+    $params[] = $amountMin;
+    $types .= 'd';
+}
+
+if (!empty($amountMax)) {
+    $whereConditions[] = "b.total_amount <= ?";
+    $params[] = $amountMax;
+    $types .= 'd';
+}
+
+// Build the complete query
+$whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+
+// Main query for transactions
+$query = "
+    SELECT 
+        b.id,
+        b.booking_reference,
+        b.user_id,
+        b.guide_id,
+        b.destination,
+        b.tour_name,
+        b.booking_date,
+        b.total_amount,
+        b.payment_method,
+        b.status,
+        b.created_at,
+        u.first_name as user_first_name,
+        u.last_name as user_last_name,
+        u.email as user_email,
+        tg.name as guide_name,
+        CASE 
+            WHEN b.status = 'completed' THEN 'Completed Booking'
+            WHEN b.status = 'confirmed' THEN 'Confirmed Booking'
+            WHEN b.status = 'pending' THEN 'Pending Booking'
+            WHEN b.status = 'cancelled' THEN 'Cancelled Booking'
+            ELSE 'Other'
+        END as transaction_category,
+        CASE 
+            WHEN b.payment_method = 'pay_later' THEN 'Payment Pending'
+            WHEN b.payment_method != 'pay_later' THEN 'Payment Received'
+            ELSE 'Other'
+        END as payment_status_desc
+    FROM bookings b
+    LEFT JOIN users u ON b.user_id = u.id
+    LEFT JOIN tour_guides tg ON b.guide_id = tg.id
+    $whereClause
+    ORDER BY b.created_at DESC
+";
+
+// Prepare and execute query
+$transactions = [];
+$totalAmount = 0;
+$totalBookings = 0;
+
+if ($conn) {
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
-    return $stmt->get_result();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $transactions[] = $row;
+        $totalAmount += $row['total_amount'];
+        $totalBookings++;
+    }
+    $stmt->close();
+    
+    // Get filter options
+    $users = $conn->query("SELECT id, first_name, last_name, email FROM users WHERE user_type = 'user' ORDER BY first_name, last_name")->fetch_all(MYSQLI_ASSOC);
+    $guides = $conn->query("SELECT id, name FROM tour_guides ORDER BY name")->fetch_all(MYSQLI_ASSOC);
+    $destinations = $conn->query("SELECT id, name FROM tourist_spots WHERE status = 'active' ORDER BY name")->fetch_all(MYSQLI_ASSOC);
 }
 
-function getBookingSummary($conn, $filters = []) {
-    $where = [];
-    $params = [];
-    $types = '';
-    
-    // Date range filter
-    if (!empty($filters['start_date'])) {
-        $where[] = "DATE(created_at) >= ?";
-        $params[] = $filters['start_date'];
-        $types .= 's';
-    }
-    if (!empty($filters['end_date'])) {
-        $where[] = "DATE(created_at) <= ?";
-        $params[] = $filters['end_date'];
-        $types .= 's';
-    }
-    
-    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    
-    $query = "
-        SELECT 
-            COUNT(*) as total_bookings,
-            SUM(total_amount) as total_revenue,
-            SUM(number_of_people) as total_visitors,
-            COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_bookings,
-            COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_bookings,
-            COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
-            COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_bookings,
-            AVG(total_amount) as avg_booking_value
-        FROM bookings
-        $whereClause
-    ";
-    
-    $stmt = $conn->prepare($query);
+// Get summary statistics
+$summaryQuery = "
+    SELECT 
+        COUNT(*) as total_transactions,
+        SUM(total_amount) as total_revenue,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_bookings,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_bookings,
+        COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_bookings,
+        COUNT(CASE WHEN payment_method != 'pay_later' THEN 1 END) as paid_bookings,
+        COUNT(CASE WHEN payment_method = 'pay_later' THEN 1 END) as unpaid_bookings
+    FROM bookings b
+    $whereClause
+";
+
+$summary = [];
+if ($conn) {
+    $stmt = $conn->prepare($summaryQuery);
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
-    return $stmt->get_result()->fetch_assoc();
+    $summary = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 }
 
-function getTourGuideReports($conn, $filters = []) {
-    $where = [];
-    $params = [];
-    $types = '';
-    
-    // Date range filter
-    if (!empty($filters['start_date'])) {
-        $where[] = "DATE(tg.created_at) >= ?";
-        $params[] = $filters['start_date'];
-        $types .= 's';
-    }
-    if (!empty($filters['end_date'])) {
-        $where[] = "DATE(tg.created_at) <= ?";
-        $params[] = $filters['end_date'];
-        $types .= 's';
-    }
-    
-    // Status filter
-    if (!empty($filters['guide_status'])) {
-        $where[] = "tg.status = ?";
-        $params[] = $filters['guide_status'];
-        $types .= 's';
-    }
-    
-    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    
-    $query = "
-        SELECT 
-            tg.id,
-            tg.name,
-            tg.email,
-            tg.specialty,
-            tg.status,
-            tg.created_at,
-            COUNT(b.id) as total_bookings_assigned
-        FROM tour_guides tg
-        LEFT JOIN bookings b ON b.guide_id = tg.id
-        $whereClause
-        GROUP BY tg.id
-        ORDER BY tg.created_at DESC
-    ";
-    
-    $stmt = $conn->prepare($query);
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
+// Admin info
+$adminMark = 'A';
+$roleTitle = 'Administrator';
+$adminId = null;
+
+if ($conn) {
+    $stmt = $conn->prepare("SELECT a.id, a.admin_mark, a.role_title FROM admin_users a WHERE a.user_id = ?");
+    $userId = $currentUser['id'];
+    $stmt->bind_param("i", $userId);
     $stmt->execute();
-    return $stmt->get_result();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $adminMark = $row['admin_mark'];
+        $roleTitle = $row['role_title'];
+        $adminId = $row['id'];
+    }
+    $stmt->close();
 }
 
-function getUserActivityReports($conn, $filters = []) {
-    $where = [];
-    $params = [];
-    $types = '';
-    
-    // Date range filter
-    if (!empty($filters['start_date'])) {
-        $where[] = "DATE(la.login_time) >= ?";
-        $params[] = $filters['start_date'];
-        $types .= 's';
-    }
-    if (!empty($filters['end_date'])) {
-        $where[] = "DATE(la.login_time) <= ?";
-        $params[] = $filters['end_date'];
-        $types .= 's';
-    }
-    
-    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    
-    $query = "
-        SELECT 
-            la.id,
-            CONCAT(u.first_name, ' ', u.last_name) as user_name,
-            u.email,
-            u.user_type,
-            la.login_time,
-            la.ip_address,
-            la.status as login_status
-        FROM login_activity la
-        JOIN users u ON la.user_id = u.id
-        $whereClause
-        ORDER BY la.login_time DESC
-    ";
-    
-    $stmt = $conn->prepare($query);
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-    $stmt->execute();
-    return $stmt->get_result();
-}
-
-function getRevenueByCategory($conn, $filters = []) {
-    $where = [];
-    $params = [];
-    $types = '';
-    
-    // Date range filter
-    if (!empty($filters['start_date'])) {
-        $where[] = "DATE(b.created_at) >= ?";
-        $params[] = $filters['start_date'];
-        $types .= 's';
-    }
-    if (!empty($filters['end_date'])) {
-        $where[] = "DATE(b.created_at) <= ?";
-        $params[] = $filters['end_date'];
-        $types .= 's';
-    }
-    
-    $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    
-    $query = "
-        SELECT 
-            ts.category,
-            COUNT(b.id) as booking_count,
-            SUM(b.total_amount) as total_revenue,
-            SUM(b.number_of_people) as total_visitors,
-            AVG(b.total_amount) as avg_booking_value
-        FROM bookings b
-        LEFT JOIN tourist_spots ts ON CONVERT(ts.name USING utf8mb4) = CONVERT(b.tour_name USING utf8mb4)
-        $whereClause
-        GROUP BY ts.category
-        ORDER BY total_revenue DESC
-    ";
-    
-    $stmt = $conn->prepare($query);
-    if (!empty($params)) {
-        $stmt->bind_param($types, ...$params);
-    }
-    $stmt->execute();
-    return $stmt->get_result();
-}
-
-// Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $conn = getReportsConnection();
-    
-    if (isset($_POST['export_report'])) {
-        // Export functionality
-        $report_type = $_POST['report_type'];
-        $filters = [
-            'start_date' => $_POST['start_date'] ?? '',
-            'end_date' => $_POST['end_date'] ?? '',
-            'status' => $_POST['status'] ?? '',
-            'category' => $_POST['category'] ?? '',
-            'guide_status' => $_POST['guide_status'] ?? ''
-        ];
-        
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="report_' . date('Y-m-d') . '.csv"');
-        
-        $output = fopen('php://output', 'w');
-        
-        switch ($report_type) {
-            case 'bookings':
-                fputcsv($output, ['ID', 'Tour Name', 'Booking Date', 'People', 'Amount', 'Status', 'Customer', 'Email', 'Category', 'Created At']);
-                $result = getBookingReports($conn, $filters);
-                while ($row = $result->fetch_assoc()) {
-                    fputcsv($output, [
-                        $row['id'],
-                        $row['tour_name'],
-                        $row['booking_date'],
-                        $row['number_of_people'],
-                        $row['total_amount'],
-                        $row['status'],
-                        $row['customer_name'],
-                        $row['customer_email'],
-                        $row['tour_category'],
-                        $row['created_at']
-                    ]);
-                }
-                break;
-                
-            case 'tour_guides':
-                fputcsv($output, ['ID', 'Name', 'Email', 'Specialization', 'Status', 'Bookings Assigned', 'Created At']);
-                $result = getTourGuideReports($conn, $filters);
-                while ($row = $result->fetch_assoc()) {
-                    fputcsv($output, [
-                        $row['id'],
-                        $row['name'],
-                        $row['email'],
-                        $row['specialty'],
-                        $row['status'],
-                        $row['total_bookings_assigned'],
-                        $row['created_at']
-                    ]);
-                }
-                break;
-                
-            case 'user_activity':
-                fputcsv($output, ['ID', 'User Name', 'Email', 'User Type', 'Login Time', 'IP Address', 'Status']);
-                $result = getUserActivityReports($conn, $filters);
-                while ($row = $result->fetch_assoc()) {
-                    fputcsv($output, [
-                        $row['id'],
-                        $row['user_name'],
-                        $row['email'],
-                        $row['user_type'],
-                        $row['login_time'],
-                        $row['ip_address'],
-                        $row['login_status']
-                    ]);
-                }
-                break;
-                
-            case 'revenue_by_category':
-                fputcsv($output, ['Category', 'Booking Count', 'Total Revenue', 'Total Visitors', 'Avg Booking Value']);
-                $result = getRevenueByCategory($conn, $filters);
-                while ($row = $result->fetch_assoc()) {
-                    fputcsv($output, [
-                        $row['category'],
-                        $row['booking_count'],
-                        $row['total_revenue'],
-                        $row['total_visitors'],
-                        $row['avg_booking_value']
-                    ]);
-                }
-                break;
-        }
-        
-        fclose($output);
-        exit();
-    }
-    
-    closeReportsConnection($conn);
-}
-
-// Initialize authentication
-$user = initReportsAuth();
-$conn = getReportsConnection();
-
-// Get current filters
-$filters = [
-    'start_date' => $_GET['start_date'] ?? date('Y-m-01'),
-    'end_date' => $_GET['end_date'] ?? date('Y-m-d'),
-    'status' => $_GET['status'] ?? '',
-    'category' => $_GET['category'] ?? '',
-    'guide_status' => $_GET['guide_status'] ?? ''
-];
-
-// Get report data
-$bookingReports = getBookingReports($conn, $filters);
-$bookingSummary = getBookingSummary($conn, $filters);
-$tourGuideReports = getTourGuideReports($conn, $filters);
-$userActivityReports = getUserActivityReports($conn, $filters);
-$revenueByCategory = getRevenueByCategory($conn, $filters);
 ?>
 
 <!DOCTYPE html>
@@ -363,60 +228,47 @@ $revenueByCategory = getRevenueByCategory($conn, $filters);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports - SJDM Tours Admin</title>
+    <title>Transaction Reports | SJDM Tours</title>
+    <link rel="icon" type="image/png" href="../lgo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="admin-styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .container {
+        .reports-container {
+            padding: 24px;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
         }
         
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        .reports-header {
+            margin-bottom: 32px;
         }
         
-        .header h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 2.5em;
+        .reports-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
         
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.1em;
+        .reports-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
         }
         
         .filters-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
         }
         
         .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 16px;
             margin-bottom: 20px;
         }
         
@@ -426,503 +278,611 @@ $revenueByCategory = getRevenueByCategory($conn, $filters);
         }
         
         .filter-group label {
+            font-size: 0.875rem;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
         }
         
-        .filter-group input,
-        .filter-group select {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
         
-        .filter-group input:focus,
-        .filter-group select:focus {
+        .filter-group select:focus,
+        .filter-group input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
         }
         
-        .filter-buttons {
+        .filters-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         
-        .btn {
-            padding: 12px 24px;
+        .btn-apply {
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
+            transition: all 0.2s ease;
+            display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .btn-apply:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
         }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .btn-reset {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+        .btn-reset:hover {
+            background: var(--bg-light);
+            border-color: var(--text-secondary);
         }
         
         .summary-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
         
         .summary-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
             text-align: center;
-            transition: transform 0.3s ease;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
         }
         
         .summary-card h3 {
-            color: #7f8c8d;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .summary-card .value {
-            color: #2c3e50;
-            font-size: 2.2em;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 5px;
+            color: var(--primary);
+            margin-bottom: 4px;
         }
         
-        .summary-card .label {
-            color: #95a5a6;
-            font-size: 0.9em;
+        .summary-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
         }
         
-        .reports-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-            gap: 30px;
+        .transactions-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
         }
         
-        .report-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .report-section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.8em;
+        .table-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
+        .table-actions {
+            display: flex;
+            gap: 12px;
         }
         
-        table {
+        .btn-export {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-export:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .data-table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
         }
         
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
+        .data-table th {
+            background: var(--bg-light);
+            padding: 12px 16px;
             text-align: left;
             font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
         }
         
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #ecf0f1;
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+            color: var(--text-primary);
         }
         
-        tr:hover {
-            background: #f8f9fa;
+        .data-table tbody tr:hover {
+            background: var(--bg-light);
         }
         
         .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 600;
-            text-transform: uppercase;
+            text-transform: capitalize;
         }
         
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
+        .status-badge.completed { background: #dcfce7; color: #166534; }
+        .status-badge.confirmed { background: #dbeafe; color: #1e40af; }
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+        .status-badge.paid { background: #dcfce7; color: #166534; }
+        .status-badge.unpaid { background: #fef3c7; color: #92400e; }
+        .status-badge.refunded { background: #e0e7ff; color: #3730a3; }
+        
+        .amount {
+            font-weight: 600;
+            color: var(--primary);
         }
         
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
         
-        .status-cancelled {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .status-completed {
-            background: #cce5ff;
-            color: #004085;
-        }
-        
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .export-form {
-            display: inline-block;
-            margin-top: 15px;
+        .no-results .material-icons-outlined {
+            font-size: 48px;
+            opacity: 0.3;
+            margin-bottom: 16px;
         }
         
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
+            .reports-container {
+                padding: 16px;
             }
             
             .filters-grid {
                 grid-template-columns: 1fr;
             }
             
-            .reports-grid {
+            .summary-cards {
                 grid-template-columns: 1fr;
             }
             
-            .summary-cards {
-                grid-template-columns: 1fr;
+            .table-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .data-table {
+                font-size: 0.75rem;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Reports Dashboard</h1>
-            <p>Comprehensive transaction and activity reports</p>
-        </div>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="../lgo.png" alt="SJDM Tours Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 8px;">
+                    <span>SJDM ADMIN</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="nav-item">
+                    <span class="material-icons-outlined">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="user-management.php" class="nav-item">
+                    <span class="material-icons-outlined">people</span>
+                    <span>User Management</span>
+                </a>
+                <a href="tour-guides.php" class="nav-item">
+                    <span class="material-icons-outlined">tour</span>
+                    <span>Tour Guides</span>
+                </a>
+                <a href="destinations.php" class="nav-item">
+                    <span class="material-icons-outlined">place</span>
+                    <span>Destinations</span>
+                </a>
+                <a href="bookings.php" class="nav-item">
+                    <span class="material-icons-outlined">event</span>
+                    <span>Bookings</span>
+                </a>
+                <a href="analytics.php" class="nav-item">
+                    <span class="material-icons-outlined">analytics</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="reports.php" class="nav-item active">
+                    <span class="material-icons-outlined">assessment</span>
+                    <span>Reports</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="logout.php" class="logout-btn" id="logoutBtn" onclick="handleLogout(event)">
+                    <span class="material-icons-outlined">logout</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
         
-        <div class="filters-section">
-            <h2>📅 Filters</h2>
-            <form method="GET" class="filters-grid" id="filter-form">
-                <div class="filter-group">
-                    <label for="start_date">Start Date</label>
-                    <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Transaction Reports</h1>
+                    <p id="pageSubtitle">Comprehensive transaction analysis and filtering</p>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="end_date">End Date</label>
-                    <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
+                <div class="top-bar-actions">
+                    <!-- Admin Profile Dropdown -->
+                    <div class="profile-dropdown">
+                        <button class="profile-button" id="adminProfileButton">
+                            <div class="profile-avatar"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                            <span class="material-icons-outlined">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu" id="adminProfileMenu">
+                            <div class="profile-info">
+                                <div class="profile-avatar large"><?php echo isset($adminMark) ? substr($adminMark, 0, 1) : 'A'; ?></div>
+                                <div class="profile-details">
+                                    <h3 class="admin-name"><?php echo isset($currentUser['first_name']) ? htmlspecialchars($currentUser['first_name'] . ' ' . $currentUser['last_name']) : 'Administrator'; ?></h3>
+                                    <p class="admin-email"><?php echo isset($currentUser['email']) ? htmlspecialchars($currentUser['email']) : 'admin@sjdmtours.com'; ?></p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminAccountLink">
+                                <span class="material-icons-outlined">account_circle</span>
+                                <span>My Account</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSettingsLink">
+                                <span class="material-icons-outlined">settings</span>
+                                <span>Settings</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminHelpLink">
+                                <span class="material-icons-outlined">help_outline</span>
+                                <span>Help & Support</span>
+                            </a>
+                            <a href="javascript:void(0)" class="dropdown-item" id="adminSignoutLink" onclick="openSignOutModal()">
+                                <span class="material-icons-outlined">logout</span>
+                                <span>Sign Out</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="status">Booking Status</label>
-                    <select id="status" name="status">
-                        <option value="">All Status</option>
-                        <option value="pending" <?php echo $filters['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                        <option value="confirmed" <?php echo $filters['status'] === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
-                        <option value="cancelled" <?php echo $filters['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                        <option value="completed" <?php echo $filters['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="category">Tour Category</label>
-                    <select id="category" name="category">
-                        <option value="">All Categories</option>
-                        <option value="nature" <?php echo $filters['category'] === 'nature' ? 'selected' : ''; ?>>Nature</option>
-                        <option value="historical" <?php echo $filters['category'] === 'historical' ? 'selected' : ''; ?>>Historical</option>
-                        <option value="religious" <?php echo $filters['category'] === 'religious' ? 'selected' : ''; ?>>Religious</option>
-                        <option value="farm" <?php echo $filters['category'] === 'farm' ? 'selected' : ''; ?>>Farm</option>
-                        <option value="park" <?php echo $filters['category'] === 'park' ? 'selected' : ''; ?>>Park</option>
-                        <option value="urban" <?php echo $filters['category'] === 'urban' ? 'selected' : ''; ?>>Urban</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="guide_status">Guide Status</label>
-                    <select id="guide_status" name="guide_status">
-                        <option value="">All Guides</option>
-                        <option value="active" <?php echo $filters['guide_status'] === 'active' ? 'selected' : ''; ?>>Active</option>
-                        <option value="inactive" <?php echo $filters['guide_status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                    </select>
-                </div>
-            </form>
+            </header>
             
-            <div class="filter-buttons">
-                <button type="submit" form="filter-form" class="btn btn-primary">
-                    🔄 Apply Filters
-                </button>
-                <form method="GET" style="display: inline;">
-                    <button type="submit" class="btn btn-primary">
-                        🔄 Reset
-                    </button>
-                </form>
-            </div>
-        </div>
-        
-        <div class="summary-cards">
-            <div class="summary-card">
-                <h3>Total Bookings</h3>
-                <div class="value"><?php echo number_format($bookingSummary['total_bookings'] ?? 0); ?></div>
-                <div class="label">Transactions</div>
-            </div>
-            
-            <div class="summary-card">
-                <h3>Total Revenue</h3>
-                <div class="value">₱<?php echo number_format($bookingSummary['total_revenue'] ?? 0, 2); ?></div>
-                <div class="label">Income Generated</div>
-            </div>
-            
-            <div class="summary-card">
-                <h3>Total Visitors</h3>
-                <div class="value"><?php echo number_format($bookingSummary['total_visitors'] ?? 0); ?></div>
-                <div class="label">People Served</div>
-            </div>
-            
-            <div class="summary-card">
-                <h3>Avg Booking Value</h3>
-                <div class="value">₱<?php echo number_format($bookingSummary['avg_booking_value'] ?? 0, 2); ?></div>
-                <div class="label">Per Transaction</div>
-            </div>
-        </div>
-        
-        <div class="reports-grid">
-            <div class="report-section">
-                <h2>📋 Booking Reports</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tour Name</th>
-                                <th>Date</th>
-                                <th>People</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Customer</th>
-                                <th>Category</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $bookingReports->fetch_assoc()): ?>
-                                <tr>
-                                    <td>#<?php echo $row['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($row['tour_name']); ?></td>
-                                    <td><?php echo date('M d, Y', strtotime($row['booking_date'])); ?></td>
-                                    <td><?php echo $row['number_of_people']; ?></td>
-                                    <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
-                                    <td><span class="status-badge status-<?php echo $row['status']; ?>"><?php echo $row['status']; ?></span></td>
-                                    <td><?php echo htmlspecialchars($row['customer_name'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($row['tour_category'] ?? 'N/A'); ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+            <div class="reports-container">
+                <!-- Reports Header -->
+                <div class="reports-header">
+                    <h1>Transaction Reports</h1>
+                    <p>Filter and analyze all transactions across the platform</p>
                 </div>
                 
-                <form method="POST" class="export-form">
-                    <input type="hidden" name="export_report" value="1">
-                    <input type="hidden" name="report_type" value="bookings">
-                    <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
-                    <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
-                    <input type="hidden" name="status" value="<?php echo htmlspecialchars($filters['status']); ?>">
-                    <input type="hidden" name="category" value="<?php echo htmlspecialchars($filters['category']); ?>">
-                    <button type="submit" class="btn btn-success">
-                        📥 Export Bookings
-                    </button>
-                </form>
-            </div>
-            
-            <div class="report-section">
-                <h2>👥 Tour Guide Reports</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Specialization</th>
-                                <th>Status</th>
-                                <th>Bookings</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $tourGuideReports->fetch_assoc()): ?>
-                                <tr>
-                                    <td>#<?php echo $row['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['email']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['specialization'] ?? 'N/A'); ?></td>
-                                    <td><span class="status-badge status-<?php echo $row['status']; ?>"><?php echo $row['status']; ?></span></td>
-                                    <td><?php echo $row['total_bookings_assigned']; ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                <!-- Filters Section -->
+                <div class="filters-section">
+                    <form method="GET" action="reports.php">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label for="start_date">Start Date</label>
+                                <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($startDate); ?>">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="end_date">End Date</label>
+                                <input type="date" id="end_date" name="end_date" value="<?php echo htmlspecialchars($endDate); ?>">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="transaction_type">Transaction Type</label>
+                                <select id="transaction_type" name="transaction_type">
+                                    <option value="all" <?php echo $transactionType === 'all' ? 'selected' : ''; ?>>All Transactions</option>
+                                    <option value="bookings" <?php echo $transactionType === 'bookings' ? 'selected' : ''; ?>>All Bookings</option>
+                                    <option value="payments" <?php echo $transactionType === 'payments' ? 'selected' : ''; ?>>Paid Bookings</option>
+                                    <option value="refunds" <?php echo $transactionType === 'refunds' ? 'selected' : ''; ?>>Refunded Bookings</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="status">Booking Status</label>
+                                <select id="status" name="status">
+                                    <option value="all" <?php echo $status === 'all' ? 'selected' : ''; ?>>All Status</option>
+                                    <option value="pending" <?php echo $status === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                    <option value="confirmed" <?php echo $status === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                                    <option value="completed" <?php echo $status === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                    <option value="cancelled" <?php echo $status === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="user_id">User</label>
+                                <select id="user_id" name="user_id">
+                                    <option value="">All Users</option>
+                                    <?php foreach ($users as $user): ?>
+                                        <option value="<?php echo $user['id']; ?>" <?php echo $userId == $user['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name'] . ' (' . $user['email'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="guide_id">Tour Guide</label>
+                                <select id="guide_id" name="guide_id">
+                                    <option value="">All Guides</option>
+                                    <?php foreach ($guides as $guide): ?>
+                                        <option value="<?php echo $guide['id']; ?>" <?php echo $guideId == $guide['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($guide['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="destination_id">Destination</label>
+                                <select id="destination_id" name="destination_id">
+                                    <option value="">All Destinations</option>
+                                    <?php foreach ($destinations as $destination): ?>
+                                        <option value="<?php echo $destination['id']; ?>" <?php echo $destinationId == $destination['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($destination['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="payment_method">Payment Method</label>
+                                <select id="payment_method" name="payment_method">
+                                    <option value="all" <?php echo $paymentMethod === 'all' ? 'selected' : ''; ?>>All Methods</option>
+                                    <option value="pay_later" <?php echo $paymentMethod === 'pay_later' ? 'selected' : ''; ?>>Pay Later</option>
+                                    <option value="gcash" <?php echo $paymentMethod === 'gcash' ? 'selected' : ''; ?>>GCash</option>
+                                    <option value="bank_transfer" <?php echo $paymentMethod === 'bank_transfer' ? 'selected' : ''; ?>>Bank Transfer</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="amount_min">Min Amount (₱)</label>
+                                <input type="number" id="amount_min" name="amount_min" value="<?php echo htmlspecialchars($amountMin); ?>" step="0.01" min="0">
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="amount_max">Max Amount (₱)</label>
+                                <input type="number" id="amount_max" name="amount_max" value="<?php echo htmlspecialchars($amountMax); ?>" step="0.01" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="filters-actions">
+                            <button type="submit" class="btn-apply">
+                                <span class="material-icons-outlined">filter_list</span>
+                                Apply Filters
+                            </button>
+                            <a href="reports.php" class="btn-reset">
+                                <span class="material-icons-outlined">refresh</span>
+                                Reset
+                            </a>
+                        </div>
+                    </form>
                 </div>
                 
-                <form method="POST" class="export-form">
-                    <input type="hidden" name="export_report" value="1">
-                    <input type="hidden" name="report_type" value="tour_guides">
-                    <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
-                    <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
-                    <input type="hidden" name="guide_status" value="<?php echo htmlspecialchars($filters['guide_status']); ?>">
-                    <button type="submit" class="btn btn-success">
-                        📥 Export Tour Guides
-                    </button>
-                </form>
-            </div>
-            
-            <div class="report-section">
-                <h2>💰 Revenue by Category</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Bookings</th>
-                                <th>Revenue</th>
-                                <th>Visitors</th>
-                                <th>Avg Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $revenueByCategory->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($row['category'] ?? 'N/A'); ?></td>
-                                    <td><?php echo $row['booking_count']; ?></td>
-                                    <td>₱<?php echo number_format($row['total_revenue'], 2); ?></td>
-                                    <td><?php echo $row['total_visitors']; ?></td>
-                                    <td>₱<?php echo number_format($row['avg_booking_value'], 2); ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3><?php echo $summary['total_transactions'] ?? 0; ?></h3>
+                        <p>Total Transactions</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>₱<?php echo number_format($summary['total_revenue'] ?? 0, 2); ?></h3>
+                        <p>Total Revenue</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3><?php echo $summary['completed_bookings'] ?? 0; ?></h3>
+                        <p>Completed</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3><?php echo $summary['pending_bookings'] ?? 0; ?></h3>
+                        <p>Pending</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3><?php echo $summary['cancelled_bookings'] ?? 0; ?></h3>
+                        <p>Cancelled</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3><?php echo $summary['paid_bookings'] ?? 0; ?></h3>
+                        <p>Paid</p>
+                    </div>
                 </div>
                 
-                <form method="POST" class="export-form">
-                    <input type="hidden" name="export_report" value="1">
-                    <input type="hidden" name="report_type" value="revenue_by_category">
-                    <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
-                    <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
-                    <button type="submit" class="btn btn-success">
-                        📥 Export Revenue Report
-                    </button>
-                </form>
-            </div>
-            
-            <div class="report-section">
-                <h2>🔐 User Activity Reports</h2>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Email</th>
-                                <th>Type</th>
-                                <th>Login Time</th>
-                                <th>IP Address</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = $userActivityReports->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($row['user_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['email']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['user_type']); ?></td>
-                                    <td><?php echo date('M d, Y H:i', strtotime($row['login_time'])); ?></td>
-                                    <td><?php echo htmlspecialchars($row['ip_address']); ?></td>
-                                    <td><span class="status-badge status-<?php echo $row['login_status']; ?>"><?php echo $row['login_status']; ?></span></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                <!-- Transactions Table -->
+                <div class="transactions-table">
+                    <div class="table-header">
+                        <h2>
+                            <span class="material-icons-outlined">receipt_long</span>
+                            Transaction Details
+                        </h2>
+                        <div class="table-actions">
+                            <button class="btn-export" onclick="exportToCSV()">
+                                <span class="material-icons-outlined">download</span>
+                                Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <?php if (!empty($transactions)): ?>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Tour</th>
+                                        <th>Guide</th>
+                                        <th>Tour Date</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($transactions as $transaction): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($transaction['booking_reference']); ?></td>
+                                            <td><?php echo date('M d, Y H:i', strtotime($transaction['created_at'])); ?></td>
+                                            <td>
+                                                <?php echo htmlspecialchars($transaction['user_first_name'] . ' ' . $transaction['user_last_name']); ?>
+                                                <br><small style="color: var(--text-secondary);"><?php echo htmlspecialchars($transaction['user_email']); ?></small>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($transaction['tour_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($transaction['guide_name'] ?? 'N/A'); ?></td>
+                                            <td><?php echo date('M d, Y', strtotime($transaction['booking_date'])); ?></td>
+                                            <td class="amount">₱<?php echo number_format($transaction['total_amount'], 2); ?></td>
+                                            <td>
+                                                <span class="status-badge <?php echo $transaction['payment_method']; ?>">
+                                                    <?php echo htmlspecialchars($transaction['payment_status_desc']); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge <?php echo $transaction['status']; ?>">
+                                                    <?php echo ucfirst($transaction['status']); ?>
+                                                </span>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($transaction['transaction_category']); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php else: ?>
+                            <div class="no-results">
+                                <span class="material-icons-outlined">search_off</span>
+                                <h3>No transactions found</h3>
+                                <p>Try adjusting your filters to see more results</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                
-                <form method="POST" class="export-form">
-                    <input type="hidden" name="export_report" value="1">
-                    <input type="hidden" name="report_type" value="user_activity">
-                    <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
-                    <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
-                    <button type="submit" class="btn btn-success">
-                        📥 Export User Activity
-                    </button>
-                </form>
             </div>
-        </div>
+        </main>
     </div>
     
+    <script src="admin-script.js"></script>
+    <script src="admin-profile-dropdown.js"></script>
     <script>
-        // Form submission for filters - target the form by ID, not the grid div
-        document.getElementById('filter-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const params = new URLSearchParams();
+        // Export to CSV function
+        function exportToCSV() {
+            const table = document.querySelector('.data-table');
+            if (!table) return;
             
-            for (let [key, value] of formData.entries()) {
-                if (value) params.append(key, value);
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            // Get headers
+            const headers = [];
+            table.querySelectorAll('th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach(td => {
+                    // Clean up the text for CSV
+                    let text = td.textContent.trim();
+                    // Remove line breaks and extra spaces
+                    text = text.replace(/\s+/g, ' ');
+                    // Escape quotes and wrap in quotes if contains comma
+                    if (text.includes(',') || text.includes('"')) {
+                        text = '"' + text.replace(/"/g, '""') + '"';
+                    }
+                    row.push(text);
+                });
+                csv.push(row.join(','));
+            });
+            
+            // Create and download CSV file
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'transaction_reports_' + new Date().toISOString().split('T')[0] + '.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // Auto-submit form on date change (optional)
+        document.getElementById('start_date').addEventListener('change', function() {
+            if (document.getElementById('end_date').value) {
+                this.form.submit();
             }
-            
-            window.location.href = '?' + params.toString();
         });
         
-        // Auto-refresh every 5 minutes silently
-        setInterval(() => {
-            window.location.reload();
-        }, 300000);
+        document.getElementById('end_date').addEventListener('change', function() {
+            if (document.getElementById('start_date').value) {
+                this.form.submit();
+            }
+        });
     </script>
-<?php closeReportsConnection($conn); ?>
 </body>
-</html> 
+</html>
